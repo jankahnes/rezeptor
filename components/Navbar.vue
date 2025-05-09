@@ -1,6 +1,8 @@
 <template>
   <nav class="bg-[#91e996] fixed w-full z-10">
-    <div class="flex justify-between items-center px-4 max-w-7xl mx-auto h-20">
+    <div
+      class="flex justify-between items-center px-10 max-w-[2100px] mx-auto h-22"
+    >
       <!-- Logo -->
       <NuxtLink to="/">
         <div class="relative">
@@ -14,26 +16,30 @@
       <!-- Search -->
       <div class="flex items-center relative">
         <div
-          class="bg-white border-[2px] border-black px-2 py-2 flex items-center min-w-sm"
+          class="bg-white border-[2px] border-black px-2 h-11 flex items-center min-w-md shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
         >
           <Sparkle />
           <input
             type="text"
             placeholder="Chicken Parmesan"
-            class="text-sm placeholder-gray-500 bg-transparent focus:outline-none"
+            class="text-sm placeholder-gray-500 h-full w-full bg-transparent focus:outline-none"
           />
         </div>
       </div>
 
       <!-- User Buttons -->
       <div class="flex gap-2">
-        <NuxtLink to="/login"
-          class="bg-white border-[2px] border-black px-3 py-1
-           font-bold" > Login
+        <NuxtLink
+          to="/login"
+          class="bg-white border-[2px] border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        >
+          Login
         </NuxtLink>
-        <NuxtLink to="/register"
-          class="bg-black text-white border-[2px] border-black px-3 py-1
-           font-bold" > Sign Up
+        <NuxtLink
+          to="/register"
+          class="bg-black text-white border-[2px] border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        >
+          Sign Up
         </NuxtLink>
       </div>
     </div>

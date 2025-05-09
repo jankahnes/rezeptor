@@ -1,5 +1,5 @@
 <template>
-  <Navbar />
+  <span>register</span>
 </template>
 
 <script setup lang="ts"></script>
