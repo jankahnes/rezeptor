@@ -34,7 +34,9 @@
   </div>
   <!-- How It Works Section -->
   <div class="py-20 text-center">
-    <h2 class="text-3xl font-extrabold"><NuxtLink to="overview">How It Works</NuxtLink></h2>
+    <h2 class="text-3xl font-extrabold">
+      <NuxtLink to="overview">How It Works</NuxtLink>
+    </h2>
     <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
       Build your digital cookbook in three simple steps
     </p>
@@ -78,11 +80,13 @@
   </div>
   <!-- Discover Recipes Section -->
   <div class="py-20 text-center">
-    <h2 class="text-3xl font-extrabold"><NuxtLink to="recipes">Discover</NuxtLink></h2>
+    <h2 class="text-3xl font-extrabold">
+      <NuxtLink to="recipes">Discover</NuxtLink>
+    </h2>
   </div>
-  <div class="px-20 mb-20">
+  <div class="px-20 mb-10">
     <div
-      class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,minmax(480px,40vw))] lg:grid-cols-[repeat(auto-fit,minmax(560px,1fr))] justify-center max-w-[2000px] mx-auto"
+      class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,460px)] 3xl:!grid-cols-[repeat(auto-fit,560px))] justify-center max-w-[2000px] mx-auto"
     >
       <div class="flex justify-center"><RecipeCard /></div>
       <div class="flex justify-center"><RecipeCard /></div>
@@ -92,6 +96,15 @@
       <div class="flex justify-center"><RecipeCard /></div>
     </div>
   </div>
+  <div class="w-full flex justify-center mb-10">
+    <NuxtLink
+      to="/recipes"
+      class="px-5 py-2 text-xl bg-white cursor-pointer whitespace-nowrap border-2 font-bold shadow-[3px_3px_0_0_rgba(0,0,0,1)]"
+    >
+      Explore more Recipes
+    </NuxtLink>
+  </div>
+  <div class="w-[90%] h-[2px] mx-auto px-3 bg-black mb-10"></div>
 </template>
 
 <script lang="ts" setup></script>

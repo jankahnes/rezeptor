@@ -3,6 +3,8 @@
 
 @theme {
   --breakpoint-3xl: 2000px;
+  --breakpoint-xm: 1180px;
+  --breakpoint-900: 900px;
   --breakpoint-xs: 500px;
 }
 
