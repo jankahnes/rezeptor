@@ -1,7 +1,11 @@
 <template>
-  <div class="sticky w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10">
-    <h1 class="text-2xl font-bold">All Recipes</h1>
-    <div class="flex justify-between items-center flex-wrap gap-2">
+  <div
+    class="sticky top-18 xm:top-22 bg-white w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
+  >
+    <h1 class="text-2xl font-bold text-center sm:text-start">All Recipes</h1>
+    <div
+      class="flex justify-center sm:justify-between items-center flex-wrap gap-2 px-4"
+    >
       <div class="filters flex items-center gap-2">
         <button
           @click="onSelect('tags')"
@@ -66,7 +70,7 @@
         </button>
       </div>
       <div class="flex items-center gap-4">
-        <span class="hidden sm:block">Sort by:</span>
+        <span class="hidden xl:block">Sort by:</span>
         <div class="relative inline-block min-w-45">
           <button
             ref="buttonRef"
@@ -117,7 +121,7 @@
       </div>
     </div>
     <div v-if="selectedFilter">
-      <div class="relative select-none" v-if="selectedFilter == 'tags'">
+      <div class="relative select-none py-1" v-if="selectedFilter == 'tags'">
         <!-- Fade on left -->
         <div
           v-if="canScrollLeft"
@@ -214,7 +218,7 @@
         </div>
       </div>
       <div
-        class="relative select-none flex gap-2"
+        class="relative select-none flex gap-2 justify-center sm:justify-start py-[3px]"
         v-if="selectedFilter == 'effort'"
       >
         <button
@@ -228,7 +232,7 @@
         </button>
       </div>
       <div
-        class="relative select-none flex gap-2"
+        class="relative select-none flex gap-2 justify-center sm:justify-start py-[3px]"
         v-if="selectedFilter == 'difficulty'"
       >
         <button
@@ -268,7 +272,7 @@
         />
       </div>
       <div
-        class="relative py-3 select-none ml-3 mr-5 lg:mx-8"
+        class="relative py-3 select-none ml-3 mr-15 lg:mx-8"
         v-if="selectedFilter == 'cost'"
       >
         <RangeSlider
