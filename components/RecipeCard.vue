@@ -6,7 +6,7 @@
       @click="navigate"
     >
       <div class="h-full w-full sm:p-5 pt-5 px-5">
-        <img class="rounded-md" src="@/public/placeholder-dish.jpg" />
+        <img class="rounded-md" src="/placeholder-dish.jpg" />
       </div>
       <div
         class="w-full h-full sm:pt-5 pl-1 sm:pr-5 px-4 flex flex-col items-center gap-2"
@@ -74,7 +74,7 @@
           </div>
           <!-- Health Score -->
           <div class="badge flex items-center justify-center mb-3">
-            <img class="absolute h-10" src="@/public/badge-a.png" />
+            <img class="absolute h-10" src="/badge-a.png" />
             <span class="grade">B+</span>
           </div>
         </div>

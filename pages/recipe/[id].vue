@@ -1,13 +1,10 @@
 <template>
   <div
-    class="bg-[#cbffff] max-w-[85%] min-h-[80vh] mx-auto p-10 my-10 border-black border-4 shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
+    class="bg-[#cbffff] mx-3 md:mx-auto md:max-w-2xl xl:max-w-[85%] min-h-[80vh] sm:p-10 my-10 sm:border-4 sm:shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
   >
-    <div class="grid xm:grid-cols-[3fr_7fr] grid-rows-[auto_auto] gap-4">
+    <div class="grid xl:grid-cols-[3fr_7fr] grid-rows-[auto_auto] gap-4">
       <div class="flex items-center justify-center">
-        <img
-          src="@/public/placeholder-dish.jpg"
-          class="w-full h-full border-2 border-black"
-        />
+        <img src="/placeholder-dish.jpg" class="w-full h-full" />
       </div>
       <div class="p-7 flex flex-col justify-between">
         <div class="">
@@ -15,14 +12,14 @@
             <h1 class="font-extrabold text-4xl">Chicken Parmesan</h1>
             <div class="flex gap-2 items-center">
               <button
-                class="bg-white text-white border-[2px] border-black p-1 flex align-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+                class="bg-white text-white border-2 p-1 flex align-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
               >
                 <span class="text-black material-icons !text-[20px]"
                   >bookmark</span
                 >
               </button>
               <button
-                class="bg-white text-white border-[2px] border-black p-1 flex align-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+                class="bg-white text-white border-2 p-1 flex align-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
               >
                 <span class="text-black material-icons !text-[20px]"
                   >share</span
@@ -40,14 +37,14 @@
             <span class="ml-2 text-base">4.5</span>
           </div>
           <div
-            class="tag-field gap-x-2 gap-y-2 xm:mt-6 mt-10 xm:w-[70%] items-center flex flex-wrap justify-start"
+            class="tag-field gap-x-2 gap-y-2 xl:mt-6 mt-10 xl:w-[70%] items-center flex flex-wrap justify-start"
           >
             <Tag v-for="tag in tags" :key="tag" class="tag" :big="true" />
           </div>
         </div>
 
-        <div class="hidden [@media(min-width:900px)]:block">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-20 xm:pt-0 pt-8">
+        <div class="hidden [@media(min-width:600px)]:block">
+          <div class="flex justify-between xl:pt-0 pt-8">
             <div class="flex gap-4 align-center">
               <div
                 class="h-10 w-10 bg-white border-black border-1 flex items-center justify-center"
@@ -93,7 +90,7 @@
             </div>
           </div>
         </div>
-        <div class="hidden [@media(max-width:899px)]:block mt-6">
+        <div class="hidden [@media(max-width:599px)]:block mt-6">
           <div class="flex justify-between w-full">
             <div class="flex items-center gap-2">
               <span class="material-icons text-black !text-2xl">schedule</span>
@@ -115,7 +112,7 @@
       <div class="">
         <RecipeIngredientList />
       </div>
-      <div class="px-7 space-y-10 ">
+      <div class="px-2 sm:px-7 space-y-10">
         <RecipeInstructionContainer />
         <RecipeNutriCard />
       </div>

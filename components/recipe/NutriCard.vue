@@ -1,16 +1,16 @@
 <template>
   <div
-    class="xm:w-[85%] min-h-100 border-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col font-[consolas]"
+    class="xl:w-[85%] min-h-100 border-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col font-[consolas]"
   >
     <div class="flex justify-center py-3 bg-[#91e996] items-center gap-3">
       <span class="material-icons">restaurant</span>
       <h2 class="font-bold text-2xl">NutriCard</h2>
     </div>
     <div
-      class="w-full h-full flex-1 p-4 grid xm:grid-cols-[5fr_3fr] xm:gap-0 gap-5"
+      class="w-full h-full flex-1 p-4 grid xl:grid-cols-[5fr_3fr] xl:gap-0 gap-5"
     >
       <div
-        class="pr-3 xm:border-r xm:border-b-0 border-b flex flex-col items-center gap-1"
+        class="pr-3 xl:border-r xl:border-b-0 border-b flex flex-col items-center gap-1"
       >
         <h2
           class="text-xl font-bold tracking-widest px-3 border-4 border-double"
@@ -73,7 +73,7 @@
       <div class="px-4 overflow-hidden space-y-2 w-full h-full">
         <div class="flex h-20 items-center gap-3">
           <div class="badge flex items-center justify-center w-20 relative">
-            <img class="absolute h-20 w-20" src="@/public/badge-a.png" />
+            <img class="absolute h-20 w-20" src="/badge-a.png" />
             <span class="grade text-2xl z-10">B+</span>
           </div>
           <div class="">

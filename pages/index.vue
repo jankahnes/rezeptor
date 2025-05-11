@@ -1,41 +1,37 @@
 <template>
   <!-- Hero Section -->
-  <div class="px-60 bg-[#91e9956b] flex">
-    <div
-      class="mx-auto px-4 w-full sm:px-6 lg:px-1 pt-18 flex flex-shrink justify-between"
-    >
-      <div class="max-w-lg">
-        <h1
-          class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl"
+  <div class="bg-[#91e9956b] py-10 px-6 sm:px-20 lg:px-40 flex justify-between">
+    <div class="flex-col flex w-[60%] flex-grow xl:flex-grow-0">
+      <h1
+        class="text-3xl xs:text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl"
+      >
+        Your Personal Recipe Collection
+      </h1>
+      <p class="sm:block hidden mt-1 text-base md:text-xl text-gray-500">
+        Save, organize, and discover recipes. Build your digital cookbook and
+        connect with food lovers around the world.
+      </p>
+      <div class="mt-auto">
+        <NuxtLink
+          to="/register"
+          class="px-3 sm:px-8 py-3 sm:text-xl bg-white border-[2px] whitespace-nowrap border-black font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
         >
-          Your Personal Recipe Collection
-        </h1>
-        <p class="mt-6 text-xl text-gray-500">
-          Save, organize, and discover recipes. Build your digital cookbook and
-          connect with food lovers around the world.
-        </p>
-        <div class="mt-13">
-          <NuxtLink
-            to="/register"
-            class="px-8 py-3 text-xl bg-white cursor-pointer whitespace-nowrap border-[2px] border-black font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
-          >
-            Start Your Cookbook
-          </NuxtLink>
-        </div>
+          Start Your Cookbook
+        </NuxtLink>
       </div>
-      <div class="mr-30">
-        <img
-          src="@/public/chef.png"
-          alt="Jolly chef with recipe book"
-          class="h-90"
-        />
-      </div>
+    </div>
+    <div class="">
+      <img
+        src="/chef.png"
+        alt="Jolly chef with recipe book"
+        class="-mb-10 h-60 md:h-90"
+      />
     </div>
   </div>
   <!-- How It Works Section -->
-  <div class="py-20 text-center">
+  <div class="py-20 px-10 text-center">
     <h2 class="text-3xl font-extrabold">
-      <NuxtLink to="overview">How It Works</NuxtLink>
+      <NuxtLink to="overview">How It Works ></NuxtLink>
     </h2>
     <p class="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
       Build your digital cookbook in three simple steps
@@ -81,7 +77,7 @@
   <!-- Discover Recipes Section -->
   <div class="py-20 text-center">
     <h2 class="text-3xl font-extrabold">
-      <NuxtLink to="recipes">Discover</NuxtLink>
+      <NuxtLink to="recipes">Discover ></NuxtLink>
     </h2>
   </div>
   <div class="px-20 mb-10">
