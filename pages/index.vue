@@ -1,6 +1,8 @@
 <template>
   <!-- Hero Section -->
-  <div class="bg-[#91e9956b] py-10 px-6 sm:px-20 lg:px-40 flex justify-between">
+  <div
+    class="bg-[#91e9956b] py-10 px-6 sm:px-15 lg:px-40 4xl:!px-100 flex justify-between"
+  >
     <div class="flex-col flex w-[60%] flex-grow xl:flex-grow-0">
       <h1
         class="text-3xl xs:text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl"

@@ -3,9 +3,11 @@
 @import 'tailwindcss';
 
 @theme {
-  --breakpoint-3xl: 2000px;
+  --breakpoint-4xl: 2200px;
+  --breakpoint-3xl: 1921px;
   --breakpoint-xm: 860px;
   --breakpoint-xs: 500px;
+  --breakpoint-2xs: 400px;
 }
 
 .material-icons {
@@ -19,5 +21,27 @@
   white-space: nowrap;
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
-  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+}
+
+.material-icons-outlined {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

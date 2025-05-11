@@ -1,17 +1,19 @@
 <template>
-  <NuxtLink to="/recipe/1" custom v-slot="{ navigate, href }">
-    <a
-      class="w-90 sm:w-120 3xl:!w-140 min-h-100 sm:min-h-60 border-black border-3 font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2"
-      :href="href"
-      @click="navigate"
+  <NuxtLink to="/recipe/1">
+    <div
+      class="w-full 2xs:w-80 sm:w-120 3xl:!w-140 min-h-100 sm:min-h-60 2xs:border-3 font-bold 2xs:shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2"
     >
-      <div class="h-full w-full sm:p-5 pt-5 px-5">
+      <div class="p-5">
         <img class="rounded-md" src="/placeholder-dish.jpg" />
       </div>
       <div
         class="w-full h-full sm:pt-5 pl-1 sm:pr-5 px-4 flex flex-col items-center gap-2"
       >
-        <h1 class="text-center font-extrabold text-xl">Chicken Parmesan</h1>
+        <h1
+          class="text-center font-extrabold leading-none tracking-tight text-[24px]"
+        >
+          Chicken Parmesan
+        </h1>
         <div class="stars flex justify-center text-xl pb-2">
           <span class="text-[#91e996] material-icons">star</span>
           <span class="text-[#91e996] material-icons">star</span>
@@ -74,12 +76,12 @@
           </div>
           <!-- Health Score -->
           <div class="badge flex items-center justify-center mb-3">
-            <img class="absolute h-10" src="/badge-a.png" />
+            <img class="absolute h-10 z-3" src="/badge-a.png" />
             <span class="grade">B+</span>
           </div>
         </div>
       </div>
-    </a>
+    </div>
   </NuxtLink>
 </template>
 
