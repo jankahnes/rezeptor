@@ -5,7 +5,7 @@
   >
     <div class="flex-col flex w-[60%] flex-grow xl:flex-grow-0">
       <h1
-        class="text-3xl xs:text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl"
+        class="text-3xl xs:text-4xl font-extrabold md:text-5xl lg:text-6xl tracking-tight md:tracking-wide"
       >
         Your Personal Recipe Collection
       </h1>
@@ -13,7 +13,7 @@
         Save, organize, and discover recipes. Build your digital cookbook and
         connect with food lovers around the world.
       </p>
-      <div class="mt-auto">
+      <div class="mt-auto -mb-2">
         <NuxtLink
           to="/register"
           class="px-3 sm:px-8 py-3 sm:text-xl bg-white border-[2px] whitespace-nowrap border-black font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
@@ -26,12 +26,12 @@
       <img
         src="/chef.png"
         alt="Jolly chef with recipe book"
-        class="-mb-10 h-60 md:h-90"
+        class="-mb-10 h-62 md:h-92"
       />
     </div>
   </div>
   <!-- How It Works Section -->
-  <div class="py-20 px-10 text-center">
+  <div class="py-10 sm:py-20 px-10 text-center">
     <h2 class="text-3xl font-extrabold">
       <NuxtLink to="overview">How It Works ></NuxtLink>
     </h2>
@@ -77,7 +77,7 @@
     </div>
   </div>
   <!-- Discover Recipes Section -->
-  <div class="py-20 text-center">
+  <div class="py-10 sm:py-20 text-center">
     <h2 class="text-3xl font-extrabold">
       <NuxtLink to="recipes">Discover ></NuxtLink>
     </h2>

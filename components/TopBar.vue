@@ -7,7 +7,7 @@
       <NuxtLink to="/">
         <div class="relative">
           <div
-            class="flex bg-white border-3 border-black px-3 py-1 text-2xl font-bold shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+            class="flex bg-white border-3 border-black px-3 py-1 text-2xl font-extrabold shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
           >
             Rezeptor
           </div>

@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-white fixed bottom-0 w-full z-10 p-3 border-t-3 h-18 flex">
+  <nav class="bg-gray-50 fixed bottom-0 w-full z-10 p-3 border-t-3 h-18 flex">
     <div class="flex justify-between items-center w-full mx-3 xs:mx-12">
       <NuxtLink to="/" class="flex">
         <span class="material-symbols-outlined !text-3xl"> home </span>

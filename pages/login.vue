@@ -12,7 +12,7 @@
       ><input class="py-2 flex-grow focus:outline-none" placeholder="Password" />
     </div>
     <span class="text-sm font-light my-2">OR</span>
-    <button class="flex w-80 border p-2 gap-10">
+    <button class="flex w-80 border p-2 gap-2">
       <img src="/google.svg" class="w-6 h-6"></img
       ><span>Sign in with Google</span>
     </button>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-[#cbffff] mx-3 md:mx-auto md:max-w-2xl xl:max-w-[85%] min-h-[80vh] sm:p-10 my-10 sm:border-4 sm:shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
+    class="sm:bg-[#cbffff] mx-3 md:mx-auto md:max-w-2xl xl:max-w-[85%] min-h-[80vh] sm:p-10 my-10 sm:border-4 sm:shadow-[6px_6px_0_0_rgba(0,0,0,1)]"
   >
     <div class="grid xl:grid-cols-[3fr_7fr] grid-rows-[auto_auto] gap-4">
       <div class="flex items-center justify-center">

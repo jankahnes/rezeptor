@@ -2,9 +2,9 @@
   <div
     class="sticky top-18 xm:top-22 bg-white w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
   >
-    <h1 class="text-2xl font-bold text-center sm:text-start">All Recipes</h1>
+    <h1 class="hidden md:block text-2xl font-bold text-center sm:text-start">All Recipes</h1>
     <div
-      class="flex justify-center sm:justify-between items-center flex-wrap gap-2 px-4"
+      class="flex justify-center sm:justify-between items-center flex-wrap gap-2"
     >
       <div class="filters flex items-center gap-2">
         <button
@@ -246,7 +246,7 @@
         </button>
       </div>
       <div
-        class="relative py-3 select-none ml-3 mr-5 lg:mx-8"
+        class="relative py-3 select-none ml-3 mr-5 lg:mx-3"
         v-if="selectedFilter == 'health'"
       >
         <RangeSlider
@@ -259,7 +259,7 @@
         />
       </div>
       <div
-        class="relative py-3 select-none ml-3 mr-10 lg:mx-8"
+        class="relative py-3 select-none ml-3 mr-10 lg:mx-3"
         v-if="selectedFilter == 'kcal'"
       >
         <RangeSlider
@@ -272,7 +272,7 @@
         />
       </div>
       <div
-        class="relative py-3 select-none ml-3 mr-15 lg:mx-8"
+        class="relative py-3 select-none ml-3 mr-15 lg:mx-3"
         v-if="selectedFilter == 'cost'"
       >
         <RangeSlider
@@ -305,7 +305,7 @@
   >
     <div class="flex flex-col justify-center items-center">
       <RecipeCard />
-      <div class="2xs:hidden mt-2 w-[90%] h-[1px] bg-black"></div>
+      <div class="xs:hidden mt-2 w-[90%] h-[1px] bg-black"></div>
     </div>
 
     <div class="flex justify-center items-center"><RecipeCard /></div>
@@ -437,6 +437,12 @@ function checkScroll() {
 function removeTag(index: number) {
   if (tags.value[index].startsWith('Health Score')) {
     healthScoreRange.value = [0, 12];
+  }
+  else if (tags.value[index].startsWith('Kcal')) {
+    kcalRange.value = [10, 2500];
+  }
+  else if (tags.value[index].startsWith('Cost')) {
+    costRange.value = [1, 200];
   }
   tags.value.splice(index, 1);
 }

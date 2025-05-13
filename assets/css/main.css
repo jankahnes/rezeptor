@@ -10,6 +10,12 @@
   --breakpoint-2xs: 400px;
 }
 
+@layer base {
+  html {
+    letter-spacing: 0.05em;
+  }
+}
+
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;
