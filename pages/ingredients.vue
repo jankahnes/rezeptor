@@ -8,7 +8,10 @@
       >
         RDB
       </div>
-      <h1 class="text-xl font-bold">Foods & Products Database</h1>
+      <h1 class="hidden sm:block text-xl font-bold">
+        Foods & Products Database
+      </h1>
+      <h1 class="sm:hidden text-xl font-bold">Foods Database</h1>
     </div>
     <div class="flex gap-4 w-full">
       <div
@@ -65,7 +68,7 @@
       :onClick="onClickFood"
     />
     <IngredientsSingleView v-if="currentView == 1" :food="selectedIngredient" />
-    <IngredientsScannerView v-if="currentView == 2" />
+    <IngredientsScannerView v-if="currentView == 2" :onDecode="onDecode" />
     <IngredientsCreateView v-if="currentView == 3" />
   </div>
 </template>
@@ -110,8 +113,14 @@ const searchResults = ref([
   { name: 'w' },
 ]);
 
-function onClickFood(food) {
+function onClickFood(food: Object) {
   selectedIngredient.value = food;
+  currentView.value = 1;
+}
+
+function onDecode(code: String) {
+  console.log('decoded.');
+  selectedIngredient.value = { name: code };
   currentView.value = 1;
 }
 </script>
