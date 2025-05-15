@@ -34,8 +34,14 @@ onMounted(async () => {
   codeReader = new BrowserMultiFormatReader();
 
   try {
+    await navigator.mediaDevices.getUserMedia({ video: true });
     const devices = await BrowserMultiFormatReader.listVideoInputDevices();
-    const deviceId = devices[0]?.deviceId;
+    const rearCamera = devices.find(
+      (d) =>
+        d.label.toLowerCase().includes('back') ||
+        d.label.toLowerCase().includes('rear')
+    );
+    const deviceId = rearCamera?.deviceId || devices[0]?.deviceId;
 
     controls = await codeReader.decodeFromVideoDevice(
       deviceId,

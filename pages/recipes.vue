@@ -2,7 +2,9 @@
   <div
     class="sticky top-18 xm:top-22 bg-white w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
   >
-    <h1 class="hidden md:block text-2xl font-bold text-center sm:text-start">All Recipes</h1>
+    <h1 class="hidden md:block text-2xl font-bold text-center sm:text-start">
+      All Recipes
+    </h1>
     <div
       class="flex justify-center sm:justify-between items-center flex-wrap gap-2"
     >
@@ -72,51 +74,11 @@
       <div class="flex items-center gap-4">
         <span class="hidden xl:block">Sort by:</span>
         <div class="relative inline-block min-w-45">
-          <button
-            ref="buttonRef"
-            @click.stop="toggle"
-            :aria-expanded="isOpen.toString()"
-            class="flex items-center bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] justify-between z-10 relative w-full"
-          >
-            <span>{{ selectedSorting }}</span>
-            <span
-              class="material-symbols-outlined transition-transform duration-300"
-              :class="{ 'rotate-180': isOpen }"
-            >
-              keyboard_arrow_down
-            </span>
-          </button>
-
-          <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave">
-            <div
-              v-if="isOpen"
-              ref="panelRef"
-              class="absolute top-full left-0 w-full border-2 border-t-0 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] z-20 overflow-hidden"
-            >
-              <ul class="">
-                <li
-                  v-for="sort in sorts"
-                  class="p-2 hover:bg-gray-200 cursor-pointer"
-                >
-                  <button
-                    v-if="selectedSorting == sort"
-                    class="flex w-full h-full items-center justify-between"
-                    @click="selectedSorting = sort"
-                  >
-                    <span class="font-bold">{{ sort }}</span>
-                    <span class="material-symbols-outlined"> check </span>
-                  </button>
-                  <button
-                    v-else
-                    class="flex items-center w-full h-full"
-                    @click="selectedSorting = sort"
-                  >
-                    <span>{{ sort }}</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </Transition>
+          <FormsDropdown
+            v-model="selectedSorting"
+            :choices="sorts"
+            :thin="false"
+          ></FormsDropdown>
         </div>
       </div>
     </div>
@@ -249,7 +211,7 @@
         class="relative py-3 select-none ml-3 mr-5 lg:mx-3"
         v-if="selectedFilter == 'health'"
       >
-        <RangeSlider
+        <FormsRangeSlider
           v-model="healthScoreRange"
           :min="0"
           :max="12"
@@ -262,7 +224,7 @@
         class="relative py-3 select-none ml-3 mr-10 lg:mx-3"
         v-if="selectedFilter == 'kcal'"
       >
-        <RangeSlider
+        <FormsRangeSlider
           v-model="kcalRange"
           :min="10"
           :max="2500"
@@ -275,7 +237,7 @@
         class="relative py-3 select-none ml-3 mr-15 lg:mx-3"
         v-if="selectedFilter == 'cost'"
       >
-        <RangeSlider
+        <FormsRangeSlider
           v-model="costRange"
           :min="1"
           :max="200"
@@ -323,9 +285,7 @@
 
 <script setup lang="ts">
 const scrollContainer = ref<HTMLDivElement | null>(null);
-const isOpen = ref(false);
-const buttonRef = ref(null);
-const panelRef = ref(null);
+
 const tags = ref([]);
 const sampleTags = {
   nutritional: [
@@ -359,26 +319,6 @@ const sorts = ref([
   'Alphabetical',
 ]);
 
-const toggle = () => {
-  isOpen.value = !isOpen.value;
-};
-
-const handleClickOutside = (e) => {
-  if (
-    !buttonRef.value.contains(e.target) &&
-    !panelRef.value.contains(e.target)
-  ) {
-    isOpen.value = false;
-  }
-};
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside);
-});
 function getGradeFormat(index: number): string {
   const grades = [
     'F',
@@ -437,11 +377,9 @@ function checkScroll() {
 function removeTag(index: number) {
   if (tags.value[index].startsWith('Health Score')) {
     healthScoreRange.value = [0, 12];
-  }
-  else if (tags.value[index].startsWith('Kcal')) {
+  } else if (tags.value[index].startsWith('Kcal')) {
     kcalRange.value = [10, 2500];
-  }
-  else if (tags.value[index].startsWith('Cost')) {
+  } else if (tags.value[index].startsWith('Cost')) {
     costRange.value = [1, 200];
   }
   tags.value.splice(index, 1);
@@ -498,21 +436,6 @@ function onWheel(e: WheelEvent) {
   if (!el || !e.deltaY) return;
   e.preventDefault();
   el.scrollLeft += e.deltaY;
-}
-
-function beforeEnter(el) {
-  el.style.height = '0px';
-}
-function enter(el) {
-  const height = el.scrollHeight;
-  el.style.transition = 'height 300ms ease';
-  requestAnimationFrame(() => {
-    el.style.height = height + 'px';
-  });
-}
-function leave(el) {
-  el.style.transition = 'height 300ms ease';
-  el.style.height = '0px';
 }
 </script>
 
