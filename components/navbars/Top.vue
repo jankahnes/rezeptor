@@ -30,7 +30,15 @@
       </div>
 
       <!-- User Buttons -->
-      <div class="hidden xm:flex gap-2">
+      <div class="hidden xm:flex items-center gap-2">
+        <NuxtLink
+          to="/profile/1"
+          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        >
+          <span class="material-symbols-outlined !text-3xl">
+            account_circle
+          </span>
+        </NuxtLink>
         <NuxtLink
           to="/login"
           class="bg-white border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-18 xm:top-22 bg-white w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
+    class="sticky top-18 xm:top-22 bg-gray-50 w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
   >
     <h1 class="hidden md:block text-2xl font-bold text-center sm:text-start">
       All Recipes

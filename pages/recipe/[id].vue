@@ -110,14 +110,14 @@
         </div>
       </div>
       <div class="">
-        <RecipeIngredientList />
+        <PagesRecipeIngredientList />
       </div>
       <div class="px-2 sm:px-7 space-y-10">
-        <RecipeInstructionContainer />
-        <RecipeNutriCard />
+        <PagesRecipeInstructionContainer />
+        <PagesRecipeNutriCard />
       </div>
     </div>
-    <RecipeCommentSection />
+    <PagesRecipeCommentSection />
   </div>
 </template>
 

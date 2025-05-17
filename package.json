@@ -12,8 +12,10 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.5",
     "@tailwindcss/vite": "^4.1.5",
+    "@vueuse/core": "^13.2.0",
     "@zxing/browser": "^0.1.5",
     "nuxt": "^3.17.2",
+    "openai": "^4.100.0",
     "tailwindcss": "^4.1.5",
     "vue": "^3.5.13",
     "vue-router": "^4.5.1"

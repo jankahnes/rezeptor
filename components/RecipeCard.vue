@@ -1,7 +1,7 @@
 <template>
   <NuxtLink to="/recipe/1">
     <div
-      class="w-full xs:w-80 sm:w-120 3xl:!w-140 min-h-100 sm:min-h-60 xs:border-3 font-bold xs:shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2"
+      class="w-full xs:w-80 sm:w-120 min-h-100 sm:min-h-60 xs:border-3 font-bold xs:shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2"
     >
       <div class="p-5">
         <img class="rounded-md" src="/placeholder-dish.jpg" />

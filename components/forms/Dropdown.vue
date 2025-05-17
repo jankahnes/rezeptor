@@ -24,7 +24,10 @@
         :class="{ 'shadow-none !border-1': thin }"
       >
         <ul class="">
-          <li v-for="choice in choices" class="hover:bg-gray-200 cursor-pointer">
+          <li
+            v-for="choice in choices"
+            class="hover:bg-gray-200 cursor-pointer"
+          >
             <button
               v-if="modelValue == choice"
               class="flex w-full h-full items-center justify-between p-2"
@@ -71,8 +74,6 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const handleClickOutside = (e) => {
-  console.log(buttonRef.value.contains(e.target));
-  console.log(panelRef.value?.contains(e.target));
   if (
     !buttonRef.value.contains(e.target) &&
     !panelRef.value?.contains(e.target)

@@ -43,9 +43,11 @@
     <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
       <div class="flex flex-col items-center">
         <div
-          class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 text-[40px]"
+          class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="material-icons text-[#91e996]">add</span>
+          <span class="text-4xl material-icons-outlined text-[#91e996]"
+            >add</span
+          >
         </div>
         <h3 class="text-xl font-medium text-gray-900">Save Recipes</h3>
         <p class="mt-2 text-gray-500 text-center">
@@ -54,9 +56,11 @@
       </div>
       <div class="flex flex-col items-center">
         <div
-          class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 text-[30px]"
+          class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="text-4xl material-icons text-[#91e996]">sell</span>
+          <span class="text-3xl material-icons-outlined text-[#91e996]"
+            >sell</span
+          >
         </div>
         <h3 class="text-xl font-medium">Organize & Tag</h3>
         <p class="mt-2 text-base text-gray-500 text-center">
@@ -65,9 +69,11 @@
       </div>
       <div class="flex flex-col items-center">
         <div
-          class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 text-[30px]"
+          class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="text-2xl material-icons text-[#91e996]">analytics</span>
+          <span class="text-3xl material-icons-outlined text-[#91e996]"
+            >analytics</span
+          >
         </div>
         <h3 class="text-xl font-medium">Track Ingredients</h3>
         <p class="mt-2 text-base text-gray-500 text-center">
@@ -84,7 +90,7 @@
   </div>
   <div class="px-20 mb-10">
     <div
-      class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,460px)] 3xl:!grid-cols-[repeat(auto-fit,560px))] justify-center max-w-[2000px] mx-auto"
+      class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,460px)] justify-center max-w-[2000px] mx-auto"
     >
       <div class="flex justify-center"><RecipeCard /></div>
       <div class="flex justify-center"><RecipeCard /></div>

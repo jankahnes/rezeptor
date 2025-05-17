@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-2 p-3 flex flex-col w-full h-[55vh] overflow-y-auto">
+  <div class="mt-2 p-3 flex flex-col max-h-[calc(100svh_-_370px)] overflow-y-auto">
     <div class="flex justify-between items-center mt-2">
       <h2 class="sticky t-0 text-2xl font-bold">{{ food.name }}</h2>
       <button class="flex bg-white font-bold items-center justify-end gap-2">

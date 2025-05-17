@@ -1,6 +1,6 @@
 <template>
   <div
-    class="px-10 pt-10 m-auto flex flex-col items-center lg:w-[1000px] w-full"
+    class="px-5 sm:px-10 pt-10 m-auto flex flex-col items-center lg:w-[1000px] w-full"
   >
     <div class="flex gap-2 items-center">
       <span class="material-symbols-outlined mt-1"> stars_2 </span>

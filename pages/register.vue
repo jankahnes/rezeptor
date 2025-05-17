@@ -1,6 +1,7 @@
   <template>
+    <div class="pt-20">
   <div
-    class="mx-auto mt-20 sm:w-[500px] sm:border-2 sm:shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col items-center p-10"
+    class="mx-auto sm:w-[500px] sm:border-2 sm:shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col items-center p-10"
   >
     <h1 class="text-3xl font-bold">Register</h1>
     <div class="flex w-80 border gap-2 pl-2 mt-4 items-center">
@@ -21,7 +22,7 @@
       <span class="material-symbols-outlined"> crowdsource </span
       ><input class="py-2 flex-grow focus:outline-none" placeholder="Create a Public Account" />
     </div>
-  </div>
+  </div></div>
 </template>
 
 

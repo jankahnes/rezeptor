@@ -1,6 +1,6 @@
 <template>
-  <div class="scanner-view">
-    <div v-if="scannedCode" class="scanner-result">
+  <div class="relative w-full h-[calc(100svh_-_370px)] p-5">
+    <div v-if="scannedCode" class="text-xl font-bold text-center">
       Code scanned: {{ scannedCode }}
     </div>
     <video
@@ -9,7 +9,7 @@
       autoplay
       playsinline
       muted
-      class="scanner-video"
+      class="w-full h-full object-cover"
     />
   </div>
 </template>
@@ -34,7 +34,6 @@ onMounted(async () => {
   codeReader = new BrowserMultiFormatReader();
 
   try {
-    await navigator.mediaDevices.getUserMedia({ video: true });
     const devices = await BrowserMultiFormatReader.listVideoInputDevices();
     const rearCamera = devices.find(
       (d) =>
@@ -63,27 +62,3 @@ onUnmounted(() => {
   controls?.stop();
 });
 </script>
-
-<style scoped>
-.scanner-view {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.scanner-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.scanner-result {
-  font-size: 1.25rem;
-  font-weight: bold;
-  text-align: center;
-}
-</style>
