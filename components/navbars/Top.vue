@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-[#91e996] fixed w-full z-30">
+  <nav class="fixed w-full z-30">
     <div
       class="flex justify-between items-center px-10 max-w-[2100px] mx-auto h-18 xm:h-22"
     >
@@ -31,6 +31,24 @@
 
       <!-- User Buttons -->
       <div class="hidden xm:flex items-center gap-2">
+        <NuxtLink
+          to="/recipes"
+          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        >
+          <span class="material-symbols-outlined !text-3xl"> book </span>
+        </NuxtLink>
+        <NuxtLink
+          to="/ingredients"
+          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        >
+          <span class="material-symbols-outlined !text-3xl"> grocery </span>
+        </NuxtLink>
+        <NuxtLink
+          to="/create-recipe"
+          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        >
+          <span class="material-symbols-outlined !text-3xl"> add </span>
+        </NuxtLink>
         <NuxtLink
           to="/profile/1"
           class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
@@ -64,4 +82,20 @@
 
 <script setup lang="ts"></script>
 
-<style scoped></style>
+<style scoped>
+nav {
+  background: linear-gradient(
+    135deg,
+    #ebe3d4 0%,
+    #f0eade 10%,
+    #f5efe2 15%,
+    #f0e8d8 30%,
+    #f3ebd7 37%,
+    #eee9e0 45%,
+    #f4edde 60%,
+    #ece8df 75%,
+    #f1ece1 90%,
+    #f0ebe0 100%
+  );
+}
+</style>

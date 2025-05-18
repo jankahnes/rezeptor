@@ -12,11 +12,18 @@
         />
       </div>
       <button
-        class="flex bg-white h-10 border-2 border-black px-2 text-xl font-extrabold shadow-[2px_2px_0_0_rgba(0,0,0,1)] items-center justify-center gap-2"
+        class="relative h-10 rounded-xl p-[2px] overflow-hidden"
+        :class="{ loading: loading }"
         @click="autocomplete()"
       >
-        <span class="material-symbols-outlined"> wand_stars </span>
-        <span>AI</span>
+        <FormsAIBorder class="rounded-xl" :spinning="loading" />
+
+        <span
+          class="relative flex bg-white rounded-[10px] h-full w-full items-center justify-center gap-2 px-4 text-xl font-extrabold"
+        >
+          <span class="material-symbols-outlined">wand_stars</span>
+          <span>AI</span>
+        </span>
       </button>
     </div>
     <div class="grid xl:grid-cols-2 grid-cols-1 py-4">
@@ -39,35 +46,98 @@
 
           <div class="flex items-center gap-4">
             <span class="w-29">Kcal</span>
-            <input class="border px-1 w-16" v-model="food.kcal" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input v-else class="border px-1 w-16 target" v-model="food.kcal"
+            /></transition>
           </div>
           <div class="flex items-center gap-4">
             <span class="w-29">Carbs</span>
-            <input class="border px-1 w-16" v-model="food.carbohydrates" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input
+                v-else
+                class="border px-1 w-16 target"
+                v-model="food.carbohydrates"
+            /></transition>
           </div>
           <div class="flex items-center gap-4">
             <span class="w-29">Protein</span>
-            <input class="border px-1 w-16" v-model="food.protein" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input
+                v-else
+                class="border px-1 w-16 target"
+                v-model="food.protein"
+            /></transition>
           </div>
           <div class="flex items-center gap-4">
             <span class="w-29">Fat</span>
-            <input class="border px-1 w-16" v-model="food.fat" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input v-else class="border px-1 w-16 target" v-model="food.fat"
+            /></transition>
           </div>
           <div class="flex items-center gap-4">
             <span class="w-29">Saturated Fat</span>
-            <input class="border px-1 w-16" v-model="food.saturated_fat" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input
+                v-else
+                class="border px-1 w-16 target"
+                v-model="food.saturated_fat"
+            /></transition>
           </div>
           <div class="flex items-center gap-4">
             <span class="w-29">Sugar</span>
-            <input class="border px-1 w-16" v-model="food.sugar" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input
+                v-else
+                class="border px-1 w-16 target"
+                v-model="food.sugar"
+            /></transition>
           </div>
           <div class="flex items-center gap-4">
             <span class="w-29">Fiber</span>
-            <input class="border px-1 w-16" v-model="food.fiber" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input
+                v-else
+                class="border px-1 w-16 target"
+                v-model="food.fiber"
+            /></transition>
           </div>
           <div class="flex items-center gap-4">
             <span class="w-29">Salt</span>
-            <input class="border px-1 w-16" v-model="food.salt" />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input v-else class="border px-1 w-16 target" v-model="food.salt"
+            /></transition>
           </div>
         </div>
       </div>
@@ -78,19 +148,35 @@
 
           <div class="flex gap-3 whitespace-nowrap">
             <span class="hidden md:block">You pay</span>
-            <div
-              class="text-sm md:text-base border w-16 md:w-20 flex items-center px-1 md:px-2 gap-2"
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-16 md:w-20 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <div
+                v-else
+                class="text-sm md:text-base border w-16 md:w-20 flex items-center px-1 md:px-2 gap-2 target"
+              >
+                <input
+                  class="w-[90%] focus:outline-none"
+                  v-model="priceValue"
+                />
+                <span>€</span>
+              </div></transition
             >
-              <input class="w-[90%] focus:outline-none" v-model="priceValue" />
-              <span>€</span>
-            </div>
             <span class="hidden md:block">for</span>
             <span class="md:hidden">/</span>
-            <input
-              class="focus:outline-none px-2 border w-13 md:w-20"
-              :placeholder="isMdUp ? 'Amount' : 'Amt'"
-              v-model="priceAmount"
-            />
+            <transition name="fade" mode="out-in">
+              <FormsSkeleton
+                v-if="loading"
+                class="w-13 md:w-20 border h-[26px] p-[3px]"
+              ></FormsSkeleton>
+              <input
+                v-else
+                class="focus:outline-none px-2 border w-13 md:w-20 target"
+                :placeholder="isMdUp ? 'Amount' : 'Amt'"
+                v-model="priceAmount"
+            /></transition>
             <div class="relative inline-block min-w-10">
               <FormsDropdown
                 v-model="priceSelectedUnit"
@@ -102,27 +188,45 @@
         </div>
         <div class="flex items-center gap-4">
           <span class="w-25">Vegan</span>
-          <input
-            type="checkbox"
-            class="form-checkbox h-5 w-5 text-blue-600"
-            v-model="food.vegan"
-          />
+          <transition name="fade" mode="out-in">
+            <FormsSkeleton
+              v-if="loading"
+              class="h-5 w-5 border border-gray-500 rounded-xs p-[1px]"
+            ></FormsSkeleton>
+            <input
+              v-else
+              type="checkbox"
+              class="form-checkbox h-5 w-5 text-blue-600 target"
+              v-model="food.vegan"
+          /></transition>
         </div>
         <div class="flex items-center gap-4">
           <span class="w-25">Vegetarian</span>
-          <input
-            type="checkbox"
-            class="form-checkbox h-5 w-5 text-blue-600"
-            v-model="food.vegetarian"
-          />
+          <transition name="fade" mode="out-in">
+            <FormsSkeleton
+              v-if="loading"
+              class="h-5 w-5 border border-gray-500 rounded-xs p-[1px]"
+            ></FormsSkeleton>
+            <input
+              v-else
+              type="checkbox"
+              class="form-checkbox h-5 w-5 text-blue-600 target"
+              v-model="food.vegetarian"
+          /></transition>
         </div>
         <div class="flex items-center gap-4">
           <span class="w-25">Gluten-Free</span>
-          <input
-            type="checkbox"
-            class="form-checkbox h-5 w-5 text-blue-600"
-            v-model="food.gluten_free"
-          />
+          <transition name="fade" mode="out-in">
+            <FormsSkeleton
+              v-if="loading"
+              class="h-5 w-5 border border-gray-500 rounded-xs p-[1px]"
+            ></FormsSkeleton>
+            <input
+              v-else
+              type="checkbox"
+              class="form-checkbox h-5 w-5 text-blue-600 target"
+              v-model="food.gluten_free"
+          /></transition>
         </div>
         <div class="flex items-center gap-4 mb-16">
           <span class="w-25 flex items-center gap-2"
@@ -130,16 +234,22 @@
               info
             </span></span
           >
-          <div class="relative inline-block min-w-25">
-            <FormsMultiChoiceDropdown
-              v-model="food.measurements"
-              :choices="unitClasses"
-              :thin="true"
-            />
-          </div>
+          <transition name="fade" mode="out-in">
+            <FormsSkeleton
+              v-if="loading"
+              class="h-[26px] w-25 border border-gray-500 rounded-xs p-[3px]"
+            ></FormsSkeleton>
+            <div v-else class="relative inline-block min-w-25 target">
+              <FormsMultiChoiceDropdown
+                v-model="food.measurements"
+                :choices="unitClasses"
+                :thin="true"
+              /></div
+          ></transition>
         </div>
         <button
           class="bg-white h-8 border-1 border-black w-50 text-lg font-extrabold shadow-[1px_1px_0_0_rgba(0,0,0,1)] items-center justify-center gap-2"
+          @click="submit"
         >
           <span>Submit</span>
         </button>
@@ -150,7 +260,7 @@
 
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core';
-import gptIngredientAutocomplete from '~/utils/gptIngredientAutocomplete';
+import { useSupabase } from '~/composables/useSupabase';
 const isMdUp = useMediaQuery('(min-width: 768px)');
 const food = ref({
   name: '',
@@ -170,6 +280,23 @@ const food = ref({
   density: null,
   piece_weight: null,
 });
+const customAttrs = [
+  'name',
+  'kcal',
+  'protein',
+  'carbohydrates',
+  'salt',
+  'fiber',
+  'saturated_fat',
+  'fat',
+  'sugar',
+  'vegan',
+  'vegetarian',
+  'gluten_free',
+  'measurements',
+  'avg_price',
+];
+const hiddenAttrs = ['density', 'piece_weight'];
 const choices = [
   ['Generic', 'grocery'],
   ['Branded', 'storefront'],
@@ -180,10 +307,14 @@ const unitClasses = ['Weight', 'Volume', 'Pieces'];
 const priceValue = ref(null);
 const priceAmount = ref(null);
 const priceSelectedUnit = ref('g');
+const loading = ref(false);
 
 async function autocomplete() {
+  loading.value = true;
   if (food.value.name) {
+    loading.value = true;
     const gptResponse = await gptIngredientAutocomplete(food.value.name);
+    loading.value = false;
     for (const key in gptResponse) {
       if (
         food.value[key] === null ||
@@ -199,6 +330,52 @@ async function autocomplete() {
     priceSelectedUnit.value = 'g';
   }
 }
+
+async function submit() {
+  for (const key in customAttrs) {
+    if (
+      food.value[key] === null ||
+      food.value[key] === '' ||
+      food.value[key]?.length == 0 ||
+      food.value[key] === false
+    ) {
+      console.log('All fields must be filled.');
+      return;
+    }
+  }
+  const hiddenAttrsResponse = await gptGetHiddenAttrs(food.value.name);
+  for (const key in hiddenAttrsResponse) {
+    food.value[key] = hiddenAttrsResponse[key];
+  }
+  food.value.avg_price = getPricePer100(
+    food.value,
+    priceValue.value,
+    priceAmount.value,
+    priceSelectedUnit.value
+  );
+  console.log(food.value);
+  const supabase = useSupabase();
+  const { data, error } = await supabase.from('foods').insert(food.value);
+  if (error) {
+    console.error('Upload failed:', error);
+  } else {
+    console.log('Row inserted:', data);
+  }
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-enter-active {
+  transition: all 0.3s ease;
+}
+.fade-enter-from.target {
+  opacity: 0;
+  transform: translateX(1px);
+  transform: translateY(1px);
+}
+.fade-leave-to.target {
+  opacity: 0;
+  transform: translateX(-1px);
+  transform: translateY(-1px);
+}
+</style>

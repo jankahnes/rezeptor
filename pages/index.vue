@@ -1,7 +1,7 @@
 <template>
   <!-- Hero Section -->
   <div
-    class="bg-[#91e9956b] py-10 px-6 sm:px-15 lg:px-40 4xl:!px-100 flex justify-between"
+    class="bg-[#a594ca1f] py-10 px-6 md:px-30 lg:px-50 4xl:!px-100 flex justify-between md:w-[120%] md:ml-[-10%] 3xl:!w-[134%] 3xl:!ml-[-17%] gradient"
   >
     <div class="flex-col flex w-[60%] flex-grow xl:flex-grow-0">
       <h1
@@ -26,7 +26,7 @@
       <img
         src="/chef.png"
         alt="Jolly chef with recipe book"
-        class="-mb-10 h-62 md:h-92"
+        class="-mb-10 h-62 md:h-92 mask-fade-bottom"
       />
     </div>
   </div>
@@ -45,7 +45,7 @@
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="text-4xl material-icons-outlined text-[#91e996]"
+          <span class="text-4xl material-icons-outlined text-black"
             >add</span
           >
         </div>
@@ -58,7 +58,7 @@
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="text-3xl material-icons-outlined text-[#91e996]"
+          <span class="text-3xl material-icons-outlined text-black"
             >sell</span
           >
         </div>
@@ -71,7 +71,7 @@
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="text-3xl material-icons-outlined text-[#91e996]"
+          <span class="text-3xl material-icons-outlined text-black"
             >analytics</span
           >
         </div>
@@ -113,4 +113,19 @@
 
 <script lang="ts" setup></script>
 
-<style scoped></style>
+<style>
+.gradient {
+  background: linear-gradient(
+    180deg,
+    #e9dfc6a8 0%,
+    #a594ca0e 50%,
+    #ffffff00 100%
+  );
+}
+
+
+.mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+}
+</style>

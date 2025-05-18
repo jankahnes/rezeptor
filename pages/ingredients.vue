@@ -22,6 +22,7 @@
           ><input
             class="py-2 flex-grow focus:outline-none"
             placeholder="Search in Database"
+            v-model="searchQuery"
           />
         </div>
         <button
@@ -67,7 +68,7 @@
       </div>
       <PagesIngredientsListView
         v-if="currentView == 0"
-        :ingredientList="searchResults"
+        :foodList="searchResults"
         :onClick="onClickFood"
       />
       <PagesIngredientsSingleView
@@ -86,42 +87,8 @@
 <script setup lang="ts">
 const currentView = ref(0);
 const selectedIngredient = ref({});
-const searchResults = ref([
-  {
-    name: 'Banana',
-    kcal: 89,
-    carbs: 22.8,
-    protein: 1.1,
-    fat: 0.3,
-    sugar: 12.2,
-    fiber: 2.6,
-    salt: 0.0,
-    price: 0.25,
-  },
-  {
-    name: 'Grilled Chicken Breasttttttttttt',
-    kcal: 165,
-    carbs: 0.0,
-    protein: 31.0,
-    fat: 3.6,
-    sugar: 0.0,
-    fiber: 0.0,
-    salt: 0.4,
-    price: 2.5,
-  },
-  {
-    name: 'Whole Wheat Bread',
-    kcal: 247,
-    carbs: 41.0,
-    protein: 13.0,
-    fat: 4.2,
-    sugar: 5.0,
-    fiber: 6.0,
-    salt: 0.5,
-    price: 0.4,
-  },
-  { name: 'w' },
-]);
+const searchQuery = ref('');
+const searchResults = ref([]);
 
 function onClickFood(food: Object) {
   selectedIngredient.value = food;
@@ -129,10 +96,29 @@ function onClickFood(food: Object) {
 }
 
 function onDecode(code: String) {
-  console.log('decoded.');
   selectedIngredient.value = { name: code };
   currentView.value = 1;
 }
+
+async function searchFoods(query) {
+  if (!query) return;
+  if (query.length <= 3) return;
+  const supabase = useSupabase();
+  const { data, error } = await supabase.rpc('search_foods', {
+    search_text: query,
+  });
+  if (error) {
+    console.error(error);
+  } else {
+    searchResults.value = data;
+  }
+}
+
+const debouncedSearch = debounce(searchFoods, 1000);
+
+watch(searchQuery, (newQuery) => {
+  debouncedSearch(newQuery.trim());
+});
 </script>
 
 <style scoped></style>

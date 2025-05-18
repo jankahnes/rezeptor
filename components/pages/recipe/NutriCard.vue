@@ -2,7 +2,7 @@
   <div
     class="xl:w-[85%] min-h-100 border-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col font-[consolas]"
   >
-    <div class="flex justify-center py-3 bg-[#91e996] items-center gap-3">
+    <div class="flex justify-center py-3 bg-[#8a7ca92a] items-center gap-3">
       <span class="material-icons">restaurant</span>
       <h2 class="font-bold text-2xl">NutriCard</h2>
     </div>
@@ -23,7 +23,7 @@
             class="border-3 sm:w-[60%] w-[90%] p-1 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
           >
             <!-- Nutritonal Label-->
-            <div class="p-2 border flex justify-between bg-[#b1b1b1e1]">
+            <div class="p-2 border flex justify-between bg-[#8a7ca92a]">
               <div class="">
                 <p>Carbs</p>
                 <p>Protein</p>
@@ -56,7 +56,7 @@
                 class="bg-gray-400 h-[50%] transition-transform duration-100 hover:scale-110"
               ></div>
               <div
-                class="bg-gray-50 h-[30%] transition-transform duration-100 hover:scale-110"
+                class="bg-[#f0e7d2] h-[30%] transition-transform duration-100 hover:scale-110"
               ></div>
               <div
                 class="bg-gray-700 h-[20%] transition-transform duration-100 hover:scale-110"

@@ -7,7 +7,7 @@
       <NuxtLink to="/recipes" class="flex">
         <span class="material-symbols-outlined !text-3xl"> search </span>
       </NuxtLink>
-      <NuxtLink to="/create/recipe" class="flex">
+      <NuxtLink to="/create-recipe" class="flex">
         <span class="material-symbols-outlined !text-3xl"> add </span>
       </NuxtLink>
       <NuxtLink to="/ingredients" class="flex">

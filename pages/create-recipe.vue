@@ -7,7 +7,7 @@
       <h1 class="font-bold !text-2xl">Create a new recipe</h1>
     </div>
     <div
-      class="w-full min-h-[50vh] shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-3 px-3 py-10 m-5"
+      class="papyrus-gradient w-full min-h-[50vh] sm:shadow-[4px_4px_0_0_rgba(0,0,0,1)] border-dashed border-1 sm:border-3 sm:border-solid px-3 py-10 m-5 sm:bg-none"
     >
       <div
         class="flex flex-col items-center gap-4 pt-25 h-full"
@@ -16,13 +16,13 @@
         <!-- Step 1: Title -->
         <h2 class="text-xl font-bold">Choose a title:</h2>
         <input
-          v-bind="title"
-          class="bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] border-2 w-[80%] lg:text-2xl text-xl font-bold"
+          v-bind="recipe.title"
+          class="bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] border-2 w-[95%] sm:w-[80%] lg:text-2xl text-xl font-bold"
           placeholder=""
           @keydown.enter="next"
         />
         <button
-          class="bg-white border-2 p-1 !text-lg shadow-[3px_3px_0_0_rgba(0,0,0,1)] mt-43 w-20"
+          class="bg-white border-2 p-1 !text-lg shadow-[3px_3px_0_0_rgba(0,0,0,1)] sm:mt-43 w-20"
           @click="next"
           :disabled="step === 5"
         >
@@ -40,17 +40,23 @@
               <FormsIngredientListing />
               <div class="w-full grid grid-cols-[1fr_1fr_1fr] gap-2">
                 <div class="border-2 p-[2px]">
-                  <button class="bg-white p-2 border w-full h-full">
+                  <button
+                    class="bg-white p-2 border w-full h-full flex items-center justify-center"
+                  >
                     <span class="material-symbols-outlined"> search </span>
                   </button>
                 </div>
                 <div class="border-2 p-[2px]">
-                  <button class="bg-white p-2 border w-full h-full">
+                  <button
+                    class="bg-white p-2 border w-full h-full flex items-center justify-center"
+                  >
                     <span class="material-symbols-outlined"> add </span>
                   </button>
                 </div>
                 <div class="border-2 p-[2px]">
-                  <button class="bg-white p-2 border w-full h-full">
+                  <button
+                    class="bg-white p-2 border w-full h-full flex items-center justify-center"
+                  >
                     <span class="material-symbols-outlined"> barcode </span>
                   </button>
                 </div>
@@ -65,7 +71,7 @@
 
             <div class="w-full flex-col flex gap-2 p-2">
               <div
-                v-for="(instruction, index) in instructions"
+                v-for="(instruction, index) in recipe.instructions"
                 :key="index"
                 class="flex items-start min-h-6 gap-2"
               >
@@ -86,7 +92,7 @@
                   </span>
                 </button>
                 <textarea
-                  v-model="instructions[index]"
+                  v-model="recipe.instructions[index]"
                   class="bg-white h-10 flex-grow p-1 border flex-wrap resize-none overflow-hidden leading-snug"
                   rows="1"
                   @input="autoResize($event)"
@@ -103,7 +109,7 @@
           </div>
         </div>
         <button
-          class="bg-white border-2 p-1 w-20 !text-lg shadow-[3px_3px_0_0_rgba(0,0,0,1)] mt-[81px]"
+          class="bg-white border-2 p-1 w-20 !text-lg shadow-[3px_3px_0_0_rgba(0,0,0,1)] mt-22"
           @click="next"
           :disabled="step === 5"
         >
@@ -129,99 +135,49 @@
         <div class="flex w-full justify-center mt-8 gap-x-20 gap-y-5 flex-wrap">
           <div class="flex flex-col items-center">
             <h3 class="text-lg">Difficulty</h3>
-            <div class="flex gap-2">
-              <button
-                @click="difficulty = 1"
-                :class="{
-                  'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': difficulty == 1,
-                }"
-                class="bg-white p-2 h-13 border flex items-center justify-center"
-              >
-                <img class="w-6 h-6" src="/knife.png" />
-              </button>
-              <button
-                @click="difficulty = 2"
-                :class="{
-                  'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': difficulty == 2,
-                }"
-                class="bg-white p-2 h-13 border flex items-center justify-center"
-              >
-                <img class="w-6 h-6" src="/knife.png" />
-                <img class="w-6 h-6" src="/knife.png" />
-              </button>
-              <button
-                @click="difficulty = 3"
-                :class="{
-                  'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': difficulty == 3,
-                }"
-                class="bg-white p-2 h-13 border flex items-center justify-center"
-              >
-                <img class="w-6 h-6" src="/knife.png" />
-                <img class="w-6 h-6" src="/knife.png" />
-                <img class="w-6 h-6" src="/knife.png" />
-              </button>
-            </div>
+            <FormsChoiceSlider
+              class="mt-3"
+              v-model="recipe.difficulty"
+              :choices="[
+                ['Easy', ''],
+                ['Medium', ''],
+                ['Hard', ''],
+              ]"
+              :hide-icon="true"
+              :button-style="'py-1 px-2'"
+            />
           </div>
           <div class="flex flex-col items-center">
             <h3 class="text-lg">Effort</h3>
             <div class="flex gap-2">
-              <button
-                @click="effort = 1"
-                :class="{ 'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': effort == 1 }"
-                class="bg-white p-2 h-13 border flex items-center justify-center"
-              >
-                <img class="w-6 h-6" src="/hourglass.png" />
-              </button>
-              <button
-                @click="effort = 2"
-                :class="{ 'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': effort == 2 }"
-                class="bg-white p-2 h-13 border flex items-center justify-center"
-              >
-                <img class="w-6 h-6" src="/hourglass.png" />
-                <img class="w-6 h-6" src="/hourglass.png" />
-              </button>
-              <button
-                @click="effort = 3"
-                :class="{ 'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': effort == 3 }"
-                class="bg-white p-2 h-13 border flex items-center justify-center"
-              >
-                <img class="w-6 h-6" src="/hourglass.png" />
-                <img class="w-6 h-6" src="/hourglass.png" />
-                <img class="w-6 h-6" src="/hourglass.png" />
-              </button>
+              <FormsChoiceSlider
+                class="mt-3"
+                v-model="recipe.effort"
+                :choices="[
+                  ['Light', ''],
+                  ['Moderate', ''],
+                  ['Heavy', ''],
+                ]"
+                :hide-icon="true"
+                :button-style="'py-1 px-2'"
+              />
             </div>
           </div>
         </div>
         <div class="flex flex-col items-center mt-6">
           <h3 class="text-lg">Visibility</h3>
           <div class="flex gap-4">
-            <button
-              @click="visibility = 'private'"
-              :class="{
-                'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': visibility == 'private',
-              }"
-              class="bg-white p-2 h-13 text-lg border flex items-center justify-center"
-            >
-              Private
-            </button>
-            <button
-              @click="visibility = 'unlisted'"
-              :class="{
-                'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': visibility == 'unlisted',
-              }"
-              class="bg-white p-2 h-13 text-lg border flex items-center justify-center"
-            >
-              Unlisted
-            </button>
-            <button
-              @click="visibility = 'public'"
-              :class="{
-                'shadow-[2px_2px_0_0_rgba(0,0,0,1)]': visibility == 'public',
-              }"
-              class="bg-white p-2 h-13 text-lg border flex items-center justify-center"
-            >
-              Public
-            </button>
+            <FormsChoiceSlider
+              class="mt-3"
+              v-model="recipe.visibility"
+              :choices="[
+                ['Private', ''],
+                ['Unlisted', ''],
+                ['Public', ''],
+              ]"
+              :hide-icon="true"
+              :button-style="'py-1 px-2'"
+            />
           </div>
         </div>
         <button
@@ -275,19 +231,26 @@
 </template>
 
 <script setup>
-const step = ref(1);
-const instructions = ref([]);
-
-const difficulty = ref(2);
-const effort = ref(2);
+const step = ref(3);
 const visibility = ref('public');
 
+const recipe = ref({
+  title: '',
+  effort: 'Moderate',
+  difficulty: 'Medium',
+  visibility: 'Public',
+  instructions: [],
+  ingredients: {},
+  tags: [],
+  forked_from: null,
+});
+
 function addInstruction() {
-  instructions.value.push('');
+  recipe.value.instructions.value.push('');
 }
 
 function removeInstruction(index) {
-  instructions.value.splice(index, 1);
+  recipe.value.instructions.value.splice(index, 1);
 }
 
 function next() {
@@ -308,4 +271,15 @@ function autoResize(event) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+@media (min-width: 640px) {
+  .papyrus-gradient {
+    background: radial-gradient(
+      ellipse at center,
+      #f0ece41a 0%,
+      #f5efe11a 80%,
+      #ece4ce1a 100%
+    );
+  }
+}
+</style>

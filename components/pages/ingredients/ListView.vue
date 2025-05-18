@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="ingredientList?.length == 0"
+    v-if="foodList?.length == 0"
     class="flex items-center justify-center h-full"
   >
     <div class="flex flex-col items-center">
@@ -20,12 +20,14 @@
         <span class="flex-1 min-w-[4rem] shrink-0">Carbs</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Protein</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Fat</span>
+        <span class="flex-1 min-w-[4rem] shrink-0">StdFat</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Sugar</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Fiber</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Salt</span>
+        <span class="flex-1 min-w-[4rem] shrink-0">MNIDX</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Cost</span>
       </li>
-      <li v-for="(food, index) in ingredientList" :key="index">
+      <li v-for="(food, index) in foodList" :key="index">
         <div
           class="flex gap-4 py-3 min-w-max group"
           :class="
@@ -55,13 +57,15 @@
           </span>
 
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.kcal }}</span>
-          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.carbs }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.carbohydrates }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.protein }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.fat }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.saturated_fat }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.sugar }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.fiber }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.salt }}</span>
-          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.price }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.mnidx }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.avg_price }}</span>
         </div>
       </li>
     </ul>
@@ -72,7 +76,7 @@
         </span>
         <span class="flex-1 min-w-[4rem] shrink-0">Details</span>
       </li>
-      <li v-for="(food, index) in ingredientList" :key="index">
+      <li v-for="(food, index) in foodList" :key="index">
         <div
           class="flex gap-4 py-3 min-w-max group"
           :class="
@@ -114,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({ ingredientList: Array<Object>, onClick: Function });
+const props = defineProps({ foodList: Array<Object>, onClick: Function });
 </script>
 
 <style scoped></style>

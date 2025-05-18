@@ -1,7 +1,7 @@
 <template>
   <NuxtLink to="/recipe/1">
     <div
-      class="w-full xs:w-80 sm:w-120 min-h-100 sm:min-h-60 xs:border-3 font-bold xs:shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2"
+      class="w-full xs:bg-[#f3e8ff] xs:w-80 sm:w-120 min-h-100 sm:min-h-60 xs:border-3 font-bold xs:shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2 papyrus-gradient"
     >
       <div class="p-5">
         <img class="rounded-md" src="/placeholder-dish.jpg" />
@@ -87,4 +87,15 @@
 
 <script setup lang="ts"></script>
 
-<style scoped></style>
+<style scoped>
+@media (min-width: 640px) {
+  .papyrus-gradient {
+    background: radial-gradient(
+      ellipse at center,
+      #f0ece477 0%,
+      #f5efe17c 80%,
+      #ece4ce7e  100%
+    );
+  }
+}
+</style>

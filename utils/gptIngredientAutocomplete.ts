@@ -1,16 +1,4 @@
-import OpenAI from 'openai';
-function extractJsonFromCodeFence(text: string) {
-  // Remove leading/trailing backticks and possible "json" tag
-  const match = text.match(/```json\s*([\s\S]*?)```/);
-  if (match && match[1]) {
-    return match[1].trim();
-  }
-  // fallback if no code fences found — assume pure JSON
-  return text.trim();
-}
-
 export default async function (name: String) {
-  const config = useRuntimeConfig();
   const SYSTEM_PROMPT = `For a given food item, return the following fields:
 - kcal (/100g)
 - protein (g/100g)
@@ -41,7 +29,7 @@ Base your answer on reliable public nutritional databases (e.g. USDA, EFSA, EU, 
 
     if (!response) throw new Error('No content returned from GPT response');
 
-    const parsed = JSON.parse(extractJsonFromCodeFence(response));
+    const parsed = JSON.parse(extractJson(response));
 
     return parsed;
   } catch (err) {

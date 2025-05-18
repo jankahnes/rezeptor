@@ -1,5 +1,7 @@
 <template>
-  <div class="mt-2 p-3 flex flex-col max-h-[calc(100svh_-_370px)] overflow-y-auto">
+  <div
+    class="mt-2 p-3 flex flex-col max-h-[calc(100svh_-_370px)] overflow-y-auto"
+  >
     <div class="flex justify-between items-center mt-2">
       <h2 class="sticky t-0 text-2xl font-bold">{{ food.name }}</h2>
       <button class="flex bg-white font-bold items-center justify-end gap-2">
@@ -27,15 +29,17 @@
           <span>Carbs</span>
           <span>Protein</span>
           <span>Fat</span>
+          <span>Saturated Fat</span>
           <span>Sugar</span>
           <span>Fiber</span>
           <span>Salt</span>
         </div>
         <div class="flex flex-col gap-1 items-end">
           <span>{{ food.kcal }}</span>
-          <span>{{ food.carbs }}</span>
+          <span>{{ food.carbohydrates }}</span>
           <span>{{ food.protein }}</span>
           <span>{{ food.fat }}</span>
+          <span>{{ food.saturated_fat }}</span>
           <span>{{ food.sugar }}</span>
           <span>{{ food.fiber }}</span>
           <span>{{ food.salt }}</span>
@@ -45,25 +49,24 @@
       <div class="flex justify-between md:w-[80%] sm:mt-2">
         <div class="flex flex-col gap-1 items-start">
           <span>NutriGrade</span>
-          <span>Cost</span>
+          <span>Cost/100g</span>
           <span>Satiety</span>
           <span>Micronutrient Grade</span>
           <span>Vegan</span>
           <span>Vegetarian</span>
           <span>Gluten-Free</span>
-          <span>Preferred Units</span>
-          <span>Average g/U</span>
         </div>
         <div class="flex flex-col gap-1 items-end">
           <span>B</span>
-          <span>0.88€</span>
+          <span>{{ food.avg_price }}€</span>
           <span>79</span>
-          <span>B+</span>
-          <span class="material-symbols-outlined"> check </span>
-          <span class="material-symbols-outlined"> check </span>
-          <span class="material-symbols-outlined"> check </span>
-          <span>U, g</span>
-          <span>110g</span>
+          <span>{{ food.mnidx }}</span>
+          <span v-if="food.vegan" class="material-symbols-outlined"> check </span>
+          <span v-else class="material-symbols-outlined"> close </span>
+          <span v-if="food.vegetarian" class="material-symbols-outlined"> check </span>
+          <span v-else class="material-symbols-outlined"> close </span>
+          <span v-if="food.gluten_free" class="material-symbols-outlined"> check </span>
+          <span v-else class="material-symbols-outlined"> close </span>
         </div>
       </div>
     </div>
@@ -72,7 +75,7 @@
 
 <script setup lang="ts">
 const props = defineProps({ food: Object });
-const branded = true;
+const branded = false;
 </script>
 
 <style scoped></style>

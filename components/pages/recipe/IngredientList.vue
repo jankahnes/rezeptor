@@ -1,6 +1,6 @@
 <template>
   <div class="p-1 sticky">
-    <div class="bg-[#91e996] border-b p-2">
+    <div class="bg-[#8a7ca92a] border-b p-2">
       <div class="flex items-center gap-2">
         <span class="material-icons text-black !text-4xl">list</span>
         <span class="text-xl font-bold">Ingredients</span>
