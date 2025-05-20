@@ -15,7 +15,7 @@
         <h2
           class="text-xl font-bold tracking-widest px-3 border-4 border-double"
         >
-          1500 kcal
+          {{ recipe?.kcal }} kcal
         </h2>
         <p class="text-xs font-light">per Serving</p>
         <div class="w-full flex gap-2 sm:justify-between justify-center p-5">
@@ -30,21 +30,23 @@
                 <p>Fat</p>
               </div>
               <div class="flex flex-col items-end">
-                <p>40g</p>
-                <p>100g</p>
-                <p>20g</p>
+                <p>{{ Number(recipe?.carbohydrates.toFixed(1)) }}g</p>
+                <p>{{ Number(recipe?.protein.toFixed(1)) }}g</p>
+                <p>{{ Number(recipe?.fat.toFixed(1)) }}g</p>
               </div>
             </div>
             <div class="p-2 pb-0 flex justify-between text-base">
               <div class="">
                 <p>Sugar</p>
+                <p>Saturated Fat</p>
                 <p>Fiber</p>
                 <p>Salt</p>
               </div>
               <div class="flex flex-col items-end">
-                <p>40g</p>
-                <p>100g</p>
-                <p>20g</p>
+                <p>{{ Number(recipe?.sugar.toFixed(1)) }}g</p>
+                <p>{{ Number(recipe?.saturated_fat.toFixed(1)) }}g</p>
+                <p>{{ Number(recipe?.fiber.toFixed(1)) }}g</p>
+                <p>{{ Number(recipe?.salt.toFixed(1)) }}g</p>
               </div>
             </div>
           </div>
@@ -104,6 +106,8 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const props = defineProps({ recipe: Object });
+</script>
 
 <style scoped></style>

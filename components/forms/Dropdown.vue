@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="h-full">
     <button
       ref="buttonRef"
       @click.stop="toggle"
       :aria-expanded="isOpen.toString()"
-      class="flex items-center bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] justify-between z-10 relative w-full"
+      class="flex items-center bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] justify-between z-10 relative w-full h-full"
       :class="{ 'shadow-none !border-1 !px-2 !py-0': thin }"
     >
       <span>{{ modelValue }}</span>
@@ -31,7 +31,7 @@
             <button
               v-if="modelValue == choice"
               class="flex w-full h-full items-center justify-between p-2"
-              :class="{ '!px-2 !py-0': thin }"
+              :class="{ '!px-2 !py-1': thin }"
               @click="emit('update:modelValue', choice)"
             >
               <span class="font-bold">{{ choice }}</span>
@@ -45,7 +45,7 @@
             <button
               v-else
               class="flex items-center w-full h-full p-2"
-              :class="{ '!px-2 !py-0': thin }"
+              :class="{ '!px-2 !py-1': thin }"
               @click="emit('update:modelValue', choice)"
             >
               <span>{{ choice }}</span>

@@ -12,14 +12,14 @@
         />
       </div>
       <button
-        class="relative h-10 rounded-xl p-[2px] overflow-hidden"
+        class="relative h-10 rounded-xl p-[3px] overflow-hidden"
         :class="{ loading: loading }"
         @click="autocomplete()"
       >
         <FormsAIBorder class="rounded-xl" :spinning="loading" />
 
         <span
-          class="relative flex bg-white rounded-[10px] h-full w-full items-center justify-center gap-2 px-4 text-xl font-extrabold"
+          class="relative flex bg-white rounded-[9px] h-full w-full items-center justify-center gap-2 px-4 text-xl font-extrabold"
         >
           <span class="material-symbols-outlined">wand_stars</span>
           <span>AI</span>

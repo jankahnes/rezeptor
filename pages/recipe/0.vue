@@ -5,12 +5,12 @@
     >
       <div class="grid xl:grid-cols-[3fr_7fr] grid-rows-[auto_auto] gap-4">
         <div class="flex items-center justify-center">
-          <img :src="imageUrl" class="w-full h-full aspect-square" />
+          <img src="/placeholder-dish.jpg" class="w-full h-full" />
         </div>
         <div class="p-7 flex flex-col justify-between">
           <div class="">
             <div class="flex align-center w-full justify-between">
-              <h1 class="font-extrabold text-4xl">{{ recipe?.title }}</h1>
+              <h1 class="font-extrabold text-4xl">Chicken Parmesan</h1>
               <div class="flex gap-2 items-center">
                 <button
                   class="bg-white text-white border-2 p-1 flex align-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
@@ -35,12 +35,12 @@
               <span class="text-[#91e996] material-icons">star</span>
               <span class="text-[#91e996] material-icons">star</span>
               <span class="text-[#91e996] material-icons">star_half</span>
-              <span class="ml-2 text-base">{{ recipe?.rating }}</span>
+              <span class="ml-2 text-base">4.5</span>
             </div>
             <div
               class="tag-field gap-x-2 gap-y-2 xl:mt-6 mt-10 xl:w-[70%] items-center flex flex-wrap justify-start"
             >
-              <span v-for="tag in tags">{{ getTagByID(tag.tag_id).name }}</span>
+              <Tag v-for="tag in tags" :key="tag" class="tag" :big="true" />
             </div>
           </div>
 
@@ -55,11 +55,11 @@
                   >
                 </div>
                 <div class="">
-                  <p class="text-sm">Effort</p>
+                  <p class="text-sm">Total Time</p>
                   <p
                     class="text-base font-bold -mt-[3px] whitespace-nowrap overflow-visible"
                   >
-                    {{ recipe?.effort }}
+                    30 Minutes
                   </p>
                 </div>
               </div>
@@ -71,9 +71,7 @@
                 </div>
                 <div>
                   <p class="text-sm">Difficulty</p>
-                  <p class="text-base font-bold -mt-[3px]">
-                    {{ recipe?.difficulty }}
-                  </p>
+                  <p class="text-base font-bold -mt-[3px]">Medium</p>
                 </div>
               </div>
               <div class="flex gap-4 align-center">
@@ -88,9 +86,7 @@
                   <p class="text-sm whitespace-nowrap overflow-visible">
                     Estimated Cost
                   </p>
-                  <p class="text-base font-bold -mt-[3px]">
-                    {{ recipe?.price.toFixed(2) }}€
-                  </p>
+                  <p class="text-base font-bold -mt-[3px]">7€ - 9€</p>
                 </div>
               </div>
             </div>
@@ -101,29 +97,27 @@
                 <span class="material-icons text-black !text-2xl"
                   >schedule</span
                 >
-                <span>{{ recipe?.effort }}</span>
+                <span>30 min</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="material-icons text-black !text-2xl">speed</span>
-                <span>{{ recipe?.difficulty }}</span>
+                <span>Medium</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="material-icons text-black !text-2xl"
                   >attach_money</span
                 >
-                <span>{{ recipe?.price.toFixed(2) }}</span>
+                <span>7€ - 9€</span>
               </div>
             </div>
           </div>
         </div>
         <div class="">
-          <PagesRecipeIngredientList :ingredients="ingredients" />
+          <PagesRecipeIngredientList />
         </div>
         <div class="px-2 sm:px-7 space-y-10">
-          <PagesRecipeInstructionContainer
-            :instructions="recipe?.instructions"
-          />
-          <PagesRecipeNutriCard :recipe="recipe" />
+          <PagesRecipeInstructionContainer />
+          <PagesRecipeNutriCard />
         </div>
       </div>
       <PagesRecipeCommentSection />
@@ -132,83 +126,7 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabase();
-
-const recipe = ref(null);
-const ingredients = ref([]);
-const tags = ref([]);
-const isLoading = ref(true);
-const imageUrl = ref('');
-
-onMounted(async () => {
-  const route = useRoute();
-  const recipeId = route.params.id;
-
-  isLoading.value = true;
-
-  const { data: recipeData, error: recipeError } = await supabase
-    .from('recipes')
-    .select('*')
-    .eq('id', recipeId)
-    .single();
-
-  if (recipeError) {
-    console.error('Failed to load recipe:', recipeError);
-    isLoading.value = false;
-    return;
-  }
-  recipe.value = recipeData;
-
-  // 2. Fetch ingredients with food info
-  const { data: ingredientData, error: foodError } = await supabase
-    .from('recipe_foods')
-    .select(
-      `
-      amount,
-      unit,
-      food:foods (
-        id, name, avg_price, density, piece_weight, measurements
-      )
-    `
-    )
-    .eq('recipe_id', recipeId);
-  if (foodError) {
-    console.error('Failed to load ingredients:', foodError);
-  } else {
-    ingredients.value = ingredientData.map((row) => ({
-      ...row.food,
-      amountInfo: [[row.amount, row.unit]],
-    }));
-  }
-  console.log(JSON.parse(JSON.stringify(ingredients.value)));
-  for (const ingredient of ingredients.value) {
-    ingredient.possibleUnits = getPossibleUnits(ingredient.measurements);
-    ingredient.currentUnit = 0;
-    fillForUnits(ingredient);
-  }
-
-  // 3. Fetch tags
-  const { data: tagData, error: tagError } = await supabase
-    .from('recipe_tags')
-    .select('tag_id')
-    .eq('recipe_id', recipeId);
-
-  if (tagError) {
-    console.error('Failed to load tags:', tagError);
-  } else {
-    tags.value = tagData;
-  }
-
-  if (recipe.value.picture_ext) {
-    const { data: publicUrlData } = supabase.storage
-      .from('recipe')
-      .getPublicUrl(`${recipeId}.${recipe.value.picture_ext}`);
-
-    imageUrl.value = publicUrlData.publicUrl;
-  }
-
-  isLoading.value = false;
-});
+const tags = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 </script>
 
 <style scoped>
@@ -218,7 +136,7 @@ onMounted(async () => {
       ellipse at center,
       #f0ece477 0%,
       #f5efe17c 80%,
-      #ece4ce7e 100%
+      #ece4ce7e  100%
     );
   }
 }

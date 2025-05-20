@@ -13,14 +13,18 @@
       v-for="(choice, idx) in choices"
       :key="idx"
       ref="btnRefs"
-      class="relative z-10 flex-1 flex items-center justify-center gap-2 text-lg transition-colors duration-300"
+      class="relative z-10 flex-1 flex items-center justify-center text-lg transition-colors duration-300"
       :class="[buttonStyle, currentIndex === idx ? 'text-white' : 'text-black']"
       @click="updateValue(choice[0])"
     >
-      <span class="material-symbols-outlined" :class="{ hidden: hideIcon }">{{
-        choice[1]
+      <span
+        class="material-symbols-outlined mx-[2px]"
+        :class="{ hidden: hideIcon }"
+        >{{ choice[1] }}</span
+      >
+      <span class="mx-[2px]" :class="{ hidden: hideLabel }">{{
+        choice[0]
       }}</span>
-      <span :class="{ hidden: hideLabel }">{{ choice[0] }}</span>
     </button>
   </div>
 </template>
@@ -58,7 +62,6 @@ function measureSegments() {
 }
 
 onMounted(measureSegments);
-
 
 const currentIndex = computed(() =>
   props.choices.findIndex(([label]) => label === props.modelValue)
