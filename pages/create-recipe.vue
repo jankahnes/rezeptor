@@ -22,7 +22,7 @@
           @keydown.enter="next"
         />
         <div
-          v-if="recipeSearchResults.length > 0"
+          v-if="recipeSearchResults?.length > 0"
           class="font-light flex flex-col items-center mx-10 text-center"
         >
           <h3>
@@ -35,7 +35,7 @@
             <span class="material-symbols-outlined"
               >subdirectory_arrow_right</span
             >
-            <span>{{ result }}</span>
+            <span>{{ result.title }}</span>
           </button>
         </div>
         <button
@@ -290,6 +290,27 @@
           Submit Recipe
         </button>
       </div>
+      <div
+        v-if="step === 5"
+        class="flex flex-col items-center justify-center text-center py-20"
+      >
+        <div v-if="state === 'uploading'" class="space-y-5">
+          <Vue3Lottie
+            animationLink="./loading.json"
+            :height="100"
+            :width="100"
+          />
+        </div>
+        <div v-else class="space-y-5">
+          <Vue3Lottie
+            animationLink="./check.json"
+            :loop="false"
+            :height="100"
+            :width="100"
+          />
+          <p v-if="state === 'finished'" class="pt-10">Upload Successful.</p>
+        </div>
+      </div>
     </div>
     <div
       class="relative flex w-full sm:px-30 px-10 -mt-11 justify-between"
@@ -318,6 +339,7 @@
 
 <script setup>
 const step = ref(1);
+const state = ref('editing');
 
 const ingredientLookup = ref(false);
 const ingredientQuery = ref('');
@@ -325,13 +347,12 @@ const foodSearchResults = ref([]);
 
 const recipeSearchResults = ref([]);
 const supabase = useSupabase();
-
 const imgUpload = ref();
 
 const recipe = ref({
   title: '',
-  effort: 'Light',
-  difficulty: 'Easy',
+  effort: 'Moderate',
+  difficulty: 'Medium',
   visibility: 'Public',
   instructions: [],
   ingredients: [],
@@ -362,6 +383,7 @@ async function searchRecipes(query) {
     console.error(error);
   } else {
     recipeSearchResults.value = data;
+    console.log(data);
   }
 }
 
@@ -375,17 +397,7 @@ watch(ingredientQuery, (newQuery) => {
 watch(
   () => recipe.value.title,
   (newTitle, oldTitle) => {
-    //debouncedSearchRecipes(newTitle.trim());
-    console.log(newTitle);
-    if (newTitle == 'blue') {
-      recipeSearchResults.value = [
-        'Blueberry Cobbler',
-        'Blueberry Jam',
-        'Blue Waffles',
-      ];
-    } else {
-      recipeSearchResults.value = [];
-    }
+    debouncedSearchRecipes(newTitle.trim());
   }
 );
 
@@ -406,6 +418,8 @@ function back() {
 }
 
 async function submit() {
+  state.value = 'uploading';
+  step.value = 5;
   recipe.value.ingredients = recipe.value.ingredients.map((i) => ({
     ...i,
     amount: Number(i.amount) || 0,
@@ -494,11 +508,16 @@ async function submit() {
   }));
   await supabase.from('recipe_foods').insert(foodRows);
 
-  if (recipe.value.has_picture) {
+  if (fileExt) {
     await handleUpload(recipeId);
   }
-
-  return recipeId;
+  state.value = 'animate';
+  setTimeout(() => {
+    state.value = 'finished';
+  }, 1200);
+  setTimeout(() => {
+    navigateTo(`/recipe/${recipeId}`);
+  }, 2000);
 }
 
 function autoResize(event) {

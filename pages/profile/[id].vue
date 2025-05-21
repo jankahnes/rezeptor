@@ -27,11 +27,7 @@
       v-if="selectedView == 'Recipes'"
       class="grid w-full sm:grid-cols-[repeat(auto-fit,minmax(30rem,1fr))] mx-auto gap-4"
     >
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
+      
     </div>
   </div>
 </template>

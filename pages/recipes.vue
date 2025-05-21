@@ -26,7 +26,7 @@
           }"
           class="flex bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] gap-1 items-center"
         >
-          <img class="h-6 w-6" src="/hourglass.png" />
+          <Effort1 class="h-6 w-6" />
           <span class="hidden lg:block">Effort</span>
         </button>
         <button
@@ -37,7 +37,7 @@
           }"
           class="flex bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] gap-1 items-center"
         >
-          <img class="h-6 w-6" src="/knife.png" />
+          <Difficulty1 class="h-6 w-6" />
           <span class="hidden lg:block">Difficulty</span>
         </button>
         <button
@@ -47,7 +47,7 @@
           }"
           class="flex bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] gap-1 items-center"
         >
-          <img class="h-6 w-6" src="/badge-a.png" />
+          <Badge class="h-6 w-6" />
           <span class="hidden lg:block">Health Score</span>
         </button>
         <button
@@ -69,6 +69,12 @@
         >
           <span class="material-symbols-outlined"> euro </span>
           <span class="hidden lg:block">Cost (Serving)</span>
+        </button>
+        <button
+          @click="search"
+          class="flex bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] gap-1 items-center"
+        >
+          <span class="hidden lg:block">Apply</span>
         </button>
       </div>
       <div class="flex items-center gap-4">
@@ -96,7 +102,9 @@
           :key="effort"
           @click="addTag('Effort: ' + effort)"
         >
-          <img v-for="_ in index + 1" class="h-6 w-6" src="/hourglass.png" />
+          <Effort1 v-if="index == 0" class="w-6 h-6" />
+          <Effort2 v-if="index == 1" class="w-6 h-6" />
+          <Effort3 v-if="index == 2" class="w-6 h-6" />
           <span class="hidden sm:block">{{ effort }}</span>
         </button>
       </div>
@@ -110,7 +118,9 @@
           :key="difficulty"
           @click="addTag('Difficulty: ' + difficulty)"
         >
-          <img v-for="_ in index + 1" class="h-6 w-6" src="/knife.png" />
+          <Difficulty1 v-if="index == 0" class="w-6 h-6" />
+          <Difficulty2 v-if="index == 1" class="w-6 h-6" />
+          <Difficulty3 v-if="index == 2" class="w-6 h-6" />
           <span class="hidden sm:block">{{ difficulty }}</span>
         </button>
       </div>
@@ -170,33 +180,112 @@
     </div>
   </div>
   <div
-    class="mx-auto mt-6 sm:m-6 sm:mt-0 grid gap-6 sm:grid-cols-[repeat(auto-fit,minmax(30rem,1fr))] grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
+    class="mx-auto mt-6 sm:m-6 sm:mt-0 grid xs:gap-6 sm:grid-cols-[repeat(auto-fit,minmax(30rem,1fr))] grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
   >
-    <div class="flex flex-col justify-center items-center">
-      <RecipeCard />
-      <div class="xs:hidden mt-2 w-[90%] h-[1px] bg-black"></div>
+    <div
+      class="flex flex-col justify-center items-center"
+      v-for="recipe in results"
+    >
+      <RecipeCard :recipe="recipe" />
+      <div
+        class="xs:hidden mt-6 mb-4 w-[90%] h-[1px] border-b-1 border-dashed"
+      ></div>
     </div>
-
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
-    <div class="flex justify-center items-center"><RecipeCard /></div>
   </div>
 </template>
 
 <script setup lang="ts">
-const visibleTags = ref([]);
+import Difficulty1 from '@/assets/icons/difficulty1.svg';
+import Difficulty2 from '@/assets/icons/difficulty2.svg';
+import Difficulty3 from '@/assets/icons/difficulty3.svg';
+import Effort1 from '@/assets/icons/effort1.svg';
+import Effort2 from '@/assets/icons/effort2.svg';
+import Effort3 from '@/assets/icons/effort3.svg';
+import Badge from '@/assets/icons/badge.svg';
 
+const visibleTags = ref([]);
+const supabase = useSupabase();
 const filteringTags = ref([]);
 const difficulties = ['Easy', 'Medium', 'Hard'];
-const effortLevels = ['Quick', 'Average', 'Demanding'];
+const effortLevels = ['Light', 'Moderate', 'Heavy'];
 const selectedFilter = ref('');
+const results = ref([
+  {
+    id: 3,
+    created_at: '2025-05-20T19:06:27.279927+00:00',
+    effort: 'MODERATE',
+    difficulty: 'MEDIUM',
+    rating: 4.1,
+    instructions: [
+      'Mix and blend',
+      'Freeze overnight',
+      'Prepare mix in: Melt chocolate, salt, butter in the microwave. Mix with crushed caramel candy.',
+      'Blend once on ice cream, then mix in.',
+    ],
+    kcal: 295,
+    protein: 36.7785,
+    carbohydrates: 61.3453,
+    fat: 11.8368,
+    saturated_fat: 7.3029,
+    sugar: 8.1488,
+    fiber: 6.1045,
+    salt: 1.57405,
+    price: 4.47825,
+    hidx: 50,
+    mnidx: 50,
+    forked_from: null,
+    title: 'Ninja Creami Cookies',
+    visibility: 'PUBLIC',
+    created_by: 0,
+    picture_ext: 'png',
+    recipe_tags: [
+      { tags: { id: 72, name: 'sweet' }, tag_id: 72 },
+      { tags: { id: 81, name: 'dessert' }, tag_id: 81 },
+      { tags: { id: 63, name: 'vegetarian' }, tag_id: 63 },
+      { tags: { id: 68, name: 'gluten free' }, tag_id: 68 },
+    ],
+    tags: [72, 81, 63, 68],
+    imageUrl:
+      'https://smovbezqgvxljtvdzvhp.supabase.co/storage/v1/object/public/recipe/3.png',
+  },
+  {
+    id: 1,
+    created_at: '2025-05-20T11:00:20.950297+00:00',
+    effort: 'LIGHT',
+    difficulty: 'EASY',
+    rating: 4.1,
+    instructions: [
+      'Mix with blender.',
+      'Freeze overnight.',
+      'Blend with Ninja Creami.',
+    ],
+    kcal: 205,
+    protein: 4.5995,
+    carbohydrates: 54.7971,
+    fat: 2.4309,
+    saturated_fat: 0.41545,
+    sugar: 42.4944,
+    fiber: 5,
+    salt: 0.14545,
+    price: 3.36225,
+    hidx: 50,
+    mnidx: 50,
+    forked_from: null,
+    title: 'Ninja Creami Mango',
+    visibility: 'PUBLIC',
+    created_by: 0,
+    picture_ext: 'png',
+    recipe_tags: [
+      { tags: { id: 72, name: 'sweet' }, tag_id: 72 },
+      { tags: { id: 81, name: 'dessert' }, tag_id: 81 },
+      { tags: { id: 63, name: 'vegetarian' }, tag_id: 63 },
+      { tags: { id: 68, name: 'gluten free' }, tag_id: 68 },
+    ],
+    tags: [72, 81, 63, 68],
+    imageUrl:
+      'https://smovbezqgvxljtvdzvhp.supabase.co/storage/v1/object/public/recipe/1.png',
+  },
+]);
 
 const healthScoreRange = ref<[number, number]>([0, 12]);
 const kcalRange = ref<[number, number]>([10, 2500]);
@@ -211,6 +300,154 @@ const sorts = ref([
   'Newest',
   'Alphabetical',
 ]);
+
+type Filtering = {
+  title: string;
+  difficulties: string[];
+  efforts: string[];
+  visibility: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
+  tags: number[];
+  hidx: [number, number];
+  kcal: [number, number];
+  price: [number, number];
+  sorting: string;
+  sortingOrder: 'asc' | 'desc';
+};
+
+function parseTags() {
+  const filtering: Filtering = {
+    difficulties: ['EASY', 'MEDIUM', 'HARD'],
+    efforts: ['LIGHT', 'MODERATE', 'HEAVY'],
+    visibility: 'PUBLIC',
+    tags: filteringTags.value,
+    hidx: [0, 100],
+    kcal: kcalRange.value,
+    price: [costRange.value[0] / 10, costRange.value[1] / 10],
+    sorting: 'createdAt',
+    sortingOrder: 'desc',
+    title: '',
+  };
+  for (const tag of visibleTags.value) {
+    if (tag.startsWith('Difficulty')) {
+      if (filtering.difficulties.length == 3) {
+        filtering.difficulties = [];
+      }
+      filtering.difficulties.push(tag.split(' '));
+    }
+    if (tag.startsWith('Effort')) {
+      if (filtering.efforts.length == 3) {
+        filtering.efforts = [];
+      }
+      filtering.efforts.push(tag.split(' '));
+    }
+  }
+  return filtering;
+}
+
+async function search() {
+  const filtering: Filtering = {
+    difficulties: ['EASY', 'MEDIUM', 'HARD'],
+    efforts: ['LIGHT', 'MODERATE', 'HEAVY'],
+    visibility: 'PUBLIC',
+    tags: filteringTags.value,
+    hidx: [0, 100],
+    kcal: kcalRange.value,
+    price: [costRange.value[0] / 10, costRange.value[1] / 10],
+    sorting: 'created_at',
+    sortingOrder: 'desc',
+    title: '',
+  };
+  results.value = await getResults(filtering);
+  for (const result of results.value) {
+    result.tags = [];
+    for (const tag of result.recipe_tags) {
+      result.tags.push(tag.tag_id);
+    }
+  }
+  for (const result of results.value) {
+    if (result.picture_ext) {
+      const { data: publicUrlData } = supabase.storage
+        .from('recipe')
+        .getPublicUrl(`${result.id}.${result.picture_ext}`);
+
+      result.imageUrl = publicUrlData.publicUrl;
+    }
+  }
+}
+
+async function getResults(filtering: Filtering) {
+  // --- 1) Base query: select all columns from recipes
+  let query = supabase.from('recipes').select(`
+      *,
+      recipe_tags!inner (
+        tag_id,
+        tags ( id, name )
+      )
+    `);
+
+  // --- 2) Title search using pg_trgm similarity
+  //    skip if empty string
+  if (filtering.title.trim() !== '') {
+    // NOTE: you must have pg_trgm & a similarity index on title
+    // here we use `.textSearch` + a threshold filter as a pattern;
+    // you could also wrap this in a custom RPC if you prefer.
+    query = query
+      .textSearch('title', filtering.title, {
+        config: 'english',
+        type: 'plain',
+      })
+      .gt('similarity', 0.3);
+  }
+
+  // --- 3) Effort & difficulty: pick 1–3 enum values
+  if (filtering.efforts.length > 0) {
+    query = query.in('effort', filtering.efforts);
+  }
+  if (filtering.difficulties.length > 0) {
+    query = query.in('difficulty', filtering.difficulties);
+  }
+
+  // --- 4) Visibility enum
+  if (filtering.visibility) {
+    query = query.eq('visibility', filtering.visibility);
+  }
+
+  // --- 5) Tag filtering (via the join)
+  //    only keep recipes that have at least one of the selected tags
+  if (filtering.tags.length > 0) {
+    query = query.in('recipe_tags.tag_id', filtering.tags);
+  }
+
+  // --- 6) Ranges: hidx, kcal, price
+  const [[hmin, hmax], [kmin, kmax], [pmin, pmax]] = [
+    filtering.hidx,
+    filtering.kcal,
+    filtering.price,
+  ];
+
+  query = query
+    .gte('hidx', hmin)
+    .lte('hidx', hmax)
+    .gte('kcal', kmin)
+    .lte('kcal', kmax)
+    .gte('price', pmin)
+    .lte('price', pmax);
+
+  // --- 7) Sorting
+  query = query.order(filtering.sorting, {
+    ascending: filtering.sortingOrder === 'asc',
+  });
+
+  // --- 8) Execute
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching recipes:', error);
+    return [];
+  }
+  console.log(data);
+  return data;
+}
 
 function getGradeFormat(index: number): string {
   const grades = [
@@ -269,7 +506,7 @@ function addTag(tag: string) {
 
 function addFilteringTag(tag: Object) {
   addTag(tag.name);
-  filteringTags.value.push(tag);
+  filteringTags.value.push(tag.id);
 }
 
 function updateGradeTag(min: number, max: number) {

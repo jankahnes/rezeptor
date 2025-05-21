@@ -3,15 +3,15 @@ function convertToGrams({ amount, unit, density, piece_weight }) {
   if (isNaN(num) || num <= 0) return 0;
 
   switch (unit) {
-    case 'g':
+    case 'G':
       return num;
-    case 'ml':
+    case 'ML':
       return num * density;
-    case 'tsp':
+    case 'TSP':
       return num * 5 * density;
-    case 'tbsp':
+    case 'TBSP':
       return num * 15 * density;
-    case 'pcs':
+    case 'PCS':
       return num * piece_weight;
     default:
       return 0;

@@ -45,9 +45,7 @@
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="text-4xl material-icons-outlined text-black"
-            >add</span
-          >
+          <span class="text-4xl material-icons-outlined text-black">add</span>
         </div>
         <h3 class="text-xl font-medium text-gray-900">Save Recipes</h3>
         <p class="mt-2 text-gray-500 text-center">
@@ -58,9 +56,7 @@
         <div
           class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-4 select-none"
         >
-          <span class="text-3xl material-icons-outlined text-black"
-            >sell</span
-          >
+          <span class="text-3xl material-icons-outlined text-black">sell</span>
         </div>
         <h3 class="text-xl font-medium">Organize & Tag</h3>
         <p class="mt-2 text-base text-gray-500 text-center">
@@ -92,12 +88,9 @@
     <div
       class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,460px)] justify-center max-w-[2000px] mx-auto"
     >
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
-      <div class="flex justify-center"><RecipeCard /></div>
+      <div class="flex justify-center" v-for="recipe in recipes">
+        <RecipeCard :recipe="recipe" />
+      </div>
     </div>
   </div>
   <div class="w-full flex justify-center mb-10">
@@ -111,7 +104,56 @@
   <div class="w-[90%] h-[2px] mx-auto px-3 bg-black mb-10"></div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const supabase = useSupabase();
+const recipes = ref([]);
+onMounted(async () => {
+  const { data: recipeData, error: recipeError } = await supabase
+    .from('recipes')
+    .select('*')
+    .limit(6);
+
+  if (recipeError) {
+    console.error('Failed to load recipe:', recipeError);
+    return;
+  }
+  const recipeIds = recipeData.map((r) => r.id);
+
+  const { data: tagData, error: tagError } = await supabase
+    .from('recipe_tags')
+    .select('recipe_id, tag_id')
+    .in('recipe_id', recipeIds);
+
+  if (tagError) {
+    console.error('Failed to load tags:', tagError);
+  } else {
+    tags.value = tagData;
+  }
+
+  const tagsByRecipeId = {};
+
+  for (const tag of tagData || []) {
+    if (!tagsByRecipeId[tag.recipe_id]) {
+      tagsByRecipeId[tag.recipe_id] = [];
+    }
+    tagsByRecipeId[tag.recipe_id].push(tag.tag_id);
+  }
+
+  recipes.value = recipeData.map((recipe) => ({
+    ...recipe,
+    tags: tagsByRecipeId[recipe.id] || [],
+  }));
+  for (const recipe of recipes.value) {
+    if (recipe.picture_ext) {
+      const { data: publicUrlData } = supabase.storage
+        .from('recipe')
+        .getPublicUrl(`${recipe.id}.${recipe.picture_ext}`);
+
+      recipe.imageUrl = publicUrlData.publicUrl;
+    }
+  }
+});
+</script>
 
 <style>
 .gradient {
@@ -122,7 +164,6 @@
     #ffffff00 100%
   );
 }
-
 
 .mask-fade-bottom {
   mask-image: linear-gradient(to bottom, black 92%, transparent 100%);

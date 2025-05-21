@@ -1,6 +1,7 @@
 <template>
   <div
     class="px-5 pt-10 max-h-[calc(100svh_-_370px)] overflow-y-auto overflow-auto"
+    v-if="state === 'editing'"
   >
     <div class="flex items-center gap-10">
       <div class="flex w-80 border gap-2 pl-2 mt-1 items-center">
@@ -256,13 +257,31 @@
       </div>
     </div>
   </div>
+  <div
+    v-else
+    class="flex flex-col items-center justify-center text-center py-20"
+  >
+    <div v-if="state === 'uploading'" class="space-y-5">
+      <Vue3Lottie animationLink="./loading.json" :height="100" :width="100" />
+    </div>
+    <div v-else class="space-y-5">
+      <Vue3Lottie
+        animationLink="./check.json"
+        :loop="false"
+        :height="100"
+        :width="100"
+      />
+      <p v-if="state === 'finished'" class="pt-10">Upload Successful.</p>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core';
 import { useSupabase } from '~/composables/useSupabase';
 const isMdUp = useMediaQuery('(min-width: 768px)');
-const food = ref({
+const state = ref('editing');
+const emptyFood = {
   name: '',
   kcal: null,
   protein: null,
@@ -279,7 +298,8 @@ const food = ref({
   avg_price: null,
   density: null,
   piece_weight: null,
-});
+};
+const food = ref(structuredClone(emptyFood));
 const customAttrs = [
   'name',
   'kcal',
@@ -332,6 +352,7 @@ async function autocomplete() {
 }
 
 async function submit() {
+  state.value = 'uploading';
   for (const key in customAttrs) {
     if (
       food.value[key] === null ||
@@ -353,7 +374,9 @@ async function submit() {
     priceAmount.value,
     priceSelectedUnit.value
   );
-  console.log(food.value);
+  food.value.measurements = food.value.measurements.map((str) =>
+    str.toLowerCase()
+  );
   const supabase = useSupabase();
   const { data, error } = await supabase.from('foods').insert(food.value);
   if (error) {
@@ -361,6 +384,14 @@ async function submit() {
   } else {
     console.log('Row inserted:', data);
   }
+  state.value = 'animate';
+  setTimeout(() => {
+    state.value = 'finished';
+  }, 1200);
+  setTimeout(() => {
+    food.value = structuredClone(emptyFood);
+    state.value = 'editing';
+  }, 2000);
 }
 </script>
 
