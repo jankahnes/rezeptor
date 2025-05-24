@@ -26,7 +26,7 @@
           }"
           class="flex bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] gap-1 items-center"
         >
-          <Effort1 class="h-6 w-6" />
+          <Effort class="h-6 w-6" />
           <span class="hidden lg:block">Effort</span>
         </button>
         <button
@@ -37,7 +37,7 @@
           }"
           class="flex bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] gap-1 items-center"
         >
-          <Difficulty1 class="h-6 w-6" />
+          <Difficulty class="h-6 w-6" />
           <span class="hidden lg:block">Difficulty</span>
         </button>
         <button
@@ -102,9 +102,9 @@
           :key="effort"
           @click="addTag('Effort: ' + effort)"
         >
-          <Effort1 v-if="index == 0" class="w-6 h-6" />
-          <Effort2 v-if="index == 1" class="w-6 h-6" />
-          <Effort3 v-if="index == 2" class="w-6 h-6" />
+          <img src="/effort1.png" v-if="index == 0" class="w-[18px] h-6" />
+          <img src="/effort2.png" v-if="index == 1" class="w-6 h-6" />
+          <img src="/effort3.png" v-if="index == 2" class="w-[30px] h-6" />
           <span class="hidden sm:block">{{ effort }}</span>
         </button>
       </div>
@@ -118,9 +118,9 @@
           :key="difficulty"
           @click="addTag('Difficulty: ' + difficulty)"
         >
-          <Difficulty1 v-if="index == 0" class="w-6 h-6" />
-          <Difficulty2 v-if="index == 1" class="w-6 h-6" />
-          <Difficulty3 v-if="index == 2" class="w-6 h-6" />
+          <img src="/difficulty1.png" v-if="index == 0" class="w-6 h-6" />
+          <img src="/difficulty2.png" v-if="index == 1" class="w-7 h-6" />
+          <img src="/difficulty3.png" v-if="index == 2" class="w-[34px] h-6" />
           <span class="hidden sm:block">{{ difficulty }}</span>
         </button>
       </div>
@@ -195,12 +195,8 @@
 </template>
 
 <script setup lang="ts">
-import Difficulty1 from '@/assets/icons/difficulty1.svg';
-import Difficulty2 from '@/assets/icons/difficulty2.svg';
-import Difficulty3 from '@/assets/icons/difficulty3.svg';
-import Effort1 from '@/assets/icons/effort1.svg';
-import Effort2 from '@/assets/icons/effort2.svg';
-import Effort3 from '@/assets/icons/effort3.svg';
+import Difficulty from '@/assets/icons/difficulty.svg';
+import Effort from '@/assets/icons/effort.svg';
 import Badge from '@/assets/icons/badge.svg';
 
 const visibleTags = ref([]);
@@ -323,7 +319,7 @@ function parseTags() {
     hidx: [0, 100],
     kcal: kcalRange.value,
     price: [costRange.value[0] / 10, costRange.value[1] / 10],
-    sorting: 'createdAt',
+    sorting: 'created_at',
     sortingOrder: 'desc',
     title: '',
   };
@@ -345,18 +341,7 @@ function parseTags() {
 }
 
 async function search() {
-  const filtering: Filtering = {
-    difficulties: ['EASY', 'MEDIUM', 'HARD'],
-    efforts: ['LIGHT', 'MODERATE', 'HEAVY'],
-    visibility: 'PUBLIC',
-    tags: filteringTags.value,
-    hidx: [0, 100],
-    kcal: kcalRange.value,
-    price: [costRange.value[0] / 10, costRange.value[1] / 10],
-    sorting: 'created_at',
-    sortingOrder: 'desc',
-    title: '',
-  };
+  const filtering = parseTags()
   results.value = await getResults(filtering);
   for (const result of results.value) {
     result.tags = [];
@@ -493,7 +478,7 @@ function removeTag(index: number) {
     costRange.value = [1, 200];
   }
   filteringTags.value = filteringTags.value.filter(
-    (tag) => tag.name !== tagName
+    (tag) => getTagByID(tag).name !== tagName
   );
   visibleTags.value.splice(index, 1);
 }
@@ -515,7 +500,7 @@ function updateGradeTag(min: number, max: number) {
   );
   if (min != 0 || max != 12) {
     filtered.push(
-      'Health Score: ' + getGradeFormat(min) + ' → ' + getGradeFormat(max)
+      'Health Score: ' + getGradeFormat(min) + ' ⟶ ' + getGradeFormat(max)
     );
   }
   visibleTags.value = filtered;
@@ -524,7 +509,7 @@ function updateGradeTag(min: number, max: number) {
 function updateKcalTag(min: number, max: number) {
   const filtered = visibleTags.value.filter((item) => !item.startsWith('Kcal'));
   if (min != 10 || max != 2500) {
-    filtered.push('Kcal: ' + min + ' → ' + max);
+    filtered.push('Kcal: ' + min + ' ⟶ ' + max);
   }
   visibleTags.value = filtered;
 }
@@ -532,7 +517,7 @@ function updateKcalTag(min: number, max: number) {
 function updateCostTag(min: number, max: number) {
   const filtered = visibleTags.value.filter((item) => !item.startsWith('Cost'));
   if (min != 10 || max != 2000) {
-    filtered.push('Cost: ' + getEuroFormat(min) + ' → ' + getEuroFormat(max));
+    filtered.push('Cost: ' + getEuroFormat(min) + ' ⟶ ' + getEuroFormat(max));
   }
   visibleTags.value = filtered;
 }

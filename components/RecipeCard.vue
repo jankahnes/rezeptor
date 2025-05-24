@@ -14,18 +14,12 @@
         >
           {{ recipe.title }}
         </h1>
-        <div class="stars flex justify-center text-xl pb-2">
-          <span class="text-[#91e996] material-icons">star</span>
-          <span class="text-[#91e996] material-icons">star</span>
-          <span class="text-[#91e996] material-icons">star</span>
-          <span class="text-[#91e996] material-icons">star</span>
-          <span class="text-[#91e996] material-icons">star_half</span>
-        </div>
+        <FormsRatingField class="h-16" v-if="recipe?.rating" v-model="recipe.rating" :select="false"/>
         <div
-          class="tag-field items-center justify-center h-[25%] flex gap-x-2 gap-y-1 flex-wrap"
+          class="tag-field items-center justify-center h-[25%] flex gap-x-2 gap-y-1 flex-wrap mt-3"
         >
           <Tag
-            class="text-xs border rounded-xl px-1 py-[1px] bg-white"
+            class="text-xs border rounded-xl px-1 py-[1px] "
             v-for="tag in recipe.tags"
             :id="tag"
           />
@@ -33,14 +27,41 @@
         <div
           class="w-[70%] sm:w-[90%] flex justify-between items-center text-sm h-full my-3 sm:mt-6"
         >
-          <Difficulty1 class="w-7 h-7" v-if="recipe?.difficulty === 'EASY'" />
-          <Difficulty2 class="w-9 h-7" v-if="recipe?.difficulty === 'MEDIUM'" />
-          <Difficulty3 class="w-10 h-7" v-if="recipe?.difficulty === 'HARD'" />
-          <Effort1 class="w-7 h-7" v-if="recipe?.effort === 'LIGHT'" />
-          <Effort2 class="w-7 h-7" v-if="recipe?.effort === 'MODERATE'" />
-          <Effort3 class="w-8 h-7" v-if="recipe?.effort === 'HEAVY'" />
+          <img
+            class="w-6 h-6"
+            v-if="recipe?.difficulty === 'EASY'"
+            src="/difficulty1.png"
+          />
+          <img
+            class="w-7 h-6"
+            v-if="recipe?.difficulty === 'MEDIUM'"
+            src="/difficulty2.png"
+          />
+          <img
+            class="w-[34px] h-6"
+            v-if="recipe?.difficulty === 'HARD'"
+            src="/difficulty3.png"
+          />
+          <img
+            class="w-[18px] h-6"
+            v-if="recipe?.effort === 'LIGHT'"
+            src="/effort1.png"
+          />
+          <img
+            class="w-6 h-6"
+            v-if="recipe?.effort === 'MODERATE'"
+            src="/effort2.png"
+          />
+          <img
+            class="w-[30px] h-6"
+            v-if="recipe?.effort === 'HEAVY'"
+            src="/effort3.png"
+          />
 
-          <Badge class="w-8 h-8" />
+          <img
+            class="w-[22px] h-[25px]"
+            src="/badge.png"
+          />
         </div>
       </div>
     </div>
@@ -48,16 +69,9 @@
 </template>
 
 <script setup lang="ts">
-import Difficulty1 from '@/assets/icons/difficulty1.svg';
-import Difficulty2 from '@/assets/icons/difficulty2.svg';
-import Difficulty3 from '@/assets/icons/difficulty3.svg';
-import Effort1 from '@/assets/icons/effort1.svg';
-import Effort2 from '@/assets/icons/effort2.svg';
-import Effort3 from '@/assets/icons/effort3.svg';
 import Badge from '@/assets/icons/badge.svg';
 
-const props = defineProps({recipe: Object})
-
+const props = defineProps({ recipe: Object });
 </script>
 
 <style scoped>

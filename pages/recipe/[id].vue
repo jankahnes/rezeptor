@@ -1,7 +1,7 @@
 <template>
   <div class="pt-10">
     <div
-      class="mx-3 md:mx-auto md:max-w-2xl xl:max-w-[85%] min-h-[80vh] sm:p-10 sm:border-4 sm:shadow-[6px_6px_0_0_rgba(0,0,0,1)] card"
+      class="mx-3 md:mx-auto md:max-w-[90%] lg:max-w-[70%] xl:max-w-[85%] min-h-[80vh] sm:p-10 sm:border-4 sm:shadow-[6px_6px_0_0_rgba(0,0,0,1)] card"
     >
       <div class="grid xl:grid-cols-[3fr_7fr] grid-rows-[auto_auto] gap-4">
         <div class="flex items-center justify-center">
@@ -30,17 +30,17 @@
             </div>
 
             <div class="stars flex text-xl mt-1 items-center">
-              <span class="text-[#91e996] material-icons">star</span>
-              <span class="text-[#91e996] material-icons">star</span>
-              <span class="text-[#91e996] material-icons">star</span>
-              <span class="text-[#91e996] material-icons">star</span>
-              <span class="text-[#91e996] material-icons">star_half</span>
+              <FormsRatingField
+                v-if="recipe?.rating"
+                v-model="recipe.rating"
+                :select="false"
+              ></FormsRatingField>
               <span class="ml-2 text-base">{{ recipe?.rating }}</span>
             </div>
             <div
               class="tag-field gap-x-2 gap-y-2 xl:mt-6 mt-10 xl:w-[70%] items-center flex flex-wrap justify-start"
             >
-              <span v-for="tag in tags">{{ getTagByID(tag.tag_id).name }}</span>
+              <Tag class="border rounded-xl px-1 py-[1px]" v-for="tag in tags" :id="tag.tag_id" />
             </div>
           </div>
 
@@ -180,7 +180,6 @@ onMounted(async () => {
       amountInfo: [[row.amount, row.unit]],
     }));
   }
-  console.log(JSON.parse(JSON.stringify(ingredients.value)));
   for (const ingredient of ingredients.value) {
     ingredient.possibleUnits = getPossibleUnits(ingredient.measurements);
     ingredient.currentUnit = 0;

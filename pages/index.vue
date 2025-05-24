@@ -107,6 +107,18 @@
 <script lang="ts" setup>
 const supabase = useSupabase();
 const recipes = ref([]);
+const auth = useAuthStore();
+
+onBeforeMount(() => {
+  if (auth.user && auth.userFetched) {
+    navigateTo('/home');
+  }
+});
+
+watchEffect(() => {
+  if (auth.user) navigateTo('/home');
+});
+
 onMounted(async () => {
   const { data: recipeData, error: recipeError } = await supabase
     .from('recipes')

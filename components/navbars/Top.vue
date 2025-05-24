@@ -50,20 +50,30 @@
           <span class="material-symbols-outlined !text-3xl"> add </span>
         </NuxtLink>
         <NuxtLink
-          to="/profile/1"
+          v-if="auth.user"
+          :to="'/profile/' + auth.user.uid"
           class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
         >
           <span class="material-symbols-outlined !text-3xl">
             account_circle
           </span>
         </NuxtLink>
+        <button
+          v-if="auth.user"
+          @click="auth.signOut"
+          class="bg-white border-2 border-black px-2 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-light"
+        >
+          Sign Out
+        </button>
         <NuxtLink
+          v-if="!auth.user"
           to="/login"
           class="bg-white border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
         >
           Login
         </NuxtLink>
         <NuxtLink
+          v-if="!auth.user"
           to="/register"
           class="bg-black text-white border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
         >
@@ -80,7 +90,10 @@
   </nav>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const auth = useAuthStore();
+
+</script>
 
 <style scoped>
 nav {

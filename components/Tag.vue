@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center gap-2 whitespace-nowrap">
+  <div class="flex items-center justify-center gap-2 whitespace-nowrap select-none">
     <span>{{ tag?.name }}</span>
   </div>
 </template>

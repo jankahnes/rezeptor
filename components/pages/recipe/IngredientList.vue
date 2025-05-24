@@ -29,9 +29,16 @@
     </div>
     <ul class="p-4 text-base space-y-1">
       <li v-for="ingredient in ingredients">
-        <span class="font-bold mr-3 select-none" @click="onClickIngredient(ingredient)"
+        <span
+          class="font-bold mr-3 select-none"
+          @click="onClickIngredient(ingredient)"
           >{{
-            Number((ingredient?.amountInfo?.[ingredient?.currentUnit]?.[0] * servingSize).toFixed(1))
+            Number(
+              (
+                ingredient?.amountInfo?.[ingredient?.currentUnit]?.[0] *
+                servingSize
+              ).toFixed(1)
+            )
           }}
           {{ ingredient?.amountInfo?.[ingredient?.currentUnit]?.[1] }}</span
         >{{ ingredient?.name }}
@@ -43,12 +50,6 @@
 <script setup lang="ts">
 const props = defineProps({ ingredients: Array<Object> });
 const servingSize = ref(1);
-
-onMounted(() => {
-  setTimeout(() => {
-    console.log(props.ingredients);
-  }, 3000);
-});
 
 function onClickIngredient(ingredient) {
   if (ingredient.currentUnit == ingredient.amountInfo.length - 1) {

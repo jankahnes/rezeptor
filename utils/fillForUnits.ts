@@ -5,7 +5,6 @@ export default function fillForUnits(ingredient) {
   const [amountStr, unit] = base;
   const amount = Number(amountStr);
   const out = [];
-  console.log(JSON.parse(JSON.stringify(ingredient)));
   const { density, piece_weight, possibleUnits } = ingredient;
 
   const add = (val, u) => {
