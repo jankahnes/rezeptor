@@ -7,6 +7,28 @@ export const useAuthStore = defineStore('auth', {
     userFetched: false,
   }),
   actions: {
+    async fetchProfile() {
+      if (!this.user || !this.user.id) {
+        return;
+      }
+
+      const supabase = useSupabase();
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('picture_url, username')
+        .eq('id', this.user.id)
+        .single();
+
+      if (error) {
+        console.error('Failed to fetch profile:', error);
+        return;
+      }
+
+      if (data) {
+        this.user = { ...this.user, ...data };
+      }
+    },
+
     async fetchUser() {
       if (this.userFetched) {
         return;
@@ -15,13 +37,22 @@ export const useAuthStore = defineStore('auth', {
       const { data } = await supabase.auth.getUser();
       this.user = data.user;
       this.userFetched = true;
+      this.fetchProfile();
     },
     listenToAuthChanges() {
       if (this.authListenerSet) return;
+
       const supabase = useSupabase();
+
       supabase.auth.onAuthStateChange((_event, session) => {
-        this.user = session?.user ?? null;
+        const newUser = session?.user ?? null;
+
+        if (this.user?.id !== newUser?.id) {
+          this.user = newUser;
+          this.fetchProfile();
+        }
       });
+
       this.authListenerSet = true;
     },
     async signIn(email: string, password: string) {
@@ -31,6 +62,7 @@ export const useAuthStore = defineStore('auth', {
         password,
       });
       if (data?.user) this.user = data.user;
+      this.fetchProfile();
       return { data, error };
     },
     async signUp(email: string, password: string) {
@@ -38,6 +70,7 @@ export const useAuthStore = defineStore('auth', {
       console.log('Email:', JSON.stringify(email));
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (data?.user) this.user = data.user;
+      this.fetchProfile();
       return { data, error };
     },
     async signOut() {

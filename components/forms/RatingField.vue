@@ -70,10 +70,10 @@ const props = defineProps({
     type: Number,
     default: -2,
   },
+  id: Number,
 });
 
-const maskId = `star-mask-${Math.random().toString(36).slice(2, 10)}`;
-
+const maskId = computed(() => `star-mask-${props.id}`);
 const emit = defineEmits(['update:modelValue']);
 
 const hoverRating = ref(null);

@@ -1,5 +1,5 @@
 <template>
-  <div class="pt-10">
+  <div class="py-10">
     <div
       class="mx-3 md:mx-auto md:max-w-[90%] lg:max-w-[70%] xl:max-w-[85%] min-h-[80vh] sm:p-10 sm:border-4 sm:shadow-[6px_6px_0_0_rgba(0,0,0,1)] card"
     >
@@ -34,13 +34,18 @@
                 v-if="recipe?.rating"
                 v-model="recipe.rating"
                 :select="false"
+                :id="300"
               ></FormsRatingField>
               <span class="ml-2 text-base">{{ recipe?.rating }}</span>
             </div>
             <div
               class="tag-field gap-x-2 gap-y-2 xl:mt-6 mt-10 xl:w-[70%] items-center flex flex-wrap justify-start"
             >
-              <Tag class="border rounded-xl px-1 py-[1px]" v-for="tag in tags" :id="tag.tag_id" />
+              <Tag
+                class="border rounded-xl px-1 py-[1px]"
+                v-for="tag in tags"
+                :id="tag.tag_id"
+              />
             </div>
           </div>
 
@@ -126,7 +131,11 @@
           <PagesRecipeNutriCard :recipe="recipe" />
         </div>
       </div>
-      <PagesRecipeCommentSection />
+      <PagesRecipeCommentSection
+        v-if="!isLoading"
+        :comments="comments"
+        :recipeID="recipe?.id"
+      />
     </div>
   </div>
 </template>
@@ -139,6 +148,7 @@ const ingredients = ref([]);
 const tags = ref([]);
 const isLoading = ref(true);
 const imageUrl = ref('');
+const comments = ref([]);
 
 onMounted(async () => {
   const route = useRoute();
@@ -168,7 +178,8 @@ onMounted(async () => {
       unit,
       food:foods (
         id, name, avg_price, density, piece_weight, measurements
-      )
+      ),
+      category
     `
     )
     .eq('recipe_id', recipeId);
@@ -177,6 +188,7 @@ onMounted(async () => {
   } else {
     ingredients.value = ingredientData.map((row) => ({
       ...row.food,
+      category: row.category,
       amountInfo: [[row.amount, row.unit]],
     }));
   }
@@ -206,6 +218,7 @@ onMounted(async () => {
     imageUrl.value = publicUrlData.publicUrl;
   }
 
+  comments.value = await getCommentsByRecipe(Number(recipeId));
   isLoading.value = false;
 });
 </script>

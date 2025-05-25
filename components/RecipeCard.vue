@@ -1,32 +1,36 @@
 <template>
   <NuxtLink :to="'/recipe/' + recipe?.id">
     <div
-      class="w-full xs:w-80 sm:w-120 min-h-100 sm:min-h-60 xs:border-3 font-bold xs:shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2 papyrus-gradient"
+      class="py-5 w-85 sm:w-120 h-130 sm:h-60 xs:border-3 font-bold xs:shadow-[4px_4px_0_0_rgba(0,0,0,1)] grid grid-cols-1 sm:grid-cols-2 items-stretch papyrus-gradient mx-auto"
     >
-      <div class="p-5">
+      <div class="px-5 h-full">
         <img class="rounded-md" :src="recipe?.imageUrl" />
       </div>
       <div
-        class="w-full h-full sm:pt-5 pl-1 sm:pr-5 px-4 flex flex-col items-center gap-2"
+        class="w-full pl-1 sm:pr-5 px-4 flex flex-col items-center gap-2 h-full"
       >
         <h1
           class="text-center font-extrabold leading-none tracking-tight text-[24px]"
         >
           {{ recipe.title }}
         </h1>
-        <FormsRatingField class="h-16" v-if="recipe?.rating" v-model="recipe.rating" :select="false"/>
+        <FormsRatingField
+          class="mt-1"
+          v-if="recipe?.rating"
+          v-model="recipe.rating"
+          :select="false"
+          :id="500"
+        />
         <div
-          class="tag-field items-center justify-center h-[25%] flex gap-x-2 gap-y-1 flex-wrap mt-3"
+          class="tag-field items-center justify-center flex gap-x-2 gap-y-1 flex-wrap mt-3 shrink"
         >
           <Tag
-            class="text-xs border rounded-xl px-1 py-[1px] "
+            class="text-xs border rounded-xl px-1 py-[1px]"
             v-for="tag in recipe.tags"
             :id="tag"
           />
         </div>
-        <div
-          class="w-[70%] sm:w-[90%] flex justify-between items-center text-sm h-full my-3 sm:mt-6"
-        >
+        <div class="w-[70%] sm:w-[90%] flex justify-between items-end text-sm flex-1">
           <img
             class="w-6 h-6"
             v-if="recipe?.difficulty === 'EASY'"
@@ -58,10 +62,7 @@
             src="/effort3.png"
           />
 
-          <img
-            class="w-[22px] h-[25px]"
-            src="/badge.png"
-          />
+          <img class="w-[22px] h-[25px]" src="/badge.png" />
         </div>
       </div>
     </div>
@@ -69,8 +70,6 @@
 </template>
 
 <script setup lang="ts">
-import Badge from '@/assets/icons/badge.svg';
-
 const props = defineProps({ recipe: Object });
 </script>
 

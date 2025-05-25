@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-3">
     <div class="w-14 flex-shrink-0 flex flex-col items-center">
-      <img :src="comment.user.pfp" class="w-14 h-14" />
+      <img :src="comment.user.picture_url" class="w-14 h-14" />
     </div>
 
     <div class="flex-1">
@@ -10,12 +10,13 @@
         >{{ timeAgo(comment.created_at) }}
       </p>
       <FormsRatingField
+        v-if="comment.rating && !isReply"
         class="opacity-70"
-        v-if="!isReply"
         v-model="comment.rating"
         :select="false"
         :starWidth="18"
         :starHeight="18"
+        :id="100"
       ></FormsRatingField>
       <p class="text-base text-gray-800">{{ comment.content }}</p>
 

@@ -53,38 +53,94 @@
             <h2 class="text-xl font-bold text-center">Add ingredients</h2>
             <div class="w-full flex-col flex gap-2 sm:p-2 items-center">
               <div
-                v-for="ingredient in recipe.ingredients"
-                class="flex w-full bg-white gap-2 min-h-10"
+                v-if="categorizing"
+                class="w-full h-10 border px-2 flex items-center justify-between"
               >
-                <div class="flex-1 w-0 min-w-0 border px-2 flex items-center">
-                  <span
-                    class="block whitespace-nowrap hide-scrollbar overflow-auto sm:truncate"
-                  >
-                    {{ ingredient.name }}
-                  </span>
-                </div>
-
                 <input
-                  class="flex-none h-full text-lg text-center bg-white border min-w-10"
-                  v-model="ingredient.amount"
-                  :style="{ width: ingredient.amount.length + 2 + 'ch' }"
+                  v-model="newCategoryName"
+                  placeholder="New Category"
+                  class="w-[80%] h-9 focus:outline-none"
                 />
-
-                <div class="flex-none relative">
-                  <FormsDropdown
-                    :thin="true"
-                    :choices="ingredient.possibleUnits"
-                    v-model="ingredient.unit"
-                  />
-                </div>
-
                 <button
-                  class="flex-none flex items-center justify-center border aspect-square"
-                  @click="removeIngredient(ingredient.id)"
+                  class="flex items-center justify-center p-2"
+                  @click="confirmNewCategory"
                 >
-                  <span class="material-symbols-outlined">remove</span>
+                  <span class="material-symbols-outlined"> check </span>
                 </button>
               </div>
+              <ul
+                v-for="[category, group] in grouped"
+                :key="category"
+                class="w-full flex-col flex gap-2"
+              >
+                <li class="font-bold flex justify-between items-center">
+                  <h3>{{ category }}</h3>
+                  <div v-if="category != 'Uncategorized'" class="flex gap-4">
+                    <button
+                      class="flex justify-center items-center bg-none"
+                      @click="editCategory(category)"
+                    >
+                      <span class="material-symbols-outlined"> edit </span>
+                    </button>
+                    <button
+                      class="flex justify-center items-center bg-none"
+                      @click="deleteCategory(category)"
+                    >
+                      <span class="material-symbols-outlined"> delete </span>
+                    </button>
+                  </div>
+                </li>
+                <li
+                  v-for="ingredient in group"
+                  class="flex w-full gap-2 min-h-10"
+                  :key="ingredient.name"
+                >
+                  <button
+                    class="flex-none flex items-center justify-center border aspect-square"
+                    v-if="categorizing"
+                    @click="toggleNewCategorySelected(ingredient)"
+                  >
+                    <span
+                      class="material-symbols-outlined !text-3xl"
+                      v-if="newCategorySelected.includes(ingredient.id)"
+                    >
+                      check_box
+                    </span>
+                    <span class="material-symbols-outlined !text-3xl" v-else>
+                      check_box_outline_blank
+                    </span>
+                  </button>
+                  <div class="flex-1 w-0 min-w-0 border px-2 flex items-center">
+                    <span
+                      class="block whitespace-nowrap hide-scrollbar overflow-auto sm:truncate"
+                    >
+                      {{ ingredient.name }}
+                    </span>
+                  </div>
+
+                  <input
+                    class="flex-none h-full text-lg text-center bg-none border min-w-10"
+                    v-model="ingredient.amount"
+                    :style="{ width: ingredient.amount.length + 2 + 'ch' }"
+                  />
+
+                  <div class="flex-none relative">
+                    <FormsDropdown
+                      :thin="true"
+                      :choices="ingredient.possibleUnits"
+                      v-model="ingredient.unit"
+                      class="!bg-none"
+                    />
+                  </div>
+
+                  <button
+                    class="flex-none flex items-center justify-center border aspect-square"
+                    @click="removeIngredient(ingredient.id)"
+                  >
+                    <span class="material-symbols-outlined">remove</span>
+                  </button>
+                </li>
+              </ul>
               <div v-if="ingredientLookup" class="w-full space-y-3">
                 <div class="flex gap-2">
                   <div
@@ -140,6 +196,14 @@
                     class="bg-white p-2 border w-full h-full flex items-center justify-center"
                   >
                     <span class="material-symbols-outlined"> barcode </span>
+                  </button>
+                </div>
+                <div class="border-2 p-[2px] w-20">
+                  <button
+                    class="bg-white p-2 border w-full h-full flex items-center justify-center"
+                    @click="categorizing = !categorizing"
+                  >
+                    <span class="material-symbols-outlined"> topic </span>
                   </button>
                 </div>
               </div>
@@ -349,6 +413,65 @@ const recipeSearchResults = ref([]);
 const supabase = useSupabase();
 const imgUpload = ref();
 
+const categorizing = ref(false);
+const newCategoryName = ref('');
+const newCategorySelected = ref([]);
+
+const auth = useAuthStore();
+
+function toggleNewCategorySelected(ingredient) {
+  if (newCategorySelected.value.includes(ingredient.id)) {
+    newCategorySelected.value = newCategorySelected.value.filter(
+      (id) => id != ingredient.id
+    );
+  } else {
+    newCategorySelected.value.push(ingredient.id);
+  }
+}
+
+function confirmNewCategory() {
+  if (!newCategoryName.value)
+    throw new Error('Category Name can not be empty.');
+  for (const ingredient of recipe.value.ingredients) {
+    if (newCategorySelected.value.includes(ingredient.id)) {
+      ingredient.category = newCategoryName.value;
+    }
+  }
+  categorizing.value = false;
+  newCategoryName.value = '';
+  newCategorySelected.value = [];
+}
+
+function editCategory(category) {
+  newCategoryName.value = category;
+  for (const ingredient of recipe.value.ingredients) {
+    if (ingredient.category === category) {
+      newCategorySelected.value.push(ingredient.id);
+    }
+  }
+  categorizing.value = true;
+}
+
+function deleteCategory(category) {
+  for (const ingredient of recipe.value.ingredients) {
+    if (ingredient.category === category) {
+      delete ingredient.category;
+    }
+  }
+}
+
+const grouped = computed(() => {
+  const map = new Map();
+  for (const ingredient of recipe.value.ingredients) {
+    const category = ingredient.category || 'Uncategorized';
+    if (!map.has(category)) {
+      map.set(category, []);
+    }
+    map.get(category).push(ingredient);
+  }
+  return Array.from(map.entries());
+});
+
 const recipe = ref({
   title: '',
   effort: 'Moderate',
@@ -458,9 +581,10 @@ async function submit() {
   recipe.value.mnidx = 50;
   recipe.value.hidx = 50;
   let fileExt = null;
+  let imgFile = null;
   if (imgUpload.value.files && imgUpload.value.files[0]) {
-    const file = imgUpload.value.files[0];
-    fileExt = file.name.split('.').pop();
+    imgFile = imgUpload.value.files[0];
+    fileExt = imgFile.name.split('.').pop();
   }
 
   const { data: recipeData, error: recipeError } = await supabase
@@ -471,7 +595,7 @@ async function submit() {
       difficulty: recipe.value.difficulty.toUpperCase(),
       visibility: recipe.value.visibility.toUpperCase(),
       instructions: recipe.value.instructions,
-      created_by: 0,
+      user_id: auth?.user?.id ?? null,
       rating: 4.1,
       kcal,
       protein,
@@ -505,11 +629,12 @@ async function submit() {
     food_id: item.id,
     amount: item.amount,
     unit: item.unit.toUpperCase(),
+    category: item.category,
   }));
   await supabase.from('recipe_foods').insert(foodRows);
 
   if (fileExt) {
-    await handleUpload(recipeId);
+    await handleUpload(recipeId, imgFile);
   }
   state.value = 'animate';
   setTimeout(() => {
@@ -544,8 +669,7 @@ function removeIngredient(id) {
   );
 }
 
-const handleUpload = async (id) => {
-  const file = imgUpload.value.files[0];
+const handleUpload = async (id, file) => {
   if (!file) return;
 
   const fileExt = file.name.split('.').pop();

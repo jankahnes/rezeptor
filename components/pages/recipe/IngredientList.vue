@@ -19,35 +19,72 @@
             {{ i }}
           </button>
           <button class="bg-white w-8 h-8">
-            <span class="material-icons text-black !text-2xl"
-              >arrow_drop_down</span
-            >
+            <span class="material-icons text-black !text-2xl">
+              arrow_drop_down
+            </span>
           </button>
         </div>
         <span>Servings</span>
       </div>
     </div>
+
     <ul class="p-4 text-base space-y-1">
-      <li v-for="ingredient in ingredients">
-        <span
-          class="font-bold mr-3 select-none"
-          @click="onClickIngredient(ingredient)"
-          >{{
-            Number(
-              (
-                ingredient?.amountInfo?.[ingredient?.currentUnit]?.[0] *
-                servingSize
-              ).toFixed(1)
-            )
-          }}
-          {{ ingredient?.amountInfo?.[ingredient?.currentUnit]?.[1] }}</span
-        >{{ ingredient?.name }}
-      </li>
+      <template v-if="groupedIngredients.uncategorized.length">
+        <li
+          v-for="ingredient in groupedIngredients.uncategorized"
+          :key="ingredient.name"
+          class="mt-3"
+        >
+          <span
+            class="font-bold mr-3 select-none"
+            @click="onClickIngredient(ingredient)"
+          >
+            {{
+              Number(
+                (
+                  ingredient?.amountInfo?.[ingredient?.currentUnit]?.[0] *
+                  servingSize
+                ).toFixed(1)
+              )
+            }}
+            {{ ingredient?.amountInfo?.[ingredient?.currentUnit]?.[1] }}
+          </span>
+          {{ ingredient?.name }}
+        </li>
+      </template>
+
+      <template
+        v-for="(group, category) in groupedIngredients.categorized"
+        :key="category"
+      >
+        <li class="pt-2 -mb-[1px]">
+          <h3 class="font-semibold underline">{{ category }}</h3>
+        </li>
+        <li v-for="ingredient in group" :key="ingredient.name" class="">
+          <span
+            class="font-bold mr-3 select-none"
+            @click="onClickIngredient(ingredient)"
+          >
+            {{
+              Number(
+                (
+                  ingredient?.amountInfo?.[ingredient?.currentUnit]?.[0] *
+                  servingSize
+                ).toFixed(1)
+              )
+            }}
+            {{ ingredient?.amountInfo?.[ingredient?.currentUnit]?.[1] }}
+          </span>
+          {{ ingredient?.name }}
+        </li>
+      </template>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue';
+
 const props = defineProps({ ingredients: Array<Object> });
 const servingSize = ref(1);
 
@@ -58,6 +95,23 @@ function onClickIngredient(ingredient) {
     ingredient.currentUnit += 1;
   }
 }
-</script>
 
-<style scoped></style>
+const groupedIngredients = computed(() => {
+  const uncategorized = [];
+  const categorized = {};
+
+  for (const ingredient of props.ingredients || []) {
+    const category = ingredient.category;
+    if (!category) {
+      uncategorized.push(ingredient);
+    } else {
+      if (!categorized[category]) {
+        categorized[category] = [];
+      }
+      categorized[category].push(ingredient);
+    }
+  }
+
+  return { uncategorized, categorized };
+});
+</script>

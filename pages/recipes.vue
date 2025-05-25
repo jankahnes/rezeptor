@@ -74,7 +74,7 @@
           @click="search"
           class="flex bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] gap-1 items-center"
         >
-          <span class="hidden lg:block">Apply</span>
+          <span class="">Apply</span>
         </button>
       </div>
       <div class="flex items-center gap-4">
@@ -188,7 +188,7 @@
     >
       <RecipeCard :recipe="recipe" />
       <div
-        class="xs:hidden mt-6 mb-4 w-[90%] h-[1px] border-b-1 border-dashed"
+        class="xs:hidden mt-6 mb-4 w-75 h-[1px] border-b-1 border-dashed"
       ></div>
     </div>
   </div>
