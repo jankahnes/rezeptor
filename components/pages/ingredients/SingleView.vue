@@ -33,6 +33,10 @@
           <span>Sugar</span>
           <span>Fiber</span>
           <span>Salt</span>
+          <span>Vegan</span>
+          <span>Vegetarian</span>
+          <span>Gluten-Free</span>
+          <span>Cost/100g</span>
         </div>
         <div class="flex flex-col gap-1 items-end">
           <span>{{ food.kcal }}</span>
@@ -43,30 +47,44 @@
           <span>{{ food.sugar }}</span>
           <span>{{ food.fiber }}</span>
           <span>{{ food.salt }}</span>
+          <span v-if="food.vegan" class="material-symbols-outlined">
+            check
+          </span>
+          <span v-else class="material-symbols-outlined"> close </span>
+          <span v-if="food.vegetarian" class="material-symbols-outlined">
+            check
+          </span>
+          <span v-else class="material-symbols-outlined"> close </span>
+          <span v-if="food.gluten_free" class="material-symbols-outlined">
+            check
+          </span>
+          <span v-else class="material-symbols-outlined"> close </span>
+          <span>{{ food.price }}€</span>
         </div>
       </div>
       <div class="w-full sm:hidden bg-black h-[1px] my-5 mx-auto"></div>
       <div class="flex justify-between md:w-[80%] sm:mt-2">
         <div class="flex flex-col gap-1 items-start">
           <span>NutriGrade</span>
-          <span>Cost/100g</span>
+          <span>Micronutrients</span>
           <span>Satiety</span>
-          <span>Micronutrient Grade</span>
-          <span>Vegan</span>
-          <span>Vegetarian</span>
-          <span>Gluten-Free</span>
+          <span>Fatty Acid Profile</span>
+          <span>Energy Density</span>
+          <span>Protein</span>
+          <span>Sugar</span>
+          <span>Fiber</span>
+          <span>Sodium</span>
         </div>
         <div class="flex flex-col gap-1 items-end">
-          <span>B</span>
-          <span>{{ food.avg_price }}€</span>
-          <span>79</span>
-          <span>{{ food.mnidx }}</span>
-          <span v-if="food.vegan" class="material-symbols-outlined"> check </span>
-          <span v-else class="material-symbols-outlined"> close </span>
-          <span v-if="food.vegetarian" class="material-symbols-outlined"> check </span>
-          <span v-else class="material-symbols-outlined"> close </span>
-          <span v-if="food.gluten_free" class="material-symbols-outlined"> check </span>
-          <span v-else class="material-symbols-outlined"> close </span>
+          <span>{{ getHidxGrade(food.hidx) }}</span>
+          <span>{{ getHidxGrade(food.mnidx) }}</span>
+          <span>{{ getHidxGrade(food.sidx) }}</span>
+          <span>{{ getHidxGrade(food.fat_profile_score) }}</span>
+          <span>{{ getHidxGrade(food.ed) }}</span>
+          <span>{{ getHidxGrade(food.protein_score) }}</span>
+          <span>{{ getHidxGrade(food.sugar_score) }}</span>
+          <span>{{ getHidxGrade(food.fiber_score) }}</span>
+          <span>{{ getHidxGrade(food.salt_score) }}</span>
         </div>
       </div>
     </div>

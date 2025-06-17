@@ -12,6 +12,8 @@ type Comment = {
 export default async function getCommentsByRecipe(
   recipe_id: number
 ): Promise<Comment[]> {
+
+  console.log(recipe_id)
   const supabase = useSupabase();
 
   const { data: commentsData, error: commentsError } = await supabase
@@ -71,6 +73,7 @@ export default async function getCommentsByRecipe(
     if (comment.replying_to) {
       const parent = commentMap[comment.replying_to];
       if (parent) {
+        comment.parent = parent;
         parent.replies!.push(comment);
       }
     } else {

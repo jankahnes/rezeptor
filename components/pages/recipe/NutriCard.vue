@@ -1,105 +1,55 @@
 <template>
   <div
-    class="xl:w-[85%] min-h-100 border-3 shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col font-[consolas]"
+    class="grid grid-cols-[4fr_1fr] sm:grid-cols-[6fr_2fr] border-2 border-dashed rounded-lg border-gray-300 w-full sm:max-w-[500px] font-sans"
   >
-    <div class="flex justify-center py-3 bg-[#8a7ca92a] items-center gap-3">
-      <span class="material-icons">restaurant</span>
-      <h2 class="font-bold text-2xl">NutriCard</h2>
-    </div>
-    <div
-      class="w-full h-full flex-1 p-4 grid xl:grid-cols-[5fr_3fr] xl:gap-0 gap-5"
-    >
+    <div class="flex flex-col text-center">
       <div
-        class="pr-3 xl:border-r xl:border-b-0 border-b flex flex-col items-center gap-1"
+        class="flex p-4 text-xl xs:text-3xl font-bold border-b-2 border-gray-300 border-dashed"
       >
-        <h2
-          class="text-xl font-bold tracking-widest px-3 border-4 border-double"
-        >
+        <h2>Nutritional Information</h2>
+      </div>
+      <div class="flex justify-center text-2xl font-semibold py-4">
+        <div class="p-1 px-4 border-4 border-double border-gray-400 rounded-lg">
           {{ recipe?.kcal }} kcal
-        </h2>
-        <p class="text-xs font-light">per Serving</p>
-        <div class="w-full flex gap-2 sm:justify-between justify-center p-5">
-          <div
-            class="border-3 sm:w-[60%] w-[90%] p-1 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-          >
-            <!-- Nutritonal Label-->
-            <div class="p-2 border flex justify-between bg-[#8a7ca92a]">
-              <div class="">
-                <p>Carbs</p>
-                <p>Protein</p>
-                <p>Fat</p>
-              </div>
-              <div class="flex flex-col items-end">
-                <p>{{ Number(recipe?.carbohydrates.toFixed(1)) }}g</p>
-                <p>{{ Number(recipe?.protein.toFixed(1)) }}g</p>
-                <p>{{ Number(recipe?.fat.toFixed(1)) }}g</p>
-              </div>
-            </div>
-            <div class="p-2 pb-0 flex justify-between text-base">
-              <div class="">
-                <p>Sugar</p>
-                <p>Saturated Fat</p>
-                <p>Fiber</p>
-                <p>Salt</p>
-              </div>
-              <div class="flex flex-col items-end">
-                <p>{{ Number(recipe?.sugar.toFixed(1)) }}g</p>
-                <p>{{ Number(recipe?.saturated_fat.toFixed(1)) }}g</p>
-                <p>{{ Number(recipe?.fiber.toFixed(1)) }}g</p>
-                <p>{{ Number(recipe?.salt.toFixed(1)) }}g</p>
-              </div>
-            </div>
-          </div>
-          <div class="items-center justify-end w-[40%] hidden sm:flex">
-            <div
-              class="h-full w-7 border-2 shadow-[3px_3px_0_0_rgba(0,0,0,1)] overflow-hidden"
-            >
-              <div
-                class="bg-gray-400 h-[50%] transition-transform duration-100 hover:scale-110"
-              ></div>
-              <div
-                class="bg-[#f0e7d2] h-[30%] transition-transform duration-100 hover:scale-110"
-              ></div>
-              <div
-                class="bg-gray-700 h-[20%] transition-transform duration-100 hover:scale-110"
-              ></div>
-            </div>
-            <div class="h-full ml-2 text-sm">
-              <p class="mt-[40px]">Fat</p>
-              <p class="mt-[50px]">Protein</p>
-              <p class="mt-[27px]">Carbs</p>
-            </div>
-          </div>
         </div>
       </div>
-      <div class="px-4 overflow-hidden space-y-2 w-full h-full">
-        <div class="flex h-20 items-center gap-3">
-          <div class="badge flex items-center justify-center w-20 relative">
-            <img class="absolute h-20 w-20" src="/badge-a.png" />
-            <span class="grade text-2xl z-10">B+</span>
-          </div>
-          <div class="">
-            <p>Health</p>
-            <p>Score</p>
-          </div>
-        </div>
-        <div class="p-2 flex justify-between">
-          <div class="">
-            <p>Satiety Index</p>
-            <p>Protein Content</p>
-            <p>Salt Content</p>
-            <p>Sugar Content</p>
-            <p>Fiber Content</p>
-            <p>Micronutrients</p>
-          </div>
-          <div class="flex flex-col items-start">
-            <p>B</p>
-            <p>B+</p>
-            <p>D-</p>
-            <p>A</p>
-            <p>C+</p>
-            <p>C-</p>
-          </div>
+      <div
+        v-for="item in nutritionalItems"
+        :key="item.key"
+        class="flex justify-between w-full max-w-[300px] mx-auto border-b-2 border-gray-300 border-dashed p-2"
+      >
+        <span :class="{ 'ml-6': item.indented }">
+          <span class="sm:hidden">{{
+            typeof item.label === 'object' ? item.label.sm : item.label
+          }}</span>
+          <span class="hidden sm:inline">{{
+            typeof item.label === 'object' ? item.label.default : item.label
+          }}</span>
+        </span>
+        <span>{{ recipe?.[item.key]?.toFixed(1) }}g</span>
+      </div>
+    </div>
+    <div class="flex flex-col">
+      <div
+        class="text-6xl font-bold flex justify-center items-center aspect-square border-l-2 border-b-2 border-gray-300 border-dashed"
+        :class="gradeColors[recipe?.grade || 'B+']"
+      >
+        {{ recipe?.grade || 'B+' }}
+      </div>
+      <div
+        v-for="(item, index) in gradeItems"
+        :key="item.key"
+        class="flex items-center border-l-2 border-gray-300 border-dashed w-full"
+        :class="{ 'border-b-2': index !== gradeItems.length - 1 }"
+      >
+        <div class="flex-1 p-2 text-sm">{{ item.label }}</div>
+        <div
+          :class="[
+            'w-10 h-10 p-2 flex items-center justify-center text-xl font-bold border-gray-300 border-l-2 border-dashed ',
+            gradeColors[item.grade],
+          ]"
+        >
+          {{ item.grade }}
         </div>
       </div>
     </div>
@@ -107,7 +57,77 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({ recipe: Object });
+interface NutritionalItem {
+  key: keyof Omit<Recipe, 'grade'>;
+  label: string | { sm: string; default: string };
+  indented?: boolean;
+}
+
+interface GradeItem {
+  key: string;
+  label: string;
+  grade:
+    | 'S'
+    | 'A+'
+    | 'A'
+    | 'A-'
+    | 'B+'
+    | 'B'
+    | 'B-'
+    | 'C+'
+    | 'C'
+    | 'C-'
+    | 'D+'
+    | 'D'
+    | 'D-'
+    | 'E'
+    | 'F';
+}
+
+const props = defineProps<{ recipe?: Recipe }>();
+
+const gradeColors: Record<GradeItem['grade'], string> = {
+  S: 'bg-blue-100 text-blue-800',
+  'A+': 'bg-amber-100 text-amber-800',
+  A: 'bg-amber-100 text-amber-800',
+  'A-': 'bg-amber-100 text-amber-800',
+  'B+': 'bg-green-100 text-green-800',
+  B: 'bg-green-100 text-green-800',
+  'B-': 'bg-green-100 text-green-800',
+  'C+': 'bg-yellow-100 text-yellow-800',
+  C: 'bg-yellow-100 text-yellow-800',
+  'C-': 'bg-yellow-100 text-yellow-800',
+  'D+': 'bg-orange-100 text-orange-800',
+  D: 'bg-orange-100 text-orange-800',
+  'D-': 'bg-orange-100 text-orange-800',
+  E: 'bg-red-100 text-red-800',
+  F: 'bg-red-200 text-red-900',
+};
+
+const nutritionalItems: NutritionalItem[] = [
+  { key: 'carbohydrates', label: 'Carbs' },
+  { key: 'sugar', label: 'Sugar', indented: true },
+  { key: 'protein', label: 'Protein' },
+  { key: 'fat', label: 'Fat' },
+  {
+    key: 'saturated_fat',
+    label: { sm: 'Sat. Fat', default: 'Saturated Fat' },
+    indented: true,
+  },
+  { key: 'fiber', label: 'Fiber' },
+  { key: 'salt', label: 'Salt' },
+];
+
+const gradeItems: GradeItem[] = [
+  { key: 'micronutrients', label: 'Micronutrients', grade: 'D' },
+  { key: 'satiety', label: 'Satiety', grade: 'A' },
+  { key: 'fatProfile', label: 'Fat Profile', grade: 'A' },
+  { key: 'energy', label: 'Energy', grade: 'F' },
+  { key: 'protein', label: 'Protein', grade: 'A' },
+  { key: 'sugar', label: 'Sugar', grade: 'C-' },
+  { key: 'fiber', label: 'Fiber', grade: 'A' },
+  { key: 'sodium', label: 'Sodium', grade: 'B' },
+];
 </script>
 
 <style scoped></style>

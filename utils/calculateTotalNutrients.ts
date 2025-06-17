@@ -1,4 +1,4 @@
-function convertToGrams({ amount, unit, density, piece_weight }) {
+function convertToGrams({ amount, unit, density, unit_weight }) {
   const num = Number(amount);
   if (isNaN(num) || num <= 0) return 0;
 
@@ -12,7 +12,7 @@ function convertToGrams({ amount, unit, density, piece_weight }) {
     case 'TBSP':
       return num * 15 * density;
     case 'PCS':
-      return num * piece_weight;
+      return num * unit_weight;
     default:
       return 0;
   }
@@ -42,7 +42,7 @@ export default function calculateTotalNutrients(ingredients) {
     totals.saturated_fat += item.saturated_fat * factor;
     totals.fiber += item.fiber * factor;
     totals.salt += item.salt * factor;
-    totals.price += item.avg_price * factor;
+    totals.price += item.price * factor;
   });
   totals.kcal = Math.round(totals.kcal);
 

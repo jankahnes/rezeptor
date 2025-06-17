@@ -1,5 +1,5 @@
 export default function (
-  food: { density?: number; piece_weight?: number },
+  food: { density?: number; unit_weight?: number },
   price: number,
   amount: number,
   unit: string
@@ -21,9 +21,9 @@ export default function (
     return price * (100 / (amount * 1000 * food.density));
   }
   if (unit === 'pcs') {
-    if (!food.piece_weight)
+    if (!food.unit_weight)
       throw new Error('Piece weight required for pcs unit');
-    return price * (100 / (amount * food.piece_weight));
+    return price * (100 / (amount * food.unit_weight));
   }
   throw new Error('Unknown unit');
 }

@@ -32,7 +32,7 @@
           starWidth / 24
         }, ${starHeight / 24})`"
       >
-        <path :d="starPath" fill="none" stroke="black" />
+        <path :d="starPath" fill="none" stroke="currentColor" />
       </g>
     </g>
 
@@ -42,7 +42,7 @@
       y="0"
       :width="fillWidth"
       :height="starHeight"
-      fill="black"
+      fill="currentColor"
       :mask="`url(#${maskId})`"
     />
   </svg>

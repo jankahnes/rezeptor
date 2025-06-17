@@ -25,7 +25,7 @@
           class="tag-field items-center justify-center flex gap-x-2 gap-y-1 flex-wrap mt-3 shrink"
         >
           <Tag
-            class="text-xs border rounded-xl px-1 py-[1px]"
+            class="text-xs"
             v-for="tag in recipe.tags"
             :id="tag"
           />

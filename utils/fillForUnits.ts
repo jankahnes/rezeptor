@@ -5,7 +5,7 @@ export default function fillForUnits(ingredient) {
   const [amountStr, unit] = base;
   const amount = Number(amountStr);
   const out = [];
-  const { density, piece_weight, possibleUnits } = ingredient;
+  const { density, unit_weight, possibleUnits } = ingredient;
 
   const add = (val, u) => {
     out.push([Number(val.toFixed(2)), u]);
@@ -13,8 +13,8 @@ export default function fillForUnits(ingredient) {
 
   if (unit === 'G') {
     add(amount, 'G');
-    if (piece_weight && possibleUnits.includes('PCS'))
-      add(amount / piece_weight, 'PCS');
+    if (unit_weight && possibleUnits.includes('UNITS'))
+      add(amount / unit_weight, 'UNITS');
     if (density && possibleUnits.includes('TSP'))
       add(amount / density / 5, 'TSP');
     if (density && possibleUnits.includes('TBSP'))
@@ -27,10 +27,10 @@ export default function fillForUnits(ingredient) {
       if (possibleUnits.includes('TBSP')) add(amount / 15, 'TBSP');
       add(mass, 'G');
     }
-  } else if (unit === 'PCS') {
-    if (piece_weight) {
-      const g = piece_weight * amount;
-      add(amount, 'PCS');
+  } else if (unit === 'UNITS') {
+    if (unit_weight) {
+      const g = unit_weight * amount;
+      add(amount, 'UNITS');
       add(g, 'G');
     }
   } else if (unit === 'TSP') {

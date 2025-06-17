@@ -1,9 +1,10 @@
 <template>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Gloria+Hallelujah&family=Inconsolata:wght@200..900&family=Vollkorn:ital,wght@0,400..900;1,400..900&display=swap&family=Comic+Neue:wght@700&display=swap"
     rel="stylesheet"
   />
-  <div class="bg-gray-50 font-[Inconsolata]">
+
+  <div class="bg-[#fffefc] font-[Inconsolata]">
     <NavbarsTop />
     <div class="flex justify-center"></div>
     <div

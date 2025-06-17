@@ -16,6 +16,9 @@
         <span class="flex-[5] w-[15rem] shrink-0 sticky left-0 bg-white z-40">
           Name
         </span>
+        <span class="flex-1 min-w-[4rem] shrink-0">HIDX</span>
+        <span class="flex-1 min-w-[4rem] shrink-0">MNIDX</span>
+        <span class="flex-1 min-w-[4rem] shrink-0">SIDX</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Kcal</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Carbs</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Protein</span>
@@ -24,7 +27,6 @@
         <span class="flex-1 min-w-[4rem] shrink-0">Sugar</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Fiber</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Salt</span>
-        <span class="flex-1 min-w-[4rem] shrink-0">MNIDX</span>
         <span class="flex-1 min-w-[4rem] shrink-0">Cost</span>
       </li>
       <li v-for="(food, index) in foodList" :key="index">
@@ -33,7 +35,7 @@
           :class="
             index % 2 === 0
               ? 'bg-slate-100 hover:!bg-slate-200'
-              : 'bg-gray-50 hover:bg-gray-100'
+              : 'bg-[#fffefcb] hover:bg-gray-100'
           "
           @click="onClick(food)"
         >
@@ -42,7 +44,7 @@
             :class="
               index % 2 === 0
                 ? 'bg-slate-100 group-hover:!bg-slate-200'
-                : 'bg-gray-50 group-hover:bg-gray-100'
+                : 'bg-[#fffefcb] group-hover:bg-gray-100'
             "
           >
             <span class="block pr-6">{{ food.name }}</span>
@@ -56,16 +58,28 @@
             ></span>
           </span>
 
+          <span class="flex-1 min-w-[4rem] shrink-0">{{
+            getHidxGrade(food?.hidx)
+          }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{
+            getHidxGrade(food?.mnidx)
+          }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{
+            getHidxGrade(food?.sidx)
+          }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.kcal }}</span>
-          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.carbohydrates }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{
+            food.carbohydrates
+          }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.protein }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.fat }}</span>
-          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.saturated_fat }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{
+            food.saturated_fat
+          }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.sugar }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.fiber }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.salt }}</span>
-          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.mnidx }}</span>
-          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.avg_price }}</span>
+          <span class="flex-1 min-w-[4rem] shrink-0">{{ food.price }}</span>
         </div>
       </li>
     </ul>
@@ -82,7 +96,7 @@
           :class="
             index % 2 === 0
               ? 'bg-slate-100 hover:!bg-slate-200'
-              : 'bg-gray-50 hover:bg-gray-100'
+              : 'bg-[#fffefcb] hover:bg-gray-100'
           "
           @click="onClick(food)"
         >
@@ -91,7 +105,7 @@
             :class="
               index % 2 === 0
                 ? 'bg-slate-100 group-hover:!bg-slate-200'
-                : 'bg-gray-50 group-hover:bg-gray-100'
+                : 'bg-[#fffefcb] group-hover:bg-gray-100'
             "
           >
             <span class="block pr-6">{{ food.name }}</span>

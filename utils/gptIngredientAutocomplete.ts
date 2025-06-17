@@ -9,7 +9,7 @@ export default async function (name: String) {
 - fiber (g/100g)
 - salt (g/100g)
 - measurements (e.g. would you measure by pieces, volume or weight? contains a list that contains one or multiple of these three. banana -> ["weight", "pieces"] cocoa powder -> ["volume", "weight"]. for things like flour, think like a european. no cups or ounces.)
-- avg_price (in EUR, Germany Market prices) (THIS IS IMPORTANT! ADJUST FOR THE 100g!)
+- price (in EUR, Germany Market prices) (THIS IS IMPORTANT! ADJUST FOR THE 100g!)
 - vegan (true/false)
 - vegetarian (true/false)
 - gluten_free (true/false)

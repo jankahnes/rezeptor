@@ -1,5 +1,9 @@
 <template>
-  <span class="absolute gradient-border"> </span>
+  <span
+    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-[100%] aspect-square"
+  >
+    <span class="gradient-border w-full h-full" :class="{ spinning }"></span>
+  </span>
 </template>
 
 <script setup lang="ts">
@@ -8,11 +12,6 @@ defineProps({ spinning: Boolean });
 
 <style scoped>
 .gradient-border {
-  position: absolute;
-  top: -75%;
-  left: -75%;
-  width: 250%;
-  height: 250%;
   background: conic-gradient(
     #ff0000,
     #ff9900,
@@ -22,14 +21,13 @@ defineProps({ spinning: Boolean });
     #cc00ff,
     #ff0000
   );
-
   border-radius: inherit;
   transform-origin: center;
+  display: block; /* Makes aspect-ratio behave reliably */
 }
 
-/* only when loading do we spin that huge gradient layer */
-.loading .gradient-border {
-  animation: spin 1s linear infinite;
+.spinning {
+  animation: spin 1.5s linear infinite;
 }
 
 @keyframes spin {

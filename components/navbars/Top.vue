@@ -43,15 +43,10 @@
         >
           <span class="material-symbols-outlined !text-3xl"> grocery </span>
         </NuxtLink>
-        <NuxtLink
-          to="/create-recipe"
-          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-        >
-          <span class="material-symbols-outlined !text-3xl"> add </span>
-        </NuxtLink>
+
         <NuxtLink
           v-if="auth.user"
-          :to="'/profile/' + auth.user.uid"
+          :to="'/profile/' + auth.user.id"
           class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
         >
           <span class="material-symbols-outlined !text-3xl">
@@ -92,7 +87,6 @@
 
 <script setup lang="ts">
 const auth = useAuthStore();
-
 </script>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-18 xm:top-22 bg-gray-50 w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
+    class="sticky top-18 xm:top-22 bg-[#fffefcb] w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
   >
     <h1 class="hidden md:block text-2xl font-bold text-center sm:text-start">
       All Recipes
@@ -205,83 +205,7 @@ const filteringTags = ref([]);
 const difficulties = ['Easy', 'Medium', 'Hard'];
 const effortLevels = ['Light', 'Moderate', 'Heavy'];
 const selectedFilter = ref('');
-const results = ref([
-  {
-    id: 3,
-    created_at: '2025-05-20T19:06:27.279927+00:00',
-    effort: 'MODERATE',
-    difficulty: 'MEDIUM',
-    rating: 4.1,
-    instructions: [
-      'Mix and blend',
-      'Freeze overnight',
-      'Prepare mix in: Melt chocolate, salt, butter in the microwave. Mix with crushed caramel candy.',
-      'Blend once on ice cream, then mix in.',
-    ],
-    kcal: 295,
-    protein: 36.7785,
-    carbohydrates: 61.3453,
-    fat: 11.8368,
-    saturated_fat: 7.3029,
-    sugar: 8.1488,
-    fiber: 6.1045,
-    salt: 1.57405,
-    price: 4.47825,
-    hidx: 50,
-    mnidx: 50,
-    forked_from: null,
-    title: 'Ninja Creami Cookies',
-    visibility: 'PUBLIC',
-    created_by: 0,
-    picture_ext: 'png',
-    recipe_tags: [
-      { tags: { id: 72, name: 'sweet' }, tag_id: 72 },
-      { tags: { id: 81, name: 'dessert' }, tag_id: 81 },
-      { tags: { id: 63, name: 'vegetarian' }, tag_id: 63 },
-      { tags: { id: 68, name: 'gluten free' }, tag_id: 68 },
-    ],
-    tags: [72, 81, 63, 68],
-    imageUrl:
-      'https://smovbezqgvxljtvdzvhp.supabase.co/storage/v1/object/public/recipe/3.png',
-  },
-  {
-    id: 1,
-    created_at: '2025-05-20T11:00:20.950297+00:00',
-    effort: 'LIGHT',
-    difficulty: 'EASY',
-    rating: 4.1,
-    instructions: [
-      'Mix with blender.',
-      'Freeze overnight.',
-      'Blend with Ninja Creami.',
-    ],
-    kcal: 205,
-    protein: 4.5995,
-    carbohydrates: 54.7971,
-    fat: 2.4309,
-    saturated_fat: 0.41545,
-    sugar: 42.4944,
-    fiber: 5,
-    salt: 0.14545,
-    price: 3.36225,
-    hidx: 50,
-    mnidx: 50,
-    forked_from: null,
-    title: 'Ninja Creami Mango',
-    visibility: 'PUBLIC',
-    created_by: 0,
-    picture_ext: 'png',
-    recipe_tags: [
-      { tags: { id: 72, name: 'sweet' }, tag_id: 72 },
-      { tags: { id: 81, name: 'dessert' }, tag_id: 81 },
-      { tags: { id: 63, name: 'vegetarian' }, tag_id: 63 },
-      { tags: { id: 68, name: 'gluten free' }, tag_id: 68 },
-    ],
-    tags: [72, 81, 63, 68],
-    imageUrl:
-      'https://smovbezqgvxljtvdzvhp.supabase.co/storage/v1/object/public/recipe/1.png',
-  },
-]);
+const results = ref([]);
 
 const healthScoreRange = ref<[number, number]>([0, 12]);
 const kcalRange = ref<[number, number]>([10, 2500]);
@@ -341,7 +265,7 @@ function parseTags() {
 }
 
 async function search() {
-  const filtering = parseTags()
+  const filtering = parseTags();
   results.value = await getResults(filtering);
   for (const result of results.value) {
     result.tags = [];
@@ -424,7 +348,7 @@ async function getResults(filtering: Filtering) {
   });
 
   // --- 8) Execute
-  const { data, error } = await query;
+  const { data, error } = await query.limit(20);
 
   if (error) {
     console.error('Error fetching recipes:', error);
@@ -529,6 +453,10 @@ async function onSelect(button: string) {
     selectedFilter.value = button;
   }
 }
+
+onMounted(() => {
+  search();
+});
 </script>
 
 <style scoped></style>

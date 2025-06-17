@@ -22,7 +22,7 @@
           v-model="userCommentInput"
           class="block bg-none mt-2 rounded-sm h-16 p-1 border resize-none overflow-hidden leading-snug w-full sm:w-[75%]"
           rows="1"
-          @input="autoResize($event)"
+          @input="autoResize($event, 64)"
         ></textarea>
         <button
           v-if="editing"
@@ -58,14 +58,20 @@
             @click="editing = true"
             class="inline-block px-2 py-0 font-bold mt-2 items-center justify-center"
           >
-            <span class="material-symbols-outlined"> edit </span>
+            <span v-if="userComment" class="material-symbols-outlined">
+              edit
+            </span>
+            <span v-else class="material-symbols-outlined"> add </span>
           </button>
         </div>
       </div>
     </div>
     <div class="m-6 space-y-4">
       <div v-for="comment in comments" :key="comment.id">
-        <PagesRecipeComment :comment="comment" />
+        <PagesRecipeComment
+          :comment="comment"
+          :removeFunction="removeCommentLocal"
+        />
       </div>
     </div>
   </div>
@@ -84,32 +90,58 @@ const props = defineProps({ comments: Array<Object>, recipeID: Number });
 function submit() {
   userRating.value = userRatingInput.value;
   userComment.value = userCommentInput.value;
+  console.log('called');
+  if (userCommentInput.value) {
+    try {
+      addComment(
+        {
+          user_id: auth.user.id,
+          replying_to: null,
+          content: userCommentInput.value,
+          recipe_id: props.recipeID,
+        },
+        hasRecord.value
+      );
+    } catch (e) {
+      throw new Error(String(e));
+    }
+  }
+  if (userRatingInput.value) {
+    try {
+      addRating(
+        {
+          user_id: auth.user.id,
+          rating: userRatingInput.value,
+          recipe_id: props.recipeID,
+        },
+        hasRecord.value
+      );
+    } catch (e) {
+      throw new Error(String(e));
+    }
+  }
+  if (editing.value) {
+    props.comments?.forEach((comment) => {
+      if (comment.user.id == auth.user.id && !comment.replying_to) {
+        comment.content = userCommentInput.value;
+        comment.rating = userRatingInput.value;
+      }
+    });
+  }
   hasRecord.value = true;
-
-  if (userCommentInput.value && !editing.value) {
-    try {
-      addComment({
-        user_id: auth.user.id,
-        replying_to: null,
-        content: userCommentInput.value,
-        recipe_id: props.recipeID,
-      });
-    } catch (e) {
-      throw new Error(String(e)); //temp
-    }
-  }
-  if (userRatingInput.value && !editing.value) {
-    try {
-      addRating({
-        user_id: auth.user.id,
-        rating: userRatingInput.value,
-        recipe_id: props.recipeID,
-      });
-    } catch (e) {
-      throw new Error(String(e)); //temp
-    }
-  }
+  editing.value = false;
 }
+
+const removeCommentLocal = (id) => {
+  props.comments.forEach((comment) => {
+    comment.replies = comment.replies.filter((reply) => reply.id !== id);
+  });
+
+  const index = props.comments.findIndex((comment) => comment.id === id);
+  if (index !== -1) {
+    props.comments.splice(index, 1);
+  }
+};
 
 const loadUserRecord = async () => {
   const user = auth.user;
@@ -134,16 +166,6 @@ watch(
     loadUserRecord();
   }
 );
-
-function autoResize(event) {
-  const textarea = event.target;
-  textarea.style.height = '64px'; // Reset height
-  if (textarea.scrollHeight > 64) {
-    textarea.style.height = textarea.scrollHeight + 'px'; // Set to scroll height
-  } else {
-    textarea.style.height = 64 + 'px';
-  }
-}
 </script>
 
 <style scoped></style>

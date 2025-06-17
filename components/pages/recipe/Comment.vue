@@ -20,23 +20,41 @@
       ></FormsRatingField>
       <p class="text-base text-gray-800">{{ comment.content }}</p>
 
-      <!-- Reply button (only for top-level or last reply) -->
-      <button class="text-xs text-blue-500 mt-1" @click="replying = !replying">
-        Reply
-      </button>
-
+      <div class="flex justify-between">
+        <button
+          v-if="auth.user && !replying"
+          class="text-xs text-blue-500 mt-1"
+          @click="replying = !replying"
+        >
+          Reply
+        </button>
+        <button
+          v-if="auth.user?.id === comment.user.id"
+          class="text-xs text-blue-500 mt-1"
+          @click="confirmDeleteComment"
+        >
+          Delete
+        </button>
+      </div>
       <div v-if="replying" class="mt-2">
         <textarea
           rows="1"
           placeholder="Write a reply..."
           class="w-full p-1 text-sm border rounded resize-none"
           @input="autoResize"
+          v-model="replyContent"
         />
         <div class="flex gap-2">
           <button class="mt-1 text-xs text-green-600" @click="replying = false">
             Cancel
           </button>
-          <button class="mt-1 text-xs text-green-600">Submit</button>
+          <button
+            v-if="replyContent"
+            class="mt-1 text-xs text-green-600"
+            @click="submitReply"
+          >
+            Submit
+          </button>
         </div>
       </div>
 
@@ -52,12 +70,13 @@
           aria-label="Toggle replies"
         ></button>
 
-        <div v-if="showReplies">
+        <div v-if="showReplies" class="space-y-2">
           <PagesRecipeComment
             v-for="reply in comment.replies"
             :key="reply.id"
             :comment="reply"
             :isReply="true"
+            :removeFunction="removeFunction"
           />
         </div>
         <button
@@ -77,18 +96,50 @@ import { ref } from 'vue';
 
 const props = defineProps({
   comment: Object,
+  removeFunction: Function,
   isReply: Boolean,
 });
+
+const auth = useAuthStore();
+
+const replyContent = ref('');
 
 const replying = ref(false);
 const showReplies = ref(true);
 
-function formatDate(d) {
-  return new Date(d).toLocaleString();
-}
-
 function autoResize(e) {
   e.target.style.height = 'auto';
   e.target.style.height = e.target.scrollHeight + 'px';
+}
+
+function submitReply() {
+  const comment = {
+    user_id: auth.user.id,
+    recipe_id: props.comment.recipe_id,
+    replying_to: props.comment.id,
+    parent: props.comment,
+    content: replyContent.value,
+    user: auth.user,
+    created_at: new Date().toISOString(),
+  };
+  if (props.isReply) {
+    comment.replying_to = props.comment.replying_to;
+  }
+  if (props.isReply) {
+    comment.replying_to = props.comment.replying_to;
+    props.comment.parent.replies.push(comment);
+  } else {
+    props.comment.replies.push(comment);
+  }
+  replyContent.value = '';
+  replying.value = false;
+  addComment(comment, false).then((id) => {
+    comment.id = id;
+  });
+}
+
+function confirmDeleteComment() {
+  deleteComment(props.comment);
+  props.removeFunction(props.comment.id);
 }
 </script>

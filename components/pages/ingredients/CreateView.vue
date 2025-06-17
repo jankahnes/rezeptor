@@ -14,7 +14,6 @@
       </div>
       <button
         class="relative h-10 rounded-xl p-[3px] overflow-hidden"
-        :class="{ loading: loading }"
         @click="autocomplete()"
       >
         <FormsAIBorder class="rounded-xl" :spinning="loading" />
@@ -295,9 +294,9 @@ const emptyFood = {
   vegetarian: false,
   gluten_free: false,
   measurements: [],
-  avg_price: null,
+  price: null,
   density: null,
-  piece_weight: null,
+  unit_weight: null,
 };
 const food = ref(structuredClone(emptyFood));
 const customAttrs = [
@@ -314,9 +313,9 @@ const customAttrs = [
   'vegetarian',
   'gluten_free',
   'measurements',
-  'avg_price',
+  'price',
 ];
-const hiddenAttrs = ['density', 'piece_weight'];
+const hiddenAttrs = ['density', 'unit_weight'];
 const choices = [
   ['Generic', 'grocery'],
   ['Branded', 'storefront'],
@@ -345,7 +344,7 @@ async function autocomplete() {
         food.value[key] = gptResponse[key];
       }
     }
-    priceValue.value = food.value['avg_price'];
+    priceValue.value = food.value['price'];
     priceAmount.value = 100;
     priceSelectedUnit.value = 'g';
   }
@@ -368,7 +367,7 @@ async function submit() {
   for (const key in hiddenAttrsResponse) {
     food.value[key] = hiddenAttrsResponse[key];
   }
-  food.value.avg_price = getPricePer100(
+  food.value.price = getPricePer100(
     food.value,
     priceValue.value,
     priceAmount.value,

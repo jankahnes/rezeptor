@@ -1,10 +1,10 @@
 <template>
-  <div class="h-full bg-gray-50">
+  <div class="h-full bg-[#fffefcb]">
     <button
       ref="buttonRef"
       @click.stop="toggle"
       :aria-expanded="isOpen.toString()"
-      class="flex items-center  border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] justify-between z-10 relative w-full h-full"
+      class="flex items-center border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] justify-between z-10 relative w-full h-full"
       :class="{ 'shadow-none !border-1 !px-2 !py-0': thin }"
     >
       <span>{{ modelValue }}</span>
@@ -20,7 +20,7 @@
       <div
         v-if="isOpen"
         ref="panelRef"
-        class="absolute top-full left-0 w-full border-2 border-t-0 bg-gray-50 shadow-[2px_2px_0_0_rgba(0,0,0,1)] z-20 overflow-hidden"
+        class="absolute top-full left-0 w-full border-2 border-t-0 bg-[#fffefcb]0 shadow-[2px_2px_0_0_rgba(0,0,0,1)] z-20 overflow-hidden"
         :class="{ 'shadow-none !border-1': thin }"
       >
         <ul class="">

@@ -1,9 +1,9 @@
 export default async function (name: String) {
   const SYSTEM_PROMPT = `For a given food item, return the following fields:
 -density (g/ml)
--piece_weight (g)
+-unit_weight (g)
 
-For piece_weight: If the given food can be measured in "pieces" or "units" (bananas, oreos), return the weight of an average or medium piece. If it can not be measured in pieces, put null.
+For unit_weight: If the given food can be measured in "pieces" or "units" (bananas, oreos), return the weight of an average or medium piece. If it can not be measured in pieces, put null.
 Use estimation.
 Output as valid JSON. Do not comment further.
 `;
