@@ -1,145 +1,292 @@
 <template>
-  <div class="flex gap-3">
-    <div class="w-14 flex-shrink-0 flex flex-col items-center">
-      <img :src="comment.user.picture_url" class="w-14 h-14" />
-    </div>
-
-    <div class="flex-1">
-      <p class="text-sm text-gray-500">
-        <span class="font-bold">{{ comment.user.username }} · </span
-        >{{ timeAgo(comment.created_at) }}
-      </p>
-      <FormsRatingField
-        v-if="comment.rating && !isReply"
-        class="opacity-70"
-        v-model="comment.rating"
-        :select="false"
-        :starWidth="18"
-        :starHeight="18"
-        :id="100"
-      ></FormsRatingField>
-      <p class="text-base text-gray-800">{{ comment.content }}</p>
-
-      <div class="flex justify-between">
-        <button
-          v-if="auth.user && !replying"
-          class="text-xs text-blue-500 mt-1"
-          @click="replying = !replying"
-        >
-          Reply
-        </button>
-        <button
-          v-if="auth.user?.id === comment.user.id"
-          class="text-xs text-blue-500 mt-1"
-          @click="confirmDeleteComment"
-        >
-          Delete
-        </button>
-      </div>
-      <div v-if="replying" class="mt-2">
-        <textarea
-          rows="1"
-          placeholder="Write a reply..."
-          class="w-full p-1 text-sm border rounded resize-none"
-          @input="autoResize"
-          v-model="replyContent"
+  <div
+    class="p-6 w-full max-w-110 shadow-lg rounded-md border-2 relative h-max text-[14px] mx-auto"
+  >
+    <div
+      class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 border-1 bg-main rounded-full shadow-sm pin"
+    ></div>
+    <div class="flex gap-4 w-full">
+      <span class="flex items-start min-w-10">
+        <img
+          v-if="comment.user.picture_url"
+          :src="comment.user.picture_url"
+          class="w-10 h-10 rounded-full shadow-lg"
         />
-        <div class="flex gap-2">
-          <button class="mt-1 text-xs text-green-600" @click="replying = false">
-            Cancel
-          </button>
-          <button
-            v-if="replyContent"
-            class="mt-1 text-xs text-green-600"
-            @click="submitReply"
-          >
-            Submit
-          </button>
+        <div v-else class="w-10 h-10 rounded-full bg-gray-300 shadow-lg">
+          {{
+            comment.user.username.charAt(0).toUpperCase() +
+            comment.user.username.charAt(1).toUpperCase()
+          }}
         </div>
-      </div>
-
-      <!-- Replies block -->
-      <div
-        v-if="comment.replies?.length"
-        class="mt-3 border-l-2 border-gray-300 -ml-8 sm:ml-0 pl-4 space-y-2 relative"
-      >
-        <button
-          v-if="showReplies"
-          @click="showReplies = !showReplies"
-          class="absolute left-[-10px] top-0 h-full w-2 bg-transparent hover:cursor-pointer"
-          aria-label="Toggle replies"
-        ></button>
-
-        <div v-if="showReplies" class="space-y-2">
-          <PagesRecipeComment
-            v-for="reply in comment.replies"
-            :key="reply.id"
-            :comment="reply"
-            :isReply="true"
-            :removeFunction="removeFunction"
-          />
+      </span>
+      <div class="flex-1 w-full min-w-0">
+        <div class="flex justify-between w-full items-center">
+          <span class="text-lg text-wrap">{{
+            comment.user.username
+          }}</span>
+          <span class="text-[10px] text-gray-500">{{
+            timeAgo(comment.created_at)
+          }}</span>
         </div>
-        <button
-          v-else
-          class="border h-5 aspect-square flex items-center justify-center"
-          @click="showReplies = true"
+        <FormsRatingField
+          v-if="comment.rating"
+          class="opacity-70"
+          v-model="comment.rating"
+          :select="false"
+          :starWidth="14"
+          :starHeight="14"
+        />
+        <div
+          class="mt-1 overflow-hidden break-words"
+          v-if="!isEditing(comment.id)"
         >
-          <span class="material-symbols-outlined !text-sm"> add </span>
-        </button>
+          {{ comment.content }}
+        </div>
+        <div class="mt-1 w-full" v-else>
+          <textarea
+            v-model="edits.find((edit) => edit.id === comment.id).content"
+            v-auto-resize
+            class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none bg-white overflow-hidden h-auto break-words scrollbar-hide"
+            rows="1"
+          ></textarea>
+          <div class="flex justify-between mt-1">
+            <button
+              class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
+              @click="edits.splice(edits.indexOf(comment.id), 1)"
+            >
+              Cancel
+            </button>
+            <button
+              class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
+              @click="confirmEdit(comment.id)"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+        <div
+          v-if="!isEditing(comment.id)"
+          class="flex gap-2 mt-1 text-gray-500"
+        >
+          <div
+            v-if="auth.user && !replying"
+            class="text-[10px] cursor-pointer select-none"
+            @click="replying = true"
+          >
+            Add Reply
+          </div>
+          <div
+            v-if="auth.user.id == comment.user.id"
+            class="text-[10px] cursor-pointer select-none"
+            @click="startEdit(comment.id, comment.content)"
+          >
+            · Edit
+          </div>
+          <div
+            v-if="auth.user.id == comment.user.id"
+            class="text-[10px] cursor-pointer select-none"
+            @click="deleteComment(comment.id)"
+          >
+            · Delete
+          </div>
+        </div>
+        <div class="replies mt-2" v-if="comment.replies?.length && !replying">
+          <div
+            class="flex gap-4 p-2 pl-4 border-l-2 border-gray-300 border-dashed"
+            v-for="reply in paginatedReplies"
+          >
+            <span class="flex items-start min-w-10">
+              <img
+                v-if="reply.user.picture_url"
+                :src="reply.user.picture_url"
+                class="w-10 h-10 rounded-full shadow-lg"
+              />
+              <div v-else class="w-10 h-10 rounded-full bg-gray-300 shadow-lg">
+                {{
+                  reply.user.username.charAt(0).toUpperCase() +
+                  reply.user.username.charAt(1).toUpperCase()
+                }}
+              </div>
+            </span>
+            <div class="flex-1">
+              <div class="flex justify-between w-full items-center">
+                <span class="text-lg text-wrap">{{
+                  reply.user.username
+                }}</span>
+                <span class="text-[10px] text-gray-500">{{
+                  timeAgo(reply.created_at)
+                }}</span>
+              </div>
+              <div
+                class="text-[14px] mt-1 overflow-x-hidden"
+                v-if="!isEditing(reply.id)"
+              >
+                {{ reply.content }}
+              </div>
+              <div class="text-[14px] mt-1" v-if="isEditing(reply.id)">
+                <textarea
+                  v-model="edits.find((edit) => edit.id === reply.id).content"
+                  v-auto-resize
+                  class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none scrollbar-hide bg-white overflow-hidden h-auto break-words"
+                  rows="1"
+                ></textarea>
+                <div class="flex justify-between mt-1">
+                  <button
+                    class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
+                    @click="edits.splice(edits.indexOf(reply.id), 1)"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
+                    @click="confirmEdit(reply.id)"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+              <div
+                v-if="!isEditing(reply.id)"
+                class="flex gap-2 mt-1 text-gray-500"
+              >
+                <div
+                  v-if="auth.user.id == reply.user.id"
+                  class="text-[10px] cursor-pointer select-none"
+                  @click="startEdit(reply.id, reply.content)"
+                >
+                  Edit
+                </div>
+                <div
+                  v-if="auth.user.id == reply.user.id"
+                  class="text-[10px] cursor-pointer select-none"
+                  @click="deleteComment(reply.id)"
+                >
+                  · Delete
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex justify-center gap-4 mt-2 items-center text-gray-500 text-sm"
+            v-if="totalPages > 1"
+          >
+            <button
+              class="p-1 rounded hover:text-black"
+              @click="currentPage--"
+              :disabled="currentPage === 1"
+            >
+              <span class="material-symbols-outlined !text-base">
+                arrow_back_ios
+              </span>
+            </button>
+            <span class="text-sm text-black"
+              >{{ currentPage }} / {{ totalPages }}</span
+            >
+            <button
+              class="p-1 rounded hover:text-black"
+              @click="currentPage++"
+              :disabled="currentPage === totalPages"
+            >
+              <span class="material-symbols-outlined !text-base">
+                arrow_forward_ios
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="mt-2" v-if="replying">
+          <textarea
+            v-model="replyContent"
+            v-auto-resize
+            class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none scrollbar-hide bg-white overflow-hidden h-auto break-words"
+            rows="1"
+          ></textarea>
+          <div class="flex justify-between mt-1">
+            <button
+              class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
+              @click="replying = false"
+            >
+              Cancel
+            </button>
+            <button
+              class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="submitReply"
+              :disabled="!replyContent"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const props = defineProps({
   comment: Object,
-  removeFunction: Function,
-  isReply: Boolean,
+  bgColor: String,
 });
 
+const randomSeed = (Math.random() - 0.5) * 2;
+
 const auth = useAuthStore();
+const recipe = useCurrentRecipeStore();
 
 const replyContent = ref('');
-
 const replying = ref(false);
-const showReplies = ref(true);
+const currentPage = ref(1);
+const repliesPerPage = 3;
+const edits = ref([]);
 
-function autoResize(e) {
-  e.target.style.height = 'auto';
-  e.target.style.height = e.target.scrollHeight + 'px';
-}
+const totalPages = computed(() => {
+  if (!props.comment.replies?.length) return 0;
+  return Math.ceil(props.comment.replies.length / repliesPerPage);
+});
+
+const paginatedReplies = computed(() => {
+  if (!props.comment.replies?.length) return [];
+  const start = (currentPage.value - 1) * repliesPerPage;
+  const end = start + repliesPerPage;
+  return props.comment.replies.slice(start, end);
+});
 
 function submitReply() {
   const comment = {
     user_id: auth.user.id,
-    recipe_id: props.comment.recipe_id,
     replying_to: props.comment.id,
-    parent: props.comment,
     content: replyContent.value,
     user: auth.user,
     created_at: new Date().toISOString(),
   };
-  if (props.isReply) {
-    comment.replying_to = props.comment.replying_to;
-  }
-  if (props.isReply) {
-    comment.replying_to = props.comment.replying_to;
-    props.comment.parent.replies.push(comment);
-  } else {
-    props.comment.replies.push(comment);
-  }
+  recipe.addNewComment(comment);
   replyContent.value = '';
   replying.value = false;
-  addComment(comment, false).then((id) => {
-    comment.id = id;
+}
+
+function confirmEdit(id) {
+  recipe.editCommentById(
+    id,
+    edits.value.find((edit) => edit.id === id).content
+  );
+  edits.value.splice(edits.value.indexOf(id), 1);
+}
+
+function deleteComment(id) {
+  recipe.deleteCommentById(id);
+}
+
+function startEdit(id, content) {
+  edits.value.push({
+    id: id,
+    content: content,
   });
 }
 
-function confirmDeleteComment() {
-  deleteComment(props.comment);
-  props.removeFunction(props.comment.id);
+function isEditing(id) {
+  return edits.value.some((edit) => edit.id === id);
 }
 </script>
+
+<style scoped></style>

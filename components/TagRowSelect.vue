@@ -52,21 +52,7 @@
         <span class="material-symbols-outlined"> grain </span>
         <span class="hidden lg:block">Flavor Profile</span>
       </div>
-      <button
-        v-for="tag in tags['FLAVOR']"
-        class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
-        :class="{ 'outline-1': modelValue?.includes(tag.id) }"
-        :key="tag.id"
-        @click="addToList(tag)"
-      >
-        {{ tag.name }}
-        <span
-          v-if="modelValue?.includes(tag.id)"
-          class="material-symbols-outlined"
-        >
-          check
-        </span>
-      </button>
+      <Tag v-for="tag in tags['FLAVOR']" class="" :id="tag.id" :key="tag.id" :style="{ 'opacity': modelValue?.includes(tag.id) ? 1 : 0.5 }" @click="addToList(tag.id)" />
     </div>
     <div
       class="flex gap-2 items-center overflow-x-auto scroll-smooth scrollbar-hide"
@@ -79,21 +65,7 @@
         <span class="material-symbols-outlined"> room_service </span>
         <span class="hidden lg:block">Course</span>
       </div>
-      <button
-        v-for="tag in tags['COURSE']"
-        class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
-        :key="tag.id"
-        :class="{ 'outline-1': modelValue?.includes(tag.id) }"
-        @click="addToList(tag)"
-      >
-        {{ tag.name
-        }}<span
-          v-if="modelValue?.includes(tag.id)"
-          class="material-symbols-outlined"
-        >
-          check
-        </span>
-      </button>
+      <Tag v-for="tag in tags['COURSE']" class="" :id="tag.id" :key="tag.id" :style="{ 'opacity': modelValue?.includes(tag.id) ? 1 : 0.5 }" @click="addToList(tag.id)" />
     </div>
     <div
       class="flex gap-2 items-center overflow-x-auto scroll-smooth scrollbar-hide"
@@ -106,21 +78,7 @@
         <span class="material-symbols-outlined"> public </span>
         <span class="hidden lg:block">Cuisine</span>
       </div>
-      <button
-        v-for="tag in tags['CUISINE']"
-        class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
-        :key="tag.id"
-        :class="{ 'outline-1': modelValue?.includes(tag.id) }"
-        @click="addToList(tag)"
-      >
-        {{ tag.name
-        }}<span
-          v-if="modelValue?.includes(tag.id)"
-          class="material-symbols-outlined"
-        >
-          check
-        </span>
-      </button>
+      <Tag v-for="tag in tags['CUISINE']" class="" :id="tag.id" :key="tag.id" :style="{ 'opacity': modelValue?.includes(tag.id) ? 1 : 0.5 }" @click="addToList(tag.id)" />
     </div>
   </div>
 </template>
@@ -185,14 +143,14 @@ function onWheel(e: WheelEvent) {
   }
 }
 
-function addToList(tag) {
-  if (props.modelValue?.includes(tag.id)) {
+function addToList(id:number) {
+  if (props.modelValue?.includes(id)) {
     emit(
       'update:modelValue',
-      props.modelValue.filter((id) => id != tag.id)
+      props.modelValue.filter((value) => value != id)
     );
   } else {
-    props.modelValue?.push(tag.id);
+    props.modelValue?.push(id);
     emit('update:modelValue', props.modelValue);
   }
 }

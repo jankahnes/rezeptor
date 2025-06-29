@@ -1,13 +1,13 @@
 <template>
-  <div>
+  <div class="relative">
     <button
       ref="buttonRef"
       @click.stop="toggle"
       :aria-expanded="isOpen.toString()"
-      class="flex items-center bg-white border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] justify-between z-10 relative w-full"
-      :class="{ 'shadow-none !border-1 !px-2 !py-0': thin }"
+      class="flex items-center justify-between z-10 relative w-full"
+      :class="style"
     >
-      <span>{{ formatList(modelValue) }}</span>
+      <span class="pl-1">{{ formatList(modelValue) || placeholder }}</span>
       <span
         class="material-symbols-outlined transition-transform duration-300"
         :class="{ 'rotate-180': isOpen }"
@@ -21,24 +21,22 @@
         v-if="isOpen"
         @click.stop
         ref="panelRef"
-        class="absolute top-full left-0 w-full border-2 border-t-0 bg-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] z-20 overflow-hidden"
-        :class="{ 'shadow-none !border-1': thin }"
+        class="absolute top-full left-0 w-full border-t-0 z-20 overflow-hidden"
+        :class="style"
       >
         <ul class="">
           <li
             v-for="choice in choices"
-            class="hover:bg-gray-200 cursor-pointer"
+            class="hover:bg-gray-100 rounded-xl cursor-pointer"
           >
             <button
               v-if="modelValue?.includes(choice)"
               class="flex w-full h-full items-center justify-between p-2"
-              :class="{ '!px-2 !py-0': thin }"
               @click="emit('update:modelValue', addToList(modelValue, choice))"
             >
               <span class="font-bold">{{ choice }}</span>
               <span
                 class="material-symbols-outlined"
-                :class="{ '!text-base': thin }"
               >
                 check
               </span>
@@ -46,7 +44,6 @@
             <button
               v-else
               class="flex items-center w-full h-full p-2"
-              :class="{ '!px-2 !py-0': thin }"
               @click="emit('update:modelValue', addToList(modelValue, choice))"
             >
               <span>{{ choice }}</span>
@@ -70,7 +67,8 @@ const toggle = () => {
 const props = defineProps({
   choices: Array<String>,
   modelValue: Array<String>,
-  thin: Boolean,
+  style: String,
+  placeholder: String,
 });
 const emit = defineEmits(['update:modelValue']);
 

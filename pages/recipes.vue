@@ -252,13 +252,13 @@ function parseTags() {
       if (filtering.difficulties.length == 3) {
         filtering.difficulties = [];
       }
-      filtering.difficulties.push(tag.split(' '));
+      filtering.difficulties.push(tag.split(' ')[1].toUpperCase());
     }
     if (tag.startsWith('Effort')) {
       if (filtering.efforts.length == 3) {
         filtering.efforts = [];
       }
-      filtering.efforts.push(tag.split(' '));
+      filtering.efforts.push(tag.split(' ')[1].toUpperCase());
     }
   }
   return filtering;
@@ -279,7 +279,7 @@ async function search() {
         .from('recipe')
         .getPublicUrl(`${result.id}.${result.picture_ext}`);
 
-      result.imageUrl = publicUrlData.publicUrl;
+      result.picture_url = publicUrlData.publicUrl;
     }
   }
 }

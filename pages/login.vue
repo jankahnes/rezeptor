@@ -38,7 +38,7 @@ const auth = useAuthStore()
 
 function signIn() {
   auth.signIn(username.value, password.value)
-  navigateTo('/home')
+  navigateTo('/')
 }
 
 </script>

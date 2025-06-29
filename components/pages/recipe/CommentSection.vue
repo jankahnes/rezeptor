@@ -1,171 +1,126 @@
 <template>
-  <div class="pt-4 md:m-10 md:p-10 w-full md:w-[90%]">
+  <div class="gap-4">
     <div
-      class="w-full flex gap-10 bg-[#8a7ca92a] p-3 rounded-xl"
-      v-if="auth.user"
+      class="p-6 shadow-lg rounded-md border-2 relative bg-main flex flex-col items-center justify-center my-4 gap-1"
     >
       <div
-        class="flex flex-col items-center justify-center text-sm gap-2 text-center mt-2"
+        class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 border-1 bg-main rounded-full shadow-sm pin"
+      ></div>
+      <span class="text-bold text-2xl">Your Rating:</span
+      ><FormsRatingField
+        class="text-primary"
+        v-model="userRating"
+        @update:modelValue="updateRating"
+        :select="true"
+        :star-width="32"
+        :star-height="32"
+        :spacing="-2"
+        :id="950"
+      ></FormsRatingField>
+    </div>
+  </div>
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 w-full">
+    <div
+      v-if="!hasComment && auth.user"
+      class="p-10 max-w-90 w-full shadow-lg rounded-md border-2 relative bg-main flex items-center justify-center h-max mx-auto"
+    >
+      <div
+        class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 border-1 bg-main rounded-full shadow-sm pin"
+      ></div>
+      <span
+        v-if="!editingComment"
+        class="material-symbols-outlined !text-3xl w-full h-full text-center cursor-pointer"
+        @click="onClickNewComment"
       >
-        <img :src="auth?.user?.picture_url" class="w-20 h-20" />
-        <p>{{ auth?.user?.username }}</p>
-      </div>
-      <div class="flex-1" v-if="!hasRecord || editing">
-        <p>Share your opinion on this recipe</p>
-        <FormsRatingField
-          v-model="userRatingInput"
-          :select="true"
-          :star-size="18"
-          :id="200"
-        ></FormsRatingField>
+        add
+      </span>
+      <div class="w-full" v-else>
         <textarea
-          v-model="userCommentInput"
-          class="block bg-none mt-2 rounded-sm h-16 p-1 border resize-none overflow-hidden leading-snug w-full sm:w-[75%]"
+          v-model="newComment"
+          v-auto-resize
+          class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none scrollbar-hide bg-white overflow-hidden h-auto"
           rows="1"
-          @input="autoResize($event, 64)"
         ></textarea>
-        <button
-          v-if="editing"
-          @click="editing = false"
-          class="inline-block bg-white border-2 border-black px-2 py-0 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] disabled:opacity-50 mt-2 mr-2"
-        >
-          Cancel
-        </button>
-        <button
-          @click="submit"
-          :disabled="
-            !(userCommentInput || userRatingInput) ||
-            (userComment === userCommentInput && userRating === userRatingInput)
-          "
-          class="inline-block bg-white border-2 border-black px-2 py-0 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] disabled:opacity-50 mt-2"
-        >
-          Submit
-        </button>
-      </div>
-      <div class="flex-1" v-else>
-        <p>Your thoughts:</p>
-        <FormsRatingField
-          v-model="userRating"
-          :select="false"
-          :star-size="18"
-          :id="250"
-        ></FormsRatingField>
-        <div
-          class="flex justify-between bg-none mt-2 rounded-sm p-1 border-2 w-full sm:w-[75%]"
-        >
-          {{ userComment
-          }}<button
-            @click="editing = true"
-            class="inline-block px-2 py-0 font-bold mt-2 items-center justify-center"
+        <div class="flex justify-between mt-1">
+          <button
+            class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
+            @click="editingComment = false"
           >
-            <span v-if="userComment" class="material-symbols-outlined">
-              edit
-            </span>
-            <span v-else class="material-symbols-outlined"> add </span>
+            Cancel
+          </button>
+          <button
+            class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="submitComment"
+            :disabled="!newComment"
+          >
+            Submit
           </button>
         </div>
       </div>
     </div>
-    <div class="m-6 space-y-4">
-      <div v-for="comment in comments" :key="comment.id">
-        <PagesRecipeComment
-          :comment="comment"
-          :removeFunction="removeCommentLocal"
-        />
-      </div>
-    </div>
+    <PagesRecipeComment
+      v-for="(comment, index) in recipe.recipe?.comments"
+      :comment="comment"
+      :key="index"
+      :bgColor="pastelColors[index % pastelColors.length]"
+      :isReply="false"
+    ></PagesRecipeComment>
   </div>
 </template>
 
 <script setup lang="ts">
 const auth = useAuthStore();
-const userRatingInput = ref<null | number>(null);
-const userCommentInput = ref<null | string>(null);
-const userRating = ref<null | number>(null);
-const userComment = ref<null | string>(null);
-const hasRecord = ref(false);
-const editing = ref(false);
-const props = defineProps({ comments: Array<Object>, recipeID: Number });
+const editingComment = ref(false);
+const newComment = ref('');
+const pastelColors = [
+  '#faeedd',
+  '#e0f7fa',
+  '#fde2e4',
+  '#e4f1d0',
+  '#e5e0ff',
+  '#fff0f5',
+];
 
-function submit() {
-  userRating.value = userRatingInput.value;
-  userComment.value = userCommentInput.value;
-  console.log('called');
-  if (userCommentInput.value) {
-    try {
-      addComment(
-        {
-          user_id: auth.user.id,
-          replying_to: null,
-          content: userCommentInput.value,
-          recipe_id: props.recipeID,
-        },
-        hasRecord.value
-      );
-    } catch (e) {
-      throw new Error(String(e));
-    }
+const recipe = useCurrentRecipeStore();
+const userRating = computed(
+  () =>
+    recipe.recipe?.comments?.find(
+      (comment) => comment.user.id === auth.user?.id
+    )?.rating
+);
+
+const hasComment = computed(() =>
+  recipe.recipe?.comments?.some(
+    (comment) => !comment.replying_to && comment.user.id === auth.user?.id
+  )
+);
+
+function updateRating(rating: number) {
+  if (!auth.user) {
+    navigateTo('/login');
+  } else {
+    recipe.updateRating(rating, auth.user.id);
   }
-  if (userRatingInput.value) {
-    try {
-      addRating(
-        {
-          user_id: auth.user.id,
-          rating: userRatingInput.value,
-          recipe_id: props.recipeID,
-        },
-        hasRecord.value
-      );
-    } catch (e) {
-      throw new Error(String(e));
-    }
-  }
-  if (editing.value) {
-    props.comments?.forEach((comment) => {
-      if (comment.user.id == auth.user.id && !comment.replying_to) {
-        comment.content = userCommentInput.value;
-        comment.rating = userRatingInput.value;
-      }
-    });
-  }
-  hasRecord.value = true;
-  editing.value = false;
 }
 
-const removeCommentLocal = (id) => {
-  props.comments.forEach((comment) => {
-    comment.replies = comment.replies.filter((reply) => reply.id !== id);
-  });
-
-  const index = props.comments.findIndex((comment) => comment.id === id);
-  if (index !== -1) {
-    props.comments.splice(index, 1);
+function onClickNewComment() {
+  if (auth.user) {
+    editingComment.value = true;
+  } else {
+    navigateTo('/login');
   }
-};
+}
 
-const loadUserRecord = async () => {
-  const user = auth.user;
-  if (!user) return;
-  const { rating, comment } = await getRecordByUser(props.recipeID, user.id);
-  userRating.value = rating;
-  userRatingInput.value = rating;
-  userComment.value = comment;
-  userCommentInput.value = comment;
-  if (rating || comment) {
-    hasRecord.value = true;
+function submitComment() {
+  if (auth.user) {
+    recipe.addNewComment({
+      user: auth.user,
+      content: newComment.value,
+    });
+    newComment.value = '';
+    editingComment.value = false;
   }
-};
-
-onMounted(() => {
-  loadUserRecord();
-});
-
-watch(
-  () => auth.user,
-  () => {
-    loadUserRecord();
-  }
-);
+}
 </script>
 
 <style scoped></style>

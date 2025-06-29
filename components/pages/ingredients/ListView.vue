@@ -59,13 +59,13 @@
           </span>
 
           <span class="flex-1 min-w-[4rem] shrink-0">{{
-            getHidxGrade(food?.hidx)
+            getGrade(food?.hidx)
           }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{
-            getHidxGrade(food?.mnidx)
+            getGrade(food?.mnidx)
           }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{
-            getHidxGrade(food?.sidx)
+            getGrade(food?.sidx)
           }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{ food.kcal }}</span>
           <span class="flex-1 min-w-[4rem] shrink-0">{{

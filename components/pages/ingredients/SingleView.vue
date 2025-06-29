@@ -76,15 +76,15 @@
           <span>Sodium</span>
         </div>
         <div class="flex flex-col gap-1 items-end">
-          <span>{{ getHidxGrade(food.hidx) }}</span>
-          <span>{{ getHidxGrade(food.mnidx) }}</span>
-          <span>{{ getHidxGrade(food.sidx) }}</span>
-          <span>{{ getHidxGrade(food.fat_profile_score) }}</span>
-          <span>{{ getHidxGrade(food.ed) }}</span>
-          <span>{{ getHidxGrade(food.protein_score) }}</span>
-          <span>{{ getHidxGrade(food.sugar_score) }}</span>
-          <span>{{ getHidxGrade(food.fiber_score) }}</span>
-          <span>{{ getHidxGrade(food.salt_score) }}</span>
+          <span>{{ getGrade(food.hidx) }}</span>
+          <span>{{ getGrade(food.mnidx) }}</span>
+          <span>{{ getGrade(food.sidx) }}</span>
+          <span>{{ getGrade(food.fat_profile_score) }}</span>
+          <span>{{ getGrade(food.ed) }}</span>
+          <span>{{ getGrade(food.protein_score) }}</span>
+          <span>{{ getGrade(food.sugar_score) }}</span>
+          <span>{{ getGrade(food.fiber_score) }}</span>
+          <span>{{ getGrade(food.salt_score) }}</span>
         </div>
       </div>
     </div>

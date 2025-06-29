@@ -1,34 +1,22 @@
 <template>
-  <div class="grid md:grid-cols-[1fr_3fr] grid-cols-1 pt-5 sm:p-10 gap-5">
-    <div class="max-w-100 mx-auto">
-      <img class="sm:border-2" src="/placeholder-user.jpg" />
-    </div>
+  <div class="flex flex-col gap-5 p-20 mx-30 items-center">
+    <img class="rounded-full w-50 h-50 shadow-md" src="/placeholder-user.jpg" />
     <div class="flex flex-col justify-center px-10 md:text-start text-center">
-      <span class="text-2xl font-bold">Demo Danny</span>
+      <span class="text-2xl font-bold">Demo User</span>
       <span class="text-sm">Joined 05.11.2024</span>
     </div>
     <div class="md:w-full w-[clamp(250px,90%,500px)] md:mx-0 mx-auto">
       <FormsChoiceSlider
-        class="hidden md:block"
+        class=""
         v-model="selectedView"
         :choices="choices"
-        :vertical="true"
-        buttonStyle="py-2 justify-start px-3"
-      ></FormsChoiceSlider>
-      <FormsChoiceSlider
-        class="md:hidden"
-        v-model="selectedView"
-        :choices="choices"
-        :hideLabel="true"
         buttonStyle="py-2"
       ></FormsChoiceSlider>
     </div>
     <div
-      v-if="selectedView == 'Recipes'"
+      v-if="selectedView == 'Recipes'"u
       class="grid w-full sm:grid-cols-[repeat(auto-fit,minmax(30rem,1fr))] mx-auto gap-4"
-    >
-      
-    </div>
+    ></div>
   </div>
 </template>
 

@@ -41,7 +41,7 @@
         <span class="hidden lg:block">Nutritional</span>
       </div>
       <button
-        v-for="tag in tags['GENERAL']"
+        v-for="tag in TAGS['GENERAL']"
         class="px-3 h-7 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
         :key="tag.id"
         @click="clickFunction(tag)"
@@ -55,7 +55,7 @@
         <span class="hidden lg:block">Flavor Profile</span>
       </div>
       <button
-        v-for="tag in tags['FLAVOR']"
+        v-for="tag in TAGS['FLAVOR']"
         class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
         :key="tag.id"
         @click="clickFunction(tag)"
@@ -69,7 +69,7 @@
         <span class="hidden lg:block">Course</span>
       </div>
       <button
-        v-for="tag in tags['COURSE']"
+        v-for="tag in TAGS['COURSE']"
         class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
         :key="tag.id"
         @click="clickFunction(tag)"
@@ -83,7 +83,7 @@
         <span class="hidden lg:block">Cuisine</span>
       </div>
       <button
-        v-for="tag in tags['CUISINE']"
+        v-for="tag in TAGS['CUISINE']"
         class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
         :key="tag.id"
         @click="clickFunction(tag)"

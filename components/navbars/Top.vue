@@ -1,83 +1,85 @@
 <template>
-  <nav class="fixed w-full z-30">
+  <nav class="fixed w-full z-30 bg-main">
     <div
-      class="flex justify-between items-center px-10 max-w-[2100px] mx-auto h-18 xm:h-22"
+      class="w-[clamp(75vw,1550px,100vw)] mx-auto flex justify-between items-center px-10 max-w-screen-2xl h-18 xm:h-22"
     >
       <!-- Logo -->
       <NuxtLink to="/">
         <div class="relative">
           <div
-            class="flex bg-white border-3 border-black px-3 py-1 text-2xl font-extrabold shadow-[4px_4px_0_0_rgba(0,0,0,1)]"
+            class="flex bg-white border-3 border-black px-3 py-1 text-xl font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
           >
             Rezeptor
           </div>
         </div>
       </NuxtLink>
-      <!-- Search -->
-      <div
-        class="hidden xm:flex items-center relative min-w-[300px] max-w-[600px] flex-grow mx-10"
-      >
-        <div
-          class="bg-white border-2 border-black px-2 h-11 flex items-center w-full shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+
+      <!-- Primary Links -->
+      <div class="flex items-center gap-2">
+        <NuxtLink
+          to="/recipes"
+          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="bg-primary text-white"
         >
-          <Sparkle />
-          <input
-            type="text"
-            placeholder="Chicken Parmesan"
-            class="text-sm placeholder-gray-500 h-full w-full bg-transparent focus:outline-none"
-          />
-        </div>
+          <span class="material-symbols-outlined !text-2xl"> book </span>
+          <span class="text-base">All Recipes</span>
+        </NuxtLink>
+        <NuxtLink
+          to="/ingredients"
+          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="bg-primary text-white"
+        >
+          <span class="material-symbols-outlined !text-2xl"> grocery </span>
+          <span class="text-base">Ingredients</span>
+        </NuxtLink>
+        <NuxtLink
+          to="/recipe/new"
+          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="bg-primary text-white"
+        >
+          <span class="material-symbols-outlined !text-2xl"> add </span>
+          <span class="text-base">Create a Recipe</span>
+        </NuxtLink>
       </div>
 
       <!-- User Buttons -->
       <div class="hidden xm:flex items-center gap-2">
         <NuxtLink
-          to="/recipes"
-          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-        >
-          <span class="material-symbols-outlined !text-3xl"> book </span>
-        </NuxtLink>
-        <NuxtLink
-          to="/ingredients"
-          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-        >
-          <span class="material-symbols-outlined !text-3xl"> grocery </span>
-        </NuxtLink>
-
-        <NuxtLink
           v-if="auth.user"
           :to="'/profile/' + auth.user.id"
-          class="bg-white border-2 flex items-center justify-center border-black font-bold h-9 w-9 shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="bg-primary text-white"
         >
-          <span class="material-symbols-outlined !text-3xl">
+          <span class="material-symbols-outlined !text-2xl">
             account_circle
           </span>
         </NuxtLink>
         <button
           v-if="auth.user"
           @click="auth.signOut"
-          class="bg-white border-2 border-black px-2 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-light"
+          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="bg-primary text-white"
         >
-          Sign Out
+          <span class="material-symbols-outlined !text-2xl"> logout </span>
         </button>
         <NuxtLink
           v-if="!auth.user"
           to="/login"
-          class="bg-white border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+          class="button bg-primary text-white px-3 py-1 font-bold"
         >
           Login
         </NuxtLink>
         <NuxtLink
           v-if="!auth.user"
           to="/register"
-          class="bg-black text-white border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+          class="button bg-primary text-white px-3 py-1 font-bold"
         >
           Sign Up
         </NuxtLink>
       </div>
       <NuxtLink
         to="/login"
-        class="flex xm:hidden bg-white border-2 border-black px-3 py-1 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+        class="flex xm:hidden button bg-primary text-white px-3 py-1 font-bold"
       >
         <span class="material-symbols-outlined"> login </span>
       </NuxtLink>
@@ -88,21 +90,3 @@
 <script setup lang="ts">
 const auth = useAuthStore();
 </script>
-
-<style scoped>
-nav {
-  background: linear-gradient(
-    135deg,
-    #ebe3d4 0%,
-    #f0eade 10%,
-    #f5efe2 15%,
-    #f0e8d8 30%,
-    #f3ebd7 37%,
-    #eee9e0 45%,
-    #f4edde 60%,
-    #ece8df 75%,
-    #f1ece1 90%,
-    #f0ebe0 100%
-  );
-}
-</style>

@@ -1,11 +1,11 @@
 <template>
-  <div class="h-full bg-[#fffefcb]">
+  <div class="h-full">
     <button
       ref="buttonRef"
       @click.stop="toggle"
       :aria-expanded="isOpen.toString()"
-      class="flex items-center border-2 p-2 font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)] justify-between z-10 relative w-full h-full"
-      :class="{ 'shadow-none !border-1 !px-2 !py-0': thin }"
+      :class="style"
+      class="flex items-center justify-between z-10 relative w-full h-full gap-1 p-2 border-primary border-2 rounded-xl"
     >
       <span>{{ modelValue }}</span>
       <span
@@ -20,32 +20,22 @@
       <div
         v-if="isOpen"
         ref="panelRef"
-        class="absolute top-full left-0 w-full border-2 border-t-0 bg-[#fffefcb]0 shadow-[2px_2px_0_0_rgba(0,0,0,1)] z-20 overflow-hidden"
-        :class="{ 'shadow-none !border-1': thin }"
+        :class="style"
+        class="absolute top-full left-1/2 -translate-x-1/2 w-full border-t-0 z-20 overflow-hidden border-primary border-2 rounded-xl"
       >
         <ul class="">
-          <li
-            v-for="choice in choices"
-            class="hover:bg-gray-200 cursor-pointer"
-          >
+          <li v-for="choice in choices" class="rounded-xl cursor-pointer">
             <button
               v-if="modelValue == choice"
               class="flex w-full h-full items-center justify-between p-2"
-              :class="{ '!px-2 !py-1': thin }"
               @click="emit('update:modelValue', choice)"
             >
               <span class="font-bold">{{ choice }}</span>
-              <span
-                class="material-symbols-outlined"
-                :class="{ '!text-base': thin }"
-              >
-                check
-              </span>
+              <span class="material-symbols-outlined"> check </span>
             </button>
             <button
               v-else
               class="flex items-center w-full h-full p-2"
-              :class="{ '!px-2 !py-1': thin }"
               @click="emit('update:modelValue', choice)"
             >
               <span>{{ choice }}</span>
@@ -67,9 +57,9 @@ const toggle = () => {
 };
 
 const props = defineProps({
-  choices: Array<String>,
+  choices: Array,
   modelValue: String,
-  thin: Boolean,
+  style: String,
 });
 const emit = defineEmits(['update:modelValue']);
 
@@ -87,13 +77,13 @@ function beforeEnter(el) {
 }
 function enter(el) {
   const height = el.scrollHeight;
-  el.style.transition = 'height 300ms ease';
+  el.style.transition = 'height 150ms ease';
   requestAnimationFrame(() => {
     el.style.height = height + 'px';
   });
 }
 function leave(el) {
-  el.style.transition = 'height 300ms ease';
+  el.style.transition = 'height 150ms ease';
   el.style.height = '0px';
 }
 
