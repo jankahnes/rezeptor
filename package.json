@@ -10,12 +10,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxtjs/supabase": "^1.5.3",
     "@pinia/nuxt": "^0.11.0",
     "@supabase/supabase-js": "^2.49.4",
     "@tailwindcss/vite": "^4.1.5",
     "@vueuse/core": "^13.2.0",
     "@zxing/browser": "^0.1.5",
-    "catboost": "^1.26.0",
     "nuxt": "^3.17.2",
     "onnxruntime-web": "^1.22.0",
     "openai": "^4.100.0",

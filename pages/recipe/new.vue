@@ -142,15 +142,10 @@
       <PagesRecipeNutriCard :recipe="recipeComputed" />
     </template>
   </PagesRecipeLayout>
-  <div class="my-15"></div>
-  <div class="fixed bottom-4 right-4 z-100 flex gap-2">
-    <button
-      class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
-      @click="compute()"
-    >
-      <span class="material-symbols-outlined"> calculate </span>
-      Compute Nutrients
-    </button>
+  <div class="my-22"></div>
+  <div
+    class="fixed bottom-22 xm:bottom-6 xm:right-6 z-100 flex gap-2 w-full justify-center xm:w-auto xm:justify-end"
+  >
     <button
       class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
       @click=""
@@ -216,6 +211,7 @@ onMounted(async () => {
   const editing = route.query.editCurrent === 'true';
   if (editing && useCurrentRecipeStore().recipe) {
     recipe.value = await useCurrentRecipeStore().convertToEditable();
+    imageUrl.value = recipe.value.picture_url;
   }
 });
 

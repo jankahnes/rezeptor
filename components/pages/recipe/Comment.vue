@@ -6,7 +6,10 @@
       class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 border-1 bg-main rounded-full shadow-sm pin"
     ></div>
     <div class="flex gap-4 w-full">
-      <span class="flex items-start min-w-10">
+      <NuxtLink
+        class="flex items-start min-w-10"
+        :to="`/profile/${comment.user.id}`"
+      >
         <img
           v-if="comment.user.picture_url"
           :src="comment.user.picture_url"
@@ -18,12 +21,10 @@
             comment.user.username.charAt(1).toUpperCase()
           }}
         </div>
-      </span>
+      </NuxtLink>
       <div class="flex-1 w-full min-w-0">
         <div class="flex justify-between w-full items-center">
-          <span class="text-lg text-wrap">{{
-            comment.user.username
-          }}</span>
+          <span class="text-lg text-wrap">{{ comment.user.username }}</span>
           <span class="text-[10px] text-gray-500">{{
             timeAgo(comment.created_at)
           }}</span>
@@ -76,14 +77,14 @@
             Add Reply
           </div>
           <div
-            v-if="auth.user.id == comment.user.id"
+            v-if="auth.user.id == comment.user_id"
             class="text-[10px] cursor-pointer select-none"
             @click="startEdit(comment.id, comment.content)"
           >
             · Edit
           </div>
           <div
-            v-if="auth.user.id == comment.user.id"
+            v-if="auth.user.id == comment.user_id"
             class="text-[10px] cursor-pointer select-none"
             @click="deleteComment(comment.id)"
           >
@@ -110,9 +111,7 @@
             </span>
             <div class="flex-1">
               <div class="flex justify-between w-full items-center">
-                <span class="text-lg text-wrap">{{
-                  reply.user.username
-                }}</span>
+                <span class="text-lg text-wrap">{{ reply.user.username }}</span>
                 <span class="text-[10px] text-gray-500">{{
                   timeAgo(reply.created_at)
                 }}</span>
@@ -150,14 +149,14 @@
                 class="flex gap-2 mt-1 text-gray-500"
               >
                 <div
-                  v-if="auth.user.id == reply.user.id"
+                  v-if="auth.user.id == reply.user_id"
                   class="text-[10px] cursor-pointer select-none"
                   @click="startEdit(reply.id, reply.content)"
                 >
                   Edit
                 </div>
                 <div
-                  v-if="auth.user.id == reply.user.id"
+                  v-if="auth.user.id == reply.user_id"
                   class="text-[10px] cursor-pointer select-none"
                   @click="deleteComment(reply.id)"
                 >
@@ -222,14 +221,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-
 const props = defineProps({
   comment: Object,
-  bgColor: String,
 });
-
-const randomSeed = (Math.random() - 0.5) * 2;
 
 const auth = useAuthStore();
 const recipe = useCurrentRecipeStore();

@@ -5,7 +5,20 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
   const error = ref<string | null>(null);
   const supabase = useSupabase();
 
+  function reset() {
+    recipe.value = null;
+    currentRecipeId.value = null;
+    isLoading.value = true;
+    error.value = null;
+  }
+
   async function loadRecipe(id: number) {
+    console.log('currentRecipeId.value', currentRecipeId.value);
+    console.log('id', id);
+    if (currentRecipeId.value === id) {
+      return;
+    }
+    isLoading.value = true;
     currentRecipeId.value = id;
     recipe.value = await getRecipe({ eq: { id: id } });
     isLoading.value = false;
@@ -176,5 +189,6 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
     recipe,
     updateRating,
     convertToEditable,
+    reset,
   };
 });

@@ -15,7 +15,7 @@
       </NuxtLink>
 
       <!-- Primary Links -->
-      <div class="flex items-center gap-2">
+      <div class="xm:flex hidden items-center gap-2">
         <NuxtLink
           to="/recipes"
           class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
@@ -43,7 +43,7 @@
       </div>
 
       <!-- User Buttons -->
-      <div class="hidden xm:flex items-center gap-2">
+      <div class="flex gap-2">
         <NuxtLink
           v-if="auth.user"
           :to="'/profile/' + auth.user.id"
@@ -53,36 +53,23 @@
           <span class="material-symbols-outlined !text-2xl">
             account_circle
           </span>
+          <span>{{ auth.user?.username }}</span>
         </NuxtLink>
-        <button
-          v-if="auth.user"
-          @click="auth.signOut"
-          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
-          active-class="bg-primary text-white"
-        >
-          <span class="material-symbols-outlined !text-2xl"> logout </span>
-        </button>
         <NuxtLink
           v-if="!auth.user"
           to="/login"
-          class="button bg-primary text-white px-3 py-1 font-bold"
+          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1"
         >
           Login
         </NuxtLink>
         <NuxtLink
           v-if="!auth.user"
           to="/register"
-          class="button bg-primary text-white px-3 py-1 font-bold"
+          class="button bg-tertiary text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1"
         >
           Sign Up
         </NuxtLink>
       </div>
-      <NuxtLink
-        to="/login"
-        class="flex xm:hidden button bg-primary text-white px-3 py-1 font-bold"
-      >
-        <span class="material-symbols-outlined"> login </span>
-      </NuxtLink>
     </div>
   </nav>
 </template>

@@ -5,7 +5,7 @@
       @click.stop="toggle"
       :aria-expanded="isOpen.toString()"
       :class="style"
-      class="flex items-center justify-between z-10 relative w-full h-full gap-1 p-2 border-primary border-2 rounded-xl"
+      class="flex items-center justify-between z-10 relative w-full h-full gap-1 p-2 border-primary border-2 rounded-xl bg-main"
     >
       <span>{{ modelValue }}</span>
       <span
@@ -21,7 +21,7 @@
         v-if="isOpen"
         ref="panelRef"
         :class="style"
-        class="absolute top-full left-1/2 -translate-x-1/2 w-full border-t-0 z-20 overflow-hidden border-primary border-2 rounded-xl"
+        class="absolute top-full left-1/2 -translate-x-1/2 w-full border-t-0 z-20 overflow-hidden border-primary border-2 rounded-xl bg-main"
       >
         <ul class="">
           <li v-for="choice in choices" class="rounded-xl cursor-pointer">

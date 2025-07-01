@@ -1,60 +1,94 @@
 <template>
-  <NuxtLink class="border p-3 text-base" :to="getLinkTarget()">
-    <div v-if="feedItem?.type === 'COMMENT_CREATION'" class="">
-      <p>{{ feedItem?.username }}</p>
-      <p class="font-light text-[14px]">commented on {{ feedItem?.title }}</p>
-      <p class="my-2">"{{ feedItem?.content }}"</p>
-      <div class="flex justify-end items-center w-full font-light text-xs">
-        {{ timeAgo(feedItem?.created_at) }}
-      </div>
-    </div>
-    <div v-else-if="feedItem?.type === 'RECIPE_CREATION'" class="">
-      <p>{{ feedItem?.username }}</p>
-      <p class="font-light text-[14px]">created a new recipe</p>
-      <p class="font-bold my-2">"{{ feedItem?.title }}"</p>
-      <div class="flex justify-end items-center w-full font-light text-xs">
-        {{ timeAgo(feedItem?.created_at) }}
-      </div>
-    </div>
-    <div v-else-if="feedItem?.type === 'RATING_CREATION'" class="">
-      <p>{{ feedItem?.username }}</p>
-      <p class="font-light text-[14px]">rated {{ feedItem?.title }}</p>
-      <FormsRatingField
-        :model-value="feedItem.rating"
-        :select="false"
-        class="my-2"
+  <NuxtLink
+    :to="getLinkTarget()"
+    class="flex items-start p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 space-x-4"
+  >
+    <!-- Avatar -->
+    <div class="flex-shrink-0">
+      <Avatar
+        v-if="feedItem.user"
+        :src="feedItem.user.picture_url"
+        class="w-10 h-10"
       />
-      <div class="flex justify-end items-center w-full font-light text-xs">
-        {{ timeAgo(feedItem?.created_at) }}
+      <div
+        v-else-if="feedItem.type === 'FOOD_CREATION'"
+        class="w-10 h-10 text-green-500"
+      >
+        <span class="material-symbols-outlined">add</span>
+      </div>
+      <div v-else class="w-10 h-10">
+        <span class="material-symbols-outlined">notifications</span>
       </div>
     </div>
-    <div v-else-if="feedItem?.type === 'USER_CREATION'" class="">
-      <p class="font-bold">{{ feedItem?.username }}</p>
-      <p>has joined the community.</p>
-      <div class="flex justify-end items-center w-full font-light text-xs mt-2">
-        {{ timeAgo(feedItem?.created_at) }}
+
+    <!-- Content -->
+    <div class="flex-1">
+      <div class="flex items-center justify-between">
+        <div class="text-sm font-semibold">
+          <template v-if="feedItem.user">
+            {{ feedItem.user.username }}
+          </template>
+          <template v-else-if="feedItem.food"> New Food Added </template>
+        </div>
+        <time :datetime="feedItem.created_at" class="text-xs">
+          {{ timeAgo(feedItem.created_at) }}
+        </time>
+      </div>
+
+      <div class="mt-1 text-sm">
+        <template v-if="feedItem.type === 'COMMENT_CREATION'">
+          commented on
+          <span class="font-medium">{{ feedItem.comment.recipe.title }}</span>
+          <p class="mt-2 italic">"{{ feedItem.comment.content }}"</p>
+        </template>
+
+        <template v-else-if="feedItem.type === 'RECIPE_CREATION'">
+          created a new recipe
+          <h4 class="mt-2 font-bold">
+            {{ feedItem.recipe.title }}
+          </h4>
+        </template>
+
+        <template v-else-if="feedItem.type === 'RATING_CREATION'">
+          rated
+          <span class="font-medium">{{ feedItem.rating.recipe.title }}</span>
+          <div class="mt-2">
+            <FormsRatingField v-model="feedItem.rating.rating" :select="false" />
+          </div>
+        </template>
+
+        <template v-else-if="feedItem.type === 'USER_CREATION'">
+          joined the community 🎉
+        </template>
+
+        <template v-else-if="feedItem.type === 'FOOD_CREATION'">
+          added <span class="font-medium">{{ feedItem.food.name }}</span> to the
+          database
+        </template>
       </div>
     </div>
-    <div v-else-if="feedItem?.type === 'FOOD_CREATION'" class="">
-      <p>{{ feedItem?.name }}</p>
-      <p>has been added to the Foods Database.</p>
-      <div class="flex justify-end items-center w-full font-light text-xs mt-2">
-        {{ timeAgo(feedItem?.created_at) }}
-      </div>
+
+    <!-- Optional Thumbnail -->
+    <div v-if="feedItem.recipe?.thumbnailUrl" class="flex-shrink-0">
+      <img
+        :src="feedItem.recipe.thumbnailUrl"
+        alt="Recipe Thumbnail"
+        class="w-16 h-16 object-cover rounded-lg"
+      />
     </div>
   </NuxtLink>
 </template>
 
 <script setup lang="ts">
-const props = defineProps({ feedItem: Object });
+const props = defineProps<{ feedItem: ActivityProcessed }>();
 
 function getLinkTarget() {
-  if (
-    ['COMMENT_CREATION', 'RATING_CREATION', 'RECIPE_CREATION'].includes(
-      props.feedItem?.type
-    )
-  ) {
-    return '/recipe/' + props.feedItem?.recipe_id;
+  if (props.feedItem?.type === 'COMMENT_CREATION') {
+    return '/recipe/' + props.feedItem?.comment?.recipe?.id;
+  } else if (props.feedItem?.type === 'RATING_CREATION') {
+    return '/recipe/' + props.feedItem?.rating?.recipe?.id;
+  } else if (props.feedItem?.type === 'RECIPE_CREATION') {
+    return '/recipe/' + props.feedItem?.recipe?.id;
   } else if (props.feedItem?.type === 'USER_CREATION') {
     return '/profile/' + props.feedItem?.user_id;
   } else if (props.feedItem?.type === 'FOOD_CREATION') {

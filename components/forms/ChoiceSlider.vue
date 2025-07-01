@@ -1,11 +1,11 @@
 <template>
   <div
-    class="relative flex w-full border border-black overflow-hidden"
+    class="relative flex w-full overflow-hidden"
     :class="vertical ? 'flex-col' : 'flex-row'"
   >
     <!-- highlight bar -->
     <div
-      class="absolute top-0 left-0 bg-black transition-all duration-300 z-0"
+      class="absolute top-0 left-0 rounded-lg bg-tertiary transition-all duration-300 z-0"
       :style="backgroundStyle"
     ></div>
 
@@ -14,7 +14,7 @@
       :key="idx"
       ref="btnRefs"
       class="relative z-10 flex-1 flex items-center justify-center text-lg transition-colors duration-300"
-      :class="[buttonStyle, currentIndex === idx ? 'text-white' : 'text-black']"
+      :class="[buttonStyle]"
       @click="updateValue(choice[0])"
     >
       <span

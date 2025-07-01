@@ -24,7 +24,6 @@ export async function predictSatiety({
   );
 
   const results = await session.run({ features: input });
-  console.log(results);
   const output = results.output ?? Object.values(results)[0];
   const prediction = Number(output.data[0]);
 

@@ -436,7 +436,6 @@ export default class ScoreCalculator {
     const sugar_score = this.getSugarScore();
     const fat_profile_score = this.getFatProfileScore();
     const processing_level_score = 100 - 17 * this.processing_level;
-    console.log(fat_profile_score);
     const hidx = this.getHIDX(
       sidx,
       ed,

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-1 flex flex-col gap-6">
+  <div class="p-1 flex flex-col gap-6 items-center">
     <div class="relative mx-auto w-full flex justify-center">
       <HandDrawnBorder
         class="header flex items-center text-center px-10 xl:px-14 mx-auto justify-center rounded-lg p-2 overflow-visible"
@@ -19,7 +19,7 @@
       </HandDrawnBorder>
     </div>
     <div
-      class="flex flex-col rounded-lg px-2 py-6 z-15 sm:border-2 border-gray-300"
+      class="flex flex-col rounded-lg px-2 py-6 z-15 sm:border-2 border-gray-300 w-[clamp(300px,600px,100%)]"
     >
       <div class="pt-4 w-55 items-center mx-auto">
         <FormsSlidingSelector

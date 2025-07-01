@@ -2,7 +2,7 @@
   <!-- Hero Section -->
   <div class="">
     <div
-      class="flex justify-between metallic-gradient hover-shine p-8 lg:py-10 lg:px-20 mx-10 mt-8 rounded-lg shadow-[0_0_7px_0_rgba(0,0,0,0.12)]"
+      class="flex justify-between metallic-gradient hover-shine p-8 lg:py-10 lg:px-20 mx-2 sm:mx-10 mt-8 rounded-lg shadow-[0_0_7px_0_rgba(0,0,0,0.12)]"
     >
       <div class="flex-col flex w-[60%] flex-grow xl:flex-grow-0">
         <h1
@@ -32,7 +32,7 @@
       </div>
     </div>
     <!-- How It Works Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
+    <div class="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
       <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
         <div class="flex flex-col items-center">
           <div
@@ -79,25 +79,24 @@
         class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,400px)] justify-center max-w-[2000px] mx-auto"
       >
         <div class="flex justify-center" v-for="recipe in recipes">
-          <RecipeCard :recipe="recipe" />
+          <RecipeCard :recipe="recipe" class="max-w-100 h-140 text-[34px]"/>
         </div>
       </div>
     </div>
     <div class="w-full flex justify-center my-10">
       <NuxtLink
         to="/recipes"
-        class="px-5 py-2 text-xl bg-white cursor-pointer whitespace-nowrap border-2 font-bold shadow-[3px_3px_0_0_rgba(0,0,0,1)]"
+        class="button bg-primary text-white px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap shadow-lg font-bold"
       >
         Explore more Recipes
       </NuxtLink>
     </div>
-    <div class="w-[90%] h-[2px] mx-auto px-3 bg-black mb-10"></div>
   </div>
 </template>
 
 <script lang="ts" setup>
 const supabase = useSupabase();
-const recipes = ref<RecipeProcessed[]>([]);
+const recipes = ref<RecipeProcessed[]>([{}, {}, {}, {}, {}, {}]);
 const auth = useAuthStore();
 
 onMounted(async () => {

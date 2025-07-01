@@ -1,6 +1,7 @@
 export async function getRecipes(
   opts: GetterOpts = {}
 ): Promise<RecipeProcessed[]> {
+  console.log('getRecipes called');
   const client = useSupabase();
 
   let query = client.from('recipes').select(`
@@ -14,14 +15,7 @@ export async function getRecipes(
           ),
           category
         ),
-        comments:comments(
-          *,
-          user:user_id(
-            id,
-            username,
-            picture_url
-          )
-        )
+        comments:comments(*)
       `);
 
   query = buildQuery(query, opts);
@@ -34,13 +28,13 @@ export async function getRecipes(
   })) as RecipeProcessed[];
   if (recipes.length === 0) return [];
 
-  const userIds = recipes.flatMap((r) => r.comments.map((c) => c.user.id));
+  const userIds = recipes.flatMap((r) => r.comments.map((c) => c.user_id));
   const recipeIds = recipes.map((r) => r.id);
   const ratings = await getRatings({
     in: { user_id: userIds, recipe_id: recipeIds },
   });
 
-  recipes.forEach(async (recipe) => {
+  for (const recipe of recipes) {
     if (recipe.picture_ext) {
       recipe.picture_url = await getImageUrl(
         'recipe',
@@ -48,12 +42,13 @@ export async function getRecipes(
         recipe.picture_ext
       );
     }
-    recipe.comments.forEach((c) => {
+    for (const c of recipe.comments) {
       const match = ratings.find(
-        (r) => r.user_id === c.user.id && r.recipe_id === recipe.id
+        (r) => r.user_id === c.user_id && r.recipe_id === recipe.id
       );
       c.rating = match?.rating ?? null;
-    });
+      c.user = await getUserPartial({ eq: { id: c.user_id } });
+    }
 
     const map: Record<number, CommentProcessed> = {};
     recipe.comments.forEach((c) => {
@@ -92,7 +87,7 @@ export async function getRecipes(
       };
     });
     recipe.ingredients.forEach(fillForUnits);
-  });
+  }
 
   return recipes;
 }
@@ -116,7 +111,8 @@ export async function getRecipesPartial(opts: GetterOpts = {}) {
 
   const recipes = data as RecipeProcessed[];
   if (recipes.length === 0) return [];
-  recipes.forEach(async (recipe) => {
+
+  for (const recipe of recipes) {
     if (recipe.picture_ext) {
       recipe.picture_url = await getImageUrl(
         'recipe',
@@ -124,6 +120,6 @@ export async function getRecipesPartial(opts: GetterOpts = {}) {
         recipe.picture_ext
       );
     }
-  });
+  }
   return recipes;
 }

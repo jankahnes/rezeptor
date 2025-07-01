@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss(), svgLoader()],
   },
-
   runtimeConfig: {
     gptKey: process.env.NUXT_PRIVATE_GPT_KEY,
     public: {

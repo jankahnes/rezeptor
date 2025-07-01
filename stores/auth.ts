@@ -6,25 +6,8 @@ export const useAuthStore = defineStore('auth', {
   }),
   actions: {
     async fetchProfile() {
-      if (!this.user || !this.user.id) {
-        return;
-      }
-
-      const supabase = useSupabase();
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('picture_url, username')
-        .eq('id', this.user.id)
-        .single();
-
-      if (error) {
-        console.error('Failed to fetch profile:', error);
-        return;
-      }
-
-      if (data) {
-        this.user = { ...this.user, ...data };
-      }
+      if (!this.user || !this.user.id) return;
+      this.user = await getUser({ eq: { id: this.user.id } });
     },
 
     async fetchUser() {

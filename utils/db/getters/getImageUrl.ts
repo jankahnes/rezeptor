@@ -1,4 +1,8 @@
-export async function getImageUrl(bucket: string, id: number, ext: string) {
+export async function getImageUrl(
+  bucket: string,
+  id: string | number,
+  ext: string | null
+) {
   const supabase = useSupabase();
   const { data } = await supabase.storage
     .from(bucket)

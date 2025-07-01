@@ -179,17 +179,15 @@
       </button>
     </div>
   </div>
-  <div
-    class="mx-auto mt-6 sm:m-6 sm:mt-0 grid xs:gap-6 sm:grid-cols-[repeat(auto-fit,minmax(30rem,1fr))] grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
-  >
+  <div class="my-6 mx-4 sm:mx-6">
     <div
-      class="flex flex-col justify-center items-center"
-      v-for="recipe in results"
+      class="mx-auto grid gap-6 justify-items-center grid-cols-1 md:grid-cols-[repeat(auto-fit,400px)]"
     >
-      <RecipeCard :recipe="recipe" />
-      <div
-        class="xs:hidden mt-6 mb-4 w-75 h-[1px] border-b-1 border-dashed"
-      ></div>
+      <RecipeCard
+        :recipe="recipe"
+        class="max-w-100 h-140 text-[34px] mx-auto"
+        v-for="recipe in results"
+      />
     </div>
   </div>
 </template>

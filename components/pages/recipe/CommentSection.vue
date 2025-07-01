@@ -9,7 +9,7 @@
       <span class="text-bold text-2xl">Your Rating:</span
       ><FormsRatingField
         class="text-primary"
-        v-model="userRating"
+        :model-value="userRating"
         @update:modelValue="updateRating"
         :select="true"
         :star-width="32"
@@ -62,7 +62,6 @@
       v-for="(comment, index) in recipe.recipe?.comments"
       :comment="comment"
       :key="index"
-      :bgColor="pastelColors[index % pastelColors.length]"
       :isReply="false"
     ></PagesRecipeComment>
   </div>
@@ -72,26 +71,18 @@
 const auth = useAuthStore();
 const editingComment = ref(false);
 const newComment = ref('');
-const pastelColors = [
-  '#faeedd',
-  '#e0f7fa',
-  '#fde2e4',
-  '#e4f1d0',
-  '#e5e0ff',
-  '#fff0f5',
-];
 
 const recipe = useCurrentRecipeStore();
-const userRating = computed(
-  () =>
-    recipe.recipe?.comments?.find(
-      (comment) => comment.user.id === auth.user?.id
-    )?.rating
-);
+const userRating = computed(() => {
+  const rating = recipe.recipe?.comments.find(
+    (comment) => comment.user_id === auth.user?.id
+  )?.rating;
+  return rating ?? 0;
+});
 
 const hasComment = computed(() =>
   recipe.recipe?.comments?.some(
-    (comment) => !comment.replying_to && comment.user.id === auth.user?.id
+    (comment) => !comment.replying_to && comment.user_id === auth.user?.id
   )
 );
 
