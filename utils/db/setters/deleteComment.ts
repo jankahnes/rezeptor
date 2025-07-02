@@ -1,13 +1,14 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 type Comment = {
   id: number;
   user: { id: number };
 };
 
-export default async function (comment: Comment) {
+export default async function (supabase: SupabaseClient, comment: Comment) {
   //if (!comment.user.id) {
   //  throw new Error("Can't create a comment without being logged in.");
   //}
-  const supabase = useSupabase();
   const { error } = await supabase
     .from('comments')
     .delete()

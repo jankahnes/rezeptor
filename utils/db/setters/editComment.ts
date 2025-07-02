@@ -1,5 +1,6 @@
-export default async function (id: number, content: string) {
-  const supabase = useSupabase();
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+export default async function (supabase: SupabaseClient, id: number, content: string) {
   const { error: updateError } = await supabase
     .from('comments')
     .update({ content: content })

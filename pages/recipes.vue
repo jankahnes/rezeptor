@@ -198,7 +198,7 @@ import Effort from '@/assets/icons/effort.svg';
 import Badge from '@/assets/icons/badge.svg';
 
 const visibleTags = ref([]);
-const supabase = useSupabase();
+const supabase = useSupabaseClient();
 const filteringTags = ref([]);
 const difficulties = ['Easy', 'Medium', 'Hard'];
 const effortLevels = ['Light', 'Moderate', 'Heavy'];
@@ -352,7 +352,6 @@ async function getResults(filtering: Filtering) {
     console.error('Error fetching recipes:', error);
     return [];
   }
-  console.log(data);
   return data;
 }
 

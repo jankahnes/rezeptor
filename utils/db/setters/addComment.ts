@@ -1,3 +1,5 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 type Comment = {
   user_id: string;
   replying_to?: number;
@@ -5,12 +7,10 @@ type Comment = {
   recipe_id: number;
 };
 
-export default async function (comment: Comment) {
+export default async function (supabase: SupabaseClient, comment: Comment) {
   if (!comment.user_id) {
     throw new Error("Can't create a comment without being logged in.");
   }
-
-  const supabase = useSupabase();
 
   const { data, error } = await supabase
     .from('comments')

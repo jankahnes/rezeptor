@@ -175,7 +175,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['update:modelValue']);
 
-const supabase = useSupabase();
+const supabase = useSupabaseClient();
 const addingCategory = ref(false);
 const newCategoryName = ref('');
 

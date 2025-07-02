@@ -1,9 +1,17 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { expectSingle } from '~/utils/db/getters/expectSingle';
+import { getRatings } from '~/utils/db/getters/getRatings';
+import { getImageUrl } from '~/utils/db/getters/getImageUrl';
+import { getUserPartial } from '~/utils/db/getters/getUser';
+import buildQuery from '~/utils/db/getters/buildQuery';
+import type { GetterOpts } from '~/types/exports';
+import getPossibleUnits from '~/utils/format/getPossibleUnits';
+import fillForUnits from '~/utils/format/fillForUnits';
+
 export async function getRecipes(
+  client: SupabaseClient,
   opts: GetterOpts = {}
 ): Promise<RecipeProcessed[]> {
-  console.log('getRecipes called');
-  const client = useSupabase();
-
   let query = client.from('recipes').select(`
         *,
         tag_objs:recipe_tags(tag_id),
@@ -30,13 +38,14 @@ export async function getRecipes(
 
   const userIds = recipes.flatMap((r) => r.comments.map((c) => c.user_id));
   const recipeIds = recipes.map((r) => r.id);
-  const ratings = await getRatings({
+  const ratings = await getRatings(client, {
     in: { user_id: userIds, recipe_id: recipeIds },
   });
 
   for (const recipe of recipes) {
     if (recipe.picture_ext) {
       recipe.picture_url = await getImageUrl(
+        client,
         'recipe',
         recipe.id,
         recipe.picture_ext
@@ -47,7 +56,7 @@ export async function getRecipes(
         (r) => r.user_id === c.user_id && r.recipe_id === recipe.id
       );
       c.rating = match?.rating ?? null;
-      c.user = await getUserPartial({ eq: { id: c.user_id } });
+      c.user = await getUserPartial(client, { eq: { id: c.user_id } });
     }
 
     const map: Record<number, CommentProcessed> = {};
@@ -92,13 +101,14 @@ export async function getRecipes(
   return recipes;
 }
 
-export async function getRecipe(opts: GetterOpts = {}) {
-  return expectSingle(await getRecipes(opts));
+export async function getRecipe(client: SupabaseClient, opts: GetterOpts = {}) {
+  return expectSingle(await getRecipes(client, opts));
 }
 
-export async function getRecipesPartial(opts: GetterOpts = {}) {
-  const client = useSupabase();
-
+export async function getRecipesPartial(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+) {
   let query = client.from('recipes').select(`
         *,
         tags:recipe_tags(tag_id)
@@ -115,6 +125,7 @@ export async function getRecipesPartial(opts: GetterOpts = {}) {
   for (const recipe of recipes) {
     if (recipe.picture_ext) {
       recipe.picture_url = await getImageUrl(
+        client,
         'recipe',
         recipe.id,
         recipe.picture_ext

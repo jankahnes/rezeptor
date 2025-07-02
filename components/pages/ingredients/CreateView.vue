@@ -277,7 +277,6 @@
 
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core';
-import { useSupabase } from '~/composables/useSupabase';
 const isMdUp = useMediaQuery('(min-width: 768px)');
 const state = ref('editing');
 const emptyFood = {
@@ -376,7 +375,7 @@ async function submit() {
   food.value.measurements = food.value.measurements.map((str) =>
     str.toLowerCase()
   );
-  const supabase = useSupabase();
+  const supabase = useSupabaseClient();
   const { data, error } = await supabase.from('foods').insert(food.value);
   if (error) {
     console.error('Upload failed:', error);

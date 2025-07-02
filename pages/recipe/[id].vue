@@ -186,7 +186,10 @@
       <div class="flex flex-col items-center w-full gap-2">
         <div class="h-[2px] bg-black w-3/5 mx-auto"></div>
         <h2 class="text-5xl mt-4">What others say</h2>
-        <div v-if="pending" class="w-full flex flex-col items-center gap-2">
+        <div
+          v-if="pending || !recipeStore.recipe"
+          class="w-full flex flex-col items-center gap-2"
+        >
           <Skeleton class="h-6 w-32 rounded mb-2" />
           <Skeleton class="h-20 w-4/5 rounded mb-2" />
           <Skeleton class="h-20 w-4/5 rounded mb-2" />
@@ -203,19 +206,17 @@
 </template>
 
 <script setup lang="ts">
-import Skeleton from '~/components/Skeleton.vue';
-const supabase = useSupabase();
-const auth = useAuthStore();
-const recipeStore = useCurrentRecipeStore();
 const route = useRoute();
-const pending = computed(() => recipeStore.isLoading);
-//const { data, pending, error } = await useLazyAsyncData('recipe', () => {
-//  return recipeStore.loadRecipe(Number(route.params.id));
-//});
+const recipeStore = useCurrentRecipeStore();
+const {
+  data: recipe,
+  pending,
+  error,
+} = await useRecipe({ eq: { id: route.params.id } });
 
-onMounted(() => {
-  recipeStore.loadRecipe(Number(route.params.id));
-});
+if (recipe && recipeStore?.recipe?.id !== route.params.id) {
+  recipeStore.setRecipe(recipe.value);
+}
 
 const handleMissingIngredients = () => {
   // TODO: Implement missing ingredients functionality

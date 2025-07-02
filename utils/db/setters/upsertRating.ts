@@ -1,4 +1,7 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+
 export default async function upsertRating(
+  supabase: SupabaseClient,
   rating: number,
   userId: string,
   recipeId: number
@@ -9,8 +12,6 @@ export default async function upsertRating(
   if (rating < 0 || rating > 5) {
     throw new Error('Rating has to be between 0 and 5.');
   }
-
-  const supabase = useSupabase();
 
   // Use upsert with conflict target to ensure (user_id, recipe_id) is used as the unique key
   const { error } = await supabase.from('ratings').upsert(

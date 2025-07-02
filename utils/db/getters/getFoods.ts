@@ -1,5 +1,12 @@
-export async function getFoods(opts: GetterOpts = {}) {
-  const client = useSupabase();
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { expectSingle } from '~/utils/db/getters/expectSingle';
+import buildQuery from '~/utils/db/getters/buildQuery';
+import type { GetterOpts } from '~/types/exports';
+
+export async function getFoods(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+) {
   let query = client.from('foods').select(`*`);
   query = buildQuery(query, opts);
   const { data, error } = await query;

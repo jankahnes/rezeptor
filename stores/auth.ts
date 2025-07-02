@@ -1,63 +1,71 @@
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    user: null as null | Object,
-    authListenerSet: false,
-    userFetched: false,
-  }),
-  actions: {
-    async fetchProfile() {
-      if (!this.user || !this.user.id) return;
-      this.user = await getUser({ eq: { id: this.user.id } });
-    },
+export const useAuthStore = defineStore('auth', () => {
+  const user = ref<null | Object>(null);
+  const authListenerSet = ref(false);
+  const userFetched = ref(false);
+  const supabase = useSupabaseClient();
 
-    async fetchUser() {
-      if (this.userFetched) {
-        return;
+  async function fetchProfile() {
+    if (!user.value || !user.value.id) return;
+    const { data, error } = await useUser({ eq: { id: user.value.id } });
+    if (error.value) {
+      console.error(error.value);
+    } else {
+      user.value = data.value;
+    }
+  }
+
+  async function fetchUser() {
+    if (userFetched.value) {
+      return;
+    }
+    const { data } = await supabase.auth.getUser();
+    user.value = data.user;
+    userFetched.value = true;
+    fetchProfile();
+  }
+  function listenToAuthChanges() {
+    if (authListenerSet.value) return;
+    supabase.auth.onAuthStateChange((_event, session) => {
+      const newUser = session?.user ?? null;
+      if (user.value?.id !== newUser?.id) {
+        user.value = newUser;
+        fetchProfile();
       }
-      const supabase = useSupabase();
-      const { data } = await supabase.auth.getUser();
-      this.user = data.user;
-      this.userFetched = true;
-      this.fetchProfile();
-    },
-    listenToAuthChanges() {
-      if (this.authListenerSet) return;
+    });
 
-      const supabase = useSupabase();
-
-      supabase.auth.onAuthStateChange((_event, session) => {
-        const newUser = session?.user ?? null;
-
-        if (this.user?.id !== newUser?.id) {
-          this.user = newUser;
-          this.fetchProfile();
-        }
-      });
-
-      this.authListenerSet = true;
-    },
-    async signIn(email: string, password: string) {
-      const supabase = useSupabase();
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (data?.user) this.user = data.user;
-      this.fetchProfile();
-      return { data, error };
-    },
-    async signUp(email: string, password: string) {
-      const supabase = useSupabase();
-      console.log('Email:', JSON.stringify(email));
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (data?.user) this.user = data.user;
-      this.fetchProfile();
-      return { data, error };
-    },
-    async signOut() {
-      const supabase = useSupabase();
-      await supabase.auth.signOut();
-      this.user = null;
-    },
-  },
+    authListenerSet.value = true;
+  }
+  async function signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (data?.user) user.value = data.user;
+    fetchProfile();
+    return { data, error };
+  }
+  async function signUp(email: string, password: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    if (data?.user) user.value = data.user;
+    fetchProfile();
+    return { data, error };
+  }
+  async function signOut() {
+    await supabase.auth.signOut();
+    user.value = null;
+  }
+  return {
+    user,
+    authListenerSet,
+    userFetched,
+    fetchProfile,
+    fetchUser,
+    signIn,
+    signUp,
+    signOut,
+    listenToAuthChanges,
+  };
 });

@@ -103,7 +103,7 @@ function onDecode(code: String) {
 async function searchFoods(query) {
   if (!query) return;
   if (query.length <= 2) return;
-  const supabase = useSupabase();
+  const supabase = useSupabaseClient();
   const { data, error } = await supabase.rpc('search_foods', {
     search_text: query,
   });

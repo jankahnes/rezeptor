@@ -79,7 +79,7 @@
         class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,400px)] justify-center max-w-[2000px] mx-auto"
       >
         <div class="flex justify-center" v-for="recipe in recipes">
-          <RecipeCard :recipe="recipe" class="max-w-100 h-140 text-[34px]"/>
+          <RecipeCard :recipe="recipe" class="max-w-100 h-140 text-[34px]" />
         </div>
       </div>
     </div>
@@ -95,17 +95,20 @@
 </template>
 
 <script lang="ts" setup>
-const supabase = useSupabase();
+const supabase = useSupabaseClient();
 const recipes = ref<RecipeProcessed[]>([{}, {}, {}, {}, {}, {}]);
 const auth = useAuthStore();
 
-onMounted(async () => {
-  recipes.value = await getRecipesPartial({
-    eq: { visibility: 'PUBLIC' },
-    not: { picture_ext: null },
-    limit: 6,
-  });
+const { data, error } = await useRecipesPartial({
+  eq: { visibility: 'PUBLIC' },
+  not: { picture_ext: null },
+  limit: 6,
 });
+if (error.value) {
+  console.error(error.value);
+} else if (data.value) {
+  recipes.value = data.value;
+}
 </script>
 
 <style>

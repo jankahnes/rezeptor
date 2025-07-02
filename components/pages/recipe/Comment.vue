@@ -70,21 +70,21 @@
           class="flex gap-2 mt-1 text-gray-500"
         >
           <div
-            v-if="auth.user && !replying"
+            v-if="auth?.user && !replying"
             class="text-[10px] cursor-pointer select-none"
             @click="replying = true"
           >
             Add Reply
           </div>
           <div
-            v-if="auth.user.id == comment.user_id"
+            v-if="auth?.user?.id == comment.user_id"
             class="text-[10px] cursor-pointer select-none"
             @click="startEdit(comment.id, comment.content)"
           >
             · Edit
           </div>
           <div
-            v-if="auth.user.id == comment.user_id"
+            v-if="auth?.user?.id == comment.user_id"
             class="text-[10px] cursor-pointer select-none"
             @click="deleteComment(comment.id)"
           >
@@ -149,14 +149,14 @@
                 class="flex gap-2 mt-1 text-gray-500"
               >
                 <div
-                  v-if="auth.user.id == reply.user_id"
+                  v-if="auth?.user?.id == reply.user_id"
                   class="text-[10px] cursor-pointer select-none"
                   @click="startEdit(reply.id, reply.content)"
                 >
                   Edit
                 </div>
                 <div
-                  v-if="auth.user.id == reply.user_id"
+                  v-if="auth?.user?.id == reply.user_id"
                   class="text-[10px] cursor-pointer select-none"
                   @click="deleteComment(reply.id)"
                 >
@@ -224,7 +224,6 @@
 const props = defineProps({
   comment: Object,
 });
-
 const auth = useAuthStore();
 const recipe = useCurrentRecipeStore();
 
@@ -248,7 +247,7 @@ const paginatedReplies = computed(() => {
 
 function submitReply() {
   const comment = {
-    user_id: auth.user.id,
+    user_id: auth.user?.id,
     replying_to: props.comment.id,
     content: replyContent.value,
     user: auth.user,

@@ -55,6 +55,9 @@
           </span>
           <span>{{ auth.user?.username }}</span>
         </NuxtLink>
+        <button v-if="auth.user" @click="auth.signOut" class="button bg-main text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1">
+          Logout
+        </button>
         <NuxtLink
           v-if="!auth.user"
           to="/login"

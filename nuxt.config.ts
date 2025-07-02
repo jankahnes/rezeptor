@@ -10,10 +10,6 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     gptKey: process.env.NUXT_PRIVATE_GPT_KEY,
-    public: {
-      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
-      supabaseKey: process.env.NUXT_PUBLIC_SUPABSE_KEY,
-    },
   },
   imports: {
     dirs: [
@@ -31,6 +27,10 @@ export default defineNuxtConfig({
       'utils/constants',
     ],
   },
-
-  modules: ['@pinia/nuxt'],
+  modules: ['@pinia/nuxt', '@nuxtjs/supabase'],
+  supabase: {
+    url: process.env.NUXT_PUBLIC_SUPABASE_URL,
+    key: process.env.NUXT_PUBLIC_SUPABASE_KEY,
+    redirect: false,
+  },
 });

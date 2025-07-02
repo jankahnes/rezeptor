@@ -181,7 +181,7 @@ const imgUpload = ref(null);
 const loadingStep = ref(0);
 
 const auth = useAuthStore();
-const supabase = useSupabase();
+const supabase = useSupabaseClient();
 const route = useRoute();
 
 const recipe = ref({

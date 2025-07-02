@@ -9,8 +9,7 @@
       <span class="text-bold text-2xl">Your Rating:</span
       ><FormsRatingField
         class="text-primary"
-        :model-value="userRating"
-        @update:modelValue="updateRating"
+        v-model="userRating"
         :select="true"
         :star-width="32"
         :star-height="32"
@@ -71,25 +70,33 @@
 const auth = useAuthStore();
 const editingComment = ref(false);
 const newComment = ref('');
+const supabase = useSupabaseClient();
 
 const recipe = useCurrentRecipeStore();
-const userRating = computed(() => {
-  const rating = recipe.recipe?.comments.find(
-    (comment) => comment.user_id === auth.user?.id
-  )?.rating;
-  return rating ?? 0;
+
+const userRating = ref(0);
+
+onMounted(() => {
+  const rating = getRating(supabase, {
+    eq: {
+      user_id: auth.user?.id,
+      recipe_id: recipe.recipe?.id,
+    },
+  });
+  userRating.value = rating ?? 0;
 });
 
-const hasComment = computed(() =>
-  recipe.recipe?.comments?.some(
-    (comment) => !comment.replying_to && comment.user_id === auth.user?.id
+const hasComment = computed(() => {
+  return recipe.recipe?.comments?.some(
+    (comment) => !comment.replying_to && comment.user.id === auth.user?.id
   )
-);
+});
 
 function updateRating(rating: number) {
   if (!auth.user) {
     navigateTo('/login');
   } else {
+    upsertRating(supabase, rating, auth.user.id, recipe.recipe?.id);
     recipe.updateRating(rating, auth.user.id);
   }
 }

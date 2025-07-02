@@ -1,6 +1,6 @@
 <template>
   <NuxtLink
-    v-if="recipe"
+    v-if="recipe.id"
     :to="'/recipe/' + recipe?.id"
     class="metallic-gradient shadow rounded-lg flex flex-col hover-shine p-4"
   >
@@ -12,7 +12,7 @@
       class="w-full object-cover rounded-lg flex-grow"
     />
   </NuxtLink>
-  <Skeleton v-else />
+  <Skeleton v-else class="rounded-3xl" />
 </template>
 
 <script setup lang="ts">

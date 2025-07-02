@@ -79,9 +79,7 @@ const {
   data: user,
   pending,
   error,
-} = await useLazyAsyncData('user', () => {
-  return getUser({ eq: { id: userID } });
-});
+} = await useUser({ eq: { id: userID } });
 </script>
 
 <style scoped></style>

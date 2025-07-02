@@ -3,25 +3,15 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
   const currentRecipeId = ref<number | null>(null);
   const isLoading = ref(true);
   const error = ref<string | null>(null);
-  const supabase = useSupabase();
+  const supabase = useSupabaseClient();
 
   function reset() {
     recipe.value = null;
-    currentRecipeId.value = null;
-    isLoading.value = true;
     error.value = null;
   }
 
-  async function loadRecipe(id: number) {
-    console.log('currentRecipeId.value', currentRecipeId.value);
-    console.log('id', id);
-    if (currentRecipeId.value === id) {
-      return;
-    }
-    isLoading.value = true;
-    currentRecipeId.value = id;
-    recipe.value = await getRecipe({ eq: { id: id } });
-    isLoading.value = false;
+  async function setRecipe(newRecipe: RecipeProcessed) {
+    recipe.value = newRecipe;
   }
 
   async function convertToEditable() {
@@ -32,7 +22,7 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
     const ingredientIds = recipe.value.ingredients.map(
       (ingredient) => ingredient.id
     );
-    const foodsFromDb = await getFoods({ in: { id: ingredientIds } });
+    const foodsFromDb = await getFoods(supabase,{ in: { id: ingredientIds } });
     for (const ingredient of recipe.value.ingredients) {
       const matchingFood = foodsFromDb.find(
         (food) => food.id === ingredient.id
@@ -71,9 +61,7 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
   }
 
   async function deleteCommentById(commentId: number) {
-    if (!currentRecipeId.value) return;
-
-    const recipeId = currentRecipeId.value;
+    if (!recipe.value) return;
 
     const removeFromArray = (commentsArray: Comment[]): Comment | null => {
       const index = commentsArray.findIndex((c) => c.id === commentId);
@@ -95,26 +83,25 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
       if (recipe.value.comments) {
         const removedComment = removeFromArray(recipe.value.comments);
         if (removedComment) {
-          await deleteComment(removedComment);
+          await deleteComment(supabase, removedComment);
         } else {
           throw new Error('Comment not found with id: ' + commentId);
         }
       }
     } catch (e) {
       error.value = e.message;
-      await loadComments(recipeId);
       console.error('Failed to delete comment:', e);
     }
   }
 
   async function addNewComment(comment: Omit<Comment, 'id' | 'created_at'>) {
-    if (!currentRecipeId.value) return;
+    if (!recipe.value) return;
 
     try {
-      const id = await addComment({
+      const id = await addComment(supabase, {
         user_id: comment.user.id,
         content: comment.content,
-        recipe_id: currentRecipeId.value,
+        recipe_id: recipe.value.id,
         replying_to: comment.replying_to,
       });
 
@@ -140,7 +127,7 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
   }
 
   function findComment(commentId: number): Comment | null {
-    if (!currentRecipeId.value) return null;
+    if (!recipe.value) return null;
 
     const findInArray = (comments: Comment[]): Comment | null => {
       for (const comment of comments) {
@@ -161,13 +148,12 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
     if (foundComment) {
       foundComment.content = content;
     }
-    await editComment(id, content);
+    await editComment(supabase, id, content);
   }
 
   async function updateRating(rating: number, userId: string) {
-    if (!currentRecipeId.value) return;
+    if (!recipe.value) return;
     try {
-      await upsertRating(rating, userId, currentRecipeId.value);
       for (const comment of recipe.value?.comments || []) {
         if (comment.user.id === userId) {
           comment.rating = rating;
@@ -182,7 +168,6 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
   return {
     isLoading,
     error,
-    loadRecipe,
     deleteCommentById,
     addNewComment,
     editCommentById,
@@ -190,5 +175,6 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
     updateRating,
     convertToEditable,
     reset,
+    setRecipe
   };
 });

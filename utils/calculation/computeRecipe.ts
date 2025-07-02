@@ -98,7 +98,6 @@ export default async function computeRecipe(recipe: any) {
     }
   }
   Object.assign(recipeComputed, getInfoTrivial(ingredientsFlat, servingSize));
-  console.log(recipeComputed);
   const scoreCalculator = new ScoreCalculator(
     recipeComputed,
     recipeComputed.total_weight

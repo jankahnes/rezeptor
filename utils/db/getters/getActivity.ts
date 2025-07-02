@@ -1,5 +1,12 @@
-export async function getActivity(opts: GetterOpts = {}) {
-  const client = useSupabase();
+import type { SupabaseClient } from '@supabase/supabase-js';
+import buildQuery from '~/utils/db/getters/buildQuery';
+import type { GetterOpts } from '~/types/exports';
+import { getImageUrl } from '~/utils/db/getters/getImageUrl';
+
+export async function getActivity(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+) {
   let query = client.from('activity').select(
     `
       *,
@@ -37,9 +44,10 @@ export async function getActivity(opts: GetterOpts = {}) {
 
     if (!userPictureCache.has(cacheKey) && item.user.picture_ext) {
       const pictureUrl = await getImageUrl(
+        client,
         'profile',
         item.user_id,
-        item.user.picture_ext
+        item.user.picture_ext as string
       );
       userPictureCache.set(cacheKey, pictureUrl);
     }

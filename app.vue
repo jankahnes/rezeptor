@@ -9,6 +9,7 @@
     <div
       class="pt-18 xm:pt-22 pb-18 xm:pb-0 w-[clamp(75vw,1550px,100%)] mx-auto min-h-[calc(100svh_-_144px)] xm:min-h-[calc(100svh_-_88px)]"
     >
+      <GlobalLoadingIndicator />
       <NuxtPage />
     </div>
     <NavbarsBottom class="block xm:hidden" />
@@ -16,9 +17,9 @@
 </template>
 
 <script setup>
+const auth = useAuthStore();
+const loadingStore = useLoadingStore();
 onBeforeMount(() => {
-  const auth = useAuthStore();
-
   auth.fetchUser();
   auth.listenToAuthChanges();
 });
