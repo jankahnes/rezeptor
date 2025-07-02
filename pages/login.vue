@@ -1,46 +1,103 @@
 <template>
-    <div class="pt-20">
-
-  <div
-    class="mx-auto sm:w-[500px] sm:border-2 sm:shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col items-center p-10"
+  <AuthLayout
+    title="Welcome Back"
+    subtitle="Sign in to your account to continue"
+    icon="person"
   >
-    <h1 class="text-3xl font-bold">Sign In</h1>
-    <div class="flex w-80 border gap-2 pl-2 mt-4 items-center">
-      <span class="select-none material-symbols-outlined"> person </span
-      ><input v-model="username" class="py-2 flex-grow focus:outline-none" placeholder="Username" />
-    </div>
-    <div class="flex w-80 border gap-2 pl-2 mt-1 items-center">
-      <span class="select-none material-symbols-outlined"> key </span
-      ><input v-model="password" type="password" class="py-2 flex-grow focus:outline-none" placeholder="Password" />
-    </div>
-     <button class="flex w-80 border-3 border-double p-2 gap-2 mt-1" @click="signIn">
-      <span>Sign In</span>
-    </button>
-    <span class="text-sm font-light my-2">OR</span>
-    <button class="flex w-80 border p-2 gap-2">
-      <img src="/google.svg" class="w-6 h-6"></img
-      ><span>Sign in with Google</span>
-    </button>
-    <span class="text-sm font-light my-2">OR</span>
-    <div class="flex w-80 border gap-2 pl-2 items-center mb-10">
-      <span class="material-symbols-outlined"> crowdsource </span
-      ><input class="py-2 flex-grow focus:outline-none" placeholder="Public Account" />
-    </div>
-    <p class="text-sm font-light" >Don't have an account?</p>
-    <NuxtLink class="text-sm underline font-light" to="/register">Register instead</NuxtLink>
-  </div></div>
+    <template #form>
+      <div class="space-y-2">
+        <label for="username" class="block text-sm font-medium text-gray-700"
+          >Username</label
+        >
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <span class="material-symbols-outlined text-gray-400 text-lg"
+              >person</span
+            >
+          </div>
+          <input
+            id="username"
+            v-model="username"
+            type="text"
+            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+            placeholder="Enter your username"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label for="password" class="block text-sm font-medium text-gray-700"
+          >Password</label
+        >
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <span class="material-symbols-outlined text-gray-400 text-lg"
+              >lock</span
+            >
+          </div>
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+      </div>
+
+      <button
+        @click="signIn"
+        :disabled="!username || !password"
+        class="w-full button py-3 px-4 !bg-primary hover:!bg-primary/90 !text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+      >
+        Sign In
+      </button>
+    </template>
+
+    <template #google-auth>
+      <button
+        class="w-full button flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 hover:bg-gray-50 transition-colors"
+      >
+        <img :src="'/google.svg'" class="w-5 h-5" alt="Google" />
+        <span class="font-medium">Sign in with Google</span>
+      </button>
+    </template>
+
+    <template #footer>
+      <p class="text-sm text-gray-600">
+        Don't have an account?
+        <NuxtLink
+          to="/register"
+          class="text-primary hover:text-primary/80 font-medium transition-colors"
+        >
+          Register here
+        </NuxtLink>
+      </p>
+    </template>
+  </AuthLayout>
 </template>
 
 <script setup lang="ts">
-const username = ref("")
-const password = ref("")
-const auth = useAuthStore()
+const username = ref('');
+const password = ref('');
+const auth = useAuthStore();
 
 function signIn() {
-  auth.signIn(username.value, password.value)
-  navigateTo('/')
+  if (!username.value || !password.value) return;
+
+  auth.signIn(username.value, password.value);
+  navigateTo('/');
 }
 
+function handleGoogleAuth() {
+  console.log('Google authentication clicked');
+}
 </script>
 
 <style scoped></style>

@@ -1,5 +1,5 @@
 <template>
-  <PagesRecipeLayout>
+  <PagesRecipeLayout :key="String(route.params.id)">
     <template #image>
       <div
         v-if="pending"
@@ -46,7 +46,12 @@
         <Skeleton class="h-7 w-16 rounded" />
       </div>
       <template v-else>
-        <Tag class="" v-for="tag in recipeStore.recipe?.tags" :id="tag" />
+        <div
+          class="tag bg-gray-100"
+          v-for="tag in recipeStore.recipe?.tags"
+        >
+          {{ getTagByID(tag)?.name }}
+        </div>
       </template>
     </template>
 
@@ -207,15 +212,32 @@
 
 <script setup lang="ts">
 const route = useRoute();
-const recipeStore = useCurrentRecipeStore();
-const {
-  data: recipe,
-  pending,
-  error,
-} = await useRecipe({ eq: { id: route.params.id } });
+const recipeStore = useRecipeStore();
 
-if (recipe && recipeStore?.recipe?.id !== route.params.id) {
-  recipeStore.setRecipe(recipe.value);
+const pending = ref(true);
+let isComponentMounted = ref(true);
+
+onUnmounted(() => {
+  isComponentMounted.value = false;
+});
+
+if (recipeStore?.recipe?.id !== Number(route.params.id)) {
+  try {
+    const result = await useRecipe({ eq: { id: route.params.id } });
+    if (isComponentMounted.value && result.data.value) {
+      recipeStore.setRecipe(result.data.value);
+    }
+  } catch (e) {
+    if (isComponentMounted.value) {
+      console.error(e);
+    }
+  } finally {
+    if (isComponentMounted.value) {
+      pending.value = false;
+    }
+  }
+} else {
+  pending.value = false;
 }
 
 const handleMissingIngredients = () => {

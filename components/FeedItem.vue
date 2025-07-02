@@ -7,7 +7,7 @@
     <div class="flex-shrink-0">
       <Avatar
         v-if="feedItem.user"
-        :src="feedItem.user.picture_url"
+        :user="feedItem.user"
         class="w-10 h-10"
       />
       <div
@@ -53,7 +53,7 @@
           rated
           <span class="font-medium">{{ feedItem.rating.recipe.title }}</span>
           <div class="mt-2">
-            <FormsRatingField v-model="feedItem.rating.rating" :select="false" />
+            <FormsRatingField v-model="feedItem.rating.rating" :select="false" :id="800" />
           </div>
         </template>
 

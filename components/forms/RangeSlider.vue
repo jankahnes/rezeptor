@@ -6,12 +6,12 @@
     @touchstart.prevent="startDrag"
   >
     <div
-      class="absolute top-1/2 left-0 w-full border-t-2 border-dashed border-black -translate-y-1/2"
+      class="absolute top-1/2 left-0 w-full border-t-2 border-dashed border-gray-300 -translate-y-1/2"
     ></div>
 
     <div
       ref="leftHandle"
-      class="absolute top-1/2 -translate-y-1/2 min-w-8 h-8 bg-white boder-black border-2 cursor-grab flex items-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-bold text-lg px-1"
+      class="button !absolute top-1/2 -translate-y-1/2 bg-white cursor-grab flex items-center justify-center font-bold text-lg px-3 py-1"
       :style="{ left: `calc(${minPercent}% - 0.75rem)` }"
       @mousedown.stop="startHandleDrag('min', $event)"
       @touchstart.stop.prevent="startHandleDrag('min', $event)"
@@ -21,7 +21,7 @@
 
     <div
       ref="rightHandle"
-      class="absolute top-1/2 -translate-y-1/2 min-w-8 h-8 bg-white boder-black border-2 cursor-grab flex items-center justify-center shadow-[2px_2px_0_0_rgba(0,0,0,1)] font-bold text-lg px-1"
+      class="button !absolute top-1/2 -translate-y-1/2 bg-white cursor-grab flex items-center justify-center font-bold text-lg px-3 py-1"
       :style="{ left: `calc(${maxPercent}% - 0.75rem)` }"
       @mousedown.stop="startHandleDrag('max', $event)"
       @touchstart.stop.prevent="startHandleDrag('max', $event)"

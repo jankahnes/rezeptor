@@ -14,6 +14,6 @@ export async function getFoods(
   return data as Food[];
 }
 
-export async function getFood(opts: GetterOpts = {}) {
-  return expectSingle(await getFoods(opts));
+export async function getFood(client: SupabaseClient, opts: GetterOpts = {}) {
+  return expectSingle(await getFoods(client, opts));
 }

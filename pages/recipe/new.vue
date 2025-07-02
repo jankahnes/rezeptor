@@ -179,6 +179,9 @@ const chosenCuisineTags = ref([]);
 const imageUrl = ref(null);
 const imgUpload = ref(null);
 const loadingStep = ref(0);
+const originalRecipeId = ref(null);
+const originalUserId = ref(null);
+const isEditing = ref(false);
 
 const auth = useAuthStore();
 const supabase = useSupabaseClient();
@@ -208,9 +211,12 @@ const recipe = ref({
 const recipeComputed = ref({});
 
 onMounted(async () => {
-  const editing = route.query.editCurrent === 'true';
-  if (editing && useCurrentRecipeStore().recipe) {
-    recipe.value = await useCurrentRecipeStore().convertToEditable();
+  isEditing.value = route.query.editCurrent === 'true';
+  if (isEditing.value && useRecipeStore().recipe) {
+    const originalRecipe = useRecipeStore().recipe;
+    originalRecipeId.value = originalRecipe.id;
+    originalUserId.value = originalRecipe.user_id;
+    recipe.value = await useRecipeStore().convertToEditable();
     imageUrl.value = recipe.value.picture_url;
   }
 });
@@ -260,16 +266,17 @@ const getTags = () => {
 };
 
 async function compute() {
-  recipeComputed.value = (
-    await computeRecipe(JSON.parse(JSON.stringify(recipe.value)))
-  ).recipeComputed;
+  const response = await computeRecipe(
+    JSON.parse(JSON.stringify(recipe.value))
+  );
+  recipeComputed.value = response.recipeComputed;
 }
 
 const computeDebounced = debounce(compute, 3000);
 
 watch(recipe, computeDebounced, { deep: true });
 
-const uploadImage = async (id, file) => {
+const uploadImage = async (id, file, isUpdate = false) => {
   if (!file) return;
 
   const fileExt = file.name.split('.').pop();
@@ -279,29 +286,42 @@ const uploadImage = async (id, file) => {
     .from('recipe')
     .upload(fileName, file, {
       cacheControl: '3600',
-      upsert: false,
+      upsert: isUpdate,
     });
 
   if (error) {
     console.error('Upload error:', error.message);
   } else {
-    console.log('Upload successful:', filePath);
+    console.log('Upload successful.');
   }
 };
 
-async function submit() {
-  loadingStep.value = 1;
-  recipe.value.tags = getTags();
-  const { recipeComputed, recipeFoods, recipeTags } = await computeRecipe(
-    structuredClone(recipe.value)
-  );
-  loadingStep.value = 2;
+const insertRecipeFoods = async (recipeFoods, recipeId) => {
+  if (recipeFoods.length) {
+    const { error } = await supabase
+      .from('recipe_foods')
+      .insert(recipeFoods.map((obj) => ({ ...obj, recipe_id: recipeId })));
+    if (error) throw error;
+  }
+};
+
+const insertRecipeTags = async (recipeTags, recipeId) => {
+  if (recipeTags.length) {
+    const { error } = await supabase
+      .from('recipe_tags')
+      .insert(recipeTags.map((obj) => ({ ...obj, recipe_id: recipeId })));
+    if (error) throw error;
+  }
+};
+
+const submitNewRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
   let fileExt = null;
   let imgFile = null;
   if (imgUpload.value.files && imgUpload.value.files[0]) {
     imgFile = imgUpload.value.files[0];
     fileExt = imgFile.name.split('.').pop();
   }
+
   const { data, error } = await supabase
     .from('recipes')
     .insert({
@@ -311,34 +331,125 @@ async function submit() {
     })
     .select('id')
     .single();
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+
   loadingStep.value = 3;
   const id = data.id;
-  if (recipeFoods.length) {
-    const { error } = await supabase
-      .from('recipe_foods')
-      .insert(recipeFoods.map((obj) => ({ ...obj, recipe_id: id })));
-    if (error) {
-      throw error;
-    }
-  }
+
+  await insertRecipeFoods(recipeFoods, id);
   loadingStep.value = 4;
-  if (recipeTags.length) {
-    const { error } = await supabase
-      .from('recipe_tags')
-      .insert(recipeTags.map((obj) => ({ ...obj, recipe_id: id })));
-    if (error) {
-      throw error;
-    }
-  }
+  await insertRecipeTags(recipeTags, id);
   loadingStep.value = 5;
+
   if (imgFile) {
     await uploadImage(id, imgFile);
   }
   loadingStep.value = 6;
-  navigateTo(`/recipe/${id}`);
+
+  return id;
+};
+
+const submitForkRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
+  let fileExt = null;
+  let imgFile = null;
+  if (imgUpload.value.files && imgUpload.value.files[0]) {
+    imgFile = imgUpload.value.files[0];
+    fileExt = imgFile.name.split('.').pop();
+  }
+
+  const { data, error } = await supabase
+    .from('recipes')
+    .insert({
+      ...recipeComputed,
+      picture_ext: fileExt,
+      user_id: auth?.user?.id ?? null,
+      forked_from: originalRecipeId.value,
+    })
+    .select('id')
+    .single();
+  if (error) throw error;
+
+  loadingStep.value = 3;
+  const id = data.id;
+
+  await insertRecipeFoods(recipeFoods, id);
+  loadingStep.value = 4;
+  await insertRecipeTags(recipeTags, id);
+  loadingStep.value = 5;
+
+  if (imgFile) {
+    await uploadImage(id, imgFile);
+  }
+  loadingStep.value = 6;
+
+  return id;
+};
+
+const submitEditOwnRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
+  let fileExt = recipe.value.picture_ext || null;
+  let imgFile = null;
+  if (imgUpload.value.files && imgUpload.value.files[0]) {
+    imgFile = imgUpload.value.files[0];
+    fileExt = imgFile.name.split('.').pop();
+  }
+
+  const { error: updateError } = await supabase
+    .from('recipes')
+    .update({
+      ...recipeComputed,
+      picture_ext: fileExt,
+    })
+    .eq('id', originalRecipeId.value);
+  if (updateError) throw updateError;
+
+  loadingStep.value = 3;
+
+  await supabase
+    .from('recipe_foods')
+    .delete()
+    .eq('recipe_id', originalRecipeId.value);
+
+  await supabase
+    .from('recipe_tags')
+    .delete()
+    .eq('recipe_id', originalRecipeId.value);
+
+  await insertRecipeFoods(recipeFoods, originalRecipeId.value);
+  loadingStep.value = 4;
+  await insertRecipeTags(recipeTags, originalRecipeId.value);
+  loadingStep.value = 5;
+
+  if (imgFile) {
+    await uploadImage(originalRecipeId.value, imgFile, true);
+  }
+  loadingStep.value = 6;
+
+  return originalRecipeId.value;
+};
+
+async function submit() {
+  loadingStep.value = 1;
+  recipe.value.tags = getTags();
+  const { recipeComputed, recipeFoods, recipeTags } = await computeRecipe(
+    JSON.parse(JSON.stringify(recipe.value))
+  );
+  loadingStep.value = 2;
+
+  let resultId;
+
+  if (!isEditing.value) {
+    resultId = await submitNewRecipe(recipeComputed, recipeFoods, recipeTags);
+  } else if (auth?.user?.id === originalUserId.value) {
+    resultId = await submitEditOwnRecipe(
+      recipeComputed,
+      recipeFoods,
+      recipeTags
+    );
+  } else {
+    resultId = await submitForkRecipe(recipeComputed, recipeFoods, recipeTags);
+  }
+
+  navigateTo(`/recipe/${resultId}`);
 }
 
 function triggerFileInput() {

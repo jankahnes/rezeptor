@@ -26,7 +26,7 @@
       <div
         class="h-28 sm:h-40 w-full p-6 bg-primary text-white rounded-[38px] rounded-b-none relative"
       >
-        <Avatar :src="user.picture_url" class="absolute top-6 left-6 z-10 h-[120%]" />
+        <Avatar :user="user" class="absolute top-6 left-6 z-10 h-[120%]" />
         <div class="ml-38 sm:ml-52 mt-5 text-wrap">
           <h1 class="font-extrabold text-2xl sm:text-4xl">
             {{ user.username }}
@@ -48,12 +48,13 @@
         </div>
         <div
           v-if="selectedView == 'Recipes'"
-          class="w-full grid gap-2 sm:gap-6 grid-cols-[repeat(auto-fit,160px)] sm:grid-cols-[repeat(auto-fit,200px)]"
+          class="flex flex-wrap gap-6 justify-center"
         >
           <RecipeCard
             :recipe="recipe"
+            :hide-tags="true"
             v-for="recipe in user?.recipes"
-            class="h-70 max-w-40 sm:max-w-50 sm:h-80 text-lg mx-auto"
+            class="flex-1 aspect-2/3 text-2xl max-w-70 basis-80"
           />
         </div>
         <div v-if="selectedView == 'Activity'" class="w-full space-y-4">

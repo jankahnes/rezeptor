@@ -4,6 +4,7 @@ import { getRatings } from '~/utils/db/getters/getRatings';
 import { getImageUrl } from '~/utils/db/getters/getImageUrl';
 import { getUserPartial } from '~/utils/db/getters/getUser';
 import buildQuery from '~/utils/db/getters/buildQuery';
+import buildQueryFromRecipeFiltering from '~/utils/db/getters/buildQueryFromRecipeFiltering';
 import type { GetterOpts } from '~/types/exports';
 import getPossibleUnits from '~/utils/format/getPossibleUnits';
 import fillForUnits from '~/utils/format/fillForUnits';
@@ -113,7 +114,9 @@ export async function getRecipesPartial(
         *,
         tags:recipe_tags(tag_id)
       `);
-
+  if (opts.filtering) {
+    query = buildQueryFromRecipeFiltering(query, opts.filtering);
+  }
   query = buildQuery(query, opts);
 
   const { data, error } = await query;

@@ -32,5 +32,14 @@ export default function buildQuery(
     }
   }
 
+  if (opts.search) {
+    query = query
+      .textSearch(opts.search.column, opts.search.query, {
+        config: 'english',
+        type: 'plain',
+      })
+      .gt('similarity', 0.3);
+  }
+
   return query;
 }

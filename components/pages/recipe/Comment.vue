@@ -10,17 +10,7 @@
         class="flex items-start min-w-10"
         :to="`/profile/${comment.user.id}`"
       >
-        <img
-          v-if="comment.user.picture_url"
-          :src="comment.user.picture_url"
-          class="w-10 h-10 rounded-full shadow-lg"
-        />
-        <div v-else class="w-10 h-10 rounded-full bg-gray-300 shadow-lg">
-          {{
-            comment.user.username.charAt(0).toUpperCase() +
-            comment.user.username.charAt(1).toUpperCase()
-          }}
-        </div>
+        <Avatar :user="comment.user" class="w-10 h-10"/>
       </NuxtLink>
       <div class="flex-1 w-full min-w-0">
         <div class="flex justify-between w-full items-center">
@@ -36,6 +26,7 @@
           :select="false"
           :starWidth="14"
           :starHeight="14"
+          :id="comment.id"
         />
         <div
           class="mt-1 overflow-hidden break-words"
@@ -225,7 +216,7 @@ const props = defineProps({
   comment: Object,
 });
 const auth = useAuthStore();
-const recipe = useCurrentRecipeStore();
+const recipe = useRecipeStore();
 
 const replyContent = ref('');
 const replying = ref(false);

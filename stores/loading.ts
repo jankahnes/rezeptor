@@ -1,36 +1,17 @@
 export const useLoadingStore = defineStore('loading', () => {
-  const loadingStates = ref<Map<string, boolean>>(new Map());
-  const globalLoading = computed(() => {
-    return Array.from(loadingStates.value.values()).some((state) => state);
-  });
+  const globalLoading = ref(false);
 
-  function setLoading(key: string, isLoading: boolean) {
-    loadingStates.value.set(key, isLoading);
+  function startLoading() {
+    globalLoading.value = true;
   }
 
-  function startLoading(key: string) {
-    setLoading(key, true);
-  }
-
-  function stopLoading(key: string) {
-    setLoading(key, false);
-  }
-
-  function clearLoading(key: string) {
-    loadingStates.value.delete(key);
-  }
-
-  function clearAllLoading() {
-    loadingStates.value.clear();
+  function stopLoading() {
+    globalLoading.value = false;
   }
 
   return {
-    loadingStates: readonly(loadingStates),
     globalLoading,
-    setLoading,
     startLoading,
     stopLoading,
-    clearLoading,
-    clearAllLoading,
   };
 });

@@ -50,6 +50,7 @@ function getInfoTrivial(ingredients: Array, servingSize: number) {
   }
   infoResults['total_weight'] = 0;
   infoResults['price'] = 0;
+  let cumulProcessingLevel = 0;
   for (const ingredient of ingredients) {
     const unit = convertUnit(ingredient.unit);
     const grams = getGrams(
@@ -61,15 +62,13 @@ function getInfoTrivial(ingredients: Array, servingSize: number) {
     const factor = grams / 100 / servingSize;
     infoResults['total_weight'] += grams / servingSize;
     infoResults['price'] += ingredient.price * factor;
+    cumulProcessingLevel += ingredient.processing_level * factor;
     for (const info of infoCumulCols) {
       infoResults[info] += ingredient[info] * factor;
     }
   }
   infoResults['processing_level'] =
-    ingredients.reduce(
-      (sum, ingredient) => sum + ingredient.processing_level,
-      0
-    ) / ingredients.length;
+    cumulProcessingLevel / infoResults['total_weight'] * 100;
   return infoResults;
 }
 
@@ -110,28 +109,28 @@ export default async function computeRecipe(recipe: any) {
     recipeTags.push({ tag_id: tag });
   }
   if (ingredientsFlat.every((ingredient) => ingredient.vegan)) {
-    recipe.tags.push(62);
+    recipeTags.push({ tag_id: 62 });
   }
   if (ingredientsFlat.every((ingredient) => ingredient.vegetarian)) {
-    recipe.tags.push(63);
+    recipeTags.push({ tag_id: 63 });
   }
   if (ingredientsFlat.every((ingredient) => ingredient.gluten_free)) {
-    recipe.tags.push(68);
+    recipeTags.push({ tag_id: 68 });
   }
   if (recipeComputed.difficulty === 'EASY') {
-    recipe.tags.push(71);
+    recipeTags.push({ tag_id: 71 });
   }
   if (recipeComputed.effort === 'LIGHT') {
-    recipe.tags.push(70);
+    recipeTags.push({ tag_id: 70 });
   }
   if (recipeComputed.carbohydrates / recipeComputed.total_weight < 0.07) {
-    recipe.tags.push(64);
+    recipeTags.push({ tag_id: 64 });
   }
   if (recipeComputed.protein * 4 > 0.2 * recipeComputed.kcal) {
-    recipe.tags.push(67);
+    recipeTags.push({ tag_id: 67 });
   }
   if (ingredientsFlat.length < 5) {
-    recipe.tags.push(69);
+    recipeTags.push({ tag_id: 69 });
   }
 
   return {

@@ -1,77 +1,62 @@
 export const useGlobalLoading = () => {
   const loadingStore = useLoadingStore();
 
-  // Track loading state for a specific key
-  const trackLoading = (key: string, isLoading: Ref<boolean>) => {
-    // Only track on client side to avoid SSR issues
+  const trackLoading = (isLoading: Ref<boolean>) => {
     if (process.client) {
-      watch(
+      const stopWatch = watch(
         isLoading,
         (newValue) => {
-          loadingStore.setLoading(key, newValue);
+          loadingStore.globalLoading = newValue;
         },
         { immediate: true }
       );
 
-      // Clean up when component unmounts
       onUnmounted(() => {
-        loadingStore.clearLoading(key);
+        stopWatch();
       });
     }
   };
 
-  // Manual loading control
   const withLoading = async <T>(
     key: string,
     operation: () => Promise<T>
   ): Promise<T> => {
     try {
-      loadingStore.startLoading(key);
+      loadingStore.startLoading();
       const result = await operation();
       return result;
     } finally {
-      loadingStore.stopLoading(key);
+      loadingStore.stopLoading();
     }
   };
 
-  // Simple wrapper for useAsyncData
   const useAsyncDataWithLoading = (
     key: string,
     handler: any,
     options?: any
   ) => {
     const result = useAsyncData(key, handler, options);
-    trackLoading(key, result.pending);
+    trackLoading(result.pending);
     return result;
   };
 
-  // Simple wrapper for useLazyAsyncData
   const useLazyAsyncDataWithLoading = (
     key: string,
     handler: any,
     options?: any
   ) => {
     const result = useLazyAsyncData(key, handler, options);
-    trackLoading(key, result.pending);
+    trackLoading(result.pending);
     return result;
   };
 
   return {
-    // Store access
-    globalLoading: computed(() => loadingStore.globalLoading),
-    loadingStates: computed(() => loadingStore.loadingStates),
-
-    // Utilities
+    globalLoading: loadingStore.globalLoading,
     trackLoading,
     withLoading,
     useAsyncDataWithLoading,
     useLazyAsyncDataWithLoading,
-
-    // Direct store methods
-    setLoading: loadingStore.setLoading,
     startLoading: loadingStore.startLoading,
     stopLoading: loadingStore.stopLoading,
-    clearLoading: loadingStore.clearLoading,
-    clearAllLoading: loadingStore.clearAllLoading,
   };
 };

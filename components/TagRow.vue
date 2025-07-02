@@ -1,5 +1,5 @@
 <template>
-  <div class="relative select-none py-1">
+  <div class="relative select-none">
     <div
       v-if="canScrollLeft"
       class="absolute left-0 top-0 h-full w-30 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none z-10"
@@ -35,61 +35,53 @@
       @scroll="checkScroll"
     >
       <div
-        class="px-3 rounded-xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
+        class="px-3 py-1 rounded-2xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
       >
         <span class="material-symbols-outlined"> psychiatry </span>
-        <span class="hidden lg:block">Nutritional</span>
+        <span>General</span>
       </div>
-      <button
+      <Tag
         v-for="tag in TAGS['GENERAL']"
-        class="px-3 h-7 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
-        :key="tag.id"
+        class="flex items-center justify-center group whitespace-nowrap"
+        :id="tag.id"
         @click="clickFunction(tag)"
-      >
-        {{ tag.name }}
-      </button>
+      />
       <div
-        class="px-3 rounded-xl border-4 border-double flex items-center justify-center gap-2 ml-2 whitespace-nowrap"
+        class="px-3 py-1 rounded-2xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
       >
         <span class="material-symbols-outlined"> grain </span>
-        <span class="hidden lg:block">Flavor Profile</span>
+        <span>Flavor Profile</span>
       </div>
-      <button
+      <Tag
         v-for="tag in TAGS['FLAVOR']"
-        class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
-        :key="tag.id"
+        class="flex items-center justify-center group whitespace-nowrap"
+        :id="tag.id"
         @click="clickFunction(tag)"
-      >
-        {{ tag.name }}
-      </button>
+      />
       <div
-        class="px-3 rounded-xl border-4 border-double flex items-center justify-center gap-2 ml-2 whitespace-nowrap"
+        class="px-3 py-1 rounded-2xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
       >
         <span class="material-symbols-outlined"> room_service </span>
-        <span class="hidden lg:block">Course</span>
+        <span>Course</span>
       </div>
-      <button
+      <Tag
         v-for="tag in TAGS['COURSE']"
-        class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
-        :key="tag.id"
+        class="flex items-center justify-center group whitespace-nowrap"
+        :id="tag.id"
         @click="clickFunction(tag)"
-      >
-        {{ tag.name }}
-      </button>
+      />
       <div
-        class="px-3 rounded-xl border-4 border-double flex items-center justify-center gap-2 ml-2 whitespace-nowrap"
+        class="px-3 py-1 rounded-2xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
       >
         <span class="material-symbols-outlined"> public </span>
-        <span class="hidden lg:block">Cuisine</span>
+        <span>Cuisine</span>
       </div>
-      <button
+      <Tag
         v-for="tag in TAGS['CUISINE']"
-        class="px-3 rounded-xl border flex items-center justify-center gap-2 group hover:outline whitespace-nowrap"
-        :key="tag.id"
+        class="flex items-center justify-center group whitespace-nowrap"
+        :id="tag.id"
         @click="clickFunction(tag)"
-      >
-        {{ tag.name }}
-      </button>
+      />
     </div>
   </div>
 </template>

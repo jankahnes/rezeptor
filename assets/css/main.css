@@ -1,27 +1,5 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
-@import 'tailwindcss';
-
-@theme {
-  --breakpoint-4xl: 2200px;
-  --breakpoint-3xl: 1921px;
-  --breakpoint-xm: 860px;
-  --breakpoint-xs: 500px;
-  --breakpoint-2xs: 400px;
-  --font-main: 'Inter', sans-serif;
-  --color-main: #fffefc;
-  --color-primary: #921a40;
-  --color-secondary: #c75b7a;
-  --color-tertiary: #f4d9d0;
-  --rounded-main: 10px;
-  
-}
-
-@layer base {
-  html {
-    letter-spacing: 0.05em;
-  }
-}
 
 .material-icons {
   font-family: 'Material Icons';
@@ -57,4 +35,165 @@
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.shadow-main {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-main-hover:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.button {
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+  transition: filter 0.2s ease, transform 0.1s ease, border-radius 0.2s ease;
+  overflow: hidden;
+  background-color: #fffefc;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+.button:hover {
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.button:active {
+  filter: brightness(95%);
+  transform: scale(0.98);
+  border-radius: 11px;
+}
+
+.button:disabled {
+  background-color: #94a3b8;
+  opacity: 0.7;
+}
+
+.tag {
+  border-radius: 10px;
+  padding: 0.25rem 0.5rem;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+.hover-shine {
+  position: relative;
+  z-index: 0;
+  transition: all 0.5s ease;
+}
+
+.hover-shine:hover {
+  filter: brightness(101%);
+}
+
+.hover-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: white;
+  opacity: 0;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
+}
+
+.hover-shine:hover::after {
+  opacity: 0.7;
+}
+
+.metallic-gradient {
+  background: linear-gradient(
+    75deg,
+    #f0efef 0%,
+    #fffefe 10%,
+    #f0efef 20%,
+    #fffefe 50%,
+    #f5eeee 100%
+  );
+}
+
+.golden-gradient {
+  background: linear-gradient(
+    75deg,
+    #f2db9e 0%,
+    #fff3cc 10%,
+    #f2db9e 20%,
+    #fff3cc 50%,
+    #e8c56b 100%
+  );
+}
+
+.bronze-gradient {
+  background: linear-gradient(
+    75deg,
+    #cd7f32 0%,
+    #daa520 10%,
+    #cd7f32 20%,
+    #daa520 50%,
+    #b8860b 100%
+  );
+}
+
+.red-metallic-gradient {
+  background: linear-gradient(
+    75deg,
+    #d4a5a5 0%,
+    #f5d7d7 10%,
+    #d4a5a5 20%,
+    #f5d7d7 50%,
+    #c49595 100%
+  );
+}
+
+.platinum-gradient {
+  background: linear-gradient(
+    75deg,
+    #e5e4e2 0%,
+    #f8f8f8 10%,
+    #e5e4e2 20%,
+    #f8f8f8 50%,
+    #d3d3d3 100%
+  );
+}
+
+.golden-overlay {
+  filter: sepia(0.3) saturate(1.15);
+}
+
+.golden-overlay:hover {
+  filter: none;
+}
+
+.mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+}
+
+.mask-fade-top {
+  mask-image: linear-gradient(to top, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 92%, transparent 100%);
+}
+
+@import 'tailwindcss';
+
+@theme {
+  --breakpoint-4xl: 2200px;
+  --breakpoint-3xl: 1921px;
+  --breakpoint-xm: 860px;
+  --breakpoint-xs: 500px;
+  --breakpoint-2xs: 400px;
+  --font-main: 'Inter', sans-serif;
+  --color-main: #fffefc;
+  --color-primary: #921a40;
+  --color-secondary: #c75b7a;
+  --color-tertiary: #f4d9d0;
+  --rounded-main: 10px;
+}
+
+@layer base {
+  html {
+    letter-spacing: 0.05em;
+  }
 }

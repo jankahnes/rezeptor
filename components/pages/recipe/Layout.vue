@@ -1,5 +1,5 @@
 <template>
-  <div class="m-4 sm:m-10">
+  <div class="m-4 mt-10 sm:m-10">
     <div
       class="grid grid-cols-1 xl:grid-cols-[3fr_7fr] grid-rows-[auto_auto] gap-4 items-start"
     >
@@ -47,7 +47,7 @@
             <slot name="metadata" />
           </div>
         </div>
-        <div class="flex justify-between md:justify-start md:flex-col gap-3">
+        <div class="flex justify-center md:justify-start md:flex-col gap-3 flex-wrap">
           <slot name="actions" />
         </div>
       </div>

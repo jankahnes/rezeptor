@@ -47,7 +47,7 @@ const {
   data: recipes,
   pending: recipesPending,
   refresh: refreshRecipes,
-} = await useRecipesPartial();
+} = await useRecipesPartial(() => ({}));
 const {
   data: recipe,
   pending: recipePending,

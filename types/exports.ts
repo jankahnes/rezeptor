@@ -30,4 +30,17 @@ export type GetterOpts = {
   not?: Record<string, any>;
   limit?: number;
   orderBy?: { column: string; ascending?: boolean };
+  filtering?: Filtering;
+  search?: { column: string; query: string };
+};
+
+export type Filtering = {
+  title?: string;
+  difficulties?: string[];
+  efforts?: string[];
+  visibility?: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
+  tags?: number[];
+  hidx: [number, number];
+  kcal: [number, number];
+  price: [number, number];
 };

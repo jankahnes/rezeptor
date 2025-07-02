@@ -17,7 +17,7 @@
         <div class="mt-auto">
           <NuxtLink
             to="/register"
-            class="button bg-primary text-white px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap shadow-lg"
+            class="button !bg-primary text-white font-bold px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap"
           >
             Start Your Cookbook
           </NuxtLink>
@@ -78,15 +78,22 @@
       <div
         class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,400px)] justify-center max-w-[2000px] mx-auto"
       >
-        <div class="flex justify-center" v-for="recipe in recipes">
+        <div
+          class="flex justify-center"
+          v-for="recipe in recipeStore.indexRecipes"
+          v-if="recipeStore.indexRecipes.length"
+        >
           <RecipeCard :recipe="recipe" class="max-w-100 h-140 text-[34px]" />
+        </div>
+        <div v-else class="flex justify-center" v-for="i in 6">
+          <Skeleton class="max-w-100 h-140 text-[34px] rounded-xl" />
         </div>
       </div>
     </div>
     <div class="w-full flex justify-center my-10">
       <NuxtLink
         to="/recipes"
-        class="button bg-primary text-white px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap shadow-lg font-bold"
+        class="button !bg-primary text-white px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap shadow-lg font-bold"
       >
         Explore more Recipes
       </NuxtLink>
@@ -95,25 +102,21 @@
 </template>
 
 <script lang="ts" setup>
-const supabase = useSupabaseClient();
-const recipes = ref<RecipeProcessed[]>([{}, {}, {}, {}, {}, {}]);
-const auth = useAuthStore();
+const recipeStore = useRecipeStore();
 
-const { data, error } = await useRecipesPartial({
-  eq: { visibility: 'PUBLIC' },
-  not: { picture_ext: null },
-  limit: 6,
-});
-if (error.value) {
-  console.error(error.value);
-} else if (data.value) {
-  recipes.value = data.value;
+if (!recipeStore.indexRecipes.length) {
+  const { data, pending, error } = await useRecipesPartial(
+    () => ({
+      eq: { visibility: 'PUBLIC' },
+      not: { picture_ext: null },
+      limit: 6,
+    }),
+    'index'
+  );
+  watchEffect(() => {
+    recipeStore.setIndexRecipes(data.value ?? []);
+  });
 }
 </script>
 
-<style>
-.mask-fade-bottom {
-  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
-}
-</style>
+<style></style>

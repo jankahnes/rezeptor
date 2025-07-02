@@ -18,24 +18,24 @@
       <div class="xm:flex hidden items-center gap-2">
         <NuxtLink
           to="/recipes"
-          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
-          active-class="bg-primary text-white"
+          class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="!bg-primary !text-white"
         >
           <span class="material-symbols-outlined !text-2xl"> book </span>
           <span class="text-base">All Recipes</span>
         </NuxtLink>
         <NuxtLink
           to="/ingredients"
-          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
-          active-class="bg-primary text-white"
+          class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="!bg-primary !text-white"
         >
           <span class="material-symbols-outlined !text-2xl"> grocery </span>
           <span class="text-base">Ingredients</span>
         </NuxtLink>
         <NuxtLink
           to="/recipe/new"
-          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
-          active-class="bg-primary text-white"
+          class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="!bg-primary !text-white"
         >
           <span class="material-symbols-outlined !text-2xl"> add </span>
           <span class="text-base">Create a Recipe</span>
@@ -47,21 +47,19 @@
         <NuxtLink
           v-if="auth.user"
           :to="'/profile/' + auth.user.id"
-          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
-          active-class="bg-primary text-white"
+          class="button text-primary shadow font-bold flex items-center justify-center gap-1"
+          active-class="!bg-primary !text-white"
         >
-          <span class="material-symbols-outlined !text-2xl">
-            account_circle
-          </span>
-          <span>{{ auth.user?.username }}</span>
+          <Avatar v-if="auth.user?.picture_url" :user="auth.user" class="w-10 h-10"/>
+          <span v-else class="material-symbols-outlined !text-2xl"> account_circle </span>
         </NuxtLink>
-        <button v-if="auth.user" @click="auth.signOut" class="button bg-main text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1">
-          Logout
+        <button v-if="auth.user" @click="auth.signOut" class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1">
+          <span class="material-symbols-outlined !text-2xl"> logout </span>
         </button>
         <NuxtLink
           v-if="!auth.user"
           to="/login"
-          class="button bg-main text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1"
+          class="button text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1"
         >
           Login
         </NuxtLink>

@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchProfile() {
     if (!user.value || !user.value.id) return;
-    const { data, error } = await useUser({ eq: { id: user.value.id } });
+    const { data, error } = await useUser({ eq: { id: user.value.id } }, "currentUserProfileFetch");
     if (error.value) {
       console.error(error.value);
     } else {
@@ -21,7 +21,6 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await supabase.auth.getUser();
     user.value = data.user;
     userFetched.value = true;
-    fetchProfile();
   }
   function listenToAuthChanges() {
     if (authListenerSet.value) return;

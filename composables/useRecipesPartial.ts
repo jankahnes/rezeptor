@@ -1,6 +1,9 @@
-export const useRecipesPartial = (opts?: GetterOpts) => {
-  const { useAsyncDataWithLoading } = useGlobalLoading();
-  return useAsyncDataWithLoading('recipes-partial', () =>
-    $fetch('/api/db/recipes-partial', { params: opts })
+export const useRecipesPartial = (optsFn: () => GetterOpts, key?: string) => {
+  return useLazyAsyncData(
+    key ? `recipes-partial-${key}` : 'recipes-partial',
+    () => $fetch('/api/db/recipes-partial', { params: optsFn() }),
+    {
+      server: true,
+    }
   );
 };

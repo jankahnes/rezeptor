@@ -1,43 +1,147 @@
-  <template>
-    <div class="pt-20">
-  <div
-    class="mx-auto sm:w-[500px] sm:border-2 sm:shadow-[4px_4px_0_0_rgba(0,0,0,1)] flex flex-col items-center p-10"
+<template>
+  <AuthLayout
+    title="Create Account"
+    subtitle="Join us and start your culinary journey"
+    icon="person_add"
   >
-    <h1 class="text-3xl font-bold">Register</h1>
-    <div class="flex w-80 border gap-2 pl-2 mt-4 items-center">
-      <span class="select-none material-symbols-outlined"> person </span
-      ><input v-model="username" class="py-2 flex-grow focus:outline-none" placeholder="Username" />
-    </div>
-    <div class="flex w-80 border gap-2 pl-2 mt-1 items-center">
-      <span class="select-none material-symbols-outlined"> key </span
-      ><input v-model="password" type="password" class="py-2 flex-grow focus:outline-none" placeholder="Password" />
-    </div><button class="flex w-80 border-3 border-double p-2 gap-2 mt-1" @click="register">
-      <span>Register</span>
-    </button>
-    <span class="text-sm font-light my-2">OR</span>
-    <button class="flex w-80 border p-2 gap-2">
-      <img src="/google.svg" class="w-6 h-6"></img
-      ><span>Register with Google</span>
-    </button>
-    <span class="text-sm font-light my-2">OR</span>
-    <div class="flex w-80 border gap-2 pl-2 items-center mb-10">
-      <span class="material-symbols-outlined"> crowdsource </span
-      ><input class="py-2 flex-grow focus:outline-none" placeholder="Create a Public Account" />
-    </div>
-    <p class="text-sm font-light" >Already have an account?</p>
-    <NuxtLink class="text-sm underline font-light" to="/login">Log In instead</NuxtLink>
-  </div></div>
+    <template #form>
+      <div class="space-y-2">
+        <label for="username" class="block text-sm font-medium text-gray-700"
+          >Username</label
+        >
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <span class="material-symbols-outlined text-gray-400 text-lg"
+              >person</span
+            >
+          </div>
+          <input
+            id="username"
+            v-model="username"
+            type="text"
+            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+            placeholder="Choose a username"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label for="password" class="block text-sm font-medium text-gray-700"
+          >Password</label
+        >
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <span class="material-symbols-outlined text-gray-400 text-lg"
+              >lock</span
+            >
+          </div>
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+            placeholder="Create a password"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label
+          for="confirm-password"
+          class="block text-sm font-medium text-gray-700"
+          >Confirm Password</label
+        >
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <span class="material-symbols-outlined text-gray-400 text-lg"
+              >lock</span
+            >
+          </div>
+          <input
+            id="confirm-password"
+            v-model="confirmPassword"
+            type="password"
+            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+            :class="{
+              'border-red-500': confirmPassword && password !== confirmPassword,
+            }"
+            placeholder="Confirm your password"
+            required
+          />
+        </div>
+        <p
+          v-if="confirmPassword && password !== confirmPassword"
+          class="text-sm text-red-500"
+        >
+          Passwords do not match
+        </p>
+      </div>
+
+      <button
+        @click="register"
+        :disabled="!canRegister"
+        class="w-full button py-3 px-4 !bg-primary hover:!bg-primary/90 !text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        Create Account
+      </button>
+    </template>
+
+    <template #google-auth>
+      <button
+        class="w-full button flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 hover:bg-gray-50 transition-colors"
+      >
+        <img :src="'/google.svg'" class="w-5 h-5" alt="Google" />
+        <span class="font-medium">Sign up with Google</span>
+      </button>
+    </template>
+
+    <template #footer>
+      <p class="text-sm text-gray-600">
+        Already have an account?
+        <NuxtLink
+          to="/login"
+          class="text-primary hover:text-primary/80 font-medium transition-colors"
+        >
+          Sign in here
+        </NuxtLink>
+      </p>
+    </template>
+  </AuthLayout>
 </template>
 
-
 <script setup lang="ts">
-const username = ref("")
-const password = ref("")
-const auth = useAuthStore()
+const username = ref('');
+const password = ref('');
+const confirmPassword = ref('');
+const acceptTerms = ref(false);
+const auth = useAuthStore();
+
+const canRegister = computed(() => {
+  return (
+    username.value &&
+    password.value &&
+    confirmPassword.value &&
+    password.value === confirmPassword.value
+  );
+});
 
 function register() {
-  auth.signUp(username.value, password.value)
-  navigateTo('/')
+  if (!canRegister.value) return;
+
+  auth.signUp(username.value, password.value);
+  navigateTo('/');
+}
+
+function handleGoogleAuth() {
+  console.log('Google authentication clicked');
 }
 </script>
 

@@ -1,13 +1,13 @@
-export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
+export const useRecipeStore = defineStore('recipe', () => {
   const recipe = ref<RecipeProcessed | null>(null);
   const currentRecipeId = ref<number | null>(null);
   const isLoading = ref(true);
   const error = ref<string | null>(null);
   const supabase = useSupabaseClient();
+  const indexRecipes = ref<RecipeProcessed[]>([]);
 
-  function reset() {
-    recipe.value = null;
-    error.value = null;
+  async function setIndexRecipes(recipes: RecipeProcessed[]) {
+    indexRecipes.value = recipes;
   }
 
   async function setRecipe(newRecipe: RecipeProcessed) {
@@ -22,7 +22,7 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
     const ingredientIds = recipe.value.ingredients.map(
       (ingredient) => ingredient.id
     );
-    const foodsFromDb = await getFoods(supabase,{ in: { id: ingredientIds } });
+    const foodsFromDb = await getFoods(supabase, { in: { id: ingredientIds } });
     for (const ingredient of recipe.value.ingredients) {
       const matchingFood = foodsFromDb.find(
         (food) => food.id === ingredient.id
@@ -174,7 +174,8 @@ export const useCurrentRecipeStore = defineStore('currentRecipe', () => {
     recipe,
     updateRating,
     convertToEditable,
-    reset,
-    setRecipe
+    setRecipe,
+    setIndexRecipes,
+    indexRecipes,
   };
 });

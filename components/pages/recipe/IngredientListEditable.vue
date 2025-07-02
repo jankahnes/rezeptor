@@ -199,7 +199,7 @@ async function searchFoods(query, category) {
   }
 }
 
-const debouncedSearchFoods = debounce(searchFoods, 1000);
+const debouncedSearchFoods = debounce(searchFoods, 300);
 
 function addIngredient(food, category) {
   let possibleUnits = getPossibleUnits(food.measurements);

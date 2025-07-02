@@ -33,9 +33,9 @@
     <div class="flex flex-col">
       <div
         class="text-6xl font-bold flex justify-center items-center aspect-square border-l-2 border-b-2 border-gray-300 border-dashed"
-        :class="gradeColors[getGrade(recipe?.hidx)]"
+        :class="gradeColors[getGrade(recipe?.hidx, 'hidx')]"
       >
-        {{ getGrade(recipe?.hidx) }}
+        {{ getGrade(recipe?.hidx, 'hidx') }}
       </div>
       <div
         v-for="(item, index) in gradeItems"
@@ -47,10 +47,10 @@
         <div
           :class="[
             'w-10 h-10 p-2 flex items-center justify-center text-xl font-bold border-gray-300 border-l-2 border-dashed ',
-            gradeColors[getGrade(recipe?.[item.key])],
+            gradeColors[getGrade(recipe?.[item.key], 'score')],
           ]"
         >
-          {{ getGrade(recipe?.[item.key]) }}
+          {{ getGrade(recipe?.[item.key], 'score') }}
         </div>
       </div>
     </div>

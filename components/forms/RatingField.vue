@@ -70,7 +70,7 @@ const props = defineProps({
     type: Number,
     default: -2,
   },
-  id: Number,
+  id: Number | String,
 });
 
 const maskId = computed(() => `star-mask-${props.id}`);
