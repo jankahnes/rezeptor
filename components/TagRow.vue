@@ -40,48 +40,52 @@
         <span class="material-symbols-outlined"> psychiatry </span>
         <span>General</span>
       </div>
-      <Tag
+      <div
         v-for="tag in TAGS['GENERAL']"
-        class="flex items-center justify-center group whitespace-nowrap"
-        :id="tag.id"
+        class="tag px-3 py-1 metallic-gradient-simple whitespace-nowrap"
         @click="clickFunction(tag)"
-      />
+      >
+        {{ getTagByID(tag.id).name }}
+      </div>
       <div
         class="px-3 py-1 rounded-2xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
       >
         <span class="material-symbols-outlined"> grain </span>
         <span>Flavor Profile</span>
       </div>
-      <Tag
+      <div
         v-for="tag in TAGS['FLAVOR']"
-        class="flex items-center justify-center group whitespace-nowrap"
-        :id="tag.id"
+        class="tag px-3 py-1 metallic-gradient-simple whitespace-nowrap"
         @click="clickFunction(tag)"
-      />
+      >
+        {{ getTagByID(tag.id).name }}
+      </div>
       <div
         class="px-3 py-1 rounded-2xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
       >
         <span class="material-symbols-outlined"> room_service </span>
         <span>Course</span>
       </div>
-      <Tag
+      <div
         v-for="tag in TAGS['COURSE']"
-        class="flex items-center justify-center group whitespace-nowrap"
-        :id="tag.id"
+        class="tag px-3 py-1 metallic-gradient-simple whitespace-nowrap"
         @click="clickFunction(tag)"
-      />
+      >
+        {{ getTagByID(tag.id).name }}
+      </div>
       <div
         class="px-3 py-1 rounded-2xl border-4 border-double flex items-center justify-center gap-2 whitespace-nowrap"
       >
         <span class="material-symbols-outlined"> public </span>
         <span>Cuisine</span>
       </div>
-      <Tag
+      <div
         v-for="tag in TAGS['CUISINE']"
-        class="flex items-center justify-center group whitespace-nowrap"
-        :id="tag.id"
+        class="tag px-3 py-1 metallic-gradient-simple whitespace-nowrap"
         @click="clickFunction(tag)"
-      />
+      >
+        {{ getTagByID(tag.id).name }}
+      </div>
     </div>
   </div>
 </template>

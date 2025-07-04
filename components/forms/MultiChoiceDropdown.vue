@@ -4,7 +4,7 @@
       ref="buttonRef"
       @click.stop="toggle"
       :aria-expanded="isOpen.toString()"
-      class="flex items-center justify-between z-10 relative w-full"
+      class="flex items-center justify-between z-10 relative w-full h-full gap-1 p-2 button"
       :class="style"
     >
       <span class="pl-1">{{ formatList(modelValue) || placeholder }}</span>
@@ -21,7 +21,7 @@
         v-if="isOpen"
         @click.stop
         ref="panelRef"
-        class="absolute top-full left-0 w-full border-t-0 z-20 overflow-hidden"
+        class="absolute top-[calc(100%+6px)] left-1/2 -translate-x-1/2 w-full border-t-0 z-99 overflow-hidden rounded-xl bg-main shadow-md"
         :class="style"
       >
         <ul class="">

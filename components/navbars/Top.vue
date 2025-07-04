@@ -22,15 +22,15 @@
           active-class="!bg-primary !text-white"
         >
           <span class="material-symbols-outlined !text-2xl"> book </span>
-          <span class="text-base">All Recipes</span>
+          <span class="text-base">Recipes</span>
         </NuxtLink>
         <NuxtLink
-          to="/ingredients"
+          to="/foods"
           class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
           active-class="!bg-primary !text-white"
         >
           <span class="material-symbols-outlined !text-2xl"> grocery </span>
-          <span class="text-base">Ingredients</span>
+          <span class="text-base">Foods</span>
         </NuxtLink>
         <NuxtLink
           to="/recipe/new"

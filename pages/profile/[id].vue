@@ -1,24 +1,20 @@
 <template>
   <div class="sm:mx-10 mb-10">
-    <!-- Error state -->
     <div v-if="error" class="max-w-200 mt-5 mx-auto text-center">
       <p class="text-red-500">
         Error loading user profile: {{ error.message }}
       </p>
     </div>
 
-    <!-- Loading state -->
     <Skeleton
       v-else-if="pending || !user"
       class="max-w-200 shadow-xl rounded-[40px] z-0 min-h-200 mt-5 mx-auto"
     />
 
-    <!-- User not found state -->
     <div v-else-if="!user" class="max-w-200 mt-5 mx-auto text-center">
       <p class="text-gray-500">User not found</p>
     </div>
 
-    <!-- User data -->
     <div
       v-else
       class="max-w-200 sm:shadow-xl bg-main sm:rounded-[40px] z-0 min-h-200 mt-5 mx-auto"
@@ -43,11 +39,11 @@
             v-model="selectedView"
             :choices="choices"
             :hide-icon="true"
-            buttonStyle="py-2"
+            buttonStyle="py-1 text-sm font-bold"
           ></FormsChoiceSlider>
         </div>
         <div
-          v-if="selectedView == 'Recipes'"
+          v-if="selectedView == 'RECIPES'"
           class="flex flex-wrap gap-6 justify-center"
         >
           <RecipeCard
@@ -57,7 +53,7 @@
             class="flex-1 aspect-2/3 text-2xl max-w-70 basis-80"
           />
         </div>
-        <div v-if="selectedView == 'Activity'" class="w-full space-y-4">
+        <div v-if="selectedView == 'ACTIVITY'" class="w-full space-y-4">
           <FeedItem v-for="item in user?.activity" :feed-item="item" />
         </div>
       </div>
@@ -67,20 +63,28 @@
 
 <script setup lang="ts">
 const choices: [string, string][] = [
-  ['Recipes', ''],
-  ['Activity', ''],
-  ['Likes', ''],
-  ['Stats', ''],
+  ['RECIPES', ''],
+  ['ACTIVITY', ''],
+  ['LIKES', ''],
+  ['STATS', ''],
 ];
-const selectedView = ref('Recipes');
+const selectedView = ref('RECIPES');
 const route = useRoute();
 const userID = route.params.id;
+const auth = useAuthStore();
+const user = ref(null);
+const loading = ref(true);
+const error = ref(null);
 
-const {
-  data: user,
-  pending,
-  error,
-} = await useUser({ eq: { id: userID } });
+if (auth.user?.id == userID) {
+  user.value = auth.user;
+} else {
+  const { data, pending, error } = await useUser({ eq: { id: userID } });
+  if (data.value) {
+    user.value = data.value;
+  }
+  loading.value = false;
+}
 </script>
 
 <style scoped></style>

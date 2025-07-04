@@ -2,32 +2,32 @@
   <!-- Hero Section -->
   <div class="">
     <div
-      class="flex justify-between metallic-gradient hover-shine p-8 lg:py-10 lg:px-20 mx-2 sm:mx-10 mt-8 rounded-lg shadow-[0_0_7px_0_rgba(0,0,0,0.12)]"
+      class="flex justify-between metallic-gradient hover-shine p-8 lg:py-10 lg:px-20 mx-2 sm:mx-10 mt-8 rounded-lg shadow-[0_0_7px_0_rgba(0,0,0,0.12)] min-h-70 md:min-h-100 overflow-hidden"
     >
-      <div class="flex-col flex w-[60%] flex-grow xl:flex-grow-0">
-        <h1
-          class="text-3xl xs:text-4xl font-extrabold md:text-5xl lg:text-6xl tracking-tight md:tracking-wide"
-        >
-          Your Personal Recipe Collection
-        </h1>
-        <p class="sm:block hidden mt-1 text-base md:text-xl text-gray-500">
-          Save, organize, and discover recipes. Build your digital cookbook and
-          connect with food lovers around the world.
-        </p>
-        <div class="mt-auto">
-          <NuxtLink
-            to="/register"
-            class="button !bg-primary text-white font-bold px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap"
+      <div class="flex-col flex w-[60%] justify-between gap-10">
+        <div class="space-y-2">
+          <h1
+            class="text-3xl xs:text-4xl font-extrabold md:text-5xl lg:text-6xl tracking-tight md:tracking-wide"
           >
-            Start Your Cookbook
-          </NuxtLink>
+            Your Personal Recipe Collection
+          </h1>
+          <p class="sm:block hidden mt-1 text-base md:text-xl text-gray-500">
+            Save, organize, and discover recipes. Build your digital cookbook
+            and connect with food lovers around the world.
+          </p>
         </div>
+        <NuxtLink
+          to="/register"
+          class="button !bg-primary text-white font-bold px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap self-start"
+        >
+          Start Your Cookbook
+        </NuxtLink>
       </div>
-      <div class="">
+      <div class="absolute -top-[10%] right-0 h-full">
         <img
-          src="/chef.png"
-          alt="Jolly chef with recipe book"
-          class="h-52 md:h-82 mask-fade-bottom"
+          src="/feast.png"
+          alt="Delicious feast plate"
+          class="mask-fade-bottom h-[120%] object-cover"
         />
       </div>
     </div>
@@ -117,6 +117,15 @@ if (!recipeStore.indexRecipes.length) {
     recipeStore.setIndexRecipes(data.value ?? []);
   });
 }
+
+//onMounted(async () => {
+//  const sample = await useSupabaseClient()
+//    .from('foods')
+//    .select('name,id,hidx,kcal')
+//    .order('name', { ascending: true })
+//    .limit(20);
+//  console.log(sample);
+//});
 </script>
 
 <style></style>

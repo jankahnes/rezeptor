@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="w-full h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10"
-  >
+  <div class="h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10">
     <h1 class="hidden md:block text-2xl font-bold text-center sm:text-start">
       All Recipes
     </h1>
@@ -79,10 +77,7 @@
       <div class="flex items-center gap-4">
         <span class="hidden xl:block">Sort by:</span>
         <div class="relative inline-block min-w-45 z-10">
-          <FormsDropdown
-            v-model="selectedSorting"
-            :choices="sorts"
-          />
+          <FormsDropdown v-model="selectedSorting" :choices="sorts" />
         </div>
       </div>
     </div>
@@ -123,7 +118,7 @@
         </button>
       </div>
       <div
-        class="relative py-3 select-none ml-3 mr-5 lg:mx-3"
+        class="relative py-3 select-none ml-4 mr-6 lg:mx-3"
         v-if="selectedFilter == 'health'"
       >
         <FormsRangeSlider
@@ -136,7 +131,7 @@
         />
       </div>
       <div
-        class="relative py-3 select-none ml-3 mr-10 lg:mx-3"
+        class="relative py-3 select-none ml-4 mr-12 lg:mx-3"
         v-if="selectedFilter == 'kcal'"
       >
         <FormsRangeSlider
@@ -149,7 +144,7 @@
         />
       </div>
       <div
-        class="relative py-3 select-none ml-3 mr-15 lg:mx-3"
+        class="relative py-3 select-none ml-4 mr-18 lg:mx-3"
         v-if="selectedFilter == 'cost'"
       >
         <FormsRangeSlider
@@ -254,11 +249,7 @@ const filtering = computed(() => {
   return returnFiltering;
 });
 
-const {
-  data,
-  pending,
-  refresh,
-} = await useRecipesPartial(
+const { data, pending, refresh } = await useRecipesPartial(
   () => ({
     orderBy: { column: 'created_at', ascending: false },
     not: { picture_ext: null },
@@ -321,9 +312,7 @@ function updateGradeTag(min: number, max: number) {
     (item) => !item.startsWith('Health Score')
   );
   if (min != 0 || max != 100) {
-    filtered.push(
-      'Health Score: ' + getGrade(min) + ' ⟶ ' + getGrade(max)
-    );
+    filtered.push('Health Score: ' + getGrade(min) + ' ⟶ ' + getGrade(max));
   }
   visibleTags.value = filtered;
 }

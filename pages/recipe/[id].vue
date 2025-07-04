@@ -1,96 +1,67 @@
 <template>
   <PagesRecipeLayout :key="String(route.params.id)">
     <template #image>
-      <div
-        v-if="pending"
-        class="aspect-square w-full h-full flex items-center justify-center"
-      >
-        <Skeleton class="w-full h-full rounded-xl" />
-      </div>
       <img
-        v-else
         :src="recipeStore.recipe?.picture_url ?? undefined"
         class="aspect-square object-cover transition-transform duration-700 group-hover:scale-105 rounded-xl"
       />
     </template>
 
     <template #title>
-      <div v-if="pending">
-        <Skeleton class="h-12 w-100 rounded" />
-      </div>
-      <h1 v-else class="font-bold text-5xl">{{ recipeStore.recipe?.title }}</h1>
+      <h1 class="font-bold text-5xl">{{ recipeStore.recipe?.title }}</h1>
     </template>
 
     <template #rating>
-      <div v-if="pending" class="flex items-center gap-2">
-        <Skeleton class="h-7 w-32 rounded" />
-      </div>
-      <template v-else>
-        <FormsRatingField
-          v-if="recipeStore.recipe?.rating"
-          v-model="recipeStore.recipe.rating"
-          :select="false"
-          :star-width="26"
-          :star-height="26"
-          :spacing="-2"
-          :id="250"
-        ></FormsRatingField>
-        <span class="text-lg">{{ recipeStore.recipe?.rating }}</span>
-      </template>
+      <FormsRatingField
+        v-if="recipeStore.recipe?.rating"
+        v-model="recipeStore.recipe.rating"
+        :select="false"
+        :star-width="26"
+        :star-height="26"
+        :spacing="-2"
+        :id="250"
+      ></FormsRatingField>
+      <span class="text-lg">{{ recipeStore.recipe?.rating }}</span>
     </template>
 
     <template #tags>
-      <div v-if="pending" class="flex gap-2">
-        <Skeleton class="h-7 w-16 rounded" />
-        <Skeleton class="h-7 w-16 rounded" />
-        <Skeleton class="h-7 w-16 rounded" />
+      <div
+        class="tag metallic-gradient-simple"
+        v-for="tag in recipeStore.recipe?.tags"
+      >
+        {{ getTagByID(tag)?.name }}
       </div>
-      <template v-else>
-        <div
-          class="tag bg-gray-100"
-          v-for="tag in recipeStore.recipe?.tags"
-        >
-          {{ getTagByID(tag)?.name }}
-        </div>
-      </template>
     </template>
 
-    <template v-if="!pending && recipeStore.recipe?.description" #description>
+    <template v-if="recipeStore.recipe?.description" #description>
       {{ recipeStore.recipe?.description }}
     </template>
 
     <template #metadata>
-      <div v-if="pending" class="flex flex-col gap-2">
-        <Skeleton class="h-8 w-48 rounded" />
-        <Skeleton class="h-8 w-48 rounded" />
-        <Skeleton class="h-8 w-48 rounded" />
+      <div
+        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+      >
+        <span class="material-symbols-outlined"> flash_on </span>
+        <span class="text-base"
+          >Effort: {{ capitalize(recipeStore.recipe?.effort) }}</span
+        >
       </div>
-      <template v-else>
-        <div
-          class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+      <div
+        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+      >
+        <span class="material-symbols-outlined"> target </span>
+        <span class="text-base"
+          >Difficulty: {{ capitalize(recipeStore.recipe?.difficulty) }}</span
         >
-          <span class="material-symbols-outlined"> flash_on </span>
-          <span class="text-base"
-            >Effort: {{ capitalize(recipeStore.recipe?.effort) }}</span
-          >
-        </div>
-        <div
-          class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+      </div>
+      <div
+        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+      >
+        <span class="material-symbols-outlined"> attach_money </span>
+        <span class="text-base"
+          >Estimated Price: {{ formatMoney(recipeStore.recipe?.price) }}</span
         >
-          <span class="material-symbols-outlined"> target </span>
-          <span class="text-base"
-            >Difficulty: {{ capitalize(recipeStore.recipe?.difficulty) }}</span
-          >
-        </div>
-        <div
-          class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
-        >
-          <span class="material-symbols-outlined"> attach_money </span>
-          <span class="text-base"
-            >Estimated Price: {{ formatMoney(recipeStore.recipe?.price) }}</span
-          >
-        </div>
-      </template>
+      </div>
     </template>
 
     <template #actions>
@@ -122,34 +93,20 @@
     </template>
 
     <template #ingredients>
-      <div v-if="pending">
-        <Skeleton class="h-6 w-3/4 rounded mb-2" />
-        <Skeleton class="h-6 w-1/2 rounded" />
-        <Skeleton class="h-6 w-2/3 rounded" />
-      </div>
       <PagesRecipeIngredientList
-        v-else-if="recipeStore.recipe?.ingredients"
-        :ingredients="recipeStore.recipe.ingredients"
+        :ingredients="recipeStore.recipe?.ingredients"
       ></PagesRecipeIngredientList>
     </template>
 
     <template #instructions>
-      <div v-if="pending">
-        <Skeleton class="h-6 w-3/4 rounded mb-2" />
-        <Skeleton class="h-6 w-1/2 rounded" />
-        <Skeleton class="h-6 w-2/3 rounded" />
-      </div>
       <PagesRecipeInstructionContainer
-        v-else-if="recipeStore.recipe?.instructions"
+        v-if="recipeStore.recipe?.instructions"
         :instructions="recipeStore.recipe.instructions"
       ></PagesRecipeInstructionContainer>
     </template>
 
     <template #nutrition>
-      <div v-if="pending">
-        <Skeleton class="h-32 w-full rounded" />
-      </div>
-      <PagesRecipeNutriCard v-else :recipe="recipeStore.recipe" />
+      <PagesRecipeNutriCard :recipe="recipeStore.recipe" />
     </template>
 
     <template #ai-buttons>
@@ -191,20 +148,8 @@
       <div class="flex flex-col items-center w-full gap-2">
         <div class="h-[2px] bg-black w-3/5 mx-auto"></div>
         <h2 class="text-5xl mt-4">What others say</h2>
-        <div
-          v-if="pending || !recipeStore.recipe"
-          class="w-full flex flex-col items-center gap-2"
-        >
-          <Skeleton class="h-6 w-32 rounded mb-2" />
-          <Skeleton class="h-20 w-4/5 rounded mb-2" />
-          <Skeleton class="h-20 w-4/5 rounded mb-2" />
-        </div>
-        <template v-else>
-          <div class="">
-            {{ recipeStore.recipe?.comments?.length }} comments
-          </div>
-          <PagesRecipeCommentSection></PagesRecipeCommentSection>
-        </template>
+        <div class="">{{ recipeStore.recipe?.comments?.length }} comments</div>
+        <PagesRecipeCommentSection></PagesRecipeCommentSection>
       </div>
     </template>
   </PagesRecipeLayout>
@@ -214,31 +159,15 @@
 const route = useRoute();
 const recipeStore = useRecipeStore();
 
-const pending = ref(true);
-let isComponentMounted = ref(true);
-
-onUnmounted(() => {
-  isComponentMounted.value = false;
+const { data: recipe } = await useRecipe({
+  eq: { id: Number(route.params.id) },
 });
 
-if (recipeStore?.recipe?.id !== Number(route.params.id)) {
-  try {
-    const result = await useRecipe({ eq: { id: route.params.id } });
-    if (isComponentMounted.value && result.data.value) {
-      recipeStore.setRecipe(result.data.value);
-    }
-  } catch (e) {
-    if (isComponentMounted.value) {
-      console.error(e);
-    }
-  } finally {
-    if (isComponentMounted.value) {
-      pending.value = false;
-    }
-  }
-} else {
-  pending.value = false;
-}
+recipeStore.setRecipe(recipe.value as RecipeProcessed);
+
+useHead({
+  title: recipeStore.recipe?.title + ' | Rezeptor',
+});
 
 const handleMissingIngredients = () => {
   // TODO: Implement missing ingredients functionality

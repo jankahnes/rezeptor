@@ -18,6 +18,18 @@
 
 <script setup>
 const auth = useAuthStore();
+
+useHead({
+  title: 'Rezeptor',
+  meta: [
+    {
+      name: 'description',
+      content: 'Rezeptor is a recipe sharing platform.',
+    },
+  ],
+})
+
+
 onBeforeMount(() => {
   auth.fetchUser();
   auth.listenToAuthChanges();

@@ -41,10 +41,6 @@
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
 }
 
-.shadow-main-hover:hover {
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
-}
-
 .button {
   position: relative;
   z-index: 0;
@@ -83,7 +79,7 @@
 }
 
 .hover-shine:hover {
-  filter: brightness(101%);
+  filter: saturate(1.5) brightness(1.01);
 }
 
 .hover-shine::after {
@@ -100,7 +96,7 @@
 }
 
 .hover-shine:hover::after {
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .metallic-gradient {
@@ -112,6 +108,10 @@
     #fffefe 50%,
     #f5eeee 100%
   );
+}
+
+.metallic-gradient-simple {
+  background: linear-gradient(30deg, #f0efef 0%, #fdfafa 38%, #f0efef 100%);
 }
 
 .golden-gradient {
@@ -158,6 +158,18 @@
   );
 }
 
+.ai-gradient {
+  background-image: linear-gradient(to right, #a855f7, #ec4899);
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.ai-gradient:hover {
+  background-image: linear-gradient(to right, #9333ea, #db2777);
+}
+
 .golden-overlay {
   filter: sepia(0.3) saturate(1.15);
 }
@@ -176,6 +188,30 @@
   -webkit-mask-image: linear-gradient(to top, black 92%, transparent 100%);
 }
 
+.swish-fade-enter-from {
+  opacity: 0;
+  transform: translateY(35px) rotateX(5deg) scale(0.95);
+}
+.swish-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.swish-fade-enter-to {
+  opacity: 1;
+  transform: translateY(0) rotateX(0) scale(1);
+}
+
+.swish-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0) rotateX(0) scale(1);
+}
+.swish-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.swish-fade-leave-to {
+  opacity: 0;
+  transform: translateY(35px) rotateX(5deg) scale(0.95);
+}
+
 @import 'tailwindcss';
 
 @theme {
@@ -185,7 +221,7 @@
   --breakpoint-xs: 500px;
   --breakpoint-2xs: 400px;
   --font-main: 'Inter', sans-serif;
-  --color-main: #fffefc;
+  --color-main: #ffffff;
   --color-primary: #921a40;
   --color-secondary: #c75b7a;
   --color-tertiary: #f4d9d0;

@@ -1,15 +1,19 @@
 <template>
-  <div class="relative w-full h-[calc(100svh_-_370px)] p-5">
-    <div v-if="scannedCode" class="text-xl font-bold text-center">
-      Code scanned: {{ scannedCode }}
+  <div class="relative h-[calc(100svh_-_370px)] mt-[5%] aspect-2/3 mx-auto">
+    <div class="">
+      <button
+        @click="navigateTo('/foods')"
+        class="button flex items-center justify-center p-2 text-2xl font-bold"
+      >
+        <span class="material-symbols-outlined"> arrow_back </span>
+      </button>
     </div>
     <video
-      v-else
       ref="videoElement"
       autoplay
       playsinline
       muted
-      class="w-full h-full object-cover"
+      class="w-full h-full object-cover rounded-lg shadow-main mt-2"
     />
   </div>
 </template>
@@ -17,13 +21,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { BrowserMultiFormatReader } from '@zxing/browser';
-
-const props = defineProps({
-  onDecode: {
-    type: Function,
-    required: true,
-  },
-});
 
 const videoElement = ref(null);
 const scannedCode = ref('');
@@ -49,7 +46,7 @@ onMounted(async () => {
         if (result && !scannedCode.value) {
           scannedCode.value = result.getText();
           controls?.stop();
-          props.onDecode(scannedCode.value);
+          navigateTo(`/foods/barcode-${scannedCode.value}`);
         }
       }
     );

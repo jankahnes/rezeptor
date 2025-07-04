@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-[4fr_1fr] sm:grid-cols-[6fr_2fr] border-2 border-dashed rounded-lg border-gray-300 w-full sm:max-w-[600px] font-sans"
+    class="grid grid-cols-[4fr_1fr] sm:grid-cols-[6fr_2fr] rounded-lg shadow-main w-full sm:max-w-[600px] font-sans"
   >
     <div class="flex flex-col text-center">
       <div
@@ -32,7 +32,7 @@
     </div>
     <div class="flex flex-col">
       <div
-        class="text-6xl font-bold flex justify-center items-center aspect-square border-l-2 border-b-2 border-gray-300 border-dashed"
+        class="text-6xl font-bold flex justify-center items-center aspect-square border-l-2 border-b-2 border-gray-300 border-dashed rounded-r-lg"
         :class="gradeColors[getGrade(recipe?.hidx, 'hidx')]"
       >
         {{ getGrade(recipe?.hidx, 'hidx') }}
@@ -41,7 +41,7 @@
         v-for="(item, index) in gradeItems"
         :key="item.key"
         class="flex items-center border-l-2 border-gray-300 border-dashed w-full"
-        :class="{ 'border-b-2': index !== gradeItems.length - 1 }"
+        :class="{ 'border-b-2': index !== gradeItems.length - 1}"
       >
         <div class="flex-1 p-2 text-sm">{{ item.label }}</div>
         <div

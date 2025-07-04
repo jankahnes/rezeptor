@@ -22,7 +22,7 @@
     <div
       ref="rightHandle"
       class="button !absolute top-1/2 -translate-y-1/2 bg-white cursor-grab flex items-center justify-center font-bold text-lg px-3 py-1"
-      :style="{ left: `calc(${maxPercent}% - 0.75rem)` }"
+      :style="{ left: `calc(${maxPercent}% - 1.5rem)` }"
       @mousedown.stop="startHandleDrag('max', $event)"
       @touchstart.stop.prevent="startHandleDrag('max', $event)"
     >

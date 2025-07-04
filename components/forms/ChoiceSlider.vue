@@ -81,7 +81,7 @@ const backgroundStyle = computed(() => {
       width: '100%',
       top: segmentOffsets.value[currentIndex.value] + 'px',
       height: segmentSizes.value[currentIndex.value] + 'px',
-      opacity: 1,
+      opacity: 0.5,
     };
   } else {
     return {
@@ -89,7 +89,7 @@ const backgroundStyle = computed(() => {
       height: '100%',
       left: segmentOffsets.value[currentIndex.value] + 'px',
       width: segmentSizes.value[currentIndex.value] + 'px',
-      opacity: 1,
+      opacity: 0.5,
     };
   }
 });

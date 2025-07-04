@@ -12,7 +12,7 @@
       <NuxtLink to="/recipe/new" class="flex">
         <span class="material-symbols-outlined !text-3xl"> add </span>
       </NuxtLink>
-      <NuxtLink to="/ingredients" class="flex">
+      <NuxtLink to="/foods" class="flex">
         <span class="material-symbols-outlined !text-3xl"> grocery </span>
       </NuxtLink>
     </div>
