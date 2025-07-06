@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
+@import 'tailwindcss';
 
 .material-icons {
   font-family: 'Material Icons';
@@ -27,6 +28,26 @@
   direction: ltr;
   -webkit-font-feature-settings: 'liga';
   font-feature-settings: 'liga';
+}
+
+@theme {
+  --breakpoint-4xl: 2200px;
+  --breakpoint-3xl: 1921px;
+  --breakpoint-xm: 860px;
+  --breakpoint-xs: 500px;
+  --breakpoint-2xs: 400px;
+  --font-main: 'Inter', sans-serif;
+  --color-main: #ffffff;
+  --color-primary: #921a40;
+  --color-secondary: #c75b7a;
+  --color-tertiary: #f4d9d0;
+  --rounded-main: 10px;
+}
+
+@layer base {
+  html {
+    letter-spacing: 0.05em;
+  }
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -110,6 +131,11 @@
   );
 }
 
+.onboarding-gradient {
+  background: linear-gradient(135deg, #921a40 0%, #c75b7a 65%, #f4d9d0 100%);
+  filter: brightness(1.2);
+}
+
 .metallic-gradient-simple {
   background: linear-gradient(30deg, #f0efef 0%, #fdfafa 38%, #f0efef 100%);
 }
@@ -179,8 +205,8 @@
 }
 
 .mask-fade-bottom {
-  mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 92%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
 }
 
 .mask-fade-top {
@@ -212,24 +238,20 @@
   transform: translateY(35px) rotateX(5deg) scale(0.95);
 }
 
-@import 'tailwindcss';
-
-@theme {
-  --breakpoint-4xl: 2200px;
-  --breakpoint-3xl: 1921px;
-  --breakpoint-xm: 860px;
-  --breakpoint-xs: 500px;
-  --breakpoint-2xs: 400px;
-  --font-main: 'Inter', sans-serif;
-  --color-main: #ffffff;
-  --color-primary: #921a40;
-  --color-secondary: #c75b7a;
-  --color-tertiary: #f4d9d0;
-  --rounded-main: 10px;
+.cell {
+  @apply cursor-pointer px-4 py-2 bg-white/10 hover:bg-white/20 rounded-2xl text-white font-medium transition-all duration-200 transform border border-white/30 text-center backdrop-blur-2xl;
 }
 
-@layer base {
-  html {
-    letter-spacing: 0.05em;
+.cell.selected {
+  @apply bg-white/30;
+  animation: pulse-glow 0.5s ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1);
   }
 }

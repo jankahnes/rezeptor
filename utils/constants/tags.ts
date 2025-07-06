@@ -1,16 +1,19 @@
 export const TAGS = {
   GENERAL: [
     { id: 61, name: 'nutritious' },
-    { id: 62, name: 'vegan' },
-    { id: 63, name: 'vegetarian' },
-    { id: 64, name: 'low carb' },
     { id: 65, name: 'diet' },
     { id: 66, name: 'satiating' },
-    { id: 67, name: 'high protein' },
-    { id: 68, name: 'gluten free' },
     { id: 69, name: 'few ingredients' },
     { id: 70, name: 'quick' },
     { id: 71, name: 'easy' },
+  ],
+  DIET: [
+    { id: 62, name: 'vegan' },
+    { id: 63, name: 'vegetarian' },
+    { id: 67, name: 'high protein' },
+    { id: 64, name: 'low carb' },
+    { id: 99, name: 'carnivore' },
+    { id: 68, name: 'gluten free' },
   ],
   FLAVOR: [
     { id: 72, name: 'sweet' },
@@ -42,4 +45,3 @@ export const TAGS = {
     { id: 94, name: 'thai' },
   ],
 } as const;
-

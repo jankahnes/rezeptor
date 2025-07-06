@@ -64,7 +64,7 @@
       <button
         class="w-full button flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 hover:bg-gray-50 transition-colors"
       >
-        <img :src="'/google.svg'" class="w-5 h-5" alt="Google" />
+        <img :src="'/google.webp'" class="w-5 h-5" alt="Google" />
         <span class="font-medium">Sign in with Google</span>
       </button>
     </template>

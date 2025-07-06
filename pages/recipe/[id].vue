@@ -109,46 +109,15 @@
       <PagesRecipeNutriCard :recipe="recipeStore.recipe" />
     </template>
 
-    <template #ai-buttons>
-      <div class="flex gap-2 items-start justify-center flex-wrap">
-        <button
-          v-for="button in buttons"
-          class="relative rounded-xl p-[3px] overflow-hidden inline-flex items-center w-max"
-          @click="button.function()"
-        >
-          <FormsAIBorder class="rounded-xl" :spinning="button.loading" />
-          <span
-            class="relative flex bg-[#fffefc] rounded-[9px] w-full items-center justify-center gap-2 px-4 py-2 font-bold"
-          >
-            <span
-              v-if="button.label === 'Chat'"
-              class="material-symbols-outlined"
-              >chat</span
-            >
-            <span v-else class="material-symbols-outlined">wand_stars</span>
-            <textarea
-              class="resize-none h-6 items-center focus:outline-none"
-              v-if="button.label === 'User'"
-              placeholder="Do this!"
-              @input="autoResize($event, 10)"
-            ></textarea>
-            <textarea
-              class="resize-none h-6 focus:outline-none"
-              v-else-if="button.label === 'Chat'"
-              placeholder="Ask anything"
-              @input="autoResize($event, 10)"
-            ></textarea>
-            <span class="" v-else>{{ button.label }}</span>
-          </span>
-        </button>
-      </div>
-    </template>
-
     <template #comments>
       <div class="flex flex-col items-center w-full gap-2">
-        <div class="h-[2px] bg-black w-3/5 mx-auto"></div>
-        <h2 class="text-5xl mt-4">What others say</h2>
-        <div class="">{{ recipeStore.recipe?.comments?.length }} comments</div>
+        <h2 class="text-5xl mt-8">What others say</h2>
+        <div class="">
+          {{ recipeStore.recipe?.comments?.length }}
+          {{
+            recipeStore.recipe?.comments?.length === 1 ? 'comment' : 'comments'
+          }}
+        </div>
         <PagesRecipeCommentSection></PagesRecipeCommentSection>
       </div>
     </template>
@@ -168,63 +137,6 @@ recipeStore.setRecipe(recipe.value as RecipeProcessed);
 useHead({
   title: recipeStore.recipe?.title + ' | Rezeptor',
 });
-
-const handleMissingIngredients = () => {
-  // TODO: Implement missing ingredients functionality
-  console.log('Handling missing ingredients');
-};
-
-const handleAdaptDiet = () => {
-  // TODO: Implement diet adaptation functionality
-  console.log('Adapting to diet');
-};
-
-const handleMakeHealthier = () => {
-  // TODO: Implement make healthier functionality
-  console.log('Making recipe healthier');
-};
-
-const handleMakeCheaper = () => {
-  // TODO: Implement make cheaper functionality
-  console.log('Making recipe cheaper');
-};
-
-const handleMakeFlavorful = () => {
-  // TODO: Implement make flavorful functionality
-  console.log('Making recipe more flavorful');
-};
-
-const doWhatever = () => {
-  // TODO: Implement make flavorful functionality
-  console.log('Making recipe more flavorful');
-};
-
-const askWhatever = () => {
-  // TODO: Implement make flavorful functionality
-  console.log('Making recipe more flavorful');
-};
-
-const buttons = ref([
-  {
-    label: 'I am missing ingredients',
-    function: handleMissingIngredients,
-    loading: false,
-  },
-  { label: 'Adapt this to my Diet', function: handleAdaptDiet, loading: false },
-  {
-    label: 'Make this healthier',
-    function: handleMakeHealthier,
-    loading: false,
-  },
-  { label: 'Make this cheaper', function: handleMakeCheaper, loading: false },
-  {
-    label: 'Make this more flavorful',
-    function: handleMakeFlavorful,
-    loading: false,
-  },
-  { label: 'User', function: doWhatever, loading: false },
-  { label: 'Chat', function: askWhatever, loading: false },
-]);
 </script>
 
 <style scoped>

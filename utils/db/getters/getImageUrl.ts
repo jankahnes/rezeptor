@@ -6,6 +6,7 @@ export async function getImageUrl(
   id: string | number,
   ext: string | null
 ) {
+  if (!ext) return null;
   const { data } = await client.storage
     .from(bucket)
     .getPublicUrl(`${id}.${ext}`);

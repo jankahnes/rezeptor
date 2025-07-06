@@ -1,7 +1,7 @@
 <template>
-  <nav class="fixed w-full z-30 bg-main">
+  <nav class="fixed w-full z-30 bg-main mask-fade-bottom">
     <div
-      class="w-[clamp(75vw,1550px,100vw)] mx-auto flex justify-between items-center px-10 max-w-screen-2xl h-18 xm:h-22"
+      class="w-[clamp(75vw,1550px,100%)] mx-auto flex justify-between items-center px-10 h-18 xm:h-22"
     >
       <!-- Logo -->
       <NuxtLink to="/">
@@ -48,12 +48,17 @@
           v-if="auth.user"
           :to="'/profile/' + auth.user.id"
           class="button text-primary shadow font-bold flex items-center justify-center gap-1"
-          active-class="!bg-primary !text-white"
         >
-          <Avatar v-if="auth.user?.picture_url" :user="auth.user" class="w-10 h-10"/>
-          <span v-else class="material-symbols-outlined !text-2xl"> account_circle </span>
+          <Avatar
+            :user="auth.user"
+            class="w-10 h-10"
+          />
         </NuxtLink>
-        <button v-if="auth.user" @click="auth.signOut" class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1">
+        <button
+          v-if="auth.user"
+          @click="auth.signOut"
+          class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+        >
           <span class="material-symbols-outlined !text-2xl"> logout </span>
         </button>
         <NuxtLink
@@ -65,8 +70,8 @@
         </NuxtLink>
         <NuxtLink
           v-if="!auth.user"
-          to="/register"
-          class="button bg-tertiary text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1"
+          to="/onboarding"
+          class="button !bg-primary text-white shadow font-bold flex items-center justify-center px-3 py-2 gap-1"
         >
           Sign Up
         </NuxtLink>

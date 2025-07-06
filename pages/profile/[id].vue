@@ -7,7 +7,7 @@
     </div>
 
     <Skeleton
-      v-else-if="pending || !user"
+      v-else-if="loading || !user"
       class="max-w-200 shadow-xl rounded-[40px] z-0 min-h-200 mt-5 mx-auto"
     />
 
@@ -78,6 +78,7 @@ const error = ref(null);
 
 if (auth.user?.id == userID) {
   user.value = auth.user;
+  loading.value = false;
 } else {
   const { data, pending, error } = await useUser({ eq: { id: userID } });
   if (data.value) {

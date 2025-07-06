@@ -276,26 +276,6 @@ const computeDebounced = debounce(compute, 3000);
 
 watch(recipe, computeDebounced, { deep: true });
 
-const uploadImage = async (id, file, isUpdate = false) => {
-  if (!file) return;
-
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${id}.${fileExt}`;
-
-  const { error } = await supabase.storage
-    .from('recipe')
-    .upload(fileName, file, {
-      cacheControl: '3600',
-      upsert: isUpdate,
-    });
-
-  if (error) {
-    console.error('Upload error:', error.message);
-  } else {
-    console.log('Upload successful.');
-  }
-};
-
 const insertRecipeFoods = async (recipeFoods, recipeId) => {
   if (recipeFoods.length) {
     const { error } = await supabase
@@ -342,7 +322,7 @@ const submitNewRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
   loadingStep.value = 5;
 
   if (imgFile) {
-    await uploadImage(id, imgFile);
+    await uploadImage(supabase, 'recipe', id, imgFile);
   }
   loadingStep.value = 6;
 
@@ -378,7 +358,7 @@ const submitForkRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
   loadingStep.value = 5;
 
   if (imgFile) {
-    await uploadImage(id, imgFile);
+    await uploadImage(supabase, 'recipe', id, imgFile);
   }
   loadingStep.value = 6;
 
@@ -420,7 +400,13 @@ const submitEditOwnRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
   loadingStep.value = 5;
 
   if (imgFile) {
-    await uploadImage(originalRecipeId.value, imgFile, true);
+    await uploadImage(
+      supabase,
+      'recipe',
+      originalRecipeId.value,
+      imgFile,
+      true
+    );
   }
   loadingStep.value = 6;
 

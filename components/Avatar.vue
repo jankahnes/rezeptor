@@ -14,7 +14,7 @@
   />
   <div
     v-else-if="user.username"
-    class="rounded-[25%] bg-main shadow-md flex items-center justify-center aspect-square p-2"
+    class="rounded-[25%] bg-main shadow-md flex items-center justify-center aspect-square p-2 h-full"
   >
     <span class="font-semibold text-primary text-[100%]">
       {{ user.username.slice(0, 2).toUpperCase() }}

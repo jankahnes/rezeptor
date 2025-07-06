@@ -6,12 +6,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchProfile() {
     if (!user.value || !user.value.id) return;
-    const { data, error } = await useUser({ eq: { id: user.value.id } }, "currentUserProfileFetch");
-    if (error.value) {
-      console.error(error.value);
-    } else {
-      user.value = data.value;
-    }
+    const profile = expectSingleOrNull(await getUsers(supabase, { eq: { id: user.value.id } }));
+    if(profile) user.value = profile;
   }
 
   async function fetchUser() {
@@ -40,7 +36,6 @@ export const useAuthStore = defineStore('auth', () => {
       password,
     });
     if (data?.user) user.value = data.user;
-    fetchProfile();
     return { data, error };
   }
   async function signUp(email: string, password: string) {
@@ -49,7 +44,6 @@ export const useAuthStore = defineStore('auth', () => {
       password,
     });
     if (data?.user) user.value = data.user;
-    fetchProfile();
     return { data, error };
   }
   async function signOut() {
