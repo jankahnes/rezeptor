@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/image": "^1.10.0",
     "@nuxtjs/supabase": "^1.5.3",
     "@pinia/nuxt": "^0.11.0",
     "@supabase/supabase-js": "^2.49.4",

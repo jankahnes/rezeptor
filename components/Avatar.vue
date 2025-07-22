@@ -7,10 +7,10 @@
       account_circle
     </span>
   </div>
-  <img
-    v-else-if="user.picture_url"
+  <NuxtImg
+    v-else-if="user.picture"
     class="rounded-[25%] aspect-square shadow-md"
-    :src="user.picture_url"
+    :src="user.picture"
   />
   <div
     v-else-if="user.username"

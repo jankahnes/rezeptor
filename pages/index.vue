@@ -25,7 +25,7 @@
           </NuxtLink>
         </div>
         <div class="absolute -top-[10%] right-0 h-full z-0">
-          <img
+          <NuxtImg
             src="/feast.png"
             alt="Delicious feast plate"
             class="mask-fade-bottom h-[120%] object-cover"
@@ -86,10 +86,10 @@
             v-for="recipe in recipeStore.indexRecipes"
             v-if="recipeStore.indexRecipes.length"
           >
-            <RecipeCard :recipe="recipe" class="max-w-100 h-140 text-[34px]" />
+            <RecipeCard :recipe="recipe" class="w-100 h-140 text-[34px]" />
           </div>
           <div v-else class="flex justify-center" v-for="i in 6">
-            <Skeleton class="max-w-100 h-140 text-[34px] rounded-xl" />
+            <Skeleton class="w-100 h-140 text-[34px] rounded-xl" />
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@ if (!recipeStore.indexRecipes.length) {
   const { data, pending, error } = await useRecipesPartial(
     () => ({
       eq: { visibility: 'PUBLIC' },
-      not: { picture_ext: null },
+      not: { picture: null },
       limit: 6,
     }),
     'index'

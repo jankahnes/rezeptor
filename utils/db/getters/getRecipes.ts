@@ -1,7 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { expectSingle } from '~/utils/db/getters/expectSingle';
 import { getRatings } from '~/utils/db/getters/getRatings';
-import { getImageUrl } from '~/utils/db/getters/getImageUrl';
 import { getUserPartial } from '~/utils/db/getters/getUser';
 import buildQuery from '~/utils/db/getters/buildQuery';
 import buildQueryFromRecipeFiltering from '~/utils/db/getters/buildQueryFromRecipeFiltering';
@@ -24,7 +23,8 @@ export async function getRecipes(
           ),
           category
         ),
-        comments:comments(*)
+        comments:comments(*),
+        user:profiles(id, username, picture)
       `);
 
   query = buildQuery(query, opts);
@@ -44,14 +44,6 @@ export async function getRecipes(
   });
 
   for (const recipe of recipes) {
-    if (recipe.picture_ext) {
-      recipe.picture_url = await getImageUrl(
-        client,
-        'recipe',
-        recipe.id,
-        recipe.picture_ext
-      );
-    }
     for (const c of recipe.comments) {
       const match = ratings.find(
         (r) => r.user_id === c.user_id && r.recipe_id === recipe.id
@@ -122,18 +114,5 @@ export async function getRecipesPartial(
   const { data, error } = await query;
   if (error) throw error;
 
-  const recipes = data as RecipeProcessed[];
-  if (recipes.length === 0) return [];
-
-  for (const recipe of recipes) {
-    if (recipe.picture_ext) {
-      recipe.picture_url = await getImageUrl(
-        client,
-        'recipe',
-        recipe.id,
-        recipe.picture_ext
-      );
-    }
-  }
-  return recipes;
+  return data as RecipeProcessed[];
 }

@@ -2,13 +2,20 @@
   <PagesRecipeLayout :key="String(route.params.id)">
     <template #image>
       <img
-        :src="recipeStore.recipe?.picture_url ?? undefined"
+        :src="recipeStore.recipe?.picture ?? undefined"
         class="aspect-square object-cover transition-transform duration-700 group-hover:scale-105 rounded-xl"
       />
     </template>
 
     <template #title>
       <h1 class="font-bold text-5xl">{{ recipeStore.recipe?.title }}</h1>
+    </template>
+
+    <template #user-row>
+      <div class="flex items-center gap-2" v-if="recipeStore.recipe?.user">
+        <Avatar :user="recipeStore.recipe?.user" class="w-8 h-8"/>
+        <span class="text-sm">{{ recipeStore.recipe?.user?.username }} · {{ timeAgo(recipeStore.recipe?.created_at) }}</span>
+      </div>
     </template>
 
     <template #rating>
@@ -21,7 +28,7 @@
         :spacing="-2"
         :id="250"
       ></FormsRatingField>
-      <span class="text-lg">{{ recipeStore.recipe?.rating }}</span>
+      <span class="text-lg">{{ recipeStore.recipe?.rating?.toFixed(1) }}</span>
     </template>
 
     <template #tags>
@@ -39,7 +46,7 @@
 
     <template #metadata>
       <div
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+        class="flex gap-2 items-center justify-center bg-main border-2 border-secondary text-primary rounded-xl p-2 font-bold"
       >
         <span class="material-symbols-outlined"> flash_on </span>
         <span class="text-base"
@@ -47,7 +54,7 @@
         >
       </div>
       <div
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+        class="flex gap-2 items-center justify-center bg-main border-2 border-secondary text-primary rounded-xl p-2 font-bold"
       >
         <span class="material-symbols-outlined"> target </span>
         <span class="text-base"
@@ -55,7 +62,7 @@
         >
       </div>
       <div
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+        class="flex gap-2 items-center justify-center bg-main border-2 border-secondary text-primary rounded-xl p-2 font-bold"
       >
         <span class="material-symbols-outlined"> attach_money </span>
         <span class="text-base"
@@ -66,28 +73,28 @@
 
     <template #actions>
       <button
-        class="select-none text-[#FF6900] border-2 border-[#FF6900] rounded-xl px-4 py-2 flex items-center gap-3 bg-white hover:bg-[#fcf8f5] md:rotate-1 transform hover:rotate-0 transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-300/30"
+        class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md text-primary"
       >
-        <span class="material-icons !text-[20px]">share</span>
+        <span class="material-symbols-outlined !text-[20px]">share</span>
         <span class="">Share</span>
       </button>
       <button
-        class="select-none text-[#FF6900] border-2 border-[#FF6900] rounded-xl px-4 py-2 flex items-center gap-3 bg-white hover:bg-[#fcf8f5] md:rotate-1 transform hover:rotate-0 transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-300/30"
+        class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md text-primary"
       >
-        <span class="material-icons !text-[20px]">print</span>
+        <span class="material-symbols-outlined !text-[20px]">print</span>
         <span class="">Print</span>
       </button>
       <NuxtLink
         :to="{ path: '/recipe/new', query: { editCurrent: 'true' } }"
-        class="select-none text-[#FF6900] border-2 border-[#FF6900] rounded-xl px-4 py-2 flex items-center gap-3 bg-white hover:bg-[#fcf8f5] md:rotate-1 transform hover:rotate-0 transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-300/30"
+        class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md text-primary"
       >
-        <span class="material-icons !text-[20px]">edit</span>
+        <span class="material-symbols-outlined !text-[20px]">edit</span>
         <span class="">Edit</span>
       </NuxtLink>
       <button
-        class="select-none text-[#FF6900] border-2 border-[#FF6900] rounded-xl px-4 py-2 flex items-center gap-3 bg-white hover:bg-[#fcf8f5] md:rotate-1 transform hover:rotate-0 transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-300/30"
+        class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md text-primary"
       >
-        <span class="material-icons !text-[20px]">delete</span>
+        <span class="material-symbols-outlined !text-[20px]">delete</span>
         <span class="">Delete</span>
       </button>
     </template>

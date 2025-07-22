@@ -1,16 +1,13 @@
 <template>
   <div
-    class="p-6 w-full max-w-110 shadow-lg rounded-md border-2 relative h-max text-[14px] mx-auto"
+    class="p-6 w-full max-w-110 shadow-md rounded-md relative h-max text-[14px] mx-auto"
   >
-    <div
-      class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 border-1 bg-main rounded-full shadow-sm pin"
-    ></div>
     <div class="flex gap-4 w-full">
       <NuxtLink
         class="flex items-start min-w-10"
         :to="`/profile/${comment.user.id}`"
       >
-        <Avatar :user="comment.user" class="w-10 h-10"/>
+        <Avatar :user="comment.user" class="w-10 h-10" />
       </NuxtLink>
       <div class="flex-1 w-full min-w-0">
         <div class="flex justify-between w-full items-center">
@@ -88,9 +85,9 @@
             v-for="reply in paginatedReplies"
           >
             <span class="flex items-start min-w-10">
-              <img
-                v-if="reply.user.picture_url"
-                :src="reply.user.picture_url"
+              <NuxtImg
+                v-if="reply.user.picture"
+                :src="reply.user.picture"
                 class="w-10 h-10 rounded-full shadow-lg"
               />
               <div v-else class="w-10 h-10 rounded-full bg-gray-300 shadow-lg">

@@ -19,7 +19,7 @@ export default class ScoreCalculator {
   manganese_mg;
   vitamin_a_ug_rae;
   vitamin_c_mg;
-  vitamic_d_ug;
+  vitamin_d_ug;
   vitamin_e_mg_alpha_te;
   vitamin_k_ug;
   thiamine_b1_mg;
@@ -34,6 +34,18 @@ export default class ScoreCalculator {
   choline_mg;
   omega6_total_mg;
   omega3_total_mg;
+  histidine_mg;
+  isoleucine_mg;
+  leucine_mg;
+  lysine_mg;
+  methionine_mg;
+  phenylalanine_mg;
+  tyrosine_mg;
+  threonine_mg;
+  tryptophan_mg;
+  valine_mg;
+  cysteine_mg;
+
   constructor(recipe, total_weight) {
     this.name = recipe.title;
     this.kcal = recipe.kcal / (total_weight / 100);
@@ -56,7 +68,7 @@ export default class ScoreCalculator {
     this.manganese_mg = recipe.manganese_mg / (total_weight / 100);
     this.vitamin_a_ug_rae = recipe.vitamin_a_ug_rae / (total_weight / 100);
     this.vitamin_c_mg = recipe.vitamin_c_mg / (total_weight / 100);
-    this.vitamic_d_ug = recipe.vitamic_d_ug / (total_weight / 100);
+    this.vitamin_d_ug = recipe.vitamin_d_ug / (total_weight / 100);
     this.vitamin_e_mg_alpha_te =
       recipe.vitamin_e_mg_alpha_te / (total_weight / 100);
     this.vitamin_k_ug = recipe.vitamin_k_ug / (total_weight / 100);
@@ -68,12 +80,24 @@ export default class ScoreCalculator {
     this.vitamin_b12_ug = recipe.vitamin_b12_ug / (total_weight / 100);
     this.trans_fats_mg = recipe.trans_fats_mg / (total_weight / 100);
     this.mufas_total_mg = recipe.mufas_total_mg / (total_weight / 100);
-    this.polyphenols_total_mg =
-      recipe.polyphenols_total_mg / (total_weight / 100);
     this.choline_mg = recipe.choline_mg / (total_weight / 100);
     this.omega6_total_mg = recipe.omega6_total_mg / (total_weight / 100);
     this.omega3_total_mg = recipe.omega3_total_mg / (total_weight / 100);
     this.processing_level = recipe.processing_level;
+    this.polyphenols = recipe.polyphenols / (total_weight / 100);
+    this.glucosinolates = recipe.glucosinolates / (total_weight / 100);
+    this.carotenoids = recipe.carotenoids / (total_weight / 100);
+    this.histidine_mg = recipe.histidine_mg / (total_weight / 100);
+    this.isoleucine_mg = recipe.isoleucine_mg / (total_weight / 100);
+    this.leucine_mg = recipe.leucine_mg / (total_weight / 100);
+    this.lysine_mg = recipe.lysine_mg / (total_weight / 100);
+    this.methionine_mg = recipe.methionine_mg / (total_weight / 100);
+    this.phenylalanine_mg = recipe.phenylalanine_mg / (total_weight / 100);
+    this.threonine_mg = recipe.threonine_mg / (total_weight / 100);
+    this.tryptophan_mg = recipe.tryptophan_mg / (total_weight / 100);
+    this.valine_mg = recipe.valine_mg / (total_weight / 100);
+    this.cysteine_mg = recipe.cysteine_mg / (total_weight / 100);
+    this.tyrosine_mg = recipe.tyrosine_mg / (total_weight / 100);
   }
 
   micronutrient_weights = [
@@ -86,8 +110,9 @@ export default class ScoreCalculator {
     { name: 'iodine_ug', weight: 0.7, rda: 150 },
     { name: 'copper_mg', weight: 0.3, rda: 0.9 },
     { name: 'manganese_mg', weight: 0.2, rda: 2.3 },
+    { name: 'vitamin_a_ug_rae', weight: 0.8, rda: 900 },
     { name: 'vitamin_c_mg', weight: 1.0, rda: 80.0 },
-    { name: 'vitamic_d_ug', weight: 1.5, rda: 15 },
+    { name: 'vitamin_d_ug', weight: 1.5, rda: 15 },
     { name: 'vitamin_e_mg_alpha_te', weight: 0.6, rda: 15.0 },
     { name: 'vitamin_k_ug', weight: 0.4, rda: 100 },
     { name: 'thiamine_b1_mg', weight: 0.5, rda: 1.2 },
@@ -249,29 +274,6 @@ export default class ScoreCalculator {
     ]);
   }
 
-  getProteinScore() {
-    const ratio_score = this.scale_by_points(
-      (this.protein * 4) / (this.kcal + 1e-6),
-      [
-        [0, 0],
-        [0.05, 20],
-        [0.2, 60],
-        [0.4, 80],
-        [0.7, 110],
-        [1, 150],
-      ]
-    );
-
-    const total_score = this.scale_by_points(this.protein, [
-      [0, 0],
-      [1, 10],
-      [6, 50],
-      [10, 70],
-      [25, 90],
-      [100, 200],
-    ]);
-    return 0.6 * ratio_score + 0.5 * total_score;
-  }
   getSaltScore() {
     return Math.min(
       100,
@@ -293,7 +295,7 @@ export default class ScoreCalculator {
       [4, 50],
       [6, 30],
       [20, 0],
-      [100, -100],
+      [100, -200],
     ];
     const base = this.scale_by_points(this.sugar, points);
     const SCALE = 15.0;
@@ -392,37 +394,113 @@ export default class ScoreCalculator {
     ]);
   }
 
-  getHIDX(sidx, ed, protein, fiber, sugar, fat_profile, salt, mnidx, pl) {
-    let hidx = 50;
-    if (ed > 90 && sidx < 30) {
-      hidx =
-        0.23 * mnidx +
-        15 +
-        0.19 * protein +
-        0.2 * pl +
-        0.09 * fiber +
-        0.15 * sugar +
-        0.19 * ed +
-        0.13 * fat_profile +
-        0.1 * salt;
-    } else {
-      hidx =
-        0.23 * mnidx +
-        0.2 * sidx +
-        0.19 * protein +
-        0.2 * pl +
-        0.09 * fiber +
-        0.15 * sugar +
-        0.19 * ed +
-        0.13 * fat_profile +
-        0.1 * salt;
-    }
-    const min = 34;
-    const max = 118;
-    const scaled = Math.max(
-      0,
-      Math.min(110, ((hidx - min) * 100) / (max - min))
+  getProtectiveCompoundScore() {
+    return (
+      (0.5 * this.polyphenols +
+        0.3 * this.carotenoids +
+        0.2 * this.glucosinolates) *
+      15
     );
+  }
+
+  getProteinQuantityScore() {
+    const ratio_score = this.scale_by_points(
+      (this.protein * 4) / (this.kcal + 1e-6),
+      [
+        [0, 0],
+        [0.05, 20],
+        [0.2, 60],
+        [0.4, 80],
+        [0.7, 110],
+        [1, 180],
+      ]
+    );
+
+    const total_score = this.scale_by_points(this.protein, [
+      [0, 0],
+      [1, 10],
+      [6, 50],
+      [10, 70],
+      [25, 90],
+      [100, 200],
+    ]);
+    return 0.6 * ratio_score + 0.5 * total_score;
+  }
+
+  getProteinQualityScore() {
+    if (this.protein <= 0) {
+      return 0;
+    }
+
+    const ref = {
+      Histidine: 15,
+      Isoleucine: 30,
+      Leucine: 59,
+      Lysine: 45,
+      SAA: 22,
+      AAA: 38,
+      Threonine: 23,
+      Tryptophan: 6,
+      Valine: 39,
+    };
+    const actual = {
+      Histidine: this.histidine_mg / this.protein,
+      Isoleucine: this.isoleucine_mg / this.protein,
+      Leucine: this.leucine_mg / this.protein,
+      Lysine: this.lysine_mg / this.protein,
+      SAA: (this.methionine_mg + this.cysteine_mg) / this.protein,
+      AAA: (this.phenylalanine_mg + this.tyrosine_mg) / this.protein,
+      Threonine: this.threonine_mg / this.protein,
+      Tryptophan: this.tryptophan_mg / this.protein,
+      Valine: this.valine_mg / this.protein,
+    };
+
+    const ratios = Object.keys(ref).map((aa) =>
+      Math.min(actual[aa] / ref[aa], 1.0)
+    );
+    const limiting = Math.min(...ratios);
+    return Math.round(limiting * 100);
+  }
+
+  getProteinScoreOvr() {
+    const quality = this.getProteinQualityScore();
+    const quantity = this.getProteinQuantityScore();
+    const ovr = ((quality * quantity) / 100) * 1.1;
+    return ovr;
+  }
+
+  getHIDX(
+    sidx,
+    ed,
+    protein,
+    fiber,
+    sugar,
+    fat_profile,
+    salt,
+    mnidx,
+    pl,
+    protective_compound_score
+  ) {
+    const hidx =
+      (11 / 50) * (0.7 * sidx + 0.3 * ed) + //proxy for overeating/obesity risk
+      (8 / 50) * fiber + //direct positive impact
+      (7 / 50) * pl + //processing level, proxy for additives or unwanted processing side effects.
+      // https://link.springer.com/article/10.1186/s13643-025-02800-8
+      // 10% increase in UPF -> 10% risk of all-cause mortality
+      (7 / 50) * fat_profile + //direct impact, mixed based on fatty acid profile
+      (7 / 50) * mnidx + //direct positive impact
+      (7 / 50) * protein + //direct positive impact
+      (7 / 50) * sugar + //direct negative impact
+      // https://www.mdpi.com/2072-6643/13/8/2636
+      // 1 extra soda -> 10% risk of all-cause mortality
+      (7 / 50) * salt + //direct negative impact
+      //https://www.nejm.org/doi/full/10.1056/NEJMoa1311889?utm_source=chatgpt.com
+      // J-shaped curve, >7g / day -> +25% all-cause mortality
+      (5 / 50) * protective_compound_score; //direct positive impact
+
+    const MIN = 30;
+    const MAX = 102;
+    const scaled = ((hidx - MIN) * 100) / (MAX - MIN);
     return scaled;
   }
 
@@ -431,10 +509,11 @@ export default class ScoreCalculator {
     const sidx = await this.getSIDX();
     const mnidx = this.getMNIDX();
     const fiber_score = this.getFiberScore();
-    const protein_score = this.getProteinScore();
+    const protein_score = this.getProteinScoreOvr();
     const salt_score = this.getSaltScore();
     const sugar_score = this.getSugarScore();
     const fat_profile_score = this.getFatProfileScore();
+    const protective_score = this.getProtectiveCompoundScore();
     const processing_level_score = 100 - 17 * this.processing_level;
     const hidx = this.getHIDX(
       sidx,
@@ -445,7 +524,8 @@ export default class ScoreCalculator {
       fat_profile_score,
       salt_score,
       mnidx,
-      processing_level_score
+      processing_level_score,
+      protective_score
     );
     return {
       hidx: Math.round(hidx),
@@ -458,6 +538,7 @@ export default class ScoreCalculator {
       mnidx: Math.max(0, Math.min(110, Math.round(mnidx))),
       ed: Math.round(ed),
       processing_level_score: Math.round(processing_level_score),
+      protective_score: Math.round(protective_score),
     };
   }
 }

@@ -3,9 +3,7 @@
     class="grid grid-cols-[4fr_1fr] sm:grid-cols-[6fr_2fr] rounded-lg shadow-main w-full sm:max-w-[600px] font-sans"
   >
     <div class="flex flex-col text-center">
-      <div
-        class="p-4 border-b-2 border-gray-300 border-dashed justify-center"
-      >
+      <div class="p-4 border-b-2 border-gray-300 border-dashed justify-center">
         <h2 class="text-xl xs:text-3xl font-bold">Nutritional Information</h2>
         <p class="text-sm font-light">Per Serving</p>
       </div>
@@ -40,13 +38,13 @@
       <div
         v-for="(item, index) in gradeItems"
         :key="item.key"
-        class="flex items-center border-l-2 border-gray-300 border-dashed w-full"
-        :class="{ 'border-b-2': index !== gradeItems.length - 1}"
+        class="flex items-stretch border-l-2 border-gray-300 border-dashed w-full"
+        :class="{ 'border-b-2': index !== gradeItems.length - 1 }"
       >
-        <div class="flex-1 p-2 text-sm">{{ item.label }}</div>
+        <div class="flex-1 p-2 text-sm flex items-center">{{ item.label }}</div>
         <div
           :class="[
-            'w-10 h-10 p-2 flex items-center justify-center text-xl font-bold border-gray-300 border-l-2 border-dashed ',
+            'w-10 p-2 flex items-center justify-center text-xl font-bold border-gray-300 border-l-2 border-dashed ',
             gradeColors[getGrade(recipe?.[item.key], 'score')],
           ]"
         >
@@ -95,6 +93,7 @@ const gradeItems: GradeItem[] = [
   { key: 'sugar_score', label: 'Sugar' },
   { key: 'fiber_score', label: 'Fiber' },
   { key: 'salt_score', label: 'Sodium' },
+  { key: 'protective_score', label: 'Protective Compounds' },
 ];
 </script>
 

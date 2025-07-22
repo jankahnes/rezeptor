@@ -13,8 +13,8 @@
       {{ recipe?.title }}
     </h2>
     <div class="flex-grow rounded-lg overflow-hidden relative">
-      <img
-        :src="recipe?.picture_url || ''"
+      <NuxtImg
+        :src="recipe?.picture || ''"
         class="w-full h-full object-cover"
       />
       <div
@@ -47,7 +47,15 @@
           <span class="text-xs">{{ recipe?.rating.toFixed(1) }}</span>
         </div>
       </div>
-      <div v-if="!hideTags" class="absolute bottom-[2%] right-[2%] flex gap-2">
+      <div
+        v-if="!hideTags"
+        :class="
+          recipe?.hidx && recipe?.hidx > 47.6
+            ? ' bottom-[2%] right-[2%]'
+            : 'bottom-[2%] left-[2%]'
+        "
+        class="flex gap-2 absolute"
+      >
         <div
           class="tag flex items-center justify-center metallic-gradient-simple text-[0.3em]"
           v-for="tag in recipe?.tags?.slice(0, 3)"
@@ -57,7 +65,7 @@
       </div>
     </div>
     <div
-      v-if="!hideTags"
+      v-if="!hideTags && recipe?.hidx && recipe?.hidx > 47.6"
       class="absolute bottom-[2%] left-[2%] right-[2%] flex gap-2"
     >
       <GradeContainer

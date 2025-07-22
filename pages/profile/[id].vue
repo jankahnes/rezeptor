@@ -31,6 +31,15 @@
             Joined {{ dateToString(user.created_at) }}
           </p>
         </div>
+        <NuxtLink
+          v-if="auth.user?.id == user.id"
+          to="/account"
+          class="flex justify-end"
+        >
+          <button class="button !bg-secondary flex items-center justify-center p-1">
+            <span class="material-symbols-outlined"> settings </span>
+          </button>
+        </NuxtLink>
       </div>
       <div class="mx-auto w-full px-4 sm:w-[80%] pb-10">
         <div class="flex mt-18 mb-6 justify-between">

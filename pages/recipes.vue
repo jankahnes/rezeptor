@@ -252,7 +252,7 @@ const filtering = computed(() => {
 const { data, pending, refresh } = await useRecipesPartial(
   () => ({
     orderBy: { column: 'created_at', ascending: false },
-    not: { picture_ext: null },
+    not: { picture: null },
     eq: { visibility: 'PUBLIC' },
     filtering: filtering.value,
   }),

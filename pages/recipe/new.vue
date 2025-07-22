@@ -217,7 +217,20 @@ onMounted(async () => {
     originalRecipeId.value = originalRecipe.id;
     originalUserId.value = originalRecipe.user_id;
     recipe.value = await useRecipeStore().convertToEditable();
-    imageUrl.value = recipe.value.picture_url;
+    if (!recipe.value.ingredients_pre.ingredients.length) {
+      recipe.value.ingredients_pre.ingredients = [
+        {
+          categoryName: 'uncategorized',
+          ingredients: [],
+          searchQuery: '',
+          searchResults: [],
+        },
+      ];
+      recipe.value.ingredients_pre.servingSize = 1;
+    }
+    imageUrl.value = recipe.value.picture;
+  } else {
+    isEditing.value = false;
   }
 });
 
@@ -295,18 +308,15 @@ const insertRecipeTags = async (recipeTags, recipeId) => {
 };
 
 const submitNewRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
-  let fileExt = null;
   let imgFile = null;
   if (imgUpload.value.files && imgUpload.value.files[0]) {
     imgFile = imgUpload.value.files[0];
-    fileExt = imgFile.name.split('.').pop();
+    recipeComputed.picture = await uploadImage(supabase, 'recipe', id, imgFile);
   }
-
   const { data, error } = await supabase
     .from('recipes')
     .insert({
       ...recipeComputed,
-      picture_ext: fileExt,
       user_id: auth?.user?.id ?? null,
     })
     .select('id')
@@ -320,28 +330,26 @@ const submitNewRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
   loadingStep.value = 4;
   await insertRecipeTags(recipeTags, id);
   loadingStep.value = 5;
-
-  if (imgFile) {
-    await uploadImage(supabase, 'recipe', id, imgFile);
-  }
+  
   loadingStep.value = 6;
 
   return id;
 };
 
 const submitForkRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
-  let fileExt = null;
   let imgFile = null;
   if (imgUpload.value.files && imgUpload.value.files[0]) {
     imgFile = imgUpload.value.files[0];
-    fileExt = imgFile.name.split('.').pop();
+    recipeComputed.picture = await uploadImage(supabase, 'recipe', id, imgFile);
+  }
+  else {
+    recipeComputed.picture = imageUrl.value;
   }
 
   const { data, error } = await supabase
     .from('recipes')
     .insert({
       ...recipeComputed,
-      picture_ext: fileExt,
       user_id: auth?.user?.id ?? null,
       forked_from: originalRecipeId.value,
     })
@@ -366,18 +374,19 @@ const submitForkRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
 };
 
 const submitEditOwnRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
-  let fileExt = recipe.value.picture_ext || null;
   let imgFile = null;
   if (imgUpload.value.files && imgUpload.value.files[0]) {
     imgFile = imgUpload.value.files[0];
-    fileExt = imgFile.name.split('.').pop();
+    recipeComputed.picture = await uploadImage(supabase, 'recipe', originalRecipeId.value, imgFile, true);
+  }
+  else {
+    recipeComputed.picture = imageUrl.value;
   }
 
   const { error: updateError } = await supabase
     .from('recipes')
     .update({
       ...recipeComputed,
-      picture_ext: fileExt,
     })
     .eq('id', originalRecipeId.value);
   if (updateError) throw updateError;
@@ -417,7 +426,8 @@ async function submit() {
   loadingStep.value = 1;
   recipe.value.tags = getTags();
   const { recipeComputed, recipeFoods, recipeTags } = await computeRecipe(
-    JSON.parse(JSON.stringify(recipe.value))
+    JSON.parse(JSON.stringify(recipe.value)),
+    true
   );
   loadingStep.value = 2;
 

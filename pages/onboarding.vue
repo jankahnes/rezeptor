@@ -170,7 +170,7 @@
                   Just a few more details to get started
                 </p>
               </div>
-              <div class="mx-2 flex flex-col gap-4 items-center">
+              <div v-if="!error" class="mx-2 flex flex-col gap-4 items-center">
                 <div class="w-full">
                   <input
                     v-model="email"
@@ -202,6 +202,11 @@
                   <img :src="'/google.webp'" class="w-5 h-5" alt="Google" />
                   <span class="font-medium">Sign up with Google</span>
                 </button>
+              </div>
+              <div v-else class="mx-2 flex flex-col gap-4 items-center">
+                <p class="text-red-500 text-lg">
+                  {{ error }}
+                </p>
               </div>
             </div>
 
@@ -283,6 +288,7 @@ const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirm_password = ref('');
+const error = ref(null as any);
 
 const dietOptions = [
   { label: 'Vegan', id: 62 },
@@ -394,7 +400,7 @@ async function register() {
   if (error || !data.user?.id) return;
 
   if (!username.value) username.value = email.value.split('@')[0];
-  addProfile(
+  await addProfile(
     supabase,
     {
       id: data.user.id,
@@ -408,15 +414,10 @@ async function register() {
 
 async function uploadProfilePicture(e: any) {
   const file = e.target.files[0];
-  const fileExt = file.name.split('.').pop();
-
   const id = auth.user?.id;
   if (!id || !file) navigateTo('/');
-  await uploadImage(supabase, 'profile', id, file);
-  await updateProfile(supabase, { picture_ext: fileExt, id });
-  getImageUrl(supabase, 'profile', id, fileExt).then((url) => {
-    auth.user.picture_url = url;
-  });
+  const url = await uploadImage(supabase, 'profile', id, file);
+  await updateProfile(supabase, { picture: url, id });
   navigateTo('/');
 }
 
@@ -448,11 +449,20 @@ const toggleFood = (food: any) => {
   }
 };
 
-const nextStep = () => {
+const nextStep = async () => {
   if (currentStep.value === 'registerForm') {
-    register();
+    try {
+      await register();
+    } catch (error) {
+      error.value = error;
+      setTimeout(() => {
+        navigateTo('/');
+      }, 3000);
+      return;
+    }
   } else if (currentStep.value === 'optional') {
     navigateTo('/');
+    return;
   }
   currentStepIndex.value++;
 };
@@ -474,20 +484,6 @@ const skipToRegister = () => {
   if (registerIndex > -1) {
     currentStepIndex.value = registerIndex;
   }
-};
-
-const completeOnboarding = () => {
-  console.log('Onboarding completed!', {
-    diet: selectedDiet.value,
-    sorting: selectedSorting.value,
-    cuisines: selectedCuisines.value,
-    foods: selectedFoods.value,
-    username: username.value,
-    email: email.value,
-    profile_picture: profile_picture.value,
-    signature: signature.value,
-  });
-  navigateTo('/');
 };
 </script>
 

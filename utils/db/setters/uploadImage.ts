@@ -19,7 +19,8 @@ export default async function uploadImage(
 
   if (error) {
     console.error('Upload error:', error.message);
-  } else {
-    console.log('Upload successful.');
   }
+
+  const { data } = client.storage.from(bucket).getPublicUrl(fileName);
+  return data.publicUrl;
 }

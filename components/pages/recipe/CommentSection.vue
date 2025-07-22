@@ -1,11 +1,8 @@
 <template>
   <div class="gap-4">
     <div
-      class="p-6 shadow-lg rounded-md border-2 relative bg-main flex flex-col items-center justify-center my-4 gap-1"
+      class="p-6 shadow-md rounded-md relative bg-main flex flex-col items-center justify-center my-4 gap-1"
     >
-      <div
-        class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 border-1 bg-main rounded-full shadow-sm pin"
-      ></div>
       <span class="text-bold text-2xl">Your Rating:</span
       ><FormsRatingField
         class="text-primary"
@@ -22,11 +19,8 @@
   <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 w-full">
     <div
       v-if="!hasComment && auth.user"
-      class="p-10 max-w-90 w-full shadow-lg rounded-md border-2 relative bg-main flex items-center justify-center h-max mx-auto"
+      class="p-10 max-w-90 w-full shadow-md rounded-md relative bg-main flex items-center justify-center h-max mx-auto"
     >
-      <div
-        class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 border-1 bg-main rounded-full shadow-sm pin"
-      ></div>
       <span
         v-if="!editingComment"
         class="material-symbols-outlined !text-3xl w-full h-full text-center cursor-pointer"
@@ -88,12 +82,14 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 async function fetchRating() {
   if (auth.user?.id && recipe.recipe?.id) {
-    const rating = expectSingleOrNull(await getRatings(supabase, {
-      eq: {
-        user_id: auth.user.id,
-        recipe_id: recipe.recipe?.id,
-      },
-    }));
+    const rating = expectSingleOrNull(
+      await getRatings(supabase, {
+        eq: {
+          user_id: auth.user.id,
+          recipe_id: recipe.recipe?.id,
+        },
+      })
+    );
     userRating.value = rating?.rating ?? 0;
   }
 }

@@ -13,6 +13,19 @@
       <NuxtPage />
     </div>
     <NavbarsBottom class="block xm:hidden" />
+    <footer class="w-full h-10 bg-transparent">
+      <div class="w-full h-full flex items-center justify-between px-10">
+        <p class="text-black/30 text-sm">
+          This website is a non-commercial student project and in active
+          development.
+        </p>
+        <p class="text-black/30 text-sm">
+          <a href="https://github.com/jankahnes/rezeptor" target="_blank"
+            >Developed by Jan Kahnes @GitHub</a
+          >
+        </p>
+      </div>
+    </footer>
   </div>
   <div v-else class="w-screen h-screen metallic-gradient">
     <GlobalLoadingIndicator />
@@ -39,5 +52,4 @@ onBeforeMount(() => {
 });
 </script>
 
-<style>
-</style>
+<style></style>

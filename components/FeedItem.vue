@@ -69,9 +69,9 @@
     </div>
 
     <!-- Optional Thumbnail -->
-    <div v-if="feedItem.recipe?.thumbnailUrl" class="flex-shrink-0">
-      <img
-        :src="feedItem.recipe.thumbnailUrl"
+    <div v-if="feedItem.recipe?.picture" class="flex-shrink-0">
+      <NuxtImg
+        :src="feedItem.recipe.picture"
         alt="Recipe Thumbnail"
         class="w-16 h-16 object-cover rounded-lg"
       />
