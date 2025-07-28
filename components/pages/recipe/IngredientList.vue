@@ -1,26 +1,23 @@
 <template>
-  <div class="p-1 flex flex-col items-center">
-    <div class="relative mx-auto w-full flex justify-center">
-      <div
-        class="header flex items-center text-center px-10 xl:px-14 mx-auto justify-center rounded-lg p-2 overflow-visible"
-      >
-        <h1 class="text-3xl font-bold">Ingredients</h1>
-      </div>
-    </div>
-    <div
-      class="flex flex-col rounded-lg px-2 py-6 z-15 w-[clamp(300px,600px,100%)]"
-    >
-      <div class="pt-4 w-55 items-center mx-auto">
+  <div class="h-full flex flex-col">
+    <div class="p-6 pb-4">
+      <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">
+        Ingredients
+      </h2>
+
+      <div class="flex flex-col items-center gap-3">
         <FormsSlidingSelector
           v-model="servingSize"
-          class=""
           :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
           :expanded="false"
+          class="max-w-[200px]"
         />
-        <p class="text-sm text-center">Servings</p>
+        <p class="text-sm text-gray-600 font-medium">Servings</p>
       </div>
+    </div>
 
-      <ul class="space-y-1 md:px-8 px-4 py-4 text-lg">
+    <div class="flex-1 px-6 pb-6">
+      <div class="max-w-md mx-auto space-y-6">
         <template
           v-for="(group, category) in {
             uncategorized: groupedIngredients.uncategorized,
@@ -28,37 +25,69 @@
           }"
           :key="category"
         >
-          <li v-if="category !== 'uncategorized'" class="pt-2 -mb-[1px]">
-            <h3 class="font-semibold underline">{{ category }}</h3>
-          </li>
-          <li
-            v-for="ingredient in group"
-            :key="ingredient.name"
-            :class="category === 'uncategorized' ? 'mt-1' : ''"
-            class="flex items-center justify-between"
+          <div
+            v-if="category !== 'uncategorized' && group.length > 0"
+            class="pt-4 first:pt-0"
           >
-            <div>
-              {{ ingredient?.name }}
-            </div>
-            <span
-              class="font-bold mr-3 select-none"
+            <h3
+              class="text-lg font-semibold text-gray-800 mb-3 border-b border-primary-200 pb-2"
+            >
+              {{ category }}  
+            </h3>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="ingredient in group"
+              :key="ingredient.name"
+              class="flex items-center justify-between py-3 px-4 bg-primary-20 rounded-xl hover:bg-primary-50 transition-colors cursor-pointer group"
               @click="onClickIngredient(ingredient)"
             >
-              <transition name="fade-slide" mode="out-in">
-                <span :key="`${servingSize}-${ingredient?.currentUnit}`">
-                  {{
-                    getStringFromAmountInfo(
-                      ingredient?.amountInfo?.[ingredient?.currentUnit],
-                      servingSize,
-                      ingredient?.unit_name
-                    )
-                  }}
-                </span>
-              </transition>
-            </span>
-          </li>
+              <div class="flex-1 min-w-0">
+                <span class="text-gray-900 font-medium">{{
+                  ingredient?.name
+                }}</span>
+              </div>
+
+              <div class="flex-shrink-0 ml-4">
+                <transition name="fade-slide" mode="out-in">
+                  <span
+                    :key="`${servingSize}-${ingredient?.currentUnit}`"
+                    class="text-gray-700 font-semibold select-none group-hover:text-gray-900 transition-colors"
+                  >
+                    {{
+                      getStringFromAmountInfo(
+                        ingredient?.amountInfo?.[ingredient?.currentUnit],
+                        servingSize,
+                        ingredient?.unit_name
+                      )
+                    }}
+                  </span>
+                </transition>
+              </div>
+            </div>
+          </div>
         </template>
-      </ul>
+
+        <div
+          v-if="!props.ingredients || props.ingredients.length === 0"
+          class="text-center py-12"
+        >
+          <div
+            class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-2xl text-gray-400"
+              >shopping_cart</span
+            >
+          </div>
+          <h3 class="text-lg font-medium text-gray-700 mb-2">
+            No Ingredients Listed
+          </h3>
+          <p class="text-sm text-gray-500">
+            Ingredients for this recipe haven't been added yet.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -66,10 +95,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-const props = defineProps({ ingredients: Array<Object> });
+const props = defineProps({ ingredients: Array<any> });
 const servingSize = ref(1);
 
-function onClickIngredient(ingredient) {
+function onClickIngredient(ingredient: any) {
   if (ingredient.currentUnit == ingredient.amountInfo.length - 1) {
     ingredient.currentUnit = 0;
   } else {
@@ -78,8 +107,8 @@ function onClickIngredient(ingredient) {
 }
 
 const groupedIngredients = computed(() => {
-  const uncategorized = [];
-  const categorized = {};
+  const uncategorized: any[] = [];
+  const categorized: Record<string, any[]> = {};
 
   for (const ingredient of props.ingredients || []) {
     const category = ingredient.category;
@@ -100,7 +129,7 @@ const groupedIngredients = computed(() => {
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.2s ease;
+  transition: all 0.1s ease;
   display: inline-block;
 }
 

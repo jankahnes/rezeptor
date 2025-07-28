@@ -39,7 +39,19 @@
   --font-main: 'Inter', sans-serif;
   --color-main: #ffffff;
   --color-primary: #921a40;
+  --color-primary-20: #fdf8f9;
+  --color-primary-50: #fdf2f5;
+  --color-primary-100: #fbe8ee;
+  --color-primary-200: #f5c5d2;
+  --color-primary-300: #ee9db3;
+  --color-primary-400: #e26d8d;
+  --color-primary-500: #d1406b;
+  --color-primary-600: #b23158;
+  --color-primary-700: #921a40;
+  --color-primary-800: #741632;
+  --color-primary-900: #5a1127;
   --color-secondary: #c75b7a;
+  --color-secondary-500: #f4d9d0;
   --color-tertiary: #f4d9d0;
   --rounded-main: 10px;
 }
@@ -245,6 +257,10 @@
 .cell.selected {
   @apply bg-white/30;
   animation: pulse-glow 0.5s ease-in-out;
+}
+
+.card {
+  @apply shadow-sm rounded-2xl bg-main;
 }
 
 @keyframes pulse-glow {

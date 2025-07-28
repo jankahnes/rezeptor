@@ -88,7 +88,7 @@
           >
             <RecipeCard :recipe="recipe" class="w-100 h-140 text-[34px]" />
           </div>
-          <div v-else class="flex justify-center" v-for="i in 6">
+          <div v-else class="flex justify-center" v-for="i in 12">
             <Skeleton class="w-100 h-140 text-[34px] rounded-xl" />
           </div>
         </div>

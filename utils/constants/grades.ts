@@ -22,22 +22,22 @@ const grades = [
 
 const recipeOvrGrades = [
   { min_score: -100, grade: 'F' },
-  { min_score:   2.0, grade: 'E-' },
-  { min_score:   7.1, grade: 'E' },
-  { min_score:  12.1, grade: 'E+' },
-  { min_score:  17.2, grade: 'D-' },
-  { min_score:  22.3, grade: 'D' },
-  { min_score:  27.3, grade: 'D+' },
-  { min_score:  32.4, grade: 'C-' },
-  { min_score:  37.5, grade: 'C' },
-  { min_score:  42.5, grade: 'C+' },
-  { min_score:  47.6, grade: 'B-' },
-  { min_score:  52.7, grade: 'B' },
-  { min_score:  57.7, grade: 'B+' },
-  { min_score:  62.8, grade: 'A-' },
-  { min_score:  67.9, grade: 'A' },
-  { min_score:  72.9, grade: 'A+' },
-  { min_score:  78.0, grade: 'S-' },
+  { min_score:  0, grade: 'E-' },
+  { min_score:  10, grade: 'E' },
+  { min_score:  20, grade: 'E+' },
+  { min_score:  25, grade: 'D-' },
+  { min_score:  32, grade: 'D' },
+  { min_score:  38, grade: 'D+' },
+  { min_score:  43, grade: 'C-' },
+  { min_score:  47, grade: 'C' },
+  { min_score:  51, grade: 'C+' },
+  { min_score:  55, grade: 'B-' },
+  { min_score:  59, grade: 'B' },
+  { min_score:  63, grade: 'B+' },
+  { min_score:  67, grade: 'A-' },
+  { min_score:  71, grade: 'A' },
+  { min_score:  75, grade: 'A+' },
+  { min_score:  78, grade: 'S-' },
   { min_score:  83,  grade: 'S' },
   { min_score:  88,  grade: 'S+' },
 ];
@@ -69,6 +69,48 @@ export const gradeColors: Record<string, string> = {
 
   F: 'bg-red-300 text-red-950',
 };
+
+export const gradeTextColors: Record<string, string> = {
+  S: 'text-blue-800',
+  'S+': 'text-blue-800',
+  'S-': 'text-blue-800',
+
+  'A+': 'text-emerald-800',
+  A: 'text-emerald-800',
+  'A-': 'text-emerald-800',
+
+  'B+': 'text-green-800',
+  B: 'text-green-800',
+  'B-': 'text-green-800',
+
+  'C+': 'text-yellow-800',
+  C: 'text-yellow-800',
+  'C-': 'text-yellow-800',
+
+  'D+': 'text-orange-900',
+  D: 'text-orange-900',
+  'D-': 'text-orange-900',
+
+  'E+': 'text-red-900',
+  E: 'text-red-900',
+  'E-': 'text-red-900',
+
+  F: 'text-red-950',
+}
+
+export const gradeBorderColors: Record<string, string> = {
+  S: 'border-blue-100',
+  A: 'border-emerald-100',
+  B: 'border-green-100',
+  C: 'border-yellow-100',
+  D: 'border-orange-200',
+  E: 'border-red-200',
+  F: 'border-red-300',
+};
+
+export function getGradeBorderColor(score: number, type: 'hidx' | 'score' = 'score') {
+  return gradeBorderColors[getGrade(score, type)];
+}
 
 export function getGrade(score: number, type: 'hidx' | 'score' = 'score') {
   let highest_grade = '';

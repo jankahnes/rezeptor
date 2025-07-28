@@ -70,7 +70,7 @@ export default async function (recipe: RecipeProcessed) {
      message += `
      Ingredients:
      `;
-     for (const category of recipe.ingredients_pre.ingredients) {
+     for (const category of recipe.ingredients_editable.ingredients) {
         message += `
         Category: ${category.categoryName}
         `;

@@ -85,6 +85,12 @@ const user = ref(null);
 const loading = ref(true);
 const error = ref(null);
 
+onMounted(() => {
+  useHead({
+    title: user.value?.username + ' | Rezeptor',
+  });
+});
+
 if (auth.user?.id == userID) {
   user.value = auth.user;
   loading.value = false;

@@ -20,7 +20,7 @@
         @click="selectChoice(index)"
       >
         <div
-          class="text-center cursor-pointer text-xl font-bold p-1 bg-tertiary text-primary rounded-lg shadow-md transition-all duration-300 ease-out"
+          class="text-center cursor-pointer text-xl font-bold p-1 bg-primary-50 text-primary rounded-lg transition-all duration-300 ease-out"
         >
           {{ choice }}
         </div>

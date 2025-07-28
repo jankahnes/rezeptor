@@ -1,26 +1,57 @@
 <template>
-  <div class="">
-    <div class="relative mx-auto w-full flex justify-center">
-      <div
-        class="header flex items-center text-center px-10 xl:px-14 mx-auto justify-center rounded-lg p-2 overflow-visible"
-      >
-        <h1 class="text-3xl font-bold">Instructions</h1>
+  <div class="h-full flex flex-col">
+    <div class="p-6 pb-4">
+      <h2 class="text-2xl font-bold text-gray-900 text-center">Instructions</h2>
+    </div>
+    <div
+      class="flex-1 px-6 pb-6"
+      v-if="instructions && instructions.length > 0"
+    >
+      <div class="max-w-2xl mx-auto space-y-4">
+        <div
+          v-for="(instruction, index) in instructions"
+          :key="index"
+          class="flex gap-4 p-5 bg-primary-20 rounded-xl hover:bg-primary-50 transition-colors"
+        >
+          <div class="flex-shrink-0">
+            <div
+              class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold"
+            >
+              {{ index + 1 }}
+            </div>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <p class="text-gray-800 leading-relaxed">
+              {{ instruction }}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
-    <ul class="p-3 mt-8 space-y-2">
-      <li v-for="(instruction, index) in instructions">
+
+    <div v-else class="flex-1 flex items-center justify-center p-6 pb-32">
+      <div class="text-center max-w-sm">
         <div
-          class="flex items-center gap-2 rounded-lg py-5 px-10 w-full h-full text-lg shadow-sm"
+          class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center"
         >
-          <span>{{ index + 1 }}. {{ instruction }}</span>
+          <span class="material-symbols-outlined text-2xl text-gray-400"
+            >menu_book</span
+          >
         </div>
-      </li>
-    </ul>
+        <h3 class="text-lg font-medium text-gray-700 mb-2">
+          No Instructions Available
+        </h3>
+        <p class="text-sm text-gray-500">
+          Step-by-step instructions for this recipe haven't been added yet.
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps({ instructions: Array<String> });
+defineProps<{ instructions?: string[] }>();
 </script>
 
 <style scoped></style>

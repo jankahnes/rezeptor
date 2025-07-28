@@ -3,10 +3,12 @@ import svgLoader from 'vite-svg-loader';
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   vite: {
     plugins: [tailwindcss(), svgLoader()],
+  },
+  devtools: {
+    enabled: false,
   },
   runtimeConfig: {
     gptKey: process.env.NUXT_PRIVATE_GPT_KEY,
@@ -25,6 +27,7 @@ export default defineNuxtConfig({
       'utils/calculation',
       'utils/directives',
       'utils/constants',
+      'utils/format/toHumanReadable',
     ],
   },
   modules: [

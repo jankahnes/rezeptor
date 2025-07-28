@@ -9,6 +9,10 @@ export async function predictSatiety({
   waterE: number;
   kcal: number;
 }): Promise<number> {
+  if (!process.client) {
+    return 50;
+  }
+
   const { $ort } = useNuxtApp();
 
   const sessionPromise = $ort.InferenceSession.create('/sidx.onnx', {

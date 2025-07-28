@@ -179,13 +179,13 @@
     >
       <RecipeCard
         :recipe="recipe"
-        class="flex-1 max-w-100 min-w-80 basis-80 text-[28px] h-100 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80"
+        class="flex-1 max-w-100 min-w-80 basis-80 text-[28px] h-120 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80"
         v-for="recipe in results"
       />
     </div>
     <div class="flex flex-wrap gap-6 md:justify-start justify-center" v-else>
       <Skeleton
-        class="flex-1 max-w-100 min-w-80 basis-80 text-[26px] h-100 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80 rounded-xl"
+        class="flex-1 max-w-100 min-w-80 basis-80 text-[26px] h-120 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80 rounded-xl"
         v-for="i in 10"
         :key="i"
       />

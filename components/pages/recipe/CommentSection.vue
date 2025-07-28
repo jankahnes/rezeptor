@@ -71,22 +71,40 @@ const recipe = useRecipeStore();
 
 const userRating = ref(0);
 
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN' && session?.user?.id && recipe.recipe?.id) {
-    fetchRating();
+const unsubscribeAuth = ref<(() => void) | null>(null);
+
+onMounted(() => {
+  if (!unsubscribeAuth.value) {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user?.id && recipe.recipe?.id) {
+        fetchRating();
+      }
+      if (event === 'SIGNED_OUT') {
+        userRating.value = 0;
+      }
+    });
+
+    unsubscribeAuth.value = () => subscription.unsubscribe();
   }
-  if (event === 'SIGNED_OUT') {
-    userRating.value = 0;
+});
+
+onUnmounted(() => {
+  if (unsubscribeAuth.value) {
+    unsubscribeAuth.value();
+    unsubscribeAuth.value = null;
   }
 });
 
 async function fetchRating() {
-  if (auth.user?.id && recipe.recipe?.id) {
+  const user = auth.user as any;
+  if (user?.id && recipe.recipe?.id) {
     const rating = expectSingleOrNull(
       await getRatings(supabase, {
         eq: {
-          user_id: auth.user.id,
-          recipe_id: recipe.recipe?.id,
+          user_id: user.id,
+          recipe_id: recipe.recipe.id,
         },
       })
     );
@@ -97,17 +115,19 @@ async function fetchRating() {
 fetchRating();
 
 const hasComment = computed(() => {
+  const user = auth.user as any;
   return recipe.recipe?.comments?.some(
-    (comment) => !comment.replying_to && comment.user.id === auth.user?.id
+    (comment) => !comment.replying_to && comment.user.id === user?.id
   );
 });
 
 function updateRating(rating: number) {
-  if (!auth.user) {
+  const user = auth.user as any;
+  if (!user) {
     navigateTo('/login');
-  } else {
-    upsertRating(supabase, rating, auth.user.id, recipe.recipe?.id);
-    recipe.updateRating(rating, auth.user.id);
+  } else if (recipe.recipe?.id) {
+    upsertRating(supabase, rating, user.id, recipe.recipe.id);
+    recipe.updateRating(rating, user.id);
   }
 }
 
@@ -120,10 +140,13 @@ function onClickNewComment() {
 }
 
 function submitComment() {
-  if (auth.user) {
+  const user = auth.user as any;
+  if (user && recipe.recipe?.id) {
     recipe.addNewComment({
-      user: auth.user,
+      user: user,
       content: newComment.value,
+      recipe_id: recipe.recipe.id,
+      replying_to: null,
     });
     newComment.value = '';
     editingComment.value = false;

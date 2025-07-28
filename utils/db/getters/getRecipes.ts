@@ -8,6 +8,40 @@ import type { GetterOpts } from '~/types/exports';
 import getPossibleUnits from '~/utils/format/getPossibleUnits';
 import fillForUnits from '~/utils/format/fillForUnits';
 
+
+//TODO all of this can be removed once satiety is filled in DB 
+function scale_by_points(value: number, points: [number, number][]) {
+  if (value <= points[0][0]) {
+    return points[0][1];
+  }
+  if (value >= points[points.length - 1][0]) {
+    return points[points.length - 1][1];
+  }
+  for (let i = 0; i < points.length - 1; i++) {
+    const x1 = points[i][0];
+    const y1 = points[i][1];
+    const x2 = points[i + 1][0];
+    const y2 = points[i + 1][1];
+    if (x1 <= value && value <= x2) {
+      return y1 + ((value - x1) * (y2 - y1)) / (x2 - x1);
+    }
+  }
+  return 0;
+}
+
+
+function getED(kcal: number) {
+  return scale_by_points(kcal, [
+    [0, 100],
+    [50, 90],
+    [150, 70],
+    [200, 50],
+    [350, 30],
+    [550, 0],
+  ]);
+}
+
+
 export async function getRecipes(
   client: SupabaseClient,
   opts: GetterOpts = {}
@@ -21,7 +55,13 @@ export async function getRecipes(
           food:foods(
             id, name, price, density, unit_weight, unit_name, measurements
           ),
-          category
+          category,
+          thermal_intensity,
+          mechanical_disruption,
+          heat_medium,
+          thermal_description,
+          mechanical_description,
+          hydration_factor
         ),
         comments:comments(*),
         user:profiles(id, username, picture)
@@ -44,6 +84,9 @@ export async function getRecipes(
   });
 
   for (const recipe of recipes) {
+    if (!recipe.satiety) {
+      recipe.satiety = 0.5 * getED(recipe.kcal ?? 0) + 0.5 * (recipe.sidx ?? 0);
+    }
     for (const c of recipe.comments) {
       const match = ratings.find(
         (r) => r.user_id === c.user_id && r.recipe_id === recipe.id
@@ -86,6 +129,12 @@ export async function getRecipes(
             : []
         ),
         currentUnit: 0,
+        thermal_intensity: ingredient.thermal_intensity,
+        mechanical_disruption: ingredient.mechanical_disruption,
+        heat_medium: ingredient.heat_medium,
+        thermal_description: ingredient.thermal_description,
+        mechanical_description: ingredient.mechanical_description,
+        hydration_factor: ingredient.hydration_factor,
       };
     });
     recipe.ingredients.forEach(fillForUnits);

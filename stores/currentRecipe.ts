@@ -18,7 +18,7 @@ export const useRecipeStore = defineStore('recipe', () => {
     if (!recipe.value) {
       return {};
     }
-    recipe.value.ingredients_pre = { servingSize: 1, ingredients: [] };
+    recipe.value.ingredients_editable = { servingSize: 1, ingredients: [] };
     const ingredientIds = recipe.value.ingredients.map(
       (ingredient) => ingredient.id
     );
@@ -43,7 +43,7 @@ export const useRecipeStore = defineStore('recipe', () => {
         mergedIngredient.unit === 'UNITS'
           ? pluralize(matchingFood.unit_name).toLowerCase()
           : mergedIngredient.unit.toLowerCase();
-      let foundCategory = recipe.value.ingredients_pre.ingredients.find(
+      let foundCategory = recipe.value.ingredients_editable.ingredients.find(
         (category) => category.categoryName == ingredient.category
       );
       if (!foundCategory) {
@@ -53,7 +53,7 @@ export const useRecipeStore = defineStore('recipe', () => {
           searchResults: [],
           ingredients: [],
         };
-        recipe.value.ingredients_pre.ingredients.push(foundCategory);
+        recipe.value.ingredients_editable.ingredients.push(foundCategory);
       }
       foundCategory.ingredients.push(mergedIngredient);
     }

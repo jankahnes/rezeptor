@@ -720,16 +720,7 @@ export function alpha_EAAs_except_Lysine(row, T, M, D) {
 }
 
 export function alpha_lysine(row, T, M, D) {
-  // 1. Protein synergy
-  const prot = row.protein;
-  const F_prot = 1 + (0.2 * prot) / (prot + 30);
-
-  // 2. Arginine competition -
-
-  // 3. Thermal decay
   const F_therm = Math.exp(-0.05 * T);
-
-  // 4. Heat medium
   const F_med_map = {
     None: 1.0,
     Wet: 1.0,
@@ -739,12 +730,8 @@ export function alpha_lysine(row, T, M, D) {
   };
   const F_med = F_med_map[M] || 1.0;
 
-  // 5. Mechanical disruption
   const F_mech = 1 + 0.05 * D;
-
-  // Combined α
-  const alpha = F_prot * F_therm * F_med * F_mech;
-  // enforce realistic bounds
+  const alpha = F_therm * F_med * F_mech;
   return Math.max(0.0, Math.min(alpha, 2.0));
 }
 
