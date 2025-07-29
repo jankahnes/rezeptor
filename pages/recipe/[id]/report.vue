@@ -320,7 +320,6 @@ function fillReadableSummaryCards() {
 // Load everything on client side
 onMounted(async () => {
   try {
-    // Load recipe data
     if (route.params.id === 'new') {
       editableRecipe.value = recipeStore.recipe;
     } else if (!recipeStore.recipe || recipeStore.recipe.id != id) {

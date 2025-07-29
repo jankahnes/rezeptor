@@ -21,6 +21,7 @@
           </div>
         </div>
         <button
+          v-if="!props.noReport"
           @click="onReport"
           class="button flex items-center gap-2 px-2 py-1 font-medium mt-2 !bg-secondary-500 text-primary-800"
         >
@@ -43,6 +44,7 @@
 const props = defineProps<{
   recipe: RecipeProcessed;
   onReport?: () => void;
+  noReport?: boolean;
 }>();
 
 const onReport = props.onReport ?? (() => {
