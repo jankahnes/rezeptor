@@ -1,24 +1,24 @@
 const fiberPer100gThresholds = {
     0: { description: "Very low", ...POOR},
-    1: { description: "Low", ...BAD},
-    1.5: { description: "Below average", ...SUBOPTIMAL},
-    2: { description: "Decent", ...NEUTRAL},
-    2.5: { description: "Moderate", ...OKAY},
-    3: { description: "High", ...GREAT},
-    4.5: { description: "Very high", ...GREAT},
-    6: { description: "Excellent", ...EXCELLENT},
+    0.5: { description: "Low", ...BAD},
+    1: { description: "Below average", ...SUBOPTIMAL},
+    1.5: { description: "Decent", ...NEUTRAL},
+    2: { description: "Moderate", ...OKAY},
+    2.5: { description: "High", ...GREAT},
+    3.5: { description: "Very high", ...GREAT},
+    5: { description: "Excellent", ...EXCELLENT},
 }
 
 const fiberRDAPerServingThresholds = {
     0: { description: "Very low", ...POOR},
     0.1: { description: "Low", ...BAD},
-    0.2: { description: "Below average", ...SUBOPTIMAL},
-    0.3: { description: "Decent", ...NEUTRAL},
-    0.4: { description: "Moderate", ...OKAY},
-    0.5: { description: "High", ...GREAT},
-    0.6: { description: "Very high", ...GREAT},
-    0.7: { description: "Excellent", ...EXCELLENT},
-    0.9: { description: "Outstanding", ...OUTSTANDING},
+    0.15: { description: "Below average", ...SUBOPTIMAL},
+    0.2: { description: "Decent", ...NEUTRAL},
+    0.25: { description: "Moderate", ...OKAY},
+    0.3: { description: "High", ...GREAT},
+    0.4: { description: "Very high", ...GREAT},
+    0.5: { description: "Excellent", ...EXCELLENT},
+    0.6: { description: "Outstanding", ...OUTSTANDING},
 }
 
 export default function fiberToReadable(report: any) {

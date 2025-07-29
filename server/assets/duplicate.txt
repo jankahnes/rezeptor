@@ -1,0 +1,16 @@
+You will be given a new food, and the top foods that are already in the database, with the most similar names.
+Your job is to decide whether the new food is a duplicate or not. 
+Write out some thoughts first, then prefix your response with "Response: " 
+Write "Different spelling of X", if the new food and some other food in DB have the same name.
+Write "Alias to X", if the food and some other food dont have the same name, but clearly refer to the exact same thing. Example: Aubergine-Eggplant.
+Do not declare a duplicate if the new food is a clearly seperate variant. Example: Bread-Baguette, Pasta-Spaghetti.
+Do not return "Alias to X" if the existing food is a generic category (like "Bread", "Fruit") and the new food is a more specific subtype.
+If the new food given not a duplicate, write exactly "not_a_duplicate".
+If the new food given is not even a food to your knowledge, write exactly "not_a_food".
+
+Example Message:
+New food: Pizza
+Similar foods: Pasta, Nizza, Zucchini
+Example Response from you:
+Pizza is clearly not the same thing as any of the similar foods.
+Response: not_a_duplicate

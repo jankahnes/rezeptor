@@ -1,0 +1,69 @@
+You will receive some food below. For that food item, return the following fields as JSON.
+
+"vegan":bool
+"vegetarian":bool
+"gluten_free":bool
+"lactose_free":bool
+
+"measurements": Enum{"WEIGHT", "VOLUME", "UNITS", "FREE"}[]
+"unit_weight":float
+"unit_name":String
+"density":float
+
+"nova":int
+"price":float
+
+The Quick Category fields are self-explanatory.
+
+For the measurements and the three below, you should think first think about how that food would be measured in recipes. 
+This breaks down to four possible measurement types: "WEIGHT", "VOLUME", "UNITS", and "FREE". You can apply 1-4 of these in an array.
+"UNITS" is applicable if the food can measure itself, as in, can have the form of "units" or "pieces", that have an general weight you can estimate. (Like one bell pepper. Or one clove of garlic. Or one slice of bread.)
+General rule of thumb -> If the food is countable, apply UNITS.
+"FREE" is applicable if the ingredient is sometimes used "to taste" AND has minimal nutritional impact on a dish. Spices, ginger, garlic, sweetener, aroma, salt, low-impact sauces like soy, Worcestershire or oyster sauce. 
+If you declared "UNITS" above, you have to fill out unit_name and unit_weight in grams. Use the most common way to measure the item by units.
+If the food itself is a unit (i.e. tomato, cucumber, rice waffle), write "self" for piece_name.
+If it isnt, write whatever youd call the unit. Example for "Bread" -> unit_weight "slice".
+If the unit_weight varies, assume medium- or average sized.
+If you did not declare "UNITS", leave both of these null.
+Eg. Banana: measurements: ["WEIGHT", "UNITS"], unit_weight:118, unit_name:"self"
+If you declared "VOLUME" above, fill out "density" with the foods density in g/ml. 
+If precise density data is not available, make an educated estimation. Worst-Case, put 1.
+If you did not declare "volume", leave null.
+Of course, multiple measurements possible and common. As an example, butter is commonly measured in grams, tsp or tbsp, units (sticks) and free (just to taste for frying).
+However, since the amount used for frying has significant nutritional impact (fat and caloric), you should take that option away in that instance and write ["WEIGHT", "VOLUME", "UNITS"]
+
+For nova, use the NOVA scale of 1-4 to imply how processed that food is.
+Best case, you might already have the corresponding NOVA in your memory. Otherwise, just estimate using already known foods.
+Take into account the usual criteria. Additives, processing steps, how far removed from whole.
+
+For the price, return in €/100g. The data will be used from Germany, so if you can access detailed data from grocery stores like REWE, EDEKA, Aldi, etc. good.
+Otherwise, just make a reasonable guess based on general knowledge. 
+If you cannot estimate accurately, guess conservatively based on common European retail prices.
+Remember to take into account the /100g!
+
+You should interpret the food item in its raw, unproccesed form, unless specified otherwise.
+Since accuracy is of high importance for these fields, before writing out the json object, please write out a explanations for:
+- The measurement category (compound explanation, since connected)
+- nova
+- Price
+After writing out your thoughts, you can simply start with the JSON response after. The output will be parsed accordingly.
+
+Do not wrap numeric fields in quotes.
+
+As an example, for "Garlic", your response should look like this:
+Thoughts:
+Measurements:
+In recipes, Garlic is almost always measured in cloves. Garlic is also often used "to taste" and has minimal impact on overall nutrition.
+It is almost never used by weight or volume.
+Therefore, measurements should be ["UNITS", "FREE"], and unit_name should be "clove". The average garlic clove weighs 5g, so unit_weight should be 5.
+Nova:
+Garlic is considered a whole food. nova is therefore 1.
+Price:
+100g of Garlic costs about 60-80ct. I will put 0.7.
+
+'''json
+{
+    "vegan":true,
+    ...
+}
+'''

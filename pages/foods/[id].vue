@@ -11,7 +11,7 @@
         <h1 class="text-4xl font-bold">{{ food?.name }}</h1>
         <div class="flex justify-center gap-6 flex-col md:flex-row">
           <NutritionLabel :recipe="food" />
-        <HealthFacts :recipe="food" />
+        <HealthFacts :recipe="food" noReport />
         </div>
 
         <p

@@ -28,7 +28,9 @@ import {
   alpha_polyphenols,
   alpha_carotenoids,
   alpha_choline,
-} from './alphas.js';
+} from '~/utils/calculation/alphas';
+
+import { predictSatiety } from '~/utils/predictSatiety';
 
 const themalGptToAlpha = {
   LOW: 0,
@@ -144,6 +146,8 @@ export default class RecipeCalculator {
   logToReport = false;
   report = {};
 
+  isFood = false;
+
   // Constants for reporting
   MOVER_DISPLAY_LIMIT = 3; // Max movers to display per category
   MOVER_THRESHOLD = 0.04; // Minimum 4% change to display
@@ -190,8 +194,18 @@ export default class RecipeCalculator {
     choline_mg: 'Choline',
   };
 
-  constructor(recipe, useGpt = false, logToReport = false) {
+  constructor(recipe, useGpt = false, logToReport = false, isFood = false) {
     if (!recipe) {
+      return;
+    }
+    this.isFood = isFood;
+    if (isFood) {
+      this.recipePer100 = recipe;
+      this.recipePer100.processing_level = recipe.nova;
+      this.recipeComputed = {
+        title: recipe.name,
+        totalWeight: 100
+      }
       return;
     }
     this.recipe = recipe;
@@ -469,7 +483,8 @@ export default class RecipeCalculator {
     }
 
     this.getCumulCols(this.ingredientsFlat);
-    await this.getScoring();
+    const scores = await this.getScoring();
+    Object.assign(this.recipeComputed, scores);
     this.recipeComputed.kcal = Math.round(this.recipeComputed.kcal);
 
     if (this.logToReport) {
@@ -770,9 +785,9 @@ export default class RecipeCalculator {
     };
 
     let waterE = this.recipePer100.water;
-    if (is_liquid_whole_word(this.recipeComputed.title)) {
+    if (is_liquid_whole_word(this?.recipeComputed?.title ?? '')) {
       waterE = waterE * 0.1;
-    } else if (this.recipePer100.processing_level < 2) {
+    } else if (this.recipePer100?.processing_level < 2) {
       waterE = waterE;
     } else if (
       this.recipePer100.kcal > 10 &&
@@ -848,6 +863,7 @@ export default class RecipeCalculator {
     const fiberRDA = 25;
     const fiberScore = this.scale_by_points(this.recipePer100.fiber, [
       [0, 0],
+      [1.5, 50],
       [10, 150],
     ]);
     if (this.logToReport) {
@@ -1149,6 +1165,9 @@ export default class RecipeCalculator {
   }
 
   getPLScore() {
+    if(this.isFood) {
+      return 100-(((this.recipePer100?.nova || this.recipePer100?.processing_level)-1)*25)
+    }
     let whole_food_count = 0;
     let ultra_processed_count = 0;
     for (const ingredient of this.ingredientsFlat) {
@@ -1214,8 +1233,8 @@ export default class RecipeCalculator {
       // J-shaped curve, >7g / day -> +25% all-cause mortality
       (5 / 50) * protective_compound_score; //direct positive impact
 
-    const MIN = 30;
-    const MAX = 102;
+    const MIN = 32;
+    const MAX = 104;
     const scaled = ((hidx - MIN) * 100) / (MAX - MIN);
     return scaled;
   }
@@ -1288,7 +1307,7 @@ export default class RecipeCalculator {
       processing_level_score: Math.round(processing_level_score),
       protective_score: Math.round(protective_score),
     };
-    Object.assign(this.recipeComputed, scores);
+    return scores;
   }
 
   generateReport() {
