@@ -1,6 +1,6 @@
 <template>
   <div class="lg:mt-8 max-w-7xl mx-auto">
-    <div class="rounded-2xl shadow-sm px-10">
+    <div class="rounded-2xl">
       <div class="px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-[3fr_4fr] items-center gap-6">
           <div class="relative">
@@ -50,15 +50,15 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-12 mb-16">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 lg:gap-12">
         <div
-          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+          class="bg-white rounded-2xl sm:shadow-sm sm:border border-gray-100 overflow-hidden"
         >
           <slot name="ingredients" />
         </div>
 
         <div
-          class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+          class="bg-white rounded-2xl sm:shadow-sm sm:border border-gray-100 overflow-hidden"
         >
           <slot name="instructions">
             <div class="p-8 text-center text-gray-500">
@@ -78,9 +78,9 @@
             </div>
           </slot>
         </div>
+        <slot name="nutrition-label" />
+        <slot name="health-facts" />
       </div>
-
-      <slot name="nutrition" />
 
       <div class="text-center mb-16">
         <slot name="ai-buttons" />

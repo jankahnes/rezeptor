@@ -416,7 +416,9 @@ async function uploadProfilePicture(e: any) {
   const file = e.target.files[0];
   const id = auth.user?.id;
   if (!id || !file) navigateTo('/');
-  const url = await uploadImage(supabase, 'profile', id, file);
+  const { data: imageData } = await useImageUpload(file, 'profile', id, false);
+  const url = imageData.value?.publicUrl;
+  if (!url) return;
   await updateProfile(supabase, { picture: url, id });
   navigateTo('/');
 }

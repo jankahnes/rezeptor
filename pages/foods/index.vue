@@ -30,7 +30,7 @@
         </div>
         <GradeContainer
           :score="food.hidx ?? 0"
-          type="hidx"
+          :type="'hidx'"
           class="text-lg !h-14 rounded-r-lg"
         />
       </div>

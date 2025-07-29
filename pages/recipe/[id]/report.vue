@@ -18,15 +18,15 @@
 
     <div v-else class="mx-4 flex flex-col gap-10">
       <!-- Hero Card -->
-      <div class="w-full p-6 card highlight">
+      <div class="w-full p-6 card overview">
         <div
           class="flex flex-col lg:flex-row gap-8 items-start lg:items-center"
         >
           <div class="flex-1">
             <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-2">
-              {{ recipeStore.recipe?.title }}
+              {{ recipeStore.recipe?.title || 'New Recipe' }}
             </h1>
-            <p class="text-lg text-gray-600 mb-4">Nutritional Analysis</p>
+            <p class="text-lg text-gray-600 mb-4">Nutritional Analysis 🔎</p>
 
             <div class="space-y-3">
               <div
@@ -51,7 +51,7 @@
           <div class="flex flex-col items-center gap-4">
             <h2 class="text-xl font-bold text-gray-700 mb-2">Health Score</h2>
             <GradeContainer
-              :score="editableRecipe?.hidx ?? 0"
+              :score="report.overall.hidx"
               :type="'hidx'"
               class="font-bold text-5xl p-4 rounded-xl shadow-sm"
             />
@@ -67,33 +67,34 @@
           </div>
         </div>
       </div>
-      
+
       <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-10">
-        <!-- Readable Summary Card: Micronutrients -->
-        <div class="card p-5 space-y-4 flex flex-col">
+        <div
+          class="card p-5 space-y-4 flex flex-col"
+          v-for="card in readableSummaryCards"
+          :key="card.title"
+          :class="card.class"
+        >
           <div class="flex items-start justify-between mb-4">
             <div class="">
               <h3 class="text-xl font-bold text-gray-800 mb-2">
-                Micronutrients
+                {{ card.title }}
               </h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.mnidx.color"
-              >
+              <div class="percentile-badge" :class="card.percentile.color">
                 <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.mnidx.icon }}
+                  {{ card.percentile.icon }}
                 </span>
-                <span>{{ report.percentiles.mnidx.description }}</span>
+                <span>{{ card.percentile.description }}</span>
               </div>
             </div>
             <GradeContainer
-              :score="report.overall.mnidx"
+              :score="card.score"
               :type="'score'"
               class="rounded-lg text-2xl"
             />
           </div>
           <div
-            v-for="nutrient in report.humanReadable.micronutrients"
+            v-for="nutrient in card.humanReadable"
             :key="nutrient.description"
           >
             <div class="flex gap-2" :class="nutrient.color">
@@ -106,288 +107,6 @@
                   nutrient.subtitle
                 }}</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Fat Profile -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Fat Profile</h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.fat_profile_score.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.fat_profile_score.icon }}
-                </span>
-                <span>{{
-                  report.percentiles.fat_profile_score.description
-                }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.fat_profile_score"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.fatProfile"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Processing Level -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">
-                Processing Level
-              </h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.processing_level_score.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.processing_level_score.icon }}
-                </span>
-                <span>{{
-                  report.percentiles.processing_level_score.description
-                }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.processing_level_score"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.processingLevel"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Protein -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Protein</h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.protein_score.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.protein_score.icon }}
-                </span>
-                <span>{{ report.percentiles.protein_score.description }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.protein_score"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.protein"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Sugar -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Sugar</h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.sugar_score.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.sugar_score.icon }}
-                </span>
-                <span>{{ report.percentiles.sugar_score.description }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.sugar_score"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.sugar"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Salt -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Salt</h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.salt_score.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.salt_score.icon }}
-                </span>
-                <span>{{ report.percentiles.salt_score.description }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.salt_score"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.salt"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Fiber -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Fiber</h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.fiber_score.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.fiber_score.icon }}
-                </span>
-                <span>{{ report.percentiles.fiber_score.description }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.fiber_score"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.fiber"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Satiety -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">Satiety</h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.sidx.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.sidx.icon }}
-                </span>
-                <span>{{ report.percentiles.sidx.description }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.satiety"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.satiety"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Readable Summary Card: Protective Compounds -->
-        <div class="card p-5 space-y-4 flex flex-col">
-          <div class="flex items-start justify-between mb-4">
-            <div class="">
-              <h3 class="text-xl font-bold text-gray-800 mb-2">
-                Protective Compounds
-              </h3>
-              <div
-                class="percentile-badge"
-                :class="report.percentiles.protective_score?.color"
-              >
-                <span class="material-symbols-outlined !text-lg">
-                  {{ report.percentiles.protective_score?.icon || 'info' }}
-                </span>
-                <span>{{
-                  report.percentiles.protective_score?.description || 'No data'
-                }}</span>
-              </div>
-            </div>
-            <GradeContainer
-              :score="report.overall.protective_score"
-              :type="'score'"
-              class="rounded-lg text-2xl"
-            />
-          </div>
-          <div
-            v-for="item in report.humanReadable.protectiveCompounds"
-            :key="item.description"
-          >
-            <div class="flex gap-2" :class="item.color">
-              <span class="material-symbols-outlined text-2xl">{{
-                item.icon
-              }}</span>
-              <span>{{ item.description }}</span>
             </div>
           </div>
         </div>
@@ -478,7 +197,7 @@
           </div>
         </div>
       </div>
-      <!---
+      <!--
       <div class="flex">
         <div class="card p-5 space-y-2 w-full">
           <pre>{{ JSON.stringify(report, null, 2) }}</pre>
@@ -501,6 +220,62 @@ const loading = ref(true);
 const calculator = ref<any>(null);
 const report = computed(() => calculator.value?.report);
 const supabase = useSupabaseClient();
+const readableSummaryCards = ref<any[]>([
+  {
+    title: '🧪 Micronutrients',
+    baseRelevancy: 9,
+    col: 'mnidx',
+    name: 'micronutrients',
+  },
+  {
+    title: '🥑 Fat Profile',
+    baseRelevancy: 8,
+    col: 'fat_profile_score',
+    name: 'fatProfile',
+  },
+  {
+    title: '🏭 Processing Level',
+    baseRelevancy: 8,
+    col: 'processing_level_score',
+    name: 'processingLevel',
+  },
+  {
+    title: '💪 Protein',
+    baseRelevancy: 6,
+    col: 'protein_score',
+    name: 'protein',
+  },
+  {
+    title: '🍬 Sugar',
+    baseRelevancy: 6,
+    col: 'sugar_score',
+    name: 'sugar',
+  },
+  {
+    title: '🧂 Sodium',
+    baseRelevancy: 6,
+    col: 'salt_score',
+    name: 'salt',
+  },
+  {
+    title: '🌾 Fiber',
+    baseRelevancy: 4,
+    col: 'fiber_score',
+    name: 'fiber',
+  },
+  {
+    title: '😋 Satiety',
+    baseRelevancy: 4,
+    col: 'sidx',
+    name: 'satiety',
+  },
+  {
+    title: '🛡️ Protective Compounds',
+    baseRelevancy: 0,
+    col: 'protective_score',
+    name: 'protectiveCompounds',
+  },
+]);
 
 function overwrite(objA: any, objB: any) {
   for (const key in objB) {
@@ -514,6 +289,33 @@ function overwrite(objA: any, objB: any) {
 useHead({
   title: 'Nutritional Report | Rezeptor',
 });
+
+function fillReadableSummaryCards() {
+  for (const card of readableSummaryCards.value) {
+    const percentile = report.value?.percentiles[card.col];
+    const humanReadable = report.value?.humanReadable[card.name];
+    const score = report.value?.overall[card.col];
+    const roundedGrade = getGrade(score, 'score')[0];
+    const relevancy =
+      card.baseRelevancy +
+      gradeValues[roundedGrade as keyof typeof gradeValues] * 2;
+    if (percentile) {
+      card.percentile = percentile;
+      card.humanReadable = humanReadable;
+      card.score = score;
+      card.relevancy = relevancy;
+      card.class = '';
+    }
+    readableSummaryCards.value.sort((a, b) => b.relevancy - a.relevancy);
+  }
+  // Set the first three cards to have the "highlight" class
+  for (let i = 0; i < 3 && i < readableSummaryCards.value.length; i++) {
+    readableSummaryCards.value[i].class = 'highlight';
+  }
+  for (let i = 3; i < 6 && i < readableSummaryCards.value.length; i++) {
+    readableSummaryCards.value[i].class = 'highlight-light';
+  }
+}
 
 // Load everything on client side
 onMounted(async () => {
@@ -547,6 +349,7 @@ onMounted(async () => {
       await calculator.value.computeRecipe();
       overwrite(editableRecipe.value, calculator.value.recipeComputed);
       await fillReportPercentiles(supabase, calculator.value.report);
+      fillReadableSummaryCards();
     }
   } catch (error) {
     console.error('Error loading recipe report:', error);
@@ -587,23 +390,20 @@ const mineralsRest = computed(() => sortedMinerals.value.slice(5));
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-.card.highlight {
+.card.overview {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
   background-color: #f7fafc;
 }
 
-/* Ensure grid items have consistent heights in their rows */
-@media (min-width: 1024px) {
-  .grid > .card {
-    min-height: 280px;
-  }
+.card.highlight {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.13), 0 1px 2px 0 rgba(0, 0, 0, 0.09);
+  background-color: #fafbfc;
 }
 
-@media (min-width: 1280px) {
-  .grid > .card {
-    min-height: 320px;
-  }
+.card.highlight-light {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.11), 0 1px 2px 0 rgba(0, 0, 0, 0.07);
+  background-color: #fcfcfc;
 }
 
 .percentile-badge {

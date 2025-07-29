@@ -1,25 +1,25 @@
 const totalSugarPer100Thresholds = {
     0: {description: "Minimal", ...OUTSTANDING},
-    0.5: {description: "Very low", ...EXCELLENT},
+    1: {description: "Very low", ...EXCELLENT},
     2: {description: "Low", ...GREAT},
     3: {description: "Moderately low", ...GOOD},
     4: {description: "Average", ...NEUTRAL},
-    8: {description: "Elevated", ...SUBOPTIMAL},
+    6: {description: "Elevated", ...SUBOPTIMAL},
     8: {description: "High", ...BAD},
     10: {description: "Very high", ...POOR},
     20: {description: "Excessive", ...WARNING},
 }
 
 const naturalSourceThresholds = {
-    0: {description: "No", ...POOR},
-    0.05: {description: "Very little", ...POOR},
-    0.1: {description: "Little", ...BAD},
-    0.2: {description: "Some", ...SUBOPTIMAL},
-    0.5: {description: "Half", ...NEUTRAL},
-    0.6: {description: "Majority", ...OKAY},
-    0.7: {description: "Vast Majority", ...GOOD},
-    0.8: {description: "Almost all", ...GREAT},
-    0.95: {description: "All", ...EXCELLENT},
+    0: {description: "All sugar from processed sources", ...POOR},
+    0.05: {description: "Almost all sugar from processed sources", ...POOR},
+    0.1: {description: "Most sugar from processed sources", ...BAD},
+    0.2: {description: "Most sugar from processed sources", ...SUBOPTIMAL},
+    0.5: {description: "Half of the sugar from natural sources", ...NEUTRAL},
+    0.6: {description: "Majority of sugar from natural sources", ...OKAY},
+    0.7: {description: "Vast majority of sugar from natural sources", ...GOOD},
+    0.8: {description: "Almost all sugar from natural sources", ...GREAT},
+    0.95: {description: "All sugar from natural sources", ...EXCELLENT},
 }
 
 const percentOfKcalThresholds = {
@@ -46,7 +46,7 @@ export default function sugarToReadable(report: any) {
     })
     items.push({
         ...naturalSourceItem,
-        description: naturalSourceItem.description + " sugar from natural sources",
+        description: naturalSourceItem.description,
     })
     items.push({
         ...percentOfKcalItem,

@@ -18,26 +18,6 @@
           <span class="hidden lg:block">Tags</span>
         </button>
         <button
-          @click="onSelect('effort')"
-          :class="{
-            '!bg-primary !text-white': selectedFilter === 'effort',
-          }"
-          class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
-        >
-          <Effort class="h-6 w-6" />
-          <span class="hidden lg:block">Effort</span>
-        </button>
-        <button
-          @click="onSelect('difficulty')"
-          :class="{
-            '!bg-primary !text-white': selectedFilter === 'difficulty',
-          }"
-          class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
-        >
-          <Difficulty class="h-6 w-6" />
-          <span class="hidden lg:block">Difficulty</span>
-        </button>
-        <button
           @click="onSelect('health')"
           :class="{
             '!bg-primary !text-white': selectedFilter === 'health',
@@ -84,38 +64,6 @@
     <div v-if="selectedFilter" class="my-2">
       <div class="" v-if="selectedFilter == 'tags'">
         <TagRow :click-function="addFilteringTag" />
-      </div>
-      <div
-        class="relative select-none flex gap-2 justify-center sm:justify-start mt-1"
-        v-if="selectedFilter == 'effort'"
-      >
-        <button
-          v-for="(effort, index) in effortLevels"
-          class="button px-4 py-2 flex items-center justify-center gap-3 whitespace-nowrap"
-          :key="effort"
-          @click="addTag('Effort: ' + effort)"
-        >
-          <img src="/effort1.png" v-if="index == 0" class="w-[18px] h-6" />
-          <img src="/effort2.png" v-if="index == 1" class="w-6 h-6" />
-          <img src="/effort3.png" v-if="index == 2" class="w-[30px] h-6" />
-          <span class="hidden sm:block">{{ effort }}</span>
-        </button>
-      </div>
-      <div
-        class="relative select-none flex gap-2 justify-center sm:justify-start mt-1"
-        v-if="selectedFilter == 'difficulty'"
-      >
-        <button
-          v-for="(difficulty, index) in difficulties"
-          class="button px-4 py-2 flex items-center justify-center gap-3 whitespace-nowrap"
-          :key="difficulty"
-          @click="addTag('Difficulty: ' + difficulty)"
-        >
-          <img src="/difficulty1.png" v-if="index == 0" class="w-6 h-6" />
-          <img src="/difficulty2.png" v-if="index == 1" class="w-7 h-6" />
-          <img src="/difficulty3.png" v-if="index == 2" class="w-[34px] h-6" />
-          <span class="hidden sm:block">{{ difficulty }}</span>
-        </button>
       </div>
       <div
         class="relative py-3 select-none ml-4 mr-6 lg:mx-3"

@@ -5,6 +5,8 @@ export const useRecipeStore = defineStore('recipe', () => {
   const error = ref<string | null>(null);
   const supabase = useSupabaseClient();
   const indexRecipes = ref<RecipeProcessed[]>([]);
+  const isEditingNew = ref(false);
+
 
   async function setIndexRecipes(recipes: RecipeProcessed[]) {
     indexRecipes.value = recipes;
@@ -12,6 +14,12 @@ export const useRecipeStore = defineStore('recipe', () => {
 
   async function setRecipe(newRecipe: RecipeProcessed) {
     recipe.value = newRecipe;
+    isEditingNew.value = false;
+  }
+
+  async function setRecipeFromNew(newRecipe: RecipeProcessed) {
+    recipe.value = newRecipe;
+    isEditingNew.value = true;
   }
 
   async function convertToEditable() {
@@ -177,5 +185,7 @@ export const useRecipeStore = defineStore('recipe', () => {
     setRecipe,
     setIndexRecipes,
     indexRecipes,
+    isEditingNew,
+    setRecipeFromNew,
   };
 });

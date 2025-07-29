@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
-    <div class="flex flex-col lg:flex-row gap-8 items-start">
-      <div class="flex-1 items-start">
+    <div class="flex flex-col lg:flex-row gap-8 h-full">
+      <div class="flex-1 items-start flex flex-col justify-between">
         <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-4">
           Health Summary
         </h1>
@@ -19,17 +19,15 @@
               <span class="font-semibold">{{ grade.description }}</span>
             </div>
           </div>
-          <NuxtLink
-          :to="`/recipe/${props.recipe?.id}/report`"
+        </div>
+        <button
+          @click="onReport"
           class="button flex items-center gap-2 px-2 py-1 font-medium mt-2 !bg-secondary-500 text-primary-800"
         >
           <span class="material-symbols-outlined text-lg">biotech</span>
           <span>See the full health analysis on this recipe</span>
-        </NuxtLink>
-        </div>  
-        
+        </button>
       </div>
-      <!-- Overall Health Score -->
       <div class="flex flex-col gap-4">
         <GradeContainer
           :score="props.recipe?.hidx ?? 0"
@@ -44,12 +42,22 @@
 <script setup lang="ts">
 const props = defineProps<{
   recipe: RecipeProcessed;
+  onReport?: () => void;
 }>();
 
+const onReport = props.onReport ?? (() => {
+  navigateTo(`/recipe/${props.recipe.id}/report`);
+});
+
+
+const recipeStore = useRecipeStore();
+
 const readableGrades = gradesToReadable({}, props.recipe);
+
 </script>
 
 <style scoped>
+
 .card {
   background: white;
   border-radius: 1rem;

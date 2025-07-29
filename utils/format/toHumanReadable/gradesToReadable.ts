@@ -130,6 +130,9 @@ export default function gradesToReadable(report, recipe: RecipeProcessed) {
         const roundedGrade = getGrade(score)[0]
         const item = scoreDescriptors[scoreCategory]
         const descriptor = item.descriptor[roundedGrade]
+        if(!descriptor){
+            throw new Error(`No descriptor found for score category: ${scoreCategory}`)
+        }
         const description = descriptor.description + " " + item.appendName
         const contributors = report?.contributors?.[item.contributor_col]?.contributors || []
         const subtitle = contributorsToReadable(contributors)

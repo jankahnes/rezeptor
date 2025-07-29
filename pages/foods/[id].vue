@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-10 max-w-screen-md mx-auto">
+  <div class="mt-10 max-w-screen-lg mx-auto">
     <div class="flex justify-center px-2">
       <div class="space-y-5">
         <button
@@ -9,7 +9,10 @@
           <span class="material-symbols-outlined"> arrow_back </span>
         </button>
         <h1 class="text-4xl font-bold">{{ food?.name }}</h1>
-        <PagesRecipeNutriCard :recipe="food" />
+        <div class="flex justify-center gap-6 flex-col md:flex-row">
+          <NutritionLabel :recipe="food" />
+        <HealthFacts :recipe="food" />
+        </div>
 
         <p
           class="text-sm mx-auto select-none cursor-pointer flex items-center justify-center"

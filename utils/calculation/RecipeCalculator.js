@@ -884,24 +884,11 @@ export default class RecipeCalculator {
   getSugarScore() {
     const points = [
       [0, 100],
-      [30, 0],
+      [6, 50],
+      [20, 0],
       [100, -200],
     ];
-    const base = this.scale_by_points(this.recipePer100.sugar, points);
-    const SCALE = 15.0;
-    let decay = 1;
-    if (this.recipePer100.sugar >= 0) {
-      decay = Math.exp(-this.recipePer100.sugar / SCALE);
-    }
-
-    let adjustment = 0.0;
-    if (this.recipePer100.processing_level < 2) {
-      adjustment = 20 * decay;
-    } else {
-      adjustment = -25 * (1 - decay);
-    }
-
-    const final_score = Math.min(100, base + adjustment);
+    const score = this.scale_by_points(this.recipePer100.sugar, points);
 
     if (this.logToReport) {
       let percentContributedFromNaturalScources = 0;
@@ -916,10 +903,10 @@ export default class RecipeCalculator {
         totalSugarPer100: this.recipePer100.sugar,
         percentContributedFromNaturalScources,
         percentOfKcal,
-        final_score,
+        score,
       };
     }
-    return final_score;
+    return score;
   }
 
   getFatProfileScore() {

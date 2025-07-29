@@ -1,184 +1,195 @@
 <template>
-  <PagesRecipeLayout>
-    <template #image>
-      <div
-        @click="triggerFileInput"
-        class="relative cursor-pointer w-full aspect-square rounded-xl overflow-hidden border-2 border-dashed border-gray-400 flex items-center justify-center bg-gray-100 group hover:border-gray-600"
-      >
-        <input
-          ref="imgUpload"
-          type="file"
-          accept="image/*"
-          class="hidden"
-          @change="onFileChange"
-        />
-
-        <span
-          v-if="!imageUrl"
-          class="material-symbols-outlined !text-8xl text-gray-400 select-none pointer-events-none"
-        >
-          photo_camera
-        </span>
-
-        <img
-          v-else
-          :src="imageUrl"
-          alt="Uploaded photo preview"
-          class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
-        />
-      </div>
-    </template>
-
-    <template #title>
-      <textarea
-        v-model="recipe.title"
-        v-auto-resize
-        rows="1"
-        placeholder="New Recipe"
-        class="min-w-0 font-bold text-5xl border-box bg-transparent border-2 border-dashed border-gray-400 rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
-      />
-    </template>
-
-    <template #tags>
-      <div class="flex gap-5 flex-wrap justify-center relative text-xl">
-        <FormsMultiChoiceDropdown
-          class="min-w-30"
-          v-model="chosenFlavorTags"
-          :choices="TAGS.FLAVOR.map((tag) => tag.name)"
-          placeholder="Flavors"
-          :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
-        />
-        <FormsMultiChoiceDropdown
-          class="min-w-30"
-          v-model="chosenCourseTags"
-          :choices="TAGS.COURSE.map((tag) => tag.name)"
-          placeholder="Course"
-          :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
-        />
-        <FormsMultiChoiceDropdown
-          class="min-w-30"
-          v-model="chosenCuisineTags"
-          :choices="TAGS.CUISINE.map((tag) => tag.name)"
-          placeholder="Cuisine"
-          :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
-        />
-      </div>
-    </template>
-
-    <template #description>
-      <textarea
-        v-model="recipe.description"
-        v-auto-resize
-        rows="1"
-        placeholder="Description"
-        class="w-full bg-transparent border-2 border-dashed border-gray-400 rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
-      ></textarea>
-    </template>
-
-    <template #metadata>
-      <div
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 border-dashed rounded-xl p-2 font-bold shadow-lg select-none cursor-pointer"
-        @click="onClickEffort"
-      >
-        <span class="material-symbols-outlined"> flash_on </span>
-        <span class="text-base">Effort: {{ capitalize(recipe?.effort) }}</span>
-        <span class="material-symbols-outlined" v-if="recipe.effort === null">
-          touch_app
-        </span>
-      </div>
-      <div
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 border-dashed rounded-xl p-2 font-bold shadow-lg select-none cursor-pointer"
-        @click="onClickDifficulty"
-      >
-        <span class="material-symbols-outlined"> target </span>
-        <span class="text-base"
-          >Difficulty: {{ capitalize(recipe?.difficulty) }}</span
-        >
-        <span
-          class="material-symbols-outlined"
-          v-if="recipe.difficulty === null"
-        >
-          touch_app
-        </span>
-      </div>
-      <div
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 border-dashed rounded-xl p-2 font-bold shadow-lg select-none cursor-pointer"
-        @click="onClickVisibility"
-      >
-        <span class="material-symbols-outlined"> visibility </span>
-        <span class="text-base"
-          >Visibility: {{ capitalize(recipe?.visibility) }}</span
-        >
-        <span
-          class="material-symbols-outlined"
-          v-if="recipe.visibility === null"
-        >
-          touch_app
-        </span>
-      </div>
-      <div
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
-      >
-        <span class="material-symbols-outlined"> attach_money </span>
-        <span class="text-base"
-          >Estimated Price: {{ formatMoney(recipeComputed?.price) }}</span
-        >
-      </div>
-    </template>
-
-    <template #ingredients>
-      <PagesRecipeIngredientListEditable
-        v-model="recipe.ingredients_editable"
-      ></PagesRecipeIngredientListEditable>
-    </template>
-
-    <template #instructions>
-      <PagesRecipeInstructionContainerEditable
-        v-model="recipe.instructions"
-      ></PagesRecipeInstructionContainerEditable>
-    </template>
-
-    <template #nutrition>
-      <div class="flex justify-center">
-        <div class="flex flex-col gap-4 items-end">
-          <div class="flex-1">
-            <PagesRecipeNutriCard :recipe="recipeComputed" />
-          </div>
-          <button
-            @click="onClickReport"
-            class="flex items-center gap-2 px-4 py-1 font-medium text-primary-800"
+    <div>
+      <PagesRecipeLayout>
+        <template #image>
+          <div
+            @click="triggerFileInput"
+            class="relative cursor-pointer w-full aspect-square rounded-xl overflow-hidden border-2 border-dashed border-gray-400 flex items-center justify-center bg-gray-100 group hover:border-gray-600"
           >
-            <span class="material-symbols-outlined text-lg">open_in_new</span>
-            <span>Detailed Report</span>
-          </button>
-        </div>
+            <input
+              ref="imgUpload"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="onFileChange"
+            />
+
+            <span
+              v-if="!imageUrl"
+              class="material-symbols-outlined !text-8xl text-gray-400 select-none pointer-events-none"
+            >
+              photo_camera
+            </span>
+
+            <img
+              v-else
+              :src="imageUrl"
+              alt="Uploaded photo preview"
+              class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
+            />
+          </div>
+        </template>
+
+        <template #title>
+          <textarea
+            v-model="recipe.title"
+            v-auto-resize
+            rows="1"
+            placeholder="New Recipe"
+            class="min-w-0 font-bold text-5xl border-box bg-transparent border-2 border-dashed border-gray-400 rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
+          />
+        </template>
+
+        <template #tags>
+          <div class="flex gap-5 flex-wrap justify-center relative text-xl">
+            <FormsMultiChoiceDropdown
+              class="min-w-30"
+              v-model="chosenFlavorTags"
+              :choices="TAGS.FLAVOR.map((tag) => tag.name)"
+              placeholder="Flavors"
+              :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
+            />
+            <FormsMultiChoiceDropdown
+              class="min-w-30"
+              v-model="chosenCourseTags"
+              :choices="TAGS.COURSE.map((tag) => tag.name)"
+              placeholder="Course"
+              :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
+            />
+            <FormsMultiChoiceDropdown
+              class="min-w-30"
+              v-model="chosenCuisineTags"
+              :choices="TAGS.CUISINE.map((tag) => tag.name)"
+              placeholder="Cuisine"
+              :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
+            />
+          </div>
+        </template>
+
+        <template #description>
+          <textarea
+            v-model="recipe.description"
+            v-auto-resize
+            rows="1"
+            placeholder="Description"
+            class="w-full bg-transparent border-2 border-dashed border-gray-400 rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
+          ></textarea>
+        </template>
+
+        <template #metadata>
+          <div
+            class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 border-dashed rounded-xl p-2 font-bold shadow-lg select-none cursor-pointer"
+            @click="onClickEffort"
+          >
+            <span class="material-symbols-outlined"> flash_on </span>
+            <span class="text-base"
+              >Effort: {{ capitalize(recipe?.effort) }}</span
+            >
+            <span
+              class="material-symbols-outlined"
+              v-if="recipe.effort === null"
+            >
+              touch_app
+            </span>
+          </div>
+          <div
+            class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 border-dashed rounded-xl p-2 font-bold shadow-lg select-none cursor-pointer"
+            @click="onClickDifficulty"
+          >
+            <span class="material-symbols-outlined"> target </span>
+            <span class="text-base"
+              >Difficulty: {{ capitalize(recipe?.difficulty) }}</span
+            >
+            <span
+              class="material-symbols-outlined"
+              v-if="recipe.difficulty === null"
+            >
+              touch_app
+            </span>
+          </div>
+          <div
+            class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 border-dashed rounded-xl p-2 font-bold shadow-lg select-none cursor-pointer"
+            @click="onClickVisibility"
+          >
+            <span class="material-symbols-outlined"> visibility </span>
+            <span class="text-base"
+              >Visibility: {{ capitalize(recipe?.visibility) }}</span
+            >
+            <span
+              class="material-symbols-outlined"
+              v-if="recipe.visibility === null"
+            >
+              touch_app
+            </span>
+          </div>
+          <div
+            class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+          >
+            <span class="material-symbols-outlined"> attach_money </span>
+            <span class="text-base"
+              >Estimated Price: {{ formatMoney(recipeComputed?.price) }}</span
+            >
+          </div>
+        </template>
+
+        <template #ingredients>
+          <PagesRecipeIngredientListEditable
+            v-model="recipe.ingredients_editable"
+          ></PagesRecipeIngredientListEditable>
+        </template>
+
+        <template #instructions>
+          <PagesRecipeInstructionContainerEditable
+            v-model="recipe.instructions"
+          ></PagesRecipeInstructionContainerEditable>
+        </template>
+
+        <template #nutrition-label>
+          <NutritionLabel
+            v-if="displayInfo"
+            :recipe="recipeComputed"
+            class="flex-1"
+          />
+        </template>
+
+        <template #health-facts>
+          <HealthFacts
+            v-if="displayInfo"
+            :recipe="recipeComputed"
+            :on-report="onClickReport"
+            class="flex-1"
+          />
+        </template>
+      </PagesRecipeLayout>
+      <div class="my-22"></div>
+      <div
+        class="fixed bottom-22 xm:bottom-6 xm:right-6 z-100 flex gap-2 w-full justify-center xm:w-auto xm:justify-end"
+      >
+        <button
+          class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+          @click=""
+        >
+          <span class="material-symbols-outlined"> visibility </span>
+          Preview
+        </button>
+        <button
+          class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
+          @click="submit()"
+        >
+          <span v-if="!loadingStep" class="material-symbols-outlined">
+            arrow_right_alt
+          </span>
+          <ClientOnly v-else>
+            <Vue3Lottie
+              animationLink="/loading.json"
+              :height="24"
+              :width="24"
+            />
+          </ClientOnly>
+          Submit
+        </button>
       </div>
-    </template>
-  </PagesRecipeLayout>
-  <div class="my-22"></div>
-  <div
-    class="fixed bottom-22 xm:bottom-6 xm:right-6 z-100 flex gap-2 w-full justify-center xm:w-auto xm:justify-end"
-  >
-    <button
-      class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
-      @click=""
-    >
-      <span class="material-symbols-outlined"> visibility </span>
-      Preview
-    </button>
-    <button
-      class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
-      @click="submit()"
-    >
-      <span v-if="!loadingStep" class="material-symbols-outlined">
-        arrow_right_alt
-      </span>
-      <ClientOnly v-else>
-        <Vue3Lottie animationLink="/loading.json" :height="24" :width="24" />
-      </ClientOnly>
-      Submit
-    </button>
-  </div>
+    </div>
 </template>
 
 <script setup>
@@ -200,6 +211,10 @@ const auth = useAuthStore();
 const supabase = useSupabaseClient();
 const route = useRoute();
 const recipeStore = useRecipeStore();
+
+const displayInfo = computed(() => {
+  return recipeComputed.value.hidx;
+});
 
 const recipe = ref({
   title: '',
@@ -225,7 +240,7 @@ const recipe = ref({
 const recipeComputed = ref({});
 
 function onClickReport() {
-  recipeStore.setRecipe(recipe.value);
+  recipeStore.setRecipeFromNew(recipe.value);
   navigateTo(`/recipe/new/report`);
 }
 
@@ -247,7 +262,12 @@ onMounted(async () => {
       ];
     }
     imageUrl.value = recipe.value.picture;
-  } else {
+  } 
+  else if (recipeStore.isEditingNew) {
+    recipe.value = recipeStore.recipe;
+    imageUrl.value = recipe.value.picture;
+  }
+  else {
     isEditing.value = false;
   }
   compute();
@@ -342,8 +362,14 @@ const submitNewRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
 
   if (imgUpload.value.files && imgUpload.value.files[0]) {
     const imgFile = imgUpload.value.files[0];
-    const pictureUrl = await uploadImage(supabase, 'recipe', id, imgFile);
-
+    const { data: imageData } = await useImageUpload(
+      imgFile,
+      'recipe',
+      id,
+      false
+    );
+    const pictureUrl = imageData.value?.publicUrl;
+    if (!pictureUrl) return;
     const { error: updateError } = await supabase
       .from('recipes')
       .update({ picture: pictureUrl })
@@ -379,7 +405,14 @@ const submitForkRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
 
   if (imgUpload.value.files && imgUpload.value.files[0]) {
     const imgFile = imgUpload.value.files[0];
-    const pictureUrl = await uploadImage(supabase, 'recipe', id, imgFile);
+    const { data: imageData } = await useImageUpload(
+      imgFile,
+      'recipe',
+      id,
+      false
+    );
+    const pictureUrl = imageData.value?.publicUrl;
+    if (!pictureUrl) return;
     const { error: updateError } = await supabase
       .from('recipes')
       .update({ picture: pictureUrl })
@@ -399,13 +432,13 @@ const submitEditOwnRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
   let imgFile = null;
   if (imgUpload.value.files && imgUpload.value.files[0]) {
     imgFile = imgUpload.value.files[0];
-    recipeComputed.picture = await uploadImage(
-      supabase,
+    const { data: imageData } = await useImageUpload(
+      imgFile,
       'recipe',
       originalRecipeId.value,
-      imgFile,
       true
     );
+    recipeComputed.picture = imageData.value?.publicUrl;
   } else {
     recipeComputed.picture = imageUrl.value;
   }
@@ -436,13 +469,13 @@ const submitEditOwnRecipe = async (recipeComputed, recipeFoods, recipeTags) => {
   loadingStep.value = 5;
 
   if (imgFile) {
-    await uploadImage(
-      supabase,
+    const { data: imageData } = await useImageUpload(
+      imgFile,
       'recipe',
       originalRecipeId.value,
-      imgFile,
       true
     );
+    recipeComputed.picture = imageData.value?.publicUrl;
   }
   loadingStep.value = 6;
 

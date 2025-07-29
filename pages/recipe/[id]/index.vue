@@ -134,11 +134,12 @@
       ></PagesRecipeInstructionContainer>
     </template>
 
-    <template #nutrition>
-      <div class="flex justify-center items-center gap-8 flex-col md:flex-row">
-        <NutritionLabel :recipe="recipeStore.recipe" class="w-sm" />
+    <template #nutrition-label>
+        <NutritionLabel :recipe="recipeStore.recipe" class="flex-1" />
+    </template>
+
+    <template #health-facts>
         <HealthFacts :recipe="recipeStore.recipe" class="flex-1" />
-      </div>
     </template>
 
     <template #comments>

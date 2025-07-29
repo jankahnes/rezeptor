@@ -13,7 +13,8 @@ const waterThresholds = {
     0: { description: "Minimal", ...NEUTRAL},
     15: { description: "Low", ...NEUTRAL},
     30: { description: "Slightly low", ...OKAY},
-    50: { description: "Average", ...GOOD},
+    50: { description: "Average", ...OKAY},
+    60: { description: "Moderate", ...GOOD},
     70: { description: "High", ...GREAT},
     85: { description: "Very high", ...EXCELLENT},
 }

@@ -26,7 +26,7 @@
               typeof item.label === 'object' ? item.label.default : item.label
             }}</span>
           </span>
-          <span class="font-semibold p-1 px-2 bg-gray-100 rounded-lg">{{ recipe?.[item.key]?.toFixed(1) }}g</span>
+          <span class="font-semibold p-1 px-2 bg-primary-20 rounded-lg">{{ recipe?.[item.key]?.toFixed(1) }}g</span>
         </div>
       </div>
     </div>

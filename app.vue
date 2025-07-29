@@ -13,8 +13,8 @@
       <NuxtPage />
     </div>
     <NavbarsBottom class="block xm:hidden" />
-    <footer class="w-full h-10 bg-transparent">
-      <div class="w-full h-full flex items-center justify-between px-10">
+    <footer class="w-full h-10 bg-transparent mb-44 lg:mb-0">
+      <div class="w-full h-full flex flex-col sm:flex-row items-center justify-between px-10 gap-10 text-center sm:text-left">
         <p class="text-black/30 text-sm">
           This website is a non-commercial student project and in active
           development.

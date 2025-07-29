@@ -2,32 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined');
 @import 'tailwindcss';
 
-.material-icons {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  white-space: nowrap;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  font-feature-settings: 'liga';
-}
-
-.material-icons-outlined {
-  font-family: 'Material Icons';
-  font-weight: normal;
-  font-style: normal;
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  white-space: nowrap;
-  direction: ltr;
-  -webkit-font-feature-settings: 'liga';
-  font-feature-settings: 'liga';
+.material-symbols-outlined {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
 }
 
 @theme {

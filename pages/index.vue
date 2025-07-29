@@ -39,7 +39,7 @@
             <div
               class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
             >
-              <span class="text-4xl material-icons-outlined text-black"
+              <span class="text-4xl material-icons text-black"
                 >add</span
               >
             </div>
@@ -52,7 +52,7 @@
             <div
               class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
             >
-              <span class="text-3xl material-icons-outlined text-black"
+              <span class="text-3xl material-icons text-black"
                 >sell</span
               >
             </div>
@@ -65,7 +65,7 @@
             <div
               class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
             >
-              <span class="text-3xl material-icons-outlined text-black"
+              <span class="text-3xl material-icons text-black"
                 >analytics</span
               >
             </div>
