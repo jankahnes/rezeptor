@@ -61,7 +61,8 @@ export async function getRecipes(
           heat_medium,
           thermal_description,
           mechanical_description,
-          hydration_factor
+          hydration_factor,
+          preperation_description
         ),
         comments:comments(*),
         user:profiles(id, username, picture)
@@ -135,6 +136,7 @@ export async function getRecipes(
         thermal_description: ingredient.thermal_description,
         mechanical_description: ingredient.mechanical_description,
         hydration_factor: ingredient.hydration_factor,
+        preperation_description: ingredient.preperation_description,
       };
     });
     recipe.ingredients.forEach(fillForUnits);

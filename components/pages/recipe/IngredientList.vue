@@ -32,7 +32,7 @@
             <h3
               class="text-lg font-semibold text-gray-800 mb-3 border-b border-primary-200 pb-2"
             >
-              {{ category }}  
+              {{ category }}
             </h3>
           </div>
 
@@ -40,31 +40,32 @@
             <div
               v-for="ingredient in group"
               :key="ingredient.name"
-              class="flex items-center justify-between py-3 px-4 bg-primary-20 rounded-xl hover:bg-primary-50 transition-colors cursor-pointer group"
+              class="flex items-center py-3 px-4 bg-primary-20 rounded-xl hover:bg-primary-50 transition-colors cursor-pointer group"
               @click="onClickIngredient(ingredient)"
             >
-              <div class="flex-1 min-w-0">
-                <span class="text-gray-900 font-medium">{{
-                  ingredient?.name
-                }}</span>
-              </div>
-
-              <div class="flex-shrink-0 ml-4">
-                <transition name="fade-slide" mode="out-in">
-                  <span
-                    :key="`${servingSize}-${ingredient?.currentUnit}`"
-                    class="text-gray-700 font-semibold select-none group-hover:text-gray-900 transition-colors"
-                  >
-                    {{
-                      getStringFromAmountInfo(
-                        ingredient?.amountInfo?.[ingredient?.currentUnit],
-                        servingSize,
-                        ingredient?.unit_name
-                      )
-                    }}
-                  </span>
-                </transition>
-              </div>
+              <transition name="fade-slide" mode="out-in">
+                <span
+                  :key="`${servingSize}-${ingredient?.currentUnit}`"
+                  class="select-none group-hover:text-gray-900 transition-colors min-w-20"
+                >
+                  {{
+                    getStringFromAmountInfo(
+                      ingredient?.amountInfo?.[ingredient?.currentUnit],
+                      servingSize,
+                      ingredient?.unit_name
+                    )
+                  }}
+                </span>
+              </transition>
+              <span class="font-semibold ml-2 text-nowrap">{{
+                ingredient?.name
+              }}</span>
+              <span
+                v-if="ingredient.preperation_description"
+                class="font-light text-sm"
+              >
+                , {{ ingredient.preperation_description }}
+              </span>
             </div>
           </div>
         </template>

@@ -1,4 +1,7 @@
-export default async function (recipe: RecipeProcessed) {
+import extractJson  from "~/utils/format/extractJson";
+
+
+export default async function (recipe: RecipeProcessed, considerProsessing: boolean) {
     const SYSTEM_PROMPT = `
     You will be given information about a recipe (May or may not include instructions, but definitely title and ingredients).
     Your task is to infer, per ingredient, how that ingredient is processed when making that recipe. 
@@ -51,6 +54,87 @@ export default async function (recipe: RecipeProcessed) {
 
     Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
      `;
+
+     const SYSTEM_PROMPT_GENERAL = `
+     You will be given information about a recipe.
+     Your task is to infer some general information about the recipe: Effort, Difficulty, and general Tags.
+     Effort is an enum of LIGHT, MODERATE, HEAVY. Light is <30minutes, Moderate is up to 90 minutes, Heavy is >90 minutes.
+     Difficulty is an enum of EASY, MEDIUM, HARD. Self explanatory. If in doubt, put MEDIUM.
+     General Tags, you can choose from:
+     
+     GENERAL CATEGORY: Choose 0-2
+     meal prep:5
+     family friendly:6
+     gourmet:7
+     date night:8
+     comfort food:9
+     one pot:10
+     no cooking:11
+     clean eating:12
+     potluck:13
+     paleo:106
+
+    COURSE/FORMAT CATEGORY: Choose 1-3 (Use one course max, then specify if theres format(s) below that fit)
+     main/dinner:200
+     breakfast:201
+     side:202
+     snack:203
+     dessert:204
+     lunch:205
+     appetizer:206
+
+     soup:207
+     salad:208
+     drink:209
+     wrap:210
+     bowl:211
+     stir fry:212
+     pasta:213
+     sandwich:214
+     dip:215
+     casserole:216
+     cocktail:217
+     bread:218
+     cake:219
+     other baked good:220
+
+    CUISINE CATEGORY: Choose 1-2    
+     global:300
+     fusion:301
+     italian:302
+     german:303
+     american:304
+     vietnamese:305
+     chinese:306
+     japanese:307
+     french:308
+     british:309
+     indian:310
+     spanish:311
+     middle eastern:312
+     thai:313
+     mediterranean:314
+     greek:315
+     turkish:316
+     portuguese:317
+     eastern european:318
+     scandinavian:319
+     basque:320
+     korean:321
+     malaysian:322
+     african:323
+     brazilian:324
+     russian:325
+
+     Output format as json:
+     {
+     "difficulty": Enum{EASY, MEDIUM, HARD}
+     "effort": Enum{LIGHT, MODERATE, HEAVY}
+     "tags": int[]
+     }
+
+     Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
+     `;
   
 
      let message = `
@@ -79,9 +163,12 @@ export default async function (recipe: RecipeProcessed) {
         ${ingredient.name} - ${ingredient.amount} ${ingredient.unit}
         `;
      }}
-     
+     let parsed = {
+      general: null
+     }
 
     try {
+        if (considerProsessing) {
       const response = await $fetch('/api/gpt/getResponse', {
         method: 'POST',
         body: {
@@ -89,11 +176,21 @@ export default async function (recipe: RecipeProcessed) {
           message: message,
         },
       });
+      if(!response) throw new Error('No content returned from GPT response');
+      parsed = JSON.parse(extractJson(response));
+
+    }
+      const general_response = await $fetch('/api/gpt/getResponse', {
+        method: 'POST',
+        body: {
+          systemPrompt: SYSTEM_PROMPT_GENERAL,
+          message: message,
+        },
+      });
+      if(!general_response) throw new Error('No content returned from GPT response');
+      const general_parsed = JSON.parse(extractJson(general_response));
   
-      if (!response) throw new Error('No content returned from GPT response');
-  
-      const parsed = JSON.parse(extractJson(response));
-  
+      parsed.general = general_parsed
       return parsed;
     } catch (err) {
       console.error('gptCreateRecipe error:', err);

@@ -50,22 +50,23 @@
       <div
         v-if="!hideTags"
         :class="
-          recipe?.hidx && recipe?.hidx > 47.6
-            ? ' bottom-[2%] right-[2%]'
+          recipe?.hidx && recipe?.hidx > 56
+            ? ' bottom-[2%] left-[16%] w-[calc(100%-1.8em)] '
             : 'bottom-[2%] left-[2%]'
         "
-        class="flex gap-2 absolute"
+        class="flex gap-2 absolute flex-wrap justify-end"
       >
         <div
-          class="tag flex items-center justify-center metallic-gradient-simple text-[0.3em]"
-          v-for="tag in recipe?.tags?.slice(0, 3)"
+          class="tag flex items-center justify-center text-[0.3em] text-nowrap"
+          :class="tag?.background"
+          v-for="(tag, index) in top3Tags"
         >
-          {{ getTagByID(tag.tag_id)?.name }}
+          {{ tag?.descriptor }}
         </div>
       </div>
     </div>
     <div
-      v-if="!hideTags && recipe?.hidx && recipe?.hidx > 47.6"
+      v-if="!hideTags && recipe?.hidx && recipe?.hidx > 56"
       class="absolute bottom-[2%] left-[2%] right-[2%] flex gap-2"
     >
       <GradeContainer
@@ -80,6 +81,27 @@
 
 <script setup lang="ts">
 const props = defineProps<{ recipe: RecipeProcessed; hideTags?: boolean }>();
+
+const getTop3Tags = (recipe: RecipeProcessed) => {
+  const tags = recipe.tags.map((tag) => getTagByID(tag.tag_id));
+  const tagsWithDescriptors = tags.map((tag) => {
+    if (tag) {
+      return { ...tag, ...getTagDescriptor(tag.id, recipe) };
+    }
+    return null;
+  });
+  if (recipe.price && recipe.price < 1) {
+    tagsWithDescriptors.push({
+      ...getTagDescriptor(4, recipe),
+      ...getTagByID(4),
+    });
+  }
+  tagsWithDescriptors.sort((a, b) => (b?.value ?? 0) - (a?.value ?? 0));
+  const cropped = tagsWithDescriptors.slice(0, 3);
+  return cropped;
+};
+
+const top3Tags = ref(getTop3Tags(props.recipe));
 </script>
 
 <style scoped></style>

@@ -33,6 +33,9 @@ export default function fillForUnits(ingredient) {
       add(amount, 'UNITS');
       add(g, 'G');
     }
+    else {
+      throw new Error('Unit weight not found for ingredient: ' + ingredient.name);
+    }
   } else if (unit === 'TSP') {
     const ml = amount * 5;
     add(amount, 'TSP');
@@ -50,6 +53,5 @@ export default function fillForUnits(ingredient) {
     }
     add(amount * 3, 'TSP');
   }
-
   ingredient.amountInfo = out;
 }

@@ -31,6 +31,12 @@ import {
 } from '~/utils/calculation/alphas';
 
 import { predictSatiety } from '~/utils/predictSatiety';
+import gptCreateRecipe from '~/utils/gpt/gptCreateRecipe';
+import capitalize from '~/utils/format/capitalize';
+import convertToGrams from '~/utils/format/convertToGrams';
+import { getGrade } from '~/utils/constants/grades';
+import getReportHumanReadable from '~/utils/format/toHumanReadable/getReportHumanReadable';
+
 
 const themalGptToAlpha = {
   LOW: 0,
@@ -44,7 +50,7 @@ const thermalGptToDB = {
   HIGH: 'HIGH (180+C)',
 };
 
-const convertUnit = (unit) => {
+const convertUnit = (unit: string) => {
   if (['g', 'tsp', 'tbsp', 'ml'].includes(unit)) {
     return unit.toUpperCase();
   } else {
@@ -147,7 +153,7 @@ export default class RecipeCalculator {
   report = {};
 
   isFood = false;
-
+  considerProcessing = false;
   // Constants for reporting
   MOVER_DISPLAY_LIMIT = 3; // Max movers to display per category
   MOVER_THRESHOLD = 0.04; // Minimum 4% change to display
@@ -194,11 +200,12 @@ export default class RecipeCalculator {
     choline_mg: 'Choline',
   };
 
-  constructor(recipe, useGpt = false, logToReport = false, isFood = false) {
+  constructor(recipe, useGpt = false, logToReport = false, isFood = false, considerProcessing = false) {
     if (!recipe) {
       return;
     }
     this.isFood = isFood;
+    this.considerProcessing = considerProcessing;
     if (isFood) {
       this.recipePer100 = recipe;
       this.recipePer100.processing_level = recipe.nova;
@@ -216,6 +223,9 @@ export default class RecipeCalculator {
       difficulty: recipe?.difficulty?.toUpperCase(),
       visibility: recipe?.visibility?.toUpperCase(),
       instructions: recipe?.instructions,
+      collection: recipe?.collection,
+      total_time_mins: recipe?.total_time_mins,
+      rating: recipe?.rating
     };
     this.useGpt = useGpt;
     this.servingSize = recipe.ingredients_editable.servingSize;
@@ -415,6 +425,7 @@ export default class RecipeCalculator {
             thermal_description: ingredient.thermal_description || null,
             mechanical_description: ingredient.mechanical_description || null,
             hydration_factor: Number(ingredient.hydration_factor) || 1,
+            preperation_description: ingredient.preperation_description || null,
           });
         }
       }
@@ -423,38 +434,88 @@ export default class RecipeCalculator {
   }
 
   getRecipeTagRows() {
-    const recipeTags = [];
+    const tagRows = [];
     for (const tag of this.recipe.tags) {
-      recipeTags.push({ tag_id: tag });
+      tagRows.push({
+        tag_id: tag,
+      });
     }
-    if (this.ingredientsFlat.every((ingredient) => ingredient.vegan)) {
-      recipeTags.push({ tag_id: 62 });
+    if(this.ingredientsFlat.length < 5) {
+      tagRows.push({
+        tag_id: 1,
+      });
     }
-    if (this.ingredientsFlat.every((ingredient) => ingredient.vegetarian)) {
-      recipeTags.push({ tag_id: 63 });
+    if(this.recipe.effort === 'LIGHT') {
+      tagRows.push({
+        tag_id: 2,
+      });
     }
-    if (this.ingredientsFlat.every((ingredient) => ingredient.gluten_free)) {
-      recipeTags.push({ tag_id: 68 });
+    if(this.recipe.difficulty === 'EASY') {
+      tagRows.push({
+        tag_id: 3,
+      });
     }
-    if (this.recipeComputed.difficulty === 'EASY') {
-      recipeTags.push({ tag_id: 71 });
+    if(this.recipeComputed.price < 1) {
+      tagRows.push({
+        tag_id: 4,
+      });
     }
-    if (this.recipeComputed.effort === 'LIGHT') {
-      recipeTags.push({ tag_id: 70 });
+    if(this.recipeComputed.hidx > 70) {
+      tagRows.push({
+        tag_id: 100,
+      });
     }
-    if (
-      this.recipeComputed.carbohydrates / this.recipeComputed.totalWeight <
-      0.07
-    ) {
-      recipeTags.push({ tag_id: 64 });
+    if(this.recipeComputed.mnidx > 70) {
+      tagRows.push({
+        tag_id: 101,
+      });
     }
-    if (this.recipeComputed.protein * 4 > 0.2 * this.recipeComputed.kcal) {
-      recipeTags.push({ tag_id: 67 });
+    if(this.ingredientsFlat.every(ingredient => ingredient.vegan)) {
+      tagRows.push({
+        tag_id: 102,
+      });
     }
-    if (this.ingredientsFlat.length < 5) {
-      recipeTags.push({ tag_id: 69 });
+    if(this.ingredientsFlat.every(ingredient => ingredient.vegetarian)) {
+      tagRows.push({
+        tag_id: 103,
+      });
     }
-    return recipeTags;
+    if(this.recipeComputed.protein > 35) {
+      tagRows.push({
+        tag_id: 104,
+      });
+    }
+    if(this.recipePer100.carbohydrates < 5) {
+      tagRows.push({
+        tag_id: 105,
+      });
+    }
+    if(this.ingredientsFlat.every(ingredient => ingredient.gluten_free)) {
+      tagRows.push({
+        tag_id: 107,
+      });
+    }
+    if(this.recipeComputed.kcal < 600) {
+      tagRows.push({
+        tag_id: 108,
+      });
+    }
+    if(this.recipeComputed.satiety > 70) {
+      tagRows.push({
+        tag_id: 109,
+      });
+    }
+    if(this.recipePer100.fat < 3) {
+      tagRows.push({
+        tag_id: 110,
+      });
+    }
+    if(this.recipePer100.fiber > 6) {
+      tagRows.push({
+        tag_id: 111,
+      });
+    }
+    return tagRows; 
   }
 
   async computeRecipe() {
@@ -463,14 +524,17 @@ export default class RecipeCalculator {
     }
     let gptResponse = null;
     if (this.useGpt) {
-      gptResponse = await gptCreateRecipe(this.recipe);
+      gptResponse = await gptCreateRecipe(this.recipe, this.considerProcessing);
       this.recipe.saltiness = gptResponse?.saltiness || 1;
       this.recipeComputed.saltiness = this.recipe.saltiness;
+      this.recipe.tags = gptResponse?.general?.tags || [];
+      this.recipe.effort = gptResponse?.general?.effort || 'MODERATE';
+      this.recipe.difficulty = gptResponse?.general?.difficulty || 'MEDIUM';
     }
     if (this.recipe.saltiness == 1) {
-      this.gptTargetSalt = 0.7;
+      this.gptTargetSalt = 0.6;
     } else if (this.recipe.saltiness == 2) {
-      this.gptTargetSalt = 1.1;
+      this.gptTargetSalt = 0.9;
     } else if (this.recipe.saltiness == 3) {
       this.gptTargetSalt = 1.6;
     }
@@ -900,7 +964,7 @@ export default class RecipeCalculator {
   getSugarScore() {
     const points = [
       [0, 100],
-      [6, 50],
+      [5, 50],
       [20, 0],
       [100, -200],
     ];

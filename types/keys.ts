@@ -1,5 +1,6 @@
 export const recipeKeys = [
   'carbohydrates',
+  'collection',
   'created_at',
   'difficulty',
   'description',
@@ -30,6 +31,7 @@ export const recipeKeys = [
   'sugar',
   'sugar_score',
   'title',
+  'total_time_mins',
   'user_id',
   'visibility',
 ] as const;
