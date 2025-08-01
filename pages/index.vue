@@ -39,9 +39,7 @@
             <div
               class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
             >
-              <span class="text-4xl material-icons text-black"
-                >add</span
-              >
+              <span class="text-4xl material-icons text-black">add</span>
             </div>
             <h3 class="text-xl font-medium text-gray-900">Save Recipes</h3>
             <p class="mt-1 text-gray-500 text-center">
@@ -52,9 +50,7 @@
             <div
               class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
             >
-              <span class="text-3xl material-icons text-black"
-                >sell</span
-              >
+              <span class="text-3xl material-icons text-black">sell</span>
             </div>
             <h3 class="text-xl font-medium">Organize & Tag</h3>
             <p class="mt-1 text-base text-gray-500 text-center">
@@ -65,9 +61,7 @@
             <div
               class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
             >
-              <span class="text-3xl material-icons text-black"
-                >analytics</span
-              >
+              <span class="text-3xl material-icons text-black">analytics</span>
             </div>
             <h3 class="text-xl font-medium">Track Ingredients</h3>
             <p class="mt-1 text-base text-gray-500 text-center">
@@ -77,20 +71,19 @@
         </div>
       </div>
       <!-- Discover Recipes Section -->
-      <div class="px-20 mt-20">
-        <div
-          class="grid gap-8 grid-cols-[repeat(auto-fit,80vw)] sm:grid-cols-[repeat(auto-fit,400px)] justify-center max-w-[2000px] mx-auto"
-        >
-          <div
-            class="flex justify-center"
+      <div class="px-10 lg:px-25 mt-20 mx-auto">
+        <div class="flex flex-wrap gap-8 justify-center">
+          <RecipeCard
             v-for="recipe in recipeStore.indexRecipes"
             v-if="recipeStore.indexRecipes.length"
-          >
-            <RecipeCard :recipe="recipe" class="w-100 h-140 text-[34px]" />
-          </div>
-          <div v-else class="flex justify-center" v-for="i in 12">
-            <Skeleton class="w-100 h-140 text-[34px] rounded-xl" />
-          </div>
+            :recipe="recipe"
+            class="flex-1 max-w-100 min-w-70 basis-70 text-[28px] h-110 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80"
+          />
+          <Skeleton
+            v-else
+            class="flex-1 max-w-100 min-w-50 basis-50 text-[28px] min-h-120 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80 rounded-xl"
+            v-for="i in 12"
+          />
         </div>
       </div>
       <div class="w-full flex justify-center my-10">

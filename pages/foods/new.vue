@@ -77,18 +77,18 @@
           <NuxtLink
             v-else-if="request.status === 'CLOSED_INSERTED'"
             :to="`/foods/${request.new_food_id}`"
-            class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-green-200 text-gray-700"
+            class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-green-300"
           >
             <span class="material-symbols-outlined"> open_in_new </span>
             Accepted
           </NuxtLink>
           <span
             v-else
-            :class="`material-symbols-outlined ${getStatusIcon(
-              request.status
-            )}`"
-          ></span>
-          <span v-else>{{ getStatusString(request.status) }}</span>
+            class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-red-300"
+          >
+            <span class="material-symbols-outlined"> close </span>
+            {{ getStatusString(request.status, request.status_info) }}</span
+          >
         </div>
       </div>
     </div>
@@ -119,20 +119,20 @@ const foodName = ref('');
 const supabase = useSupabaseClient();
 const requestsStore = useRequestsStore();
 
-const getStatusString = (status: string) => {
+const getStatusString = (status: string, status_info?: string) => {
   if (status === 'CLOSED_INSERTED') return 'Accepted';
-  if (status === 'CLOSED_NOT_INSERTED') return 'Rejected';
+  if (status === 'CLOSED_NOT_INSERTED') {
+    if (
+      status_info?.startsWith('Alias') ||
+      status_info?.startsWith('Different')
+    )
+      return `Rejected: ${status_info}`;
+    else if (status_info === 'not_a_food') return 'Rejected: Not a food';
+    else return 'Rejected: Something went wrong';
+  }
   if (status === 'PROCESSING') return 'Processing';
   if (status === 'OPEN') return 'Open';
   return status;
-};
-
-const getStatusIcon = (status: string) => {
-  if (status === 'CLOSED_INSERTED') return 'check_circle';
-  if (status === 'CLOSED_NOT_INSERTED') return 'cancel';
-  if (status === 'PROCESSING') return 'hourglass_full';
-  if (status === 'OPEN') return 'hourglass_empty';
-  return 'hourglass_empty';
 };
 
 const requestFood = async () => {

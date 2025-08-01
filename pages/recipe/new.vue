@@ -40,32 +40,6 @@
           />
         </template>
 
-        <template #tags>
-          <div class="flex gap-5 flex-wrap justify-center relative text-xl">
-            <FormsMultiChoiceDropdown
-              class="min-w-30"
-              v-model="chosenFlavorTags"
-              :choices="TAGS.FLAVOR.map((tag) => tag.name)"
-              placeholder="Flavors"
-              :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
-            />
-            <FormsMultiChoiceDropdown
-              class="min-w-30"
-              v-model="chosenCourseTags"
-              :choices="TAGS.COURSE.map((tag) => tag.name)"
-              placeholder="Course"
-              :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
-            />
-            <FormsMultiChoiceDropdown
-              class="min-w-30"
-              v-model="chosenCuisineTags"
-              :choices="TAGS.CUISINE.map((tag) => tag.name)"
-              placeholder="Cuisine"
-              :style="'border-2 border-dashed border-gray-400 rounded-xl p-2 bg-[#fffefc]'"
-            />
-          </div>
-        </template>
-
         <template #description>
           <textarea
             v-model="recipe.description"
@@ -488,6 +462,8 @@ async function submit() {
   const calc = new RecipeCalculator(
     JSON.parse(JSON.stringify(recipe.value)),
     true,
+    false,
+    false,
     false
   );
   await calc.computeRecipe();

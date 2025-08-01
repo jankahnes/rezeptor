@@ -1,5 +1,11 @@
 <template>
-  <PagesRecipeLayout :key="String(route.params.id)">
+  <div
+    v-if="!recipeStore.recipe"
+    class="flex items-center justify-center h-100"
+  >
+    <div class="text-red-500 text-xl">404 - Recipe not found</div>
+  </div>
+  <PagesRecipeLayout v-else :key="String(route.params.id)">
     <template #image>
       <img
         :src="recipeStore.recipe?.picture ?? undefined"
@@ -135,11 +141,11 @@
     </template>
 
     <template #nutrition-label>
-        <NutritionLabel :recipe="recipeStore.recipe" class="flex-1" />
+      <NutritionLabel :recipe="recipeStore.recipe" class="flex-1" />
     </template>
 
     <template #health-facts>
-        <HealthFacts :recipe="recipeStore.recipe" class="flex-1" />
+      <HealthFacts :recipe="recipeStore.recipe" class="flex-1" />
     </template>
 
     <template #comments>
@@ -181,7 +187,6 @@ useHead({
 </script>
 
 <style scoped>
-
 .tape {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #f59e0b 100%);
   border-radius: 4px;

@@ -38,7 +38,7 @@ export function getStringFromAmountInfo(
       possibleFractions.unshift({value: 0, display: ''})
     }
 
-    let bestFraction = possibleFractions[0]
+    let bestFraction = null;
 
     for (const fraction of possibleFractions) {
       const error = Math.abs(remainder - fraction.value);
@@ -46,6 +46,10 @@ export function getStringFromAmountInfo(
         bestFraction = fraction;
         break;
       }
+    }
+
+    if(bestFraction === null) {
+      return `-`;
     }
 
     let unitName = unit.toLowerCase();

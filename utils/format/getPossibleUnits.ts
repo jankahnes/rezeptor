@@ -11,6 +11,9 @@ export default function getPossibleUnits(measurements: string[]): string[] {
     result.push('TSP');
     result.push('TBSP');
   }
+  if (measurements.includes('free')) {
+    result.push('FREE');
+  }
 
   return result;
 }

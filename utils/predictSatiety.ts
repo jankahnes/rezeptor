@@ -9,27 +9,9 @@ export async function predictSatiety({
   waterE: number;
   kcal: number;
 }): Promise<number> {
-  if (!process.client) {
-    return 50;
-  }
-
-  const { $ort } = useNuxtApp();
-
-  const sessionPromise = $ort.InferenceSession.create('/sidx.onnx', {
-    executionProviders: ['wasm'],
+  const { prediction } = await $fetch('/api/predict/satiety', {
+    method: 'POST',
+    body: { ff, giProxy, waterE, kcal },
   });
-
-  const session = await sessionPromise;
-
-  const input = new $ort.Tensor(
-    'float32',
-    Float32Array.from([ff, giProxy, waterE, kcal]),
-    [1, 4]
-  );
-
-  const results = await session.run({ features: input });
-  const output = results.output ?? Object.values(results)[0];
-  const prediction = Number(output.data[0]);
-
   return prediction;
 }
