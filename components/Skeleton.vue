@@ -7,18 +7,3 @@
 </template>
 
 <script setup></script>
-
-<style>
-@keyframes shimmer {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(200%);
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 1.5s linear infinite;
-}
-</style>

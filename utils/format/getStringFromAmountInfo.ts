@@ -6,6 +6,10 @@ export function getStringFromAmountInfo(
   const [amount, unit] = amountInfo;
   const totalAmount = amount * servingSize;
 
+  if (unit === 'FREE') {
+    return `To taste`;
+  }
+
   if (unit === 'G' || unit === 'ML') {
     return `${Math.round(totalAmount)}${unit.toLowerCase()}`;
   }

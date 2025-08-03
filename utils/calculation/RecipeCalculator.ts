@@ -51,7 +51,7 @@ const thermalGptToDB = {
 };
 
 const convertUnit = (unit: string) => {
-  if (['g', 'tsp', 'tbsp', 'ml'].includes(unit)) {
+  if (['g', 'tsp', 'tbsp', 'ml', 'free'].includes(unit)) {
     return unit.toUpperCase();
   } else {
     return 'UNITS';
@@ -392,7 +392,7 @@ export default class RecipeCalculator {
     this.ingredientsFlat = [];
     for (const category of this.recipe.ingredients_editable.ingredients) {
       for (const ingredient of category.ingredients) {
-        if (ingredient.amount !== 0) {
+        if (ingredient.amount && ingredient.amount !== 0) {
           if (this.useGpt) {
             const gptIngredientInfo = this.gptIngredients.find(
               (info) => info.ingredient_name === ingredient.name
@@ -411,7 +411,7 @@ export default class RecipeCalculator {
     const recipeFoods = [];
     for (const category of this.recipe.ingredients_editable.ingredients) {
       for (const ingredient of category.ingredients) {
-        if (ingredient.amount !== 0) {
+        if (ingredient.amount &&ingredient.amount !== 0) {
           recipeFoods.push({
             food_id: ingredient.id,
             unit: convertUnit(ingredient.unit),
@@ -541,7 +541,6 @@ export default class RecipeCalculator {
     this.gptIngredients = gptResponse?.processing_info || [];
 
     this.getIngredientsFlat();
-
     if (this.ingredientsFlat.length === 0) {
       return;
     }
@@ -825,6 +824,9 @@ export default class RecipeCalculator {
   }
 
   async getSIDX() {
+    if(this.recipePer100.kcal == 0) {
+      return 50;
+    }
     const liquid_keywords = [
       'juice',
       'liquid',

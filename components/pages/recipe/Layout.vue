@@ -17,17 +17,19 @@
             ></div>
           </div>
           <div
-            class="gap-4 h-full py-6 flex flex-col justify-between mx-auto lg:mx-0"
+            class="gap-4 h-full py-6 flex flex-col justify-between mx-auto lg:mx-0 w-full"
           >
-            <div class="flex flex-col gap-3 items-start">
-              <slot name="title" />
+            <div class="flex flex-col gap-3 items-start w-full">
+              <div class="w-full">
+                <slot name="title" />
+              </div>
 
               <slot name="user-row" />
               <div class="flex items-center gap-2">
                 <slot name="rating" />
               </div>
               <div
-                class="text-center lg:text-left text-gray-600 leading-relaxed"
+                class="text-center lg:text-left text-gray-600 leading-relaxed w-full"
               >
                 <slot name="description" />
               </div>

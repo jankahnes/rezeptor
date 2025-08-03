@@ -9,9 +9,7 @@
     </div>
 
     <!-- Ingredients List -->
-    <div
-      class="flex flex-col rounded-lg px-2 py-6 z-15"
-    >
+    <div class="flex flex-col rounded-lg px-2 py-6 z-15">
       <div class="pt-4 w-55 items-center mx-auto">
         <FormsSlidingSelector
           v-model="modelValue.servingSize"
@@ -24,10 +22,10 @@
         <div
           v-for="category in props.modelValue.ingredients"
           :key="category.categoryName"
-          class="flex flex-col gap-2 shadow-md rounded-lg p-2 relative min-h-12"
+          class="flex flex-col gap-2 shadow-md rounded-lg p-4 relative min-h-12"
         >
           <div
-            class="flex justify-between items-center"
+            class="flex justify-between items-center mb-3"
             v-if="category.categoryName !== 'uncategorized'"
           >
             <h3 class="py-2 font-semibold flex items-center gap-2">
@@ -41,68 +39,83 @@
               close
             </button>
           </div>
-          <div class="relative mb-2">
-            <input
-              v-model="category.searchQuery"
-              @input="debouncedSearchFoods(category.searchQuery, category)"
-              type="text"
-              placeholder="Search for ingredients..."
-              class="w-full p-1 border-1 border-gray-300 border-dashed rounded-lg"
-            />
+
+          <!-- Ingredient inputs -->
+          <div class="space-y-2">
             <div
-              v-if="category.searchResults.length > 0 && category.searchQuery"
-              class="absolute top-full left-0 right-0 bg-white border-2 border-gray-300 rounded-b z-50 max-h-60 overflow-y-auto"
+              v-for="(ingredient, index) in category.ingredients"
+              :key="`input-${index}`"
+              class="ingredient-input-container"
             >
-              <div
-                v-for="food in category.searchResults"
-                :key="food.id"
-                @click="addIngredient(food, category)"
-                class="p-2 hover:bg-gray-100 cursor-pointer border-b border-gray-200 last:border-b-0"
-              >
-                <div class="font-semibold">{{ food.name }}</div>
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                  <!-- Edit mode: Input field -->
+                  <input
+                    v-if="ingredient.isEditing"
+                    :ref="(el) => setInputRef(el, category.categoryName, index)"
+                    v-model="ingredient.rawText"
+                    @input="handleInput(category, index)"
+                    @blur="handleBlur(category, index)"
+                    @keydown.space="handleSpace(category, index, $event)"
+                    @keydown.enter="handleEnter(category, index)"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. 100g flour or 2 tbsp olive oil"
+                  />
+
+                  <!-- View mode: Styled preview -->
+                  <div
+                    v-else
+                    @click="startEditing(category, index)"
+                    class="flex-1 px-3 py-2 border border-transparent rounded-md cursor-text hover:border-gray-300 transition-colors min-h-[2.5rem] flex flex-wrap gap-1 items-center"
+                    :class="
+                      ingredient.parsed && ingredient.parsed.length > 0
+                        ? ''
+                        : 'text-gray-400 italic'
+                    "
+                  >
+                    <template
+                      v-if="ingredient.parsed && ingredient.parsed.length > 0"
+                    >
+                      <span
+                        v-for="(part, partIndex) in ingredient.parsed"
+                        :key="partIndex"
+                        :class="part.styling"
+                      >
+                        {{ part.text }}
+                      </span>
+                    </template>
+                    <span v-else>e.g. 100g flour or 2 tbsp olive oil</span>
+                  </div>
+
+                  <button
+                    v-if="!isLastEmptyIngredient(category, index)"
+                    @click="removeIngredient(category, index)"
+                    class="material-symbols-outlined !text-lg cursor-pointer text-red-500 hover:text-red-700"
+                  >
+                    close
+                  </button>
+                </div>
+
+                <!-- Live preview while editing -->
+                <div
+                  v-if="
+                    ingredient.isEditing &&
+                    ingredient.parsed &&
+                    ingredient.parsed.length > 0
+                  "
+                  class="px-3 py-1 bg-gray-50 rounded-md text-sm flex flex-wrap gap-1 items-center border-l-2 border-blue-200"
+                >
+                  <span
+                    v-for="(part, partIndex) in ingredient.parsed"
+                    :key="partIndex"
+                    :class="part.styling"
+                  >
+                    {{ part.text }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          <draggable
-            class="flex-1 min-h-6 flex flex-col gap-2"
-            v-model="category.ingredients"
-            :group="'ingredients'"
-            :handle="'.drag-handle'"
-            item-key="id"
-            :animation="100"
-          >
-            <template #item="{ element: ingredient }">
-              <li class="flex items-center justify-between px-1 gap-2">
-                <button
-                  class="flex items-center justify-center opacity-50 cursor-move drag-handle"
-                >
-                  <span class="material-symbols-outlined">drag_handle</span>
-                </button>
-                <div class="flex-1 font-semibold">{{ ingredient?.name }}</div>
-                <input
-                  v-model="ingredient.amount"
-                  class="p-1 border border-dashed border-gray-400 rounded-xl text-center"
-                  :size="
-                    ingredient.amount != null
-                      ? String(ingredient.amount).length
-                      : 1
-                  "
-                  style="width: auto; min-width: 4ch; max-width: 10ch"
-                  placeholder="0"
-                />
-                <div class="relative">
-                  <FormsDropdown
-                    v-model="ingredient.unit"
-                    :choices="ingredient.possibleUnits"
-                    :style="'border border-dashed border-gray-400 rounded-xl p-1 bg-[#fffefc]'"
-                  />
-                </div>
-                <button @click="removeIngredient(ingredient)" class="">
-                  <span class="material-symbols-outlined !text-lg">delete</span>
-                </button>
-              </li>
-            </template>
-          </draggable>
         </div>
         <div
           v-if="addingCategory"
@@ -153,8 +166,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import draggable from 'vuedraggable';
+import { ref, onMounted, nextTick } from 'vue';
+import { parseIngredientString } from '~/utils/format/parseIngredientString';
 
 const props = defineProps({
   modelValue: {
@@ -167,62 +180,182 @@ const emit = defineEmits(['update:modelValue']);
 const supabase = useSupabaseClient();
 const addingCategory = ref(false);
 const newCategoryName = ref('');
+const inputRefs = ref({});
 
-async function searchFoods(query, category) {
-  if (!query) return;
-  if (query.length <= 2) return;
+// Initialize ingredients structure
+onMounted(() => {
+  ensureIngredientsStructure();
+});
 
-  const { data, error } = await supabase.rpc('search_foods', {
-    search_text: query,
-  });
-
-  if (error) {
-    console.error(error);
-  } else {
-    category.searchResults = data || [];
-  }
-  for (const otherCategory of props.modelValue.ingredients) {
-    if (otherCategory.categoryName !== category.categoryName) {
-      otherCategory.searchResults = [];
+function ensureIngredientsStructure() {
+  props.modelValue.ingredients.forEach((category) => {
+    if (!category.ingredients) {
+      category.ingredients = [];
     }
+
+    // Ensure existing ingredients have the isEditing property
+    category.ingredients.forEach((ingredient) => {
+      if (ingredient.isEditing === undefined) {
+        // Existing ingredients start in view mode if they have content, edit mode if empty
+        ingredient.isEditing =
+          !ingredient.rawText || ingredient.rawText.trim() === '';
+      }
+    });
+
+    // Ensure exactly one empty ingredient per category
+    ensureOneEmptyIngredient(category);
+  });
+}
+
+function createEmptyIngredient() {
+  return {
+    rawText: '',
+    amount: null,
+    unit: null,
+    food: null,
+    extra: null,
+    parsed: [],
+    isEditing: true, // New ingredients start in edit mode
+  };
+}
+
+function setInputRef(el, categoryName, index) {
+  if (el) {
+    const key = `${categoryName}-${index}`;
+    inputRefs.value[key] = el;
   }
 }
 
-const debouncedSearchFoods = debounce(searchFoods, 300);
+function handleInput(category, index) {
+  const ingredient = category.ingredients[index];
 
-function addIngredient(food, category) {
-  let possibleUnits = getPossibleUnits(food.measurements);
-  possibleUnits = possibleUnits.map((item) =>
-    item === 'UNITS'
-      ? pluralize(food.unit_name, 2).toLowerCase()
-      : item.toLowerCase()
-  );
-  const newIngredient = {
-    ...food,
-    amount: null,
-    unit: possibleUnits[0],
-    possibleUnits: possibleUnits,
-  };
+  // Clear parsed result when editing
+  if (!ingredient.rawText.trim()) {
+    ingredient.parsed = [];
+    ingredient.amount = null;
+    ingredient.unit = null;
+    ingredient.extra = null;
+  }
 
-  category.ingredients.push(newIngredient);
-
-  category.searchQuery = '';
-  category.searchResults = [];
+  // Ensure exactly one empty ingredient exists
+  ensureOneEmptyIngredient(category);
 }
 
-function removeIngredient(ingredient) {
-  const categoryIndex = props.modelValue.ingredients.findIndex((cat) =>
-    cat.ingredients.some((ing) => ing.id === ingredient.id)
+async function handleSpace(category, index, event) {
+  // Parse for live preview but stay in edit mode
+  const ingredient = category.ingredients[index];
+  if (ingredient.rawText.trim()) {
+    await parseIngredient(category, index);
+    // Keep in edit mode for live preview
+  }
+}
+
+async function handleBlur(category, index) {
+  const ingredient = category.ingredients[index];
+
+  if (ingredient.rawText.trim()) {
+    // Parse and switch to view mode
+    await parseIngredient(category, index);
+    ingredient.isEditing = false;
+  }
+
+  // Clean up empty ingredients and ensure exactly one empty exists
+  ensureOneEmptyIngredient(category);
+}
+
+async function handleEnter(category, index) {
+  const ingredient = category.ingredients[index];
+
+  if (ingredient.rawText.trim()) {
+    // Parse and switch to view mode
+    await parseIngredient(category, index);
+    ingredient.isEditing = false;
+  }
+
+  // Focus next input or create new one
+  const nextIndex = index + 1;
+  if (nextIndex < category.ingredients.length) {
+    await nextTick();
+    startEditing(category, nextIndex);
+  }
+}
+
+async function startEditing(category, index) {
+  const ingredient = category.ingredients[index];
+  ingredient.isEditing = true;
+
+  await nextTick();
+  const key = `${category.categoryName}-${index}`;
+  const input = inputRefs.value[key];
+  if (input) {
+    input.focus();
+  }
+}
+
+async function parseIngredient(category, index) {
+  const ingredient = category.ingredients[index];
+
+  if (!ingredient.rawText.trim()) {
+    ingredient.parsed = [];
+    return;
+  }
+
+  try {
+    const result = await parseIngredientString(supabase, ingredient.rawText);
+
+    ingredient.amount = result.amount;
+    ingredient.unit = result.unit;
+    Object.assign(ingredient, result.ingredient);
+    ingredient.extra = result.extra;
+    ingredient.parsed = result.parsed;
+  } catch (error) {
+    console.error('Error parsing ingredient:', error);
+    // Keep the original text visible if parsing fails
+    ingredient.parsed = [
+      { text: ingredient.rawText, styling: 'text-gray-600' },
+    ];
+  }
+}
+
+function removeIngredient(category, index) {
+  category.ingredients.splice(index, 1);
+  ensureOneEmptyIngredient(category);
+}
+
+function isLastEmptyIngredient(category, index) {
+  const ingredient = category.ingredients[index];
+  const emptyIngredients = category.ingredients.filter(
+    (ing) => !ing.rawText || ing.rawText.trim() === ''
   );
-  if (categoryIndex !== -1) {
-    const ingredientIndex = props.modelValue.ingredients[
-      categoryIndex
-    ].ingredients.findIndex((ing) => ing.id === ingredient.id);
-    if (ingredientIndex !== -1) {
-      props.modelValue.ingredients[categoryIndex].ingredients.splice(
-        ingredientIndex,
-        1
-      );
+
+  // Only show remove button if it's not the last empty ingredient
+  return (
+    emptyIngredients.length === 1 &&
+    (!ingredient.rawText || ingredient.rawText.trim() === '')
+  );
+}
+
+function ensureOneEmptyIngredient(category) {
+  const emptyIngredients = category.ingredients.filter(
+    (ing) => !ing.rawText || ing.rawText.trim() === ''
+  );
+
+  if (emptyIngredients.length === 0) {
+    // No empty ingredients, add one
+    category.ingredients.push(createEmptyIngredient());
+  } else if (emptyIngredients.length > 1) {
+    // Too many empty ingredients, remove extras (but keep at least one)
+    let removedCount = 0;
+    for (
+      let i = category.ingredients.length - 1;
+      i >= 0 && removedCount < emptyIngredients.length - 1;
+      i--
+    ) {
+      const ingredient = category.ingredients[i];
+      if (!ingredient.rawText || ingredient.rawText.trim() === '') {
+        category.ingredients.splice(i, 1);
+        removedCount++;
+      }
     }
   }
 }
@@ -232,7 +365,13 @@ function removeCategory(category) {
     (cat) => cat.categoryName === 'uncategorized'
   );
   if (uncategorized) {
-    uncategorized.ingredients.push(...category.ingredients);
+    // Move finalized ingredients to uncategorized
+    if (category.finalizedIngredients) {
+      if (!uncategorized.finalizedIngredients) {
+        uncategorized.finalizedIngredients = [];
+      }
+      uncategorized.finalizedIngredients.push(...category.finalizedIngredients);
+    }
   }
   const idx = props.modelValue.ingredients.findIndex(
     (cat) => cat.categoryName === category.categoryName
@@ -241,26 +380,8 @@ function removeCategory(category) {
     props.modelValue.ingredients.splice(idx, 1);
   }
 }
-
-let handleClick;
-
-onMounted(() => {
-  handleClick = (e) => {
-    const target = e.target;
-    if (!target.closest('.relative')) {
-      props.modelValue.ingredients.forEach((category) => {
-        category.searchResults = [];
-      });
-    }
-  };
-  document.addEventListener('click', handleClick);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClick);
-});
 </script>
 
 <style scoped>
-
+/* The parsed ingredient styling is handled by Tailwind classes returned from parseIngredientString */
 </style>
