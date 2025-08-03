@@ -52,6 +52,8 @@ export default function fillForUnits(ingredient) {
       add(g, 'G');
     }
     add(amount * 3, 'TSP');
+  } else if (unit === 'FREE') {
+    add(0, 'FREE');
   }
   ingredient.amountInfo = out;
 }

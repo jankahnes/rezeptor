@@ -6,7 +6,7 @@
 
     <!-- Loading skeleton -->
     <div v-else-if="loading" class="space-y-10 mx-4">
-      <Skeleton class="w-full h-19 shadow-sm rounded-2xl" />
+      <Skeleton class="w-full h-142 shadow-sm rounded-2xl" />
       <div class="flex flex-wrap gap-10 items-start w-full">
         <Skeleton
           v-for="i in 9"
