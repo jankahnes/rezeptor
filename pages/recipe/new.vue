@@ -1,85 +1,71 @@
 <template>
-  <div>
-    <PagesRecipeLayout>
-      <template #image>
-        <div
-          @click="triggerFileInput"
-          class="relative cursor-pointer w-full aspect-square rounded-xl overflow-hidden border-2 border-dashed border-gray-400 flex items-center justify-center bg-gray-100 group hover:border-gray-600"
-        >
-          <input
-            ref="imgUpload"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="onFileChange"
-          />
-
-          <span
-            v-if="!imageUrl"
-            class="material-symbols-outlined !text-8xl text-gray-400 select-none pointer-events-none"
-          >
-            photo_camera
-          </span>
-
-          <img
-            v-else
-            :src="imageUrl"
-            alt="Uploaded photo preview"
-            class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
-          />
-        </div>
-      </template>
-
-      <template #title>
-        <textarea
-          v-model="recipe.title"
-          v-auto-resize
-          rows="1"
-          placeholder="New Recipe"
-          class="w-full font-bold text-5xl border-box bg-transparent border-2 border-dashed border-gray-400 rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
+  <div class="flex justify-center">
+    <div class="max-w-screen-lg mx-auto p-4 space-y-4">
+      <div
+        @click="triggerFileInput"
+        class="relative cursor-pointer w-75 max-w-1/2 aspect-square rounded-xl overflow-hidden flex items-center justify-center bg-gray-100 group"
+      >
+        <input
+          ref="imgUpload"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="onFileChange"
         />
-      </template>
 
-      <template #description>
-        <textarea
-          v-model="recipe.description"
-          v-auto-resize
-          rows="1"
-          placeholder="Description"
-          class="w-full bg-transparent border-2 border-dashed border-gray-400 rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
-        ></textarea>
-      </template>
+        <span
+          v-if="!imageUrl"
+          class="material-symbols-outlined !text-6xl text-gray-400 select-none pointer-events-none"
+        >
+          photo_camera
+        </span>
 
-      <template #ingredients>
+        <img
+          v-else
+          :src="imageUrl"
+          alt="Uploaded photo preview"
+          class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105"
+        />
+      </div>
+
+      <textarea
+        v-model="recipe.title"
+        v-auto-resize
+        rows="1"
+        placeholder="New Recipe"
+        class="w-full font-bold text-3xl border-box bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
+      />
+
+      <textarea
+        v-model="recipe.description"
+        v-auto-resize
+        rows="1"
+        placeholder="Description"
+        class="w-full bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1 text-sm"
+      ></textarea>
+      <div class="flex gap-10 mt-6 mx-auto flex-wrap">
         <PagesRecipeIngredientListEditable
           v-model="recipe.ingredients_editable"
         ></PagesRecipeIngredientListEditable>
-      </template>
 
-      <template #instructions>
         <PagesRecipeInstructionContainerEditable
           v-model="recipe.instructions"
         ></PagesRecipeInstructionContainerEditable>
-      </template>
 
-      <template #nutrition-label>
         <NutritionLabel
           v-if="displayInfo"
           :recipe="recipeComputed"
           class="flex-1"
         />
-      </template>
 
-      <template #health-facts>
         <HealthFacts
           v-if="displayInfo"
           :recipe="recipeComputed"
           :on-report="onClickReport"
           class="flex-1"
         />
-      </template>
-    </PagesRecipeLayout>
-    <div class="my-22"></div>
+      </div>
+    </div>
     <div
       class="fixed bottom-22 xm:bottom-6 xm:right-6 z-100 flex gap-2 w-full justify-center xm:w-auto xm:justify-end"
     >
@@ -131,10 +117,12 @@ const recipe = ref({
     ingredients: [
       {
         categoryName: 'uncategorized',
-        ingredients: [{
-          text: '',
-          parsed: [],
-        }],
+        ingredients: [
+          {
+            text: '',
+            parsed: [],
+          },
+        ],
         searchQuery: '',
         searchResults: [],
       },
@@ -186,7 +174,7 @@ onMounted(async () => {
 });
 
 async function compute() {
-  console.log("Called compute")
+  console.log('Called compute');
   const calc = new RecipeCalculator(JSON.parse(JSON.stringify(recipe.value)));
   await calc.computeRecipe();
   recipeComputed.value = calc.recipeComputed;

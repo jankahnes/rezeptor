@@ -1,6 +1,6 @@
 <template>
   <div
-    class="font-bold w-[2em] aspect-square text-center flex items-center justify-center rounded-lg shadow-sm"
+    class="font-bold w-[2em] aspect-square text-center flex items-center justify-center rounded-[0.4em] shadow-sm"
     :class="gradeColors[getGrade(props.score, props.type)]"
   >
     {{ getGrade(props.score, props.type) }}

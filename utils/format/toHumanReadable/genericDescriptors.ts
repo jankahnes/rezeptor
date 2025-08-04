@@ -1,15 +1,15 @@
-export const WARNING = {icon: "warning", color: "text-red-900", value: -1};
-export const POOR = {icon: "stat_minus_3", color: "text-red-900", value: 0};
-export const BAD = {icon: "stat_minus_2", color: "text-red-800", value: 1};
-export const SUBOPTIMAL = {icon: "stat_minus_1", color: "text-orange-800", value: 2};
+export const WARNING = {icon: "warning", color: "text-red-900", value: -1, bgColor: "bg-red-900/10"};
+export const POOR = {icon: "stat_minus_3", color: "text-red-900", value: 0, bgColor: "bg-red-900/10"};
+export const BAD = {icon: "stat_minus_2", color: "text-red-800", value: 1, bgColor: "bg-red-800/10"};
+export const SUBOPTIMAL = {icon: "stat_minus_1", color: "text-orange-800", value: 2, bgColor: "bg-orange-800/10"};
 
-export const NEUTRAL = {icon: "remove", color: "text-gray-800", value: 3};
+export const NEUTRAL = {icon: "remove", color: "text-gray-800", value: 3, bgColor: "bg-gray-800/10"};
 
-export const OKAY = {icon: "check", color: "text-green-800", value: 4};
-export const GOOD = {icon: "stat_1", color: "text-emerald-700", value: 5};
-export const GREAT = {icon: "stat_2", color: "text-emerald-800", value: 6};
-export const EXCELLENT = {icon: "stat_3", color: "text-blue-800", value: 7};
-export const OUTSTANDING = {icon: "star_rate", color: "text-purple-800", value: 8};
+export const OKAY = {icon: "check", color: "text-green-800", value: 4, bgColor: "bg-green-800/10"};
+export const GOOD = {icon: "stat_1", color: "text-emerald-700", value: 5, bgColor: "bg-emerald-700/10"};
+export const GREAT = {icon: "stat_2", color: "text-emerald-800", value: 6, bgColor: "bg-emerald-800/10"};
+export const EXCELLENT = {icon: "stat_3", color: "text-blue-800", value: 7, bgColor: "bg-blue-800/10"};
+export const OUTSTANDING = {icon: "star_rate", color: "text-purple-800", value: 8, bgColor: "bg-purple-800/10"};
 
 
 export const genericDescriptors = {

@@ -13,7 +13,7 @@
   --breakpoint-xm: 860px;
   --breakpoint-xs: 500px;
   --breakpoint-2xs: 400px;
-  --font-main: 'Inter', sans-serif;
+  --font-main: 'Libertinus Sans', sans-serif;
   --color-main: #ffffff;
   --color-primary: #921a40;
   --color-primary-20: #fdf8f9;
@@ -31,6 +31,19 @@
   --color-secondary-500: #f4d9d0;
   --color-tertiary: #f4d9d0;
   --rounded-main: 10px;
+
+  --text-scale: 1.05;
+
+  --text-xs: calc(0.75rem * var(--text-scale));
+  --text-sm: calc(0.875rem * var(--text-scale));
+  --text-base: calc(1rem * var(--text-scale));
+  --text-lg: calc(1.125rem * var(--text-scale));
+  --text-xl: calc(1.25rem * var(--text-scale));
+  --text-2xl: calc(1.5rem * var(--text-scale));
+  --text-3xl: calc(1.875rem * var(--text-scale));
+  --text-4xl: calc(2.25rem * var(--text-scale));
+  --text-5xl: calc(3rem * var(--text-scale));
+  --text-6xl: calc(3.75rem * var(--text-scale));
 }
 
 @layer base {
@@ -137,6 +150,17 @@
     #f2db9e 20%,
     #fff3cc 50%,
     #e8c56b 100%
+  );
+}
+
+.golden-gradient-muted {
+  background: linear-gradient(
+    75deg,
+    #f9eed1 0%,
+    #fff9e5 10%,
+    #f9eed1 20%,
+    #fff9e5 50%,
+    #f6e4b0 100%
   );
 }
 

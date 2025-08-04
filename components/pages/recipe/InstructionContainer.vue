@@ -1,21 +1,21 @@
 <template>
-  <div class="h-full flex flex-col">
-    <div class="p-6 pb-4">
-      <h2 class="text-2xl font-bold text-gray-900 text-center">Instructions</h2>
+  <div class="h-full flex flex-col min-w-92">
+    <div class="p-6">
+      <h2 class="text-xl font-bold text-gray-900">METHOD</h2>
     </div>
     <div
-      class="flex-1 px-6 pb-6"
+      class="flex-1 pb-6 px-2"
       v-if="instructions && instructions.length > 0"
     >
-      <div class="max-w-2xl mx-auto space-y-4">
+      <div class="max-w-2xl mx-auto">
         <div
           v-for="(instruction, index) in instructions"
           :key="index"
-          class="flex gap-4 p-5 bg-primary-20 rounded-xl hover:bg-primary-50 transition-colors"
+          class="flex gap-2 p-5"
         >
           <div class="flex-shrink-0">
             <div
-              class="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold"
+              class="w-8 h-8 rounded-full flex items-center text-lg font-bold"
             >
               {{ index + 1 }}
             </div>

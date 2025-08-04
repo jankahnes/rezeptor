@@ -1,13 +1,8 @@
 <template>
-  <div>
-    <div class="relative mx-auto w-full flex justify-center">
-      <div
-        class="header flex items-center text-center px-10 xl:px-14 mx-auto justify-center rounded-lg p-2 overflow-visible"
-      >
-        <h1 class="text-3xl font-bold">Instructions</h1>
-      </div>
-    </div>
-    <ol class="p-3 space-y-1.5 mt-4">
+  <div class="h-full flex flex-col min-w-92 ml-1">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">METHOD</h2>
+
+    <ol class="space-y-1.5">
       <li v-for="i in modelValue.length + 1" :key="i">
         <div class="flex gap-2 items-center">
           <div class="flex-1 flex flex-col rounded-lg shadow-sm">

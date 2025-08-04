@@ -1,172 +1,126 @@
 <template>
-  <div
-    v-if="!recipeStore.recipe"
-    class="flex items-center justify-center h-100"
-  >
-    <div class="text-red-500 text-xl">404 - Recipe not found</div>
-  </div>
-  <PagesRecipeLayout v-else :key="String(route.params.id)">
-    <template #image>
-      <img
-        :src="recipeStore.recipe?.picture ?? undefined"
-        class="w-full h-full object-cover transform transition-all duration-550 hover:scale-105"
-      />
-    </template>
-
-    <template #title>
-      <h1 class="font-bold text-3xl lg:text-5xl text-gray-900">
-        {{ recipeStore.recipe?.title }}
-      </h1>
-    </template>
-
-    <template #user-row>
+  <div class="mx-auto max-w-screen-xl justify-center relative px-3">
+    <NuxtImg
+      :src="recipeStore.recipe?.picture"
+      class="w-full md:h-100 object-cover rounded-xl"
+    />
+    <div
+      class="max-w-screen-lg flex flex-col gap-4 bg-primary-900 p-8 rounded-xl text-white mx-auto -mt-20 relative z-10 shadow-md shadow-primary-900/70"
+    >
+      <div class="flex justify-between items-start gap-4">
+        <h1 class="text-4xl font-bold">{{ recipeStore.recipe?.title }}</h1>
+        <div class="flex gap-2 flex-wrap">
+          <button
+            class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border-white border"
+          >
+            <span class="material-symbols-outlined">share</span>
+          </button>
+          <button
+            class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border-white border"
+          >
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button
+            class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border-white border"
+          >
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+          <button
+            class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border-white border"
+          >
+            <span class="material-symbols-outlined">print</span>
+          </button>
+        </div>
+      </div>
       <div class="flex items-center gap-2" v-if="recipeStore.recipe?.user">
         <Avatar :user="recipeStore.recipe?.user as any" class="w-8 h-8" />
-        <span class="text-sm text-gray-600"
+        <span class="text-sm"
           >{{ recipeStore.recipe?.user?.username }} ·
           {{ timeAgo(recipeStore.recipe?.created_at) }}</span
         >
       </div>
-    </template>
-
-    <template #rating>
-      <FormsRatingField
-        v-if="recipeStore.recipe?.rating"
-        v-model="recipeStore.recipe.rating"
-        :select="false"
-        :star-width="24"
-        :star-height="24"
-        :spacing="-2"
-        :id="250"
-      ></FormsRatingField>
-      <span class="text-lg font-semibold text-gray-700">{{
-        recipeStore.recipe?.rating?.toFixed(1)
-      }}</span>
-    </template>
-
-    <template #tags>
-      <div
-        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-primary-50 to-primary-100 text-primary"
-        v-for="tag in recipeStore.recipe?.tags"
-        :key="tag"
-      >
-        {{ getTagByID(tag)?.name }}
-      </div>
-    </template>
-
-    <template v-if="recipeStore.recipe?.description" #description>
-      {{ recipeStore.recipe?.description }}
-    </template>
-
-    <template #metadata>
-      <div class="flex items-center gap-3 rounded-xl transition-colors">
-        <span class="material-symbols-outlined text-primary"> flash_on </span>
-        <div class="flex flex-col min-w-0">
-          <span
-            class="text-xs font-medium text-gray-500 uppercase tracking-wide;"
-            >Effort</span
-          >
-          <span class="text-sm font-semibold text-gray-900 truncate">{{
-            capitalize(recipeStore.recipe?.effort)
-          }}</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-3 rounded-xl transition-colors">
-        <span class="material-symbols-outlined text-primary"> target </span>
-        <div class="flex flex-col min-w-0">
-          <span
-            class="text-xs font-medium text-gray-500 uppercase tracking-wide;"
-            >Difficulty</span
-          >
-          <span class="text-sm font-semibold text-gray-900 truncate">{{
-            capitalize(recipeStore.recipe?.difficulty)
-          }}</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-3 transition-colors">
-        <span class="material-symbols-outlined text-primary">
-          attach_money
+      <div class="flex items-center gap-1 flex-wrap">
+        <FormsRatingField
+          v-if="recipeStore.recipe?.rating"
+          v-model="recipeStore.recipe.rating"
+          :select="false"
+          :star-width="20"
+          :star-height="20"
+          :spacing="-2"
+          :id="250"
+        ></FormsRatingField>
+        <span class="text-sm font-semibold"
+          >{{ recipeStore.recipe?.rating?.toFixed(1) }}
         </span>
-        <div class="flex flex-col min-w-0">
-          <span
-            class="text-xs font-medium text-gray-500 uppercase tracking-wide;"
-            >Price</span
-          >
-          <span class="text-sm font-semibold text-gray-900 truncate">{{
-            formatMoney(recipeStore.recipe?.price)
-          }}</span>
+        <span class="material-symbols-outlined ml-3 !text-2xl">timer</span>
+        <span class="text-sm"
+          >{{ capitalize(recipeStore.recipe?.effort) }} Effort</span
+        >
+        <span class="material-symbols-outlined ml-3 !text-2xl">bolt</span>
+        <span class="text-sm">{{
+          capitalize(recipeStore.recipe?.difficulty)
+        }} Difficulty</span
+        >
+        <span class="material-symbols-outlined ml-3 !text-2xl"
+          >attach_money</span
+        >
+        <span class="text-sm"
+          >{{ formatMoney(recipeStore.recipe?.price) }} per serving</span
+        >
+      </div>
+      <div class="">
+        {{ recipeStore.recipe?.description }}
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <div
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border-white border"
+          v-if="recipeStore.recipe?.tags"
+          v-for="tag in recipeStore.recipe?.tags"
+          :key="tag"
+        >
+          {{ getTagByID(tag)?.name }}
         </div>
       </div>
-    </template>
-
-    <template #actions>
-      <button
-        class="button flex items-center gap-2 px-4 py-1 font-medium text-primary-800"
-      >
-        <span class="material-symbols-outlined !text-lg">share</span>
-        <span>Share</span>
-      </button>
-      <button
-        class="button flex items-center gap-2 px-4 py-1 font-medium text-primary-800"
-      >
-        <span class="material-symbols-outlined !text-lg">print</span>
-        <span>Print</span>
-      </button>
-      <NuxtLink
-        :to="{ path: '/recipe/new', query: { editCurrent: 'true' } }"
-        class="button flex items-center gap-2 px-4 py-1 font-medium text-primary-800"
-      >
-        <span class="material-symbols-outlined !text-lg">edit</span>
-        <span>Edit</span>
-      </NuxtLink>
-      <button
-        class="button flex items-center gap-2 px-4 py-1 font-medium text-primary-800"
-      >
-        <span class="material-symbols-outlined !text-lg">delete</span>
-        <span>Delete</span>
-      </button>
-    </template>
-
-    <template #ingredients>
+      <div class="flex flex-wrap gap-6 mt-4">
+        <NuxtLink to="#comments" class="text-sm">Reviews ⌵</NuxtLink>
+        <NuxtLink to="#nutrition" class="text-sm">Nutrition ⌵</NuxtLink>
+        <NuxtLink :to="`/recipe/${id}/report`" class="text-sm"
+          >Full Health Report →</NuxtLink
+        >
+      </div>
+    </div>
+    <div class="flex gap-10 mt-10 max-w-screen-lg mx-auto flex-wrap">
       <PagesRecipeIngredientList
         :ingredients="recipeStore.recipe?.ingredients"
+        class="flex-1 "
       ></PagesRecipeIngredientList>
-    </template>
-
-    <template #instructions>
       <PagesRecipeInstructionContainer
         v-if="recipeStore.recipe?.instructions"
         :instructions="recipeStore.recipe.instructions"
+        class="flex-1 "
       ></PagesRecipeInstructionContainer>
-    </template>
-
-    <template #nutrition-label>
-      <NutritionLabel :recipe="recipeStore.recipe" class="flex-1" />
-    </template>
-
-    <template #health-facts>
-      <HealthFacts :recipe="recipeStore.recipe" class="flex-1" />
-    </template>
-
-    <template #comments>
-      <div class="flex flex-col items-center w-full gap-6">
-        <div class="text-center">
-          <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-            What others say
-          </h2>
-          <p class="text-gray-600">
-            {{ recipeStore.recipe?.comments?.length }}
-            {{
-              recipeStore.recipe?.comments?.length === 1
-                ? 'comment'
-                : 'comments'
-            }}
-          </p>
-        </div>
-        <PagesRecipeCommentSection></PagesRecipeCommentSection>
+      <NutritionLabel
+        id="nutrition"
+        :recipe="recipeStore.recipe"
+        class="flex-1 "
+      ></NutritionLabel>
+      <HealthFacts :recipe="recipeStore.recipe" class="flex-1 "></HealthFacts>
+    </div>
+    <div class="flex flex-col items-center w-full gap-6 mt-20" id="comments">
+      <div class="text-center">
+        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+          What others say
+        </h2>
+        <p class="text-gray-600">
+          {{ recipeStore.recipe?.comments?.length }}
+          {{
+            recipeStore.recipe?.comments?.length === 1 ? 'comment' : 'comments'
+          }}
+        </p>
       </div>
-    </template>
-  </PagesRecipeLayout>
+      <PagesRecipeCommentSection></PagesRecipeCommentSection>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -185,12 +139,3 @@ useHead({
   title: recipeStore.recipe?.title + ' | Rezeptor',
 });
 </script>
-
-<style scoped>
-.tape {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #f59e0b 100%);
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1),
-    inset 0 1px 2px rgba(255, 255, 255, 0.3);
-}
-</style>

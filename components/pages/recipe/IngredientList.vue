@@ -1,19 +1,14 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div class="h-full flex flex-col min-w-92">
     <div class="p-6 pb-4">
-      <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">
-        Ingredients
-      </h2>
-
-      <div class="flex flex-col items-center gap-3">
-        <FormsSlidingSelector
-          v-model="servingSize"
-          :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
-          :expanded="false"
-          class="max-w-[200px]"
-        />
-        <p class="text-sm text-gray-600 font-medium">Servings</p>
-      </div>
+      <h2 class="text-xl font-bold text-gray-900 mb-2 ml-1">INGREDIENTS</h2>
+      <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
+      <FormsSlidingSelector
+        v-model="servingSize"
+        :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+        :expanded="false"
+        class="max-w-[150px]"
+      />
     </div>
 
     <div class="flex-1 px-6 pb-6">
@@ -36,17 +31,17 @@
             </h3>
           </div>
 
-          <div class="space-y-3">
+          <div class="">
             <div
               v-for="ingredient in group"
               :key="ingredient.name"
-              class="flex items-center py-3 px-4 bg-primary-20 rounded-xl hover:bg-primary-50 transition-colors cursor-pointer group"
+              class="flex items-center p-3 cursor-pointer group"
               @click="onClickIngredient(ingredient)"
             >
               <transition name="fade-slide" mode="out-in">
                 <span
                   :key="`${servingSize}-${ingredient?.currentUnit}`"
-                  class="select-none group-hover:text-gray-900 transition-colors min-w-20"
+                  class="select-none group-hover:text-gray-900 transition-colors"
                 >
                   {{
                     getStringFromAmountInfo(
@@ -62,7 +57,7 @@
               }}</span>
               <span
                 v-if="ingredient.preperation_description"
-                class="font-light text-sm"
+                class="font-light text-xs mt-1"
               >
                 , {{ ingredient.preperation_description }}
               </span>
@@ -97,7 +92,7 @@
 import { computed, ref } from 'vue';
 
 const props = defineProps({ ingredients: Array<any> });
-const servingSize = ref(1);
+const servingSize = ref(2);
 
 function onClickIngredient(ingredient: any) {
   if (ingredient.currentUnit == ingredient.amountInfo.length - 1) {

@@ -1,13 +1,13 @@
 <template>
   <nav class="fixed w-full z-30 bg-main mask-fade-bottom">
     <div
-      class="w-[clamp(75vw,1550px,100%)] mx-auto flex justify-between items-center px-10 h-18 xm:h-22"
+      class="w-[clamp(70vw,1550px,100%)] mx-auto flex justify-between items-center px-4 h-18 xm:h-22"
     >
       <!-- Logo -->
       <NuxtLink to="/">
         <div class="relative">
           <div
-            class="flex bg-white border-3 border-black px-3 py-1 text-xl font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
+            class="flex bg-white border-3 border-black px-3 py-1 sm:text-xl font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
           >
             Rezeptor
           </div>

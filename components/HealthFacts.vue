@@ -1,39 +1,37 @@
 <template>
-  <div class="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
+  <div class="p-6 bg-white rounded-2xl">
     <div class="flex flex-col lg:flex-row gap-8 h-full">
       <div class="flex-1 items-start flex flex-col justify-between">
-        <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-4">
-          Health Summary
-        </h1>
-        <div class="flex flex-col gap-3 items-start">
-          <div
-            v-for="grade of readableGrades"
-            :key="grade.description"
-            class="flex gap-3 items-center"
-            :class="grade.color"
-          >
-            <span class="material-symbols-outlined !text-2xl">{{
-              grade.icon
-            }}</span>
-            <div class="flex flex-col">
-              <span class="font-semibold">{{ grade.description }}</span>
-            </div>
-          </div>
-        </div>
+        <h1 class="text-xl font-bold text-gray-800">HEALTH SUMMARY</h1>
         <button
           v-if="!props.noReport"
           @click="onReport"
-          class="button flex items-center gap-2 px-2 py-1 font-medium mt-2 !bg-secondary-500 text-primary-800"
+          class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary-50 text-xs mt-2"
         >
-          <span class="material-symbols-outlined text-lg">biotech</span>
-          <span>See the full health analysis on this recipe</span>
+          <span class="material-symbols-outlined !text-sm">open_in_new</span>
+          <span>Full Health Report</span>
         </button>
+        <div class="flex flex-col gap-3 items-start mt-8">
+          <div
+            v-for="grade of readableGrades"
+            :key="grade.description"
+            class="flex gap-3 items-center py-1 px-2 rounded-lg"
+            :class="`${grade.bgColor} ${grade.color}`"
+          >
+            <span class="material-symbols-outlined !text-xl">{{
+              grade.icon
+            }}</span>
+            <div class="flex flex-col">
+              <span class="font-semibold text-sm">{{ grade.description }}</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="flex flex-col gap-4">
         <GradeContainer
           :score="props.recipe?.hidx ?? 0"
           :type="'hidx'"
-          class="font-bold text-5xl p-4 rounded-xl shadow-sm"
+          class="font-bold text-4xl p-4 rounded-xl shadow-sm"
         />
       </div>
     </div>
@@ -47,19 +45,20 @@ const props = defineProps<{
   noReport?: boolean;
 }>();
 
-const onReport = props.onReport ?? (() => {
-  navigateTo(`/recipe/${props.recipe.id}/report`);
-});
-
+const onReport =
+  props.onReport ??
+  (() => {
+    navigateTo(`/recipe/${props.recipe.id}/report`);
+  });
 
 const recipeStore = useRecipeStore();
 
-const readableGrades = gradesToReadable({}, props.recipe);
-
+const readableGrades = gradesToReadable({}, props.recipe).filter(
+  (grade) => grade.value >= 4
+);
 </script>
 
 <style scoped>
-
 .card {
   background: white;
   border-radius: 1rem;
