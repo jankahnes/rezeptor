@@ -48,7 +48,7 @@
   <div class="bg-main font-main" v-if="$route.path !== '/onboarding'">
     <NavbarsTop />
     <div
-      class="pt-18 xm:pt-22 pb-18 xm:pb-0 w-[clamp(75vw,1550px,100%)] mx-auto min-h-[calc(100svh_-_144px)] xm:min-h-[calc(100svh_-_88px)]"
+      class="pt-18 xm:pt-22 pb-18 xm:pb-0 w-[clamp(70vw,1550px,100%)] mx-auto min-h-[calc(100svh_-_144px)] xm:min-h-[calc(100svh_-_88px)]"
     >
       <GlobalLoadingIndicator />
       <NuxtPage />

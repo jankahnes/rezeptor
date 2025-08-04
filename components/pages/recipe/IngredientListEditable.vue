@@ -1,28 +1,23 @@
 <template>
-  <div class="p-1 flex flex-col z-10">
-    <div class="relative mx-auto w-full flex justify-center">
-      <div
-        class="header flex items-center text-center px-10 xl:px-14 mx-auto justify-center rounded-lg p-2 overflow-visible"
-      >
-        <h1 class="text-3xl font-bold">Ingredients</h1>
-      </div>
+  <div class="h-full flex flex-col min-w-92">
+    <div class="pb-4">
+      <h2 class="text-xl font-bold text-gray-900 mb-2 ml-1">INGREDIENTS</h2>
+      <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
+      <FormsSlidingSelector
+        v-model="modelValue.servingSize"
+        :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+        :expanded="false"
+        class="max-w-[150px]"
+      />
     </div>
 
     <!-- Ingredients List -->
-    <div class="flex flex-col rounded-lg px-2 py-6 z-15">
-      <div class="pt-4 w-55 items-center mx-auto">
-        <FormsSlidingSelector
-          v-model="modelValue.servingSize"
-          :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
-          :expanded="false"
-        />
-        <p class="text-xs text-center">Servings</p>
-      </div>
-      <div class="space-y-3 md:px-8 sm:px-4 py-8">
+    <div class="flex flex-col rounded-lg px-2 z-15">
+      <div class="space-y-3 mt-4">
         <div
           v-for="category in props.modelValue.ingredients"
           :key="category.categoryName"
-          class="flex flex-col gap-2 shadow-md rounded-lg p-4 relative min-h-12"
+          class="flex flex-col gap-2 relative min-h-12"
         >
           <div
             class="flex justify-between items-center mb-3"
@@ -40,7 +35,6 @@
             </button>
           </div>
 
-          <!-- Ingredient inputs -->
           <div class="space-y-2">
             <div
               v-for="(ingredient, index) in category.ingredients"
@@ -49,20 +43,17 @@
             >
               <div class="flex flex-col gap-1">
                 <div class="flex items-center gap-2">
-                  <!-- Edit mode: Input field -->
                   <input
                     v-if="ingredient.isEditing"
                     :ref="(el) => setInputRef(el, category.categoryName, index)"
                     v-model="ingredient.rawText"
                     @input="handleInput(category, index)"
                     @blur="handleBlur(category, index)"
-                    @keydown.space="handleSpace(category, index, $event)"
                     @keydown.enter="handleEnter(category, index)"
                     class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g. 100g flour or 2 tbsp olive oil"
                   />
 
-                  <!-- View mode: Styled preview -->
                   <div
                     v-else
                     @click="startEditing(category, index)"
@@ -226,10 +217,16 @@ function setInputRef(el, categoryName, index) {
   }
 }
 
-function handleInput(category, index) {
+async function handleInput(category, index) {
   const ingredient = category.ingredients[index];
 
-  // Clear parsed result when editing
+  // Check if text ends with space for live preview (mobile-friendly)
+  if (ingredient.rawText.endsWith(' ') && ingredient.rawText.trim()) {
+    await parseIngredient(category, index);
+    // Keep in edit mode for live preview
+  }
+
+  // Clear parsed result when editing (but not when we just parsed above)
   if (!ingredient.rawText.trim()) {
     ingredient.parsed = [];
     ingredient.amount = null;
@@ -239,15 +236,6 @@ function handleInput(category, index) {
 
   // Ensure exactly one empty ingredient exists
   ensureOneEmptyIngredient(category);
-}
-
-async function handleSpace(category, index, event) {
-  // Parse for live preview but stay in edit mode
-  const ingredient = category.ingredients[index];
-  if (ingredient.rawText.trim()) {
-    await parseIngredient(category, index);
-    // Keep in edit mode for live preview
-  }
 }
 
 async function handleBlur(category, index) {

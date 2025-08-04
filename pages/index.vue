@@ -1,104 +1,69 @@
 <template>
-  <div>
-    <!-- Hero Section -->
-    <div class="">
-      <div
-        class="flex justify-between metallic-gradient hover-shine p-8 lg:py-10 lg:px-20 mx-2 sm:mx-10 mt-8 rounded-lg shadow-[0_0_7px_0_rgba(0,0,0,0.12)] min-h-60 md:min-h-100 overflow-hidden"
+  <div class="w-[clamp(70vw,1550px,100%)] mx-auto mt-6 space-y-8 sm:space-y-10 px-4">
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined !text-2xl">{{
+          greeting.icon
+        }}</span>
+        <span class="text-base sm:text-lg font-light">{{ greeting.base }}</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-bold">
+        What would you like to cook today?
+      </h1>
+    </div>
+
+    <div
+      class="flex items-center gap-2 rounded-md p-2 shadow-sm max-w-lg focus-within:shadow-md transition-all duration-100"
+    >
+      <span class="material-symbols-outlined text-gray-400 !text-lg"
+        >search</span
       >
-        <div class="flex-col flex sm:w-[60%] justify-between gap-10 z-10">
-          <div class="space-y-2">
-            <h1
-              class="text-3xl xs:text-4xl font-extrabold md:text-5xl lg:text-6xl tracking-tight md:tracking-wide"
-            >
-              Your Personal Recipe Collection
-            </h1>
-            <p class="sm:block hidden mt-1 text-base md:text-xl text-gray-500">
-              Save, organize, and discover recipes. Build your digital cookbook
-              and connect with food lovers around the world.
-            </p>
-          </div>
-          <NuxtLink
-            to="/register"
-            class="button !bg-primary text-white font-bold px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap self-start"
+      <input
+        type="text"
+        placeholder="Search for a recipe"
+        class="flex-1 focus:outline-none"
+      />
+    </div>
+
+    <!-- Categories -->
+    <div>
+      <div class="py-1">
+        <Carousel>
+          <div
+            v-for="category in categories"
+            :key="category.tag"
+            class="flex flex-col sm:flex-row items-center gap-2 sm:shadow-sm rounded-lg p-2 hover:shadow-md transition-all duration-300 flex-shrink-0"
           >
-            Start Your Cookbook
-          </NuxtLink>
-        </div>
-        <div class="absolute -top-[10%] right-0 h-full z-0">
-          <NuxtImg
-            src="/feast.png"
-            alt="Delicious feast plate"
-            class="mask-fade-bottom h-[120%] object-cover"
-          />
-        </div>
+            <span class="text-3xl sm:text-2xl">{{ category.icon }}</span>
+            <span class="text-sm sm:text-lg text-nowrap">{{
+              category.name
+            }}</span>
+          </div>
+        </Carousel>
       </div>
-      <!-- How It Works Section -->
-      <div class="hidden md:block max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20">
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div class="flex flex-col items-center">
-            <div
-              class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
-            >
-              <span class="text-4xl material-icons text-black">add</span>
-            </div>
-            <h3 class="text-xl font-medium text-gray-900">Save Recipes</h3>
-            <p class="mt-1 text-gray-500 text-center">
-              Add your own recipes or save ones you discover from the community
-            </p>
-          </div>
-          <div class="flex flex-col items-center">
-            <div
-              class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
-            >
-              <span class="text-3xl material-icons text-black">sell</span>
-            </div>
-            <h3 class="text-xl font-medium">Organize & Tag</h3>
-            <p class="mt-1 text-base text-gray-500 text-center">
-              Categorize recipes with tags for easy filtering and searching
-            </p>
-          </div>
-          <div class="flex flex-col items-center">
-            <div
-              class="flex items-center justify-center h-16 w-16 rounded-full border-2 mb-2 select-none"
-            >
-              <span class="text-3xl material-icons text-black">analytics</span>
-            </div>
-            <h3 class="text-xl font-medium">Track Ingredients</h3>
-            <p class="mt-1 text-base text-gray-500 text-center">
-              Manage ingredients with nutritional information and scan labels
-            </p>
-          </div>
-        </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div>
+      <div class="mt-4 flex justify-between items-center">
+        <h2 class="text-xl sm:text-2xl font-bold">Recommendations</h2>
+        <NuxtLink to="/recipes" class="text-sm text-gray-500">See all</NuxtLink>
       </div>
-      <!-- Discover Recipes Section -->
-      <div class="px-10 lg:px-25 mt-20 mx-auto">
-        <div class="flex flex-wrap gap-8 justify-center">
+      <div class="mt-4">
+        <Carousel class="">
           <RecipeCard
             v-for="recipe in recipeStore.indexRecipes"
-            v-if="recipeStore.indexRecipes.length"
+            :key="recipe.id"
             :recipe="recipe"
-            class="flex-1 max-w-100 min-w-70 basis-70 text-[28px] h-110 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80"
+            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
           />
-          <Skeleton
-            v-else
-            class="flex-1 max-w-100 min-w-50 basis-50 text-[28px] min-h-120 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80 rounded-xl"
-            v-for="i in 12"
-          />
-        </div>
-      </div>
-      <div class="w-full flex justify-center my-10">
-        <NuxtLink
-          to="/recipes"
-          class="button !bg-primary text-white px-3 sm:px-8 py-3 sm:text-xl whitespace-nowrap shadow-lg font-bold"
-        >
-          Explore more Recipes
-        </NuxtLink>
+        </Carousel>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 const recipeStore = useRecipeStore();
 
 if (!recipeStore.indexRecipes.length) {
@@ -106,7 +71,8 @@ if (!recipeStore.indexRecipes.length) {
     () => ({
       eq: { visibility: 'PUBLIC' },
       not: { picture: null },
-      limit: 6,
+      orderBy: { column: 'title', ascending: true },
+      limit: 14,
     }),
     'index'
   );
@@ -115,14 +81,74 @@ if (!recipeStore.indexRecipes.length) {
   });
 }
 
-//onMounted(async () => {
-//  const sample = await useSupabaseClient()
-//    .from('foods')
-//    .select('name,id,hidx,kcal')
-//    .order('name', { ascending: true })
-//    .limit(20);
-//  console.log(sample);
-//});
+const auth = useAuthStore();
+const greeting = computed(() => {
+  let base;
+  let icon;
+  const hour = new Date().getHours();
+  if (hour < 12 && hour > 5) {
+    base = 'Good morning';
+    icon = 'sunny';
+  } else if (hour < 18 && hour > 12) {
+    base = 'Good afternoon';
+    icon = 'sunny';
+  } else {
+    base = 'Good evening';
+    icon = 'local_bar';
+  }
+  if (auth.user) {
+    base = `${base}, ${(auth.user as any).username}`;
+  }
+  return { base, icon };
+});
+
+const categories = ref([
+  {
+    name: 'Breakfast',
+    icon: '🥐',
+    tag: 201,
+  },
+  {
+    name: 'Lunch',
+    icon: '🍔',
+    tag: 205,
+  },
+  {
+    name: 'Dinner',
+    icon: '🍝',
+    tag: 200,
+  },
+  {
+    name: 'Snacks',
+    icon: '🍟',
+    tag: 203,
+  },
+  {
+    name: 'Dessert',
+    icon: '🍰',
+    tag: 204,
+  },
+  {
+    name: 'Quick and Easy',
+    icon: '⚡',
+    tag: 3,
+  },
+  {
+    name: 'Healthy',
+    icon: '🏵️',
+    tag: 100,
+  },
+  {
+    name: 'Budget',
+    icon: '💰',
+    tag: 4,
+  },
+  {
+    name: 'Meal Prep',
+    icon: '🍱',
+    tag: 5,
+  },
+]);
 </script>
 
-<style></style>
+<style scoped></style>

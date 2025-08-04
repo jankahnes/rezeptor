@@ -24,7 +24,7 @@
           }"
           class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
         >
-          <Badge class="h-6 w-6" />
+          <span class="material-symbols-outlined"> health_and_safety </span>
           <span class="hidden lg:block">Health Score</span>
         </button>
         <button
@@ -120,20 +120,16 @@
       </button>
     </div>
   </div>
-  <div class="my-6 mx-4 sm:mx-6 z-2">
+  <div class="my-6 mx-2 sm:mx-6 z-2">
     <div
-      class="flex flex-wrap gap-6 md:justify-start justify-center"
+      class="flex flex-wrap gap-4 sm:gap-6 md:justify-start justify-center"
       v-if="!pending"
     >
-      <RecipeCard
-        :recipe="recipe"
-        class="flex-1 max-w-100 min-w-80 basis-80 text-[28px] h-120 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80"
-        v-for="recipe in results"
-      />
+      <RecipeCard :recipe="recipe" class="flex-1 max-w-45 min-w-38 basis-38 text-[16px] h-70 sm:max-w-90 sm:min-w-80 sm:h-120 sm:text-[34px] sm:basis-80" v-for="recipe in results" />
     </div>
     <div class="flex flex-wrap gap-6 md:justify-start justify-center" v-else>
       <Skeleton
-        class="flex-1 max-w-100 min-w-80 basis-80 text-[26px] h-120 sm:max-w-90 sm:min-w-80 sm:h-130 sm:text-[34px] sm:basis-80 rounded-xl"
+        class="flex-1 max-w-100 min-w-80 basis-80 text-[26px] h-120 sm:max-w-90 sm:min-w-80 sm:h-120 sm:text-[34px] sm:basis-80 rounded-xl"
         v-for="i in 10"
         :key="i"
       />
@@ -142,12 +138,9 @@
 </template>
 
 <script setup lang="ts">
-import Difficulty from '@/assets/icons/difficulty.svg';
-import Effort from '@/assets/icons/effort.svg';
-import Badge from '@/assets/icons/badge.svg';
-
 const visibleTags = ref<string[]>([]);
 const filteringTags = ref<number[]>([]);
+
 const difficulties = ['Easy', 'Medium', 'Hard'];
 const effortLevels = ['Light', 'Moderate', 'Heavy'];
 const selectedFilter = ref('');

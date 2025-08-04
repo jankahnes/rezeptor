@@ -85,7 +85,7 @@ export function getTagDescriptor(tag_id: number, recipe: RecipeProcessed) {
   if (tag.name === 'budget') {
     return {
       descriptor: `${formatMoney(recipe.price ?? 0)} per serving`,
-      background: 'golden-gradient',
+      background: 'golden-gradient-muted',
     };
   }
   else if (tag.name === 'few ingredients') {
@@ -97,7 +97,7 @@ export function getTagDescriptor(tag_id: number, recipe: RecipeProcessed) {
   else if (tag.name === 'high protein') {
     return {
       descriptor: `${recipe.protein.toFixed(0)}g protein per serving`,
-      background: 'golden-gradient',
+      background: 'golden-gradient-muted',
     };
   }
   else if (tag.name === 'low carb') {
@@ -115,13 +115,13 @@ export function getTagDescriptor(tag_id: number, recipe: RecipeProcessed) {
   else if (tag.name === 'high fiber') {
     return {
       descriptor: `${recipe.fiber.toFixed(0)}g fiber per serving`,
-      background: 'golden-gradient',
+      background: 'golden-gradient-muted',
     };
   }
   else if (tag.name === 'low calorie') {
     return {
       descriptor: `${recipe.kcal.toFixed(0)}kcal per serving`,
-      background: 'golden-gradient',
+      background: 'golden-gradient-muted',
     }
 }
 return {

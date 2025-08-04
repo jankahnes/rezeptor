@@ -4,6 +4,25 @@ import svgLoader from 'vite-svg-loader';
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   css: ['~/assets/css/main.css'],
+  app: {
+    head: {
+      link: [
+        {
+          rel: 'preconnect',
+          href: 'https://fonts.googleapis.com'
+        },
+        {
+          rel: 'preconnect',
+          href: 'https://fonts.gstatic.com',
+          crossorigin: ''
+        },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap'
+        }
+      ]
+    }
+  },
   vite: {
     plugins: [tailwindcss(), svgLoader()],
   },
@@ -15,6 +34,7 @@ export default defineNuxtConfig({
   },
   imports: {
     dirs: [
+      'animations',
       'types',
       'utils/db',
       'utils/gpt',
@@ -30,6 +50,16 @@ export default defineNuxtConfig({
       'utils/format/toHumanReadable',
     ],
   },
+  components: [
+    {
+      path: '~/components',
+      pathPrefix: true,
+    },
+    {
+      path: '~/animations',
+      pathPrefix: false,
+    },
+  ],
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/supabase',

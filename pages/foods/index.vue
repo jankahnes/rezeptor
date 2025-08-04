@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto space-y-4 max-w-screen-md m-4 px-2">
+  <div class="mx-auto space-y-4 max-w-screen-md m-4 px-4">
     <h1 class="text-2xl font-bold">Foods Database</h1>
     <div class="flex gap-2 w-full">
       <input

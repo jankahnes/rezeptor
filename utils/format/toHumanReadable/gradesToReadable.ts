@@ -1,6 +1,7 @@
 type ReadableGradeItem = {
     value: number;
     description: string;
+    bgColor: string;
     color: string;
     icon: string
     subtitle: string | null
@@ -94,7 +95,7 @@ const scoreDescriptors= {
         display_if: "bigger"
     },
     sugar_score: {
-        appendName: "Added Sugars",
+        appendName: "Sugar",
         descriptor: negativeAmountDescriptors,
         contributor_col: "sugar",
         display_subtitle_thresh: 38,
@@ -142,6 +143,7 @@ export default function gradesToReadable(report, recipe: RecipeProcessed) {
         readable.push({
             value: descriptor.value,
             description,
+            bgColor: descriptor.bgColor,
             color: descriptor.color,
             icon: descriptor.icon,
             subtitle: (display_subtitle && subtitle) ? subtitle : null,

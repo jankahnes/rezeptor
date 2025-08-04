@@ -2,85 +2,57 @@
   <NuxtLink
     v-if="recipe.id"
     :to="'/recipe/' + recipe?.id"
-    class="shadow rounded-lg flex flex-col hover-shine p-4 pb-6 relative"
-    :class="
-      recipe.title == 'Salmon Pasta'
-        ? 'golden-gradient golden-overlay'
-        : 'metallic-gradient'
-    "
+    class="flex flex-col gap-1 hover:translate-y-[-2px] transition-all duration-300 "
   >
-    <h2 class="font-bold mb-4">
-      {{ recipe?.title }}
-    </h2>
-    <div class="flex-grow rounded-lg overflow-hidden relative">
-      <NuxtImg
-        :src="recipe?.picture || ''"
-        class="w-full h-full object-cover"
-      />
-      <div
-        v-if="!hideTags"
-        class="absolute top-[2%] left-[2%] right-[2%] flex gap-2"
-      >
-        <div
-          class="tag flex items-center gap-1 golden-gradient"
-          v-if="recipe?.title?.startsWith('K')"
-        >
-          <span class="material-symbols-outlined"> local_fire_department </span>
-          <span class="text-sm">Trending</span>
-        </div>
+    <div
+      class="w-full h-[75%] bg-cover bg-center shadow-md rounded-xl flex flex-col justify-end p-1 sm:p-2"
+      :style="{ backgroundImage: `url(${recipe?.picture || ''})` }"
+    >
+      <div class="flex justify-between items-end">
+        <GradeContainer
+          :score="recipe?.hidx || 0"
+          v-if="recipe?.hidx && recipe?.hidx > 56"
+          type="hidx"
+          class="text-[0.9em] sm:text-[0.75em] font-bold"
+        />
         <div
           class="tag flex items-center gap-1"
           :class="
             recipe?.rating && recipe?.rating >= 4.5
-              ? 'golden-gradient'
-              : 'platinum-gradient'
+              ? 'golden-gradient-muted'
+              : 'metallic-gradient-simple'
           "
           v-if="recipe?.rating && recipe?.rating >= 4"
         >
           <FormsRatingField
             :model-value="recipe?.rating"
-            :star-width="12"
-            :star-height="12"
+            :star-width="10"
+            :star-height="10"
             :select="false"
             :id="'card-' + recipe?.id"
           />
-          <span class="text-xs">{{ recipe?.rating.toFixed(1) }}</span>
-        </div>
-      </div>
-      <div
-        v-if="!hideTags"
-        :class="
-          recipe?.hidx && recipe?.hidx > 56
-            ? ' bottom-[2%] left-[16%] w-[calc(100%-1.8em)] '
-            : 'bottom-[2%] left-[2%]'
-        "
-        class="flex gap-2 absolute flex-wrap justify-end"
-      >
-        <div
-          class="tag flex items-center justify-center text-[0.3em] text-nowrap"
-          :class="tag?.background"
-          v-for="(tag, index) in top3Tags"
-        >
-          {{ tag?.descriptor }}
+          <span class="text-[10px]">{{ recipe?.rating.toFixed(1) }}</span>
         </div>
       </div>
     </div>
-    <div
-      v-if="!hideTags && recipe?.hidx && recipe?.hidx > 56"
-      class="absolute bottom-[2%] left-[2%] right-[2%] flex gap-2"
-    >
-      <GradeContainer
-        :score="recipe?.hidx || 0"
-        type="hidx"
-        class="text-[0.8em] rounded-xl font-bold"
-      />
+    <h2 class="font-bold leading-tight mt-1 text-xl">{{ recipe?.title }}</h2>
+    <div class="flex gap-1 flex-wrap mt-1">
+      <div
+        class="tag flex items-center justify-center text-[0.4em] text-nowrap text-gray-800"
+        :class="tag?.background"
+        v-for="(tag, index) in top3Tags"
+        :key="index"
+      >
+        {{ tag?.descriptor }}
+      </div>
     </div>
   </NuxtLink>
-  <Skeleton v-else class="rounded-3xl" />
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ recipe: RecipeProcessed; hideTags?: boolean }>();
+const props = defineProps<{
+  recipe: RecipeProcessed;
+}>();
 
 const getTop3Tags = (recipe: RecipeProcessed) => {
   const tags = recipe.tags.map((tag) => getTagByID(tag.tag_id));
@@ -91,10 +63,13 @@ const getTop3Tags = (recipe: RecipeProcessed) => {
     return null;
   });
   if (recipe.price && recipe.price < 1) {
-    tagsWithDescriptors.push({
-      ...getTagDescriptor(4, recipe),
-      ...getTagByID(4),
-    });
+    const tagById = getTagByID(4);
+    if (tagById) {
+      tagsWithDescriptors.push({
+        ...tagById,
+        ...getTagDescriptor(4, recipe),
+      });
+    }
   }
   tagsWithDescriptors.sort((a, b) => (b?.value ?? 0) - (a?.value ?? 0));
   const cropped = tagsWithDescriptors.slice(0, 3);
