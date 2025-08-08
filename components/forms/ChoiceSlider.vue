@@ -5,7 +5,7 @@
   >
     <!-- highlight bar -->
     <div
-      class="absolute top-0 left-0 rounded-lg bg-tertiary transition-all duration-300 z-0"
+      class="absolute top-0 left-0 rounded-lg bg-primary transition-all duration-300 z-0"
       :style="backgroundStyle"
     ></div>
 
@@ -13,18 +13,20 @@
       v-for="(choice, idx) in choices"
       :key="idx"
       ref="btnRefs"
-      class="relative z-10 flex-1 flex items-center justify-center text-lg transition-colors duration-300"
-      :class="[buttonStyle]"
+      class="relative z-10 flex-1 flex items-center justify-center text-lg transition-colors duration-300 py-1 font-bold"
+      :class="{
+        buttonStyle: true,
+        'text-white': choice[0] === modelValue,
+        'text-primary': choice[0] !== modelValue,
+      }"
       @click="updateValue(choice[0])"
     >
-      <span
-        class="material-symbols-outlined mx-[2px]"
-        :class="{ hidden: hideIcon }"
-        >{{ choice[1] }}</span
-      >
-      <span class="mx-[2px]" :class="{ hidden: hideLabel }">{{
-        choice[0]
-      }}</span>
+      <span v-if="!hideIcon" class="material-symbols-outlined mx-[2px]">
+        {{ choice[1] }}
+      </span>
+      <span v-if="!hideLabel" class="mx-[2px]">
+        {{ choice[0] }}
+      </span>
     </button>
   </div>
 </template>
@@ -81,7 +83,7 @@ const backgroundStyle = computed(() => {
       width: '100%',
       top: segmentOffsets.value[currentIndex.value] + 'px',
       height: segmentSizes.value[currentIndex.value] + 'px',
-      opacity: 0.5,
+      opacity: 1,
     };
   } else {
     return {
@@ -89,7 +91,7 @@ const backgroundStyle = computed(() => {
       height: '100%',
       left: segmentOffsets.value[currentIndex.value] + 'px',
       width: segmentSizes.value[currentIndex.value] + 'px',
-      opacity: 0.5,
+      opacity: 1,
     };
   }
 });

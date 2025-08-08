@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-6 w-full max-w-110 shadow-md rounded-md relative h-max text-[14px] mx-auto"
+    class="py-4 w-full max-w-110 rounded-md relative h-max text-[14px] mx-auto"
   >
     <div class="flex gap-4 w-full">
       <NuxtLink
@@ -18,15 +18,15 @@
         </div>
         <FormsRatingField
           v-if="comment.rating"
-          class="opacity-70"
+          class="-mt-[6px]"
           v-model="comment.rating"
           :select="false"
           :starWidth="14"
           :starHeight="14"
-          :id="comment.id"
+          :id="comment.id + id"
         />
         <div
-          class="mt-1 overflow-hidden break-words"
+          class="mt-2 overflow-hidden break-words"
           v-if="!isEditing(comment.id)"
         >
           {{ comment.content }}
@@ -211,6 +211,7 @@
 <script setup>
 const props = defineProps({
   comment: Object,
+  id: Number,
 });
 const auth = useAuthStore();
 const recipe = useRecipeStore();

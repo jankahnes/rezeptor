@@ -1,6 +1,6 @@
 <template>
-  <div class="flex justify-center">
-    <div class="max-w-screen-lg mx-auto p-4 space-y-4">
+  <div class="flex justify-center max-w-[850px] mx-auto">
+    <div class="p-6 pt-14 space-y-4 w-full">
       <div
         @click="triggerFileInput"
         class="relative cursor-pointer w-75 max-w-1/2 aspect-square rounded-xl overflow-hidden flex items-center justify-center bg-gray-100 group"
@@ -43,13 +43,15 @@
         placeholder="Description"
         class="w-full bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1 text-sm"
       ></textarea>
-      <div class="flex gap-10 mt-6 mx-auto flex-wrap">
+      <div class="flex gap-10 mt-6 flex-wrap w-full">
         <PagesRecipeIngredientListEditable
           v-model="recipe.ingredients_editable"
+          class="flex-1"
         ></PagesRecipeIngredientListEditable>
 
         <PagesRecipeInstructionContainerEditable
           v-model="recipe.instructions"
+          class="flex-1"
         ></PagesRecipeInstructionContainerEditable>
 
         <NutritionLabel

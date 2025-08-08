@@ -7,6 +7,8 @@
   -ms-user-select: none !important;
 }
 
+/* deep blue primary #1c2536
+/* velvet red primary #360817 */
 @theme {
   --breakpoint-4xl: 2200px;
   --breakpoint-3xl: 1921px;
@@ -15,7 +17,7 @@
   --breakpoint-2xs: 400px;
   --font-main: 'Libertinus Sans', sans-serif;
   --color-main: #ffffff;
-  --color-primary: #921a40;
+  --color-primary: #1c2536;
   --color-primary-20: #fdf8f9;
   --color-primary-50: #fdf2f5;
   --color-primary-100: #fbe8ee;

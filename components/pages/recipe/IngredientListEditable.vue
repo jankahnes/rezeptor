@@ -1,15 +1,15 @@
 <template>
-  <div class="h-full flex flex-col min-w-92">
-    <div class="pb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 ml-1">INGREDIENTS</h2>
-      <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
-      <FormsSlidingSelector
-        v-model="modelValue.servingSize"
-        :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
-        :expanded="false"
-        class="max-w-[150px]"
-      />
+  <div class="h-full flex flex-col flex-[0_1_24rem] items-start">
+    <div class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex">
+      <h2 class="text-lg font-bold">INGREDIENTS</h2>
     </div>
+    <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
+    <FormsSlidingSelector
+      v-model="modelValue.servingSize"
+      :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+      :expanded="false"
+      class="max-w-[150px]"
+    />
 
     <!-- Ingredients List -->
     <div class="flex flex-col rounded-lg px-2 z-15">
@@ -129,7 +129,7 @@
             @click="
               modelValue.ingredients.push({
                 categoryName: newCategoryName,
-                ingredients: [],
+                ingredients: [createEmptyIngredient()],
                 searchQuery: '',
                 searchResults: [],
               });

@@ -31,7 +31,7 @@
         <GradeContainer
           :score="food.hidx ?? 0"
           :type="'hidx'"
-          class="text-lg !h-14 rounded-r-lg"
+          class="text-xl !h-14 !w-12 rounded-r-lg"
         />
       </div>
     </div>

@@ -1,60 +1,14 @@
 <template>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-  <link
-    rel="preload"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    as="style"
-    onload="this.onload=null;this.rel='stylesheet'"
-  />
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-    media="print"
-    onload="this.media='all'"
-  />
-
-  <link
-    href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
-    rel="stylesheet"
-    media="print"
-    onload="this.media='all'"
-  />
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-    rel="stylesheet"
-    media="print"
-    onload="this.media='all'"
-  />
-
-  <noscript>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
-      rel="stylesheet"
-    />
-  </noscript>
-
   <div class="bg-main font-main" v-if="$route.path !== '/onboarding'">
-    <NavbarsTop />
+    <NavbarsTop class="hidden xm:block" />
     <div
-      class="pt-18 xm:pt-22 pb-18 xm:pb-0 w-[clamp(70vw,1550px,100%)] mx-auto min-h-[calc(100svh_-_144px)] xm:min-h-[calc(100svh_-_88px)]"
+      class="xm:pt-22 pb-18 xm:pb-0 w-[clamp(70vw,1550px,100%)] mx-auto min-h-screen xm:min-h-[calc(100svh_-_88px)]"
     >
       <GlobalLoadingIndicator />
       <NuxtPage />
     </div>
     <NavbarsBottom class="block xm:hidden" />
-    <footer class="w-full h-10 bg-transparent mb-44 lg:mb-0">
+    <footer class="w-full bg-transparent mb-22 lg:mb-8 mt-4">
       <div
         class="w-full h-full flex flex-col sm:flex-row items-center justify-between px-10 gap-10 text-center sm:text-left"
       >
@@ -95,4 +49,19 @@ onBeforeMount(() => {
 });
 </script>
 
-<style></style>
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.25s ease-in-out;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(0.3rem) scale(0.995);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-0.3rem) scale(1.005);
+}
+</style>

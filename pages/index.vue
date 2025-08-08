@@ -1,7 +1,10 @@
 <template>
-  <div class="w-[clamp(70vw,1550px,100%)] mx-auto mt-6 space-y-8 sm:space-y-10 px-4">
-    <div class="flex flex-col">
-      <div class="flex items-center gap-2">
+  <div
+    class="w-[clamp(70vw,1550px,100%)] mx-auto mt-6 space-y-8 sm:space-y-10 px-4"
+  >
+    <div class="flex flex-col items-start">
+      <Logo class="xm:hidden" />
+      <div class="flex items-center gap-2 mt-10">
         <span class="material-symbols-outlined !text-2xl">{{
           greeting.icon
         }}</span>
@@ -34,10 +37,11 @@
             :key="category.tag"
             class="flex flex-col sm:flex-row items-center gap-2 sm:shadow-sm rounded-lg p-2 hover:shadow-md transition-all duration-300 flex-shrink-0"
           >
-            <span class="text-3xl sm:text-2xl">{{ category.icon }}</span>
-            <span class="text-sm sm:text-lg text-nowrap">{{
-              category.name
-            }}</span>
+            <span class="text-2xl">{{ category.icon }}</span>
+            <span
+              class="font-bold text-sm tracking-normal sm:text-base sm:font-normal sm:tracking-wider text-nowrap"
+              >{{ category.name }}</span
+            >
           </div>
         </Carousel>
       </div>
