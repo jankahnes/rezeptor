@@ -20,7 +20,7 @@
       <!-- Hero Card -->
       <div class="w-full p-6 card overview">
         <div
-          class="flex flex-col lg:flex-row gap-8 items-start lg:items-center"
+          class="flex flex-col lg:flex-row gap-8 items-start"
         >
           <div class="flex-1">
             <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-2">
@@ -48,8 +48,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col items-center gap-4">
-            <h2 class="text-xl font-bold text-gray-700 mb-2">Health Score</h2>
+          <div class="flex flex-col items-end gap-4">
             <GradeContainer
               :score="report.overall.hidx"
               :type="'hidx'"

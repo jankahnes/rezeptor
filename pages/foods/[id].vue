@@ -4,14 +4,18 @@
       <div class="space-y-5">
         <button
           @click="router.back()"
-          class="button flex items-center justify-center p-2 text-2xl font-bold"
+          class="button flex items-center justify-center p-2 text-2xl font-bold ml-6 !bg-primary/10"
         >
           <span class="material-symbols-outlined"> arrow_back </span>
         </button>
-        <h1 class="text-4xl font-bold">{{ food?.name }}</h1>
-        <div class="flex justify-center gap-6 flex-col md:flex-row">
-          <NutritionLabel :recipe="food" />
-        <HealthFacts :recipe="food" noReport />
+        <div
+          class="mx-2 px-3 py-2 ml-6 bg-primary text-white rounded-lg inline-flex"
+        >
+          <h1 class="text-4xl font-bold">{{ food?.name }}</h1>
+        </div>
+        <div class="flex justify-center gap-y-10 flex-col md:flex-row">
+          <NutritionLabel :recipe="food" class="flex-1" />
+          <HealthFacts :recipe="food" noReport class="flex-1" />
         </div>
 
         <p
@@ -149,7 +153,9 @@
                 </h3>
                 <div class="flex justify-between">
                   <span>Vitamin A</span>
-                  <span>{{ food.vitamin_a_ug_rae?.toFixed(1) ?? '0' }} µg RAE</span>
+                  <span
+                    >{{ food.vitamin_a_ug_rae?.toFixed(1) ?? '0' }} µg RAE</span
+                  >
                 </div>
                 <div class="flex justify-between">
                   <span>Vitamin C</span>
@@ -159,15 +165,14 @@
                   <span>Vitamin D</span>
                   <span>{{ food.vitamin_d_ug?.toFixed(1) ?? '0' }} µg</span>
                 </div>
-                <div
-                  class="flex justify-between"
-                >
+                <div class="flex justify-between">
                   <span>Vitamin E</span>
                   <span
-                    >{{ food.vitamin_e_mg_alpha_te?.toFixed(1) ?? '0' }} mg α-TE</span
+                    >{{ food.vitamin_e_mg_alpha_te?.toFixed(1) ?? '0' }} mg
+                    α-TE</span
                   >
                 </div>
-                  <div class="flex justify-between">
+                <div class="flex justify-between">
                   <span>Vitamin K</span>
                   <span>{{ food.vitamin_k_ug?.toFixed(1) ?? '0' }} µg</span>
                 </div>
@@ -189,7 +194,9 @@
                 </div>
                 <div class="flex justify-between">
                   <span>Folate</span>
-                  <span>{{ food.folate_ug_dfe?.toFixed(1) ?? '0' }} µg DFE</span>
+                  <span
+                    >{{ food.folate_ug_dfe?.toFixed(1) ?? '0' }} µg DFE</span
+                  >
                 </div>
                 <div class="flex justify-between">
                   <span>Vitamin B12</span>
@@ -210,11 +217,11 @@
                   <span>Monounsaturated Fats</span>
                   <span>{{ food.mufas_total_mg?.toFixed(1) ?? '0' }} mg</span>
                 </div>
-                <div
-                  class="flex justify-between"
-                >
+                <div class="flex justify-between">
                   <span>Polyphenols</span>
-                  <span>{{ food.polyphenols_total_mg?.toFixed(1) ?? '0' }} mg</span>
+                  <span
+                    >{{ food.polyphenols_total_mg?.toFixed(1) ?? '0' }} mg</span
+                  >
                 </div>
                 <div class="flex justify-between">
                   <span>Choline</span>
@@ -224,7 +231,7 @@
                   <span>Omega-6</span>
                   <span>{{ food.omega6_total_mg?.toFixed(1) ?? '0' }} mg</span>
                 </div>
-                  <div class="flex justify-between">
+                <div class="flex justify-between">
                   <span>Omega-3</span>
                   <span>{{ food.omega3_total_mg?.toFixed(1) ?? '0' }} mg</span>
                 </div>

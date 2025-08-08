@@ -1,18 +1,22 @@
 <template>
-  <div class="h-full flex flex-col min-w-92 ml-1">
-    <h2 class="text-xl font-bold text-gray-900 mb-4">METHOD</h2>
+  <div class="h-full flex flex-col flex-[0_1_24rem] ml-1 items-start">
+    <div class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex">
+      <h2 class="text-lg font-bold">METHOD</h2>
+    </div>
 
-    <ol class="space-y-1.5">
+    <ol class="space-y-1.5 w-full">
       <li v-for="i in modelValue.length + 1" :key="i">
-        <div class="flex gap-2 items-center">
-          <div class="flex-1 flex flex-col rounded-lg shadow-sm">
+        <div class="flex gap-2 items-center w-full">
+          <div class="flex-1 flex flex-col rounded-lg w-full">
             <div
-              class="relative min-h-20 flex items-center justify-center w-full h-full"
+              class="relative min-h-20 flex items-center justify-start w-full h-full"
             >
               <div
-                class="flex gap-2 rounded-lg p-4 w-full h-full text-xl justify-center"
+                class="flex gap-2 rounded-lg p-4 w-full h-full text-xl justify-start"
               >
-                <span v-if="i <= modelValue.length" class="">{{ i }}.</span>
+                <span v-if="i <= modelValue.length" class="text-xl font-bold"
+                  >{{ i }}.</span
+                >
 
                 <div class="w-full h-full">
                   <textarea

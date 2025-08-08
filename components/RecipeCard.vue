@@ -2,7 +2,7 @@
   <NuxtLink
     v-if="recipe.id"
     :to="'/recipe/' + recipe?.id"
-    class="flex flex-col gap-1 hover:translate-y-[-2px] transition-all duration-300 "
+    class="flex flex-col gap-1 hover:translate-y-[-2px] transition-all duration-300"
   >
     <div
       class="w-full h-[75%] bg-cover bg-center shadow-md rounded-xl flex flex-col justify-end p-1 sm:p-2"
@@ -35,10 +35,12 @@
         </div>
       </div>
     </div>
-    <h2 class="font-bold leading-tight mt-1 text-xl">{{ recipe?.title }}</h2>
+    <h2 class="font-bold leading-tight mt-1 text-2xl tracking-tight">
+      {{ recipe?.title }}
+    </h2>
     <div class="flex gap-1 flex-wrap mt-1">
       <div
-        class="tag flex items-center justify-center text-[0.4em] text-nowrap text-gray-800"
+        class="tag flex items-center justify-center text-[0.4em] text-nowrap"
         :class="tag?.background"
         v-for="(tag, index) in top3Tags"
         :key="index"

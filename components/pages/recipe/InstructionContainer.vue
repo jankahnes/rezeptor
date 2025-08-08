@@ -1,21 +1,23 @@
 <template>
-  <div class="h-full flex flex-col min-w-92">
-    <div class="p-6">
-      <h2 class="text-xl font-bold text-gray-900">METHOD</h2>
+  <div class="h-full flex flex-col min-w-92 items-start">
+    <div class="p-2 md:p-6 !pb-3" v-if="!hideHeader">
+      <div class="px-4 py-1 bg-primary text-white rounded-lg flex">
+        <h2 class="text-lg font-bold">METHOD</h2>
+      </div>
     </div>
     <div
-      class="flex-1 pb-6 px-2"
+      class="flex-1 pb-6 px-2 md:px-6"
       v-if="instructions && instructions.length > 0"
     >
-      <div class="max-w-2xl mx-auto">
+      <div class="max-w-2xl">
         <div
           v-for="(instruction, index) in instructions"
           :key="index"
-          class="flex gap-2 p-5"
+          class="flex gap-2 px-2 md:px-5 py-5"
         >
           <div class="flex-shrink-0">
             <div
-              class="w-8 h-8 rounded-full flex items-center text-lg font-bold"
+              class="w-8 h-8 rounded-full flex items-center text-xl font-bold"
             >
               {{ index + 1 }}
             </div>
@@ -51,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ instructions?: string[] }>();
+defineProps<{ instructions?: string[], hideHeader: Boolean }>();
 </script>
 
 <style scoped></style>

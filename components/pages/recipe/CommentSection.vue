@@ -1,67 +1,87 @@
 <template>
-  <div class="gap-4">
-    <div
-      class="p-6 shadow-md rounded-md relative bg-main flex flex-col items-center justify-center my-4 gap-1"
-    >
-      <span class="text-bold text-2xl">Your Rating:</span
-      ><FormsRatingField
-        class="text-primary"
-        v-model="userRating"
-        @update:model-value="updateRating"
-        :select="true"
-        :star-width="32"
-        :star-height="32"
-        :spacing="-2"
-        :id="950"
-      ></FormsRatingField>
-    </div>
-  </div>
-  <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 w-full">
-    <div
-      v-if="!hasComment && auth.user"
-      class="p-10 max-w-90 w-full shadow-md rounded-md relative bg-main flex items-center justify-center h-max mx-auto"
-    >
-      <span
-        v-if="!editingComment"
-        class="material-symbols-outlined !text-3xl w-full h-full text-center cursor-pointer"
-        @click="onClickNewComment"
-      >
-        add
-      </span>
-      <div class="w-full" v-else>
-        <textarea
-          v-model="newComment"
-          v-auto-resize
-          class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none scrollbar-hide bg-white overflow-hidden h-auto"
-          rows="1"
-        ></textarea>
-        <div class="flex justify-between mt-1">
-          <button
-            class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
-            @click="editingComment = false"
-          >
-            Cancel
-          </button>
-          <button
-            class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30 disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="submitComment"
-            :disabled="!newComment"
-          >
-            Submit
-          </button>
+  <div class="flex flex-col w-full gap-6 mt-4 items-start md:items-center">
+    <div class="flex flex-col items-start p-2 md:p-6">
+      <div class="!pb-3">
+        <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
+          <h2 class="text-lg font-bold">WHAT OTHERS SAY</h2>
         </div>
       </div>
+      <p class="text-gray-600 ml-1 text-sm font-light">
+        {{ recipe.recipe?.comments?.length }}
+        {{ recipe.recipe?.comments?.length === 1 ? 'comment' : 'comments' }}
+      </p>
     </div>
-    <PagesRecipeComment
-      v-for="(comment, index) in recipe.recipe?.comments"
-      :comment="comment"
-      :key="index"
-      :isReply="false"
-    ></PagesRecipeComment>
+    <div class="gap-4 flex flex-col items-start">
+      <div
+        class="relative bg-main flex flex-col items-center justify-center my-4 gap-1"
+      >
+        <span class="text-bold text-2xl">Your Rating:</span
+        ><FormsRatingField
+          class="text-primary"
+          v-model="userRating"
+          @update:model-value="updateRating"
+          :select="true"
+          :star-width="32"
+          :star-height="32"
+          :spacing="-2"
+          :id="950 + id"
+        ></FormsRatingField>
+      </div>
+    </div>
+    <div
+      class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 w-full"
+    >
+      <div
+        v-if="!hasComment && auth.user"
+        class="p-2 max-w-90 w-full relative bg-main flex items-center justify-center h-max mx-auto"
+      >
+        <span
+          v-if="!editingComment"
+          class="material-symbols-outlined !text-3xl w-full h-full text-center cursor-pointer"
+          @click="onClickNewComment"
+        >
+          add
+        </span>
+        <div class="w-full" v-else>
+          <textarea
+            v-model="newComment"
+            v-auto-resize
+            class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none scrollbar-hide bg-white overflow-hidden h-auto"
+            rows="1"
+          ></textarea>
+          <div class="flex justify-between mt-1">
+            <button
+              class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
+              @click="editingComment = false"
+            >
+              Cancel
+            </button>
+            <button
+              class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="submitComment"
+              :disabled="!newComment"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+      <PagesRecipeComment
+        v-for="(comment, index) in recipe.recipe?.comments"
+        :comment="comment"
+        :id="id"
+        :key="index + id"
+        :isReply="false"
+      ></PagesRecipeComment>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const props = defineProps<{
+  id: number;
+}>();
+
 const auth = useAuthStore();
 const editingComment = ref(false);
 const newComment = ref('');

@@ -1,18 +1,25 @@
 <template>
-  <div class="h-full flex flex-col min-w-92">
-    <div class="p-6 pb-4">
-      <h2 class="text-xl font-bold text-gray-900 mb-2 ml-1">INGREDIENTS</h2>
-      <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
-      <FormsSlidingSelector
-        v-model="servingSize"
-        :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
-        :expanded="false"
-        class="max-w-[150px]"
-      />
+  <div class="h-full flex flex-col min-w-92 items-start">
+    <div class="p-2 md:p-6 !pb-2">
+      <div
+        class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex"
+        v-if="!hideHeader"
+      >
+        <h2 class="text-lg font-bold">INGREDIENTS</h2>
+      </div>
+      <p class="text-sm text-gray-600 ml-1 font-light">
+        Servings:
+        <FormsSlidingSelector
+          v-model="servingSize"
+          :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+          :expanded="false"
+          class="max-w-[150px]"
+        />
+      </p>
     </div>
 
-    <div class="flex-1 px-6 pb-6">
-      <div class="max-w-md mx-auto space-y-6">
+    <div class="flex-1 px-2 md:px-6 pb-2">
+      <div class="max-w-md space-y-4">
         <template
           v-for="(group, category) in {
             uncategorized: groupedIngredients.uncategorized,
@@ -20,10 +27,7 @@
           }"
           :key="category"
         >
-          <div
-            v-if="category !== 'uncategorized' && group.length > 0"
-            class="pt-4 first:pt-0"
-          >
+          <div v-if="category !== 'uncategorized' && group.length > 0">
             <h3
               class="text-lg font-semibold text-gray-800 mb-3 border-b border-primary-200 pb-2"
             >
@@ -91,7 +95,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-const props = defineProps({ ingredients: Array<any> });
+const props = defineProps({ ingredients: Array<any>, hideHeader: Boolean });
 const servingSize = ref(2);
 
 function onClickIngredient(ingredient: any) {

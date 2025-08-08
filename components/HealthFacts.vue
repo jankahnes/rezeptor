@@ -1,17 +1,31 @@
 <template>
-  <div class="p-6 bg-white rounded-2xl">
+  <div class="p-2 md:p-6 bg-white rounded-2xl">
     <div class="flex flex-col lg:flex-row gap-8 h-full">
-      <div class="flex-1 items-start flex flex-col justify-between">
-        <h1 class="text-xl font-bold text-gray-800">HEALTH SUMMARY</h1>
-        <button
-          v-if="!props.noReport"
-          @click="onReport"
-          class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary-50 text-xs mt-2"
-        >
-          <span class="material-symbols-outlined !text-sm">open_in_new</span>
-          <span>Full Health Report</span>
-        </button>
-        <div class="flex flex-col gap-3 items-start mt-8">
+      <div class="flex-1 items-start flex flex-col">
+        <div class="flex justify-between items-start w-full flex-wrap gap-4">
+          <div>
+            <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
+              <h2 class="text-lg font-bold">HEALTH SUMMARY</h2>
+            </div>
+            <button
+              v-if="!props.noReport"
+              @click="onReport"
+              class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs mt-3"
+            >
+              <span class="material-symbols-outlined !text-sm"
+                >open_in_new</span
+              >
+              <span>Full Health Report</span>
+            </button>
+          </div>
+          <GradeContainer
+            :score="props.recipe?.hidx ?? 0"
+            :type="'hidx'"
+            class="font-bold text-4xl p-4 rounded-xl shadow-sm"
+          />
+        </div>
+
+        <div class="flex flex-col gap-3 items-start mt-6">
           <div
             v-for="grade of readableGrades"
             :key="grade.description"
@@ -27,13 +41,7 @@
           </div>
         </div>
       </div>
-      <div class="flex flex-col gap-4">
-        <GradeContainer
-          :score="props.recipe?.hidx ?? 0"
-          :type="'hidx'"
-          class="font-bold text-4xl p-4 rounded-xl shadow-sm"
-        />
-      </div>
+      <div class="flex flex-col gap-4"></div>
     </div>
   </div>
 </template>

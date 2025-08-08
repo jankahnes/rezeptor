@@ -4,15 +4,7 @@
       class="w-[clamp(70vw,1550px,100%)] mx-auto flex justify-between items-center px-4 h-18 xm:h-22"
     >
       <!-- Logo -->
-      <NuxtLink to="/">
-        <div class="relative">
-          <div
-            class="flex bg-white border-3 border-black px-3 py-1 sm:text-xl font-bold shadow-[2px_2px_0_0_rgba(0,0,0,1)]"
-          >
-            Rezeptor
-          </div>
-        </div>
-      </NuxtLink>
+      <Logo />
 
       <!-- Primary Links -->
       <div class="xm:flex hidden items-center gap-2">
