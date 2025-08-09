@@ -29,7 +29,7 @@
         >
           <div v-if="category !== 'uncategorized' && group.length > 0">
             <h3
-              class="text-lg font-semibold text-gray-800 mb-3 border-b border-primary-200 pb-2"
+              class="text-lg font-semibold text-gray-800 mb-3 border-b border-primary/20 pb-2"
             >
               {{ category }}
             </h3>

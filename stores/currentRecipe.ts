@@ -1,3 +1,6 @@
+import {amountStyling, unitStyling, ingredientStyling, extraStyling, ignoredStyling} from '~/utils/format/parseIngredientString';
+
+
 export const useRecipeStore = defineStore('recipe', () => {
   const recipe = ref<RecipeProcessed | null>(null);
   const currentRecipeId = ref<number | null>(null);
@@ -51,6 +54,28 @@ export const useRecipeStore = defineStore('recipe', () => {
         mergedIngredient.unit === 'UNITS'
           ? pluralize(matchingFood.unit_name).toLowerCase()
           : mergedIngredient.unit.toLowerCase();
+      
+      const parsed = [
+        {
+          text: mergedIngredient.amount,
+          styling: amountStyling
+        },
+        {
+          text: mergedIngredient.unit,
+          styling: unitStyling
+        },
+        {
+          text: mergedIngredient.name,
+          styling: ingredientStyling
+        },
+        {
+          text: mergedIngredient?.extra ?? '',
+          styling: extraStyling
+        }
+      ];
+      mergedIngredient.parsed = parsed;
+      mergedIngredient.rawText = parsed.map(part => part.text).join(' ');
+
       let foundCategory = recipe.value.ingredients_editable.ingredients.find(
         (category) => category.categoryName == ingredient.category
       );

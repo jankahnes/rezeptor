@@ -8,7 +8,7 @@
         class="w-full md:h-100 object-cover rounded-xl"
       />
       <div
-        class="max-w-screen-lg flex flex-col gap-4 bg-primary text-white p-8 rounded-xl mx-auto -mt-20 relative z-10 shadow-md"
+        class="max-w-screen-lg flex flex-col gap-4 bg-primary text-white p-8 rounded-xl mx-auto -mt-20 relative z-10 shadow-lg shadow-primary/20"
       >
         <div class="flex justify-between items-start gap-4">
           <h1 class="text-4xl font-bold">{{ recipeStore.recipe?.title }}</h1>
@@ -117,8 +117,18 @@
           </div>
         </div>
         <div class="flex flex-wrap gap-6 mt-4">
-          <NuxtLink to="#comments" class="text-sm">Reviews ⌵</NuxtLink>
-          <NuxtLink to="#nutrition" class="text-sm">Nutrition ⌵</NuxtLink>
+          <button
+            @click="scrollIntoView(commentSection as HTMLElement)"
+            class="text-sm"
+          >
+            Reviews ⌵
+          </button>
+          <button
+            @click="scrollIntoView(nutritionSection as HTMLElement)"
+            class="text-sm"
+          >
+            Nutrition ⌵
+          </button>
           <NuxtLink :to="`/recipe/${id}/report`" class="text-sm"
             >Full Health Report →</NuxtLink
           >
@@ -136,7 +146,7 @@
           :hideHeader="false"
         ></PagesRecipeInstructionContainer>
         <NutritionLabel
-          id="nutrition"
+          ref="nutritionSection"
           v-if="recipeStore.recipe"
           :recipe="recipeStore.recipe"
           class="flex-1"
@@ -146,7 +156,10 @@
           :recipe="recipeStore.recipe"
           class="flex-1"
         ></HealthFacts>
-        <PagesRecipeCommentSection :id="0"></PagesRecipeCommentSection>
+        <PagesRecipeCommentSection
+          ref="commentSection"
+          :id="0"
+        ></PagesRecipeCommentSection>
       </div>
     </div>
 
@@ -156,7 +169,7 @@
         :style="{ backgroundImage: `url(${recipeStore.recipe?.picture})` }"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-b from-main via-transparent to-transparent opacity-80 z-0 h-50"
+          class="absolute inset-0 bg-gradient-to-b from-main via-transparent to-transparent opacity-35 z-0 h-70"
         ></div>
         <div class="flex justify-between items-center z-10">
           <button
@@ -186,31 +199,26 @@
       </div>
 
       <div
-        ref="draggableSection"
-        class="bg-white rounded-t-4xl z-10 relative"
-        :style="{ marginTop: `${dragOffset}px` }"
-        @touchstart="handleContentTouchStart"
-        @touchmove="handleTouchMove"
-        @touchend="handleTouchEnd"
-        @mousedown="handleContentMouseDown"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseUp"
+        ref="mobileOverlay"
+        class="bg-white rounded-t-4xl z-10 relative transition-all duration-300 ease-out"
+        :style="{ marginTop: `${overlayMarginTop}px` }"
+        @touchstart="onTouchStart"
+        @touchmove="onTouchMove"
+        @touchend="onTouchEnd"
       >
         <div
-          class="w-full h-14 flex items-center justify-center"
-          ref="dragHandle"
-          @touchstart.stop="handleHandleTouchStart"
-          @mousedown.stop="handleHandleMouseDown"
+          class="w-full h-14 flex items-center justify-center cursor-pointer"
         >
-          <div
-            class="h-[6px] mx-auto bg-gray-300 rounded-lg w-16 cursor-grab active:cursor-grabbing"
-          ></div>
+          <div class="h-[6px] mx-auto bg-gray-300 rounded-lg w-16"></div>
         </div>
         <div class="flex flex-col gap-1 px-6">
-          <h1 class="text-3xl font-extrabold">
-            {{ recipeStore.recipe?.title }}
-          </h1>
+          <div
+            class="px-2 py-1 mt-4 border-3 border-primary rounded-lg self-start"
+          >
+            <h1 class="text-3xl font-extrabold">
+              {{ recipeStore.recipe?.title }}
+            </h1>
+          </div>
           <div class="mt-4">
             <div class="flex items-center gap-2">
               <FormsRatingField
@@ -258,7 +266,7 @@
               {{ recipeStore.recipe.description.slice(0, mobileCharLimit) }}...
               <button
                 @click="showFullDescriptionMobile = true"
-                class="text-primary-600 hover:text-primary-500 underline ml-1"
+                class="text-primary/60 hover:text-primary/80 underline ml-1"
               >
                 View More
               </button>
@@ -273,7 +281,7 @@
               {{ recipeStore.recipe.description }}
               <button
                 @click="showFullDescriptionMobile = false"
-                class="text-primary-600 hover:text-primary-500 underline ml-1"
+                class="text-primary/60 hover:text-primary/80 underline ml-1"
               >
                 View Less
               </button>
@@ -298,7 +306,7 @@
               v-model="mobileChosen"
               :choices="mobileChoices"
               :hideIcon="true"
-              @click.capture="scrollSliderIntoView(scrollTarget as HTMLElement)"
+              @click.capture="scrollIntoView(scrollTarget as HTMLElement)"
             />
           </div>
           <div>
@@ -339,160 +347,91 @@
 const route = useRoute();
 const router = useRouter();
 const recipeStore = useRecipeStore();
+
 const id = Number(route.params.id);
 const mobileChosen = ref('INGREDIENTS');
 const mobileChoices = ref<[string, string][]>([
   ['INGREDIENTS', ''],
   ['METHOD', ''],
 ]);
+
 const scrollTarget = ref<HTMLElement>();
+const commentSection = ref<HTMLElement>();
+const nutritionSection = ref<HTMLElement>();
+const mobileOverlay = ref<HTMLElement>();
+
 const showFullDescriptionDesktop = ref(false);
 const showFullDescriptionMobile = ref(false);
 const desktopCharLimit = 400;
 const mobileCharLimit = 200;
 
-const draggableSection = ref<HTMLElement>();
-const dragHandle = ref<HTMLElement>();
-const dragOffset = ref(-20);
+// Touch overlay behavior
+const overlayMarginTop = ref(-32); // -8 * 4 = -32px (Tailwind -mt-8)
 const isDragging = ref(false);
-const isHandleDrag = ref(false);
 const startY = ref(0);
-const startOffset = ref(0);
+const startMarginTop = ref(-32);
+const minMarginTop = -300;
+const maxMarginTop = -32;
 
-const handleContentTouchStart = (e: TouchEvent) => {
-  // Only start dragging if we're at the top of scrollable content AND at maxOffset
-  const target = e.target as HTMLElement;
-  const scrollableParent = findScrollableParent(target);
-
-  // If there's scrollable content that can still scroll up, don't drag
-  if (scrollableParent && scrollableParent.scrollTop > 0) {
-    return;
-  }
-
-  // Only allow dragging up when we're at maxOffset (fully dragged down)
-  if (dragOffset.value >= -20) {
-    startDrag(e.touches[0].clientY);
-  }
-};
-
-const handleContentMouseDown = (e: MouseEvent) => {
-  // Only start dragging if we're at the top of scrollable content AND at maxOffset
-  const target = e.target as HTMLElement;
-  const scrollableParent = findScrollableParent(target);
-
-  // If there's scrollable content that can still scroll up, don't drag
-  if (scrollableParent && scrollableParent.scrollTop > 0) {
-    return;
-  }
-
-  // Only allow dragging up when we're at maxOffset (fully dragged down)
-  if (dragOffset.value >= -20) {
-    startDrag(e.clientY);
-  }
-};
-
-const findScrollableParent = (element: HTMLElement): HTMLElement | null => {
-  let parent = element.parentElement;
-
-  while (parent) {
-    const overflow = window.getComputedStyle(parent).overflow;
-    const overflowY = window.getComputedStyle(parent).overflowY;
-
-    if (
-      (overflow === 'auto' ||
-        overflow === 'scroll' ||
-        overflowY === 'auto' ||
-        overflowY === 'scroll') &&
-      parent.scrollHeight > parent.clientHeight
-    ) {
-      return parent;
-    }
-
-    parent = parent.parentElement;
-  }
-
-  return null;
-};
-
-const handleHandleTouchStart = (e: TouchEvent) => {
-  isHandleDrag.value = true;
-  startDrag(e.touches[0].clientY);
-};
-
-const handleHandleMouseDown = (e: MouseEvent) => {
-  isHandleDrag.value = true;
-  startDrag(e.clientY);
-};
-
-const startDrag = (clientY: number) => {
-  isDragging.value = true;
-  startY.value = clientY;
-  startOffset.value = dragOffset.value;
-  document.body.style.userSelect = 'none';
-};
-
-const handleTouchMove = (e: TouchEvent) => {
-  if (isDragging.value) {
-    const newY = e.touches[0].clientY;
-    const deltaY = newY - startY.value;
-    const potentialOffset = startOffset.value + deltaY;
-
-    // If we're trying to drag further up than minOffset, stop dragging and allow page scroll
-    if (potentialOffset < -300) {
-      endDrag();
-      return;
-    }
-
-    e.preventDefault();
-    updateDragPosition(newY);
-  }
-};
-
-const handleMouseMove = (e: MouseEvent) => {
-  if (isDragging.value) {
-    const newY = e.clientY;
-    const deltaY = newY - startY.value;
-    const potentialOffset = startOffset.value + deltaY;
-
-    // If we're trying to drag further up than minOffset, stop dragging and allow page scroll
-    if (potentialOffset < -300) {
-      endDrag();
-      return;
-    }
-
-    e.preventDefault();
-    updateDragPosition(newY);
-  }
-};
-
-const updateDragPosition = (clientY: number) => {
-  const deltaY = clientY - startY.value;
-  let newOffset = startOffset.value + deltaY;
-
-  const minOffset = -300;
-  const maxOffset = -20;
-
-  newOffset = Math.max(minOffset, Math.min(maxOffset, newOffset));
-  dragOffset.value = newOffset;
-};
-
-const handleTouchEnd = () => {
-  endDrag();
-};
-
-const handleMouseUp = () => {
-  endDrag();
-};
-
-const endDrag = () => {
-  isDragging.value = false;
-  isHandleDrag.value = false;
-  document.body.style.userSelect = '';
-};
-
-const scrollSliderIntoView = async (target: HTMLElement) => {
+const scrollIntoView = async (target: HTMLElement | undefined) => {
   if (!target) return;
   target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+// Touch event handlers for overlay dragging
+const onTouchStart = (e: TouchEvent) => {
+  isDragging.value = true;
+  startY.value = e.touches[0].clientY;
+  startMarginTop.value = overlayMarginTop.value;
+
+  // Disable transitions during drag
+  if (mobileOverlay.value) {
+    mobileOverlay.value.style.transition = 'none';
+  }
+};
+
+const onTouchMove = (e: TouchEvent) => {
+  if (!isDragging.value) return;
+
+  const currentY = e.touches[0].clientY;
+  const deltaY = currentY - startY.value;
+
+  // Calculate new margin top, clamped to bounds
+  const newMarginTop = Math.max(
+    minMarginTop,
+    Math.min(maxMarginTop, startMarginTop.value + deltaY)
+  );
+
+  overlayMarginTop.value = newMarginTop;
+
+  // Prevent default scrolling when dragging within bounds
+  if (newMarginTop > minMarginTop && newMarginTop < maxMarginTop) {
+    e.preventDefault();
+  }
+};
+
+const onTouchEnd = (e: TouchEvent) => {
+  if (!isDragging.value) return;
+  isDragging.value = false;
+
+  // Re-enable transitions
+  if (mobileOverlay.value) {
+    mobileOverlay.value.style.transition = 'margin-top 0.3s ease-out';
+  }
+
+  // Snap to nearest position based on velocity and position
+  const velocity = (e.changedTouches[0].clientY - startY.value) / 100; // Simple velocity calc
+  const currentPosition = overlayMarginTop.value;
+  const midPoint = (minMarginTop + maxMarginTop) / 2;
+
+  if (Math.abs(velocity) > 2) {
+    // Fast swipe - follow velocity direction
+    overlayMarginTop.value = velocity > 0 ? maxMarginTop : minMarginTop;
+  } else {
+    // Slow drag - snap to nearest position
+    overlayMarginTop.value =
+      currentPosition < midPoint ? minMarginTop : maxMarginTop;
+  }
 };
 
 if (id) {

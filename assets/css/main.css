@@ -18,17 +18,6 @@
   --font-main: 'Libertinus Sans', sans-serif;
   --color-main: #ffffff;
   --color-primary: #1c2536;
-  --color-primary-20: #fdf8f9;
-  --color-primary-50: #fdf2f5;
-  --color-primary-100: #fbe8ee;
-  --color-primary-200: #f5c5d2;
-  --color-primary-300: #ee9db3;
-  --color-primary-400: #e26d8d;
-  --color-primary-500: #d1406b;
-  --color-primary-600: #b23158;
-  --color-primary-700: #921a40;
-  --color-primary-800: #741632;
-  --color-primary-900: #5a1127;
   --color-secondary: #c75b7a;
   --color-secondary-500: #f4d9d0;
   --color-tertiary: #f4d9d0;
@@ -70,20 +59,20 @@
   position: relative;
   z-index: 0;
   border-radius: 10px;
-  transition: filter 0.2s ease, transform 0.1s ease, border-radius 0.2s ease;
+  transition: all 0.2s ease;
   overflow: hidden;
-  background-color: #fffefc;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+  background-color: var(--color-main);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03), 0 4px 6px rgba(0, 0, 0, 0.01);
 }
 
 .button:hover {
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.04);
 }
 
 .button:active {
-  filter: brightness(95%);
-  transform: scale(0.98);
-  border-radius: 11px;
+  background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+  border-radius: 12px;
+  transform: scale(0.985);
 }
 
 .button:disabled {

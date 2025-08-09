@@ -1,11 +1,11 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const amountStyling = "font-semibold py-1 px-2 rounded-md bg-gray-100 text-gray-600";
-const unitStyling = "font-normal italic text-gray-600 py-1 px-2 rounded-md bg-gray-100";
-const ingredientStyling = "font-bold text-gray-800 py-1 px-2 rounded-md bg-gray-200";
-const extraStyling = "font-light italic text-gray-600";
-const ignoredStyling = "font-normal text-gray-600 py-1 px-2 rounded-md bg-gray-50";
+export const amountStyling = "font-semibold py-1 px-2 rounded-md bg-gray-100 text-gray-600";
+export const unitStyling = "font-normal italic text-gray-600 py-1 px-2 rounded-md bg-gray-100";
+export const ingredientStyling = "font-bold text-gray-800 py-1 px-2 rounded-md bg-gray-200";
+export const extraStyling = "font-light italic text-gray-600";
+export const ignoredStyling = "font-normal text-gray-600 py-1 px-2 rounded-md bg-gray-50";
 
 const ignoreWords = ["a", "an", "the", "of"];
 

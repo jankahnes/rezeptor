@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 md:p-6 bg-white rounded-2xl min-w-60">
+  <div ref="root" class="p-2 md:p-6 bg-white rounded-2xl flex-[1_1_20rem]">
     <div class="flex flex-col items-start">
       <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
         <h2 class="text-lg font-bold">NUTRITION FACTS</h2>
@@ -10,12 +10,13 @@
       <p class="text-sm font-light mt-2 text-gray-600 ml-1" v-else>
         Per Serving
       </p>
-      <div class="px-4 py-2 bg-primary-100 rounded-lg text-xl font-bold mt-4">
+      <div class="px-4 py-2 bg-primary/10 rounded-lg text-xl font-bold mt-4">
         {{ recipe?.kcal }} kcal
       </div>
+
       <div class="flex flex-wrap gap-4 mt-4">
         <div
-          class="px-4 py-2 bg-primary-50 rounded-lg"
+          class="px-4 py-2 bg-primary/5 rounded-lg"
           v-for="item in nutritionalItems"
           :key="item.key"
         >
@@ -35,6 +36,7 @@ interface NutritionalItem {
 }
 
 const props = defineProps<{ recipe?: any }>();
+const root = ref<HTMLElement | null>(null);
 
 const isFood = computed(() => Boolean(props.recipe?.name));
 
@@ -47,5 +49,11 @@ const nutritionalItems: NutritionalItem[] = [
   { key: 'fiber', label: 'Fiber' },
   { key: 'salt', label: 'Sodium' },
 ];
+
+function scrollIntoView() {
+  root.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+defineExpose({ scrollIntoView });
 </script>
 <style scoped></style>

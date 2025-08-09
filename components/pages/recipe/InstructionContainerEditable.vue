@@ -1,10 +1,12 @@
 <template>
-  <div class="h-full flex flex-col flex-[0_1_24rem] ml-1 items-start">
+  <div
+    class="p-2 md:p-6 h-full flex flex-col flex-[1_1_23rem] ml-1 items-start"
+  >
     <div class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex">
       <h2 class="text-lg font-bold">METHOD</h2>
     </div>
 
-    <ol class="space-y-1.5 w-full">
+    <ol class="w-full">
       <li v-for="i in modelValue.length + 1" :key="i">
         <div class="flex gap-2 items-center w-full">
           <div class="flex-1 flex flex-col rounded-lg w-full">
@@ -12,7 +14,7 @@
               class="relative min-h-20 flex items-center justify-start w-full h-full"
             >
               <div
-                class="flex gap-2 rounded-lg p-4 w-full h-full text-xl justify-start"
+                class="flex gap-4 rounded-lg p-3 w-full h-full justify-start"
               >
                 <span v-if="i <= modelValue.length" class="text-xl font-bold"
                   >{{ i }}.</span
@@ -23,7 +25,7 @@
                     v-if="i <= modelValue.length"
                     v-model="modelValue[i - 1]"
                     v-auto-resize
-                    class="w-full h-full bg-transparent border-none outline-none resize-none overflow-hidden break-words scrollbar-hide flex-1"
+                    class="w-full h-full bg-transparent border-none outline-none resize-none overflow-hidden break-words scrollbar-hide flex-1 text-gray-800 leading-relaxed"
                   />
                   <button
                     v-else

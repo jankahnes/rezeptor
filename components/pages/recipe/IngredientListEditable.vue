@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col flex-[0_1_24rem] items-start">
+  <div class="p-2 md:p-6 h-full flex flex-col flex-[1_1_23rem] items-start">
     <div class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex">
       <h2 class="text-lg font-bold">INGREDIENTS</h2>
     </div>
