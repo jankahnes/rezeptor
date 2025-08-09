@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col flex-[0_1_24rem] items-start">
+  <div class="p-2 md:p-6 h-full flex flex-col flex-[1_1_23rem] items-start">
     <div class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex">
       <h2 class="text-lg font-bold">INGREDIENTS</h2>
     </div>
@@ -81,7 +81,7 @@
                   <button
                     v-if="!isLastEmptyIngredient(category, index)"
                     @click="removeIngredient(category, index)"
-                    class="material-symbols-outlined !text-lg cursor-pointer text-red-500 hover:text-red-700"
+                    class="material-symbols-outlined !text-xl cursor-pointer text-gray-500 hover:text-gray-700"
                   >
                     close
                   </button>
@@ -157,9 +157,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
-import { parseIngredientString } from '~/utils/format/parseIngredientString';
-
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -204,7 +201,7 @@ function createEmptyIngredient() {
     amount: null,
     unit: null,
     food: null,
-    extra: null,
+    preperation_description: null,
     parsed: [],
     isEditing: true, // New ingredients start in edit mode
   };
@@ -223,15 +220,13 @@ async function handleInput(category, index) {
   // Check if text ends with space for live preview (mobile-friendly)
   if (ingredient.rawText.endsWith(' ') && ingredient.rawText.trim()) {
     await parseIngredient(category, index);
-    // Keep in edit mode for live preview
   }
 
-  // Clear parsed result when editing (but not when we just parsed above)
   if (!ingredient.rawText.trim()) {
     ingredient.parsed = [];
     ingredient.amount = null;
     ingredient.unit = null;
-    ingredient.extra = null;
+    ingredient.preperation_description = null;
   }
 
   // Ensure exactly one empty ingredient exists
@@ -242,20 +237,17 @@ async function handleBlur(category, index) {
   const ingredient = category.ingredients[index];
 
   if (ingredient.rawText.trim()) {
-    // Parse and switch to view mode
     await parseIngredient(category, index);
     ingredient.isEditing = false;
   }
 
-  // Clean up empty ingredients and ensure exactly one empty exists
   ensureOneEmptyIngredient(category);
 }
 
 async function handleEnter(category, index) {
   const ingredient = category.ingredients[index];
 
-  if (ingredient.rawText.trim()) {
-    // Parse and switch to view mode
+  if (ingredient.rawText.trim()) {  
     await parseIngredient(category, index);
     ingredient.isEditing = false;
   }
@@ -294,11 +286,10 @@ async function parseIngredient(category, index) {
     ingredient.amount = result.amount;
     ingredient.unit = result.unit;
     Object.assign(ingredient, result.ingredient);
-    ingredient.extra = result.extra;
+    ingredient.preperation_description = result.preperation_description;
     ingredient.parsed = result.parsed;
   } catch (error) {
     console.error('Error parsing ingredient:', error);
-    // Keep the original text visible if parsing fails
     ingredient.parsed = [
       { text: ingredient.rawText, styling: 'text-gray-600' },
     ];
@@ -316,7 +307,6 @@ function isLastEmptyIngredient(category, index) {
     (ing) => !ing.rawText || ing.rawText.trim() === ''
   );
 
-  // Only show remove button if it's not the last empty ingredient
   return (
     emptyIngredients.length === 1 &&
     (!ingredient.rawText || ingredient.rawText.trim() === '')
@@ -329,10 +319,8 @@ function ensureOneEmptyIngredient(category) {
   );
 
   if (emptyIngredients.length === 0) {
-    // No empty ingredients, add one
     category.ingredients.push(createEmptyIngredient());
   } else if (emptyIngredients.length > 1) {
-    // Too many empty ingredients, remove extras (but keep at least one)
     let removedCount = 0;
     for (
       let i = category.ingredients.length - 1;
@@ -353,7 +341,6 @@ function removeCategory(category) {
     (cat) => cat.categoryName === 'uncategorized'
   );
   if (uncategorized) {
-    // Move finalized ingredients to uncategorized
     if (category.finalizedIngredients) {
       if (!uncategorized.finalizedIngredients) {
         uncategorized.finalizedIngredients = [];
@@ -371,5 +358,4 @@ function removeCategory(category) {
 </script>
 
 <style scoped>
-/* The parsed ingredient styling is handled by Tailwind classes returned from parseIngredientString */
 </style>

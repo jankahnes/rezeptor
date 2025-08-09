@@ -18,9 +18,9 @@
 
     <div v-else class="mx-4 flex flex-col gap-10">
       <!-- Hero Card -->
-      <div class="w-full p-6 card overview">
+      <div class="p-6 card overview self-center">
         <div
-          class="flex flex-col lg:flex-row gap-8 items-start"
+          class="flex flex-col md:flex-row gap-8 items-start"
         >
           <div class="flex-1">
             <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-2">
@@ -48,7 +48,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col items-end gap-4">
+          <div class="flex flex-col items-start md:items-end gap-4">
             <GradeContainer
               :score="report.overall.hidx"
               :type="'hidx'"

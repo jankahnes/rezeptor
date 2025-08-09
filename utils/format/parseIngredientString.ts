@@ -1,11 +1,11 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-const amountStyling = "font-semibold py-1 px-2 rounded-md bg-gray-100 text-gray-600";
-const unitStyling = "font-normal italic text-gray-600 py-1 px-2 rounded-md bg-gray-100";
-const ingredientStyling = "font-bold text-gray-800 py-1 px-2 rounded-md bg-gray-200";
-const extraStyling = "font-light italic text-gray-600";
-const ignoredStyling = "font-normal text-gray-600 py-1 px-2 rounded-md bg-gray-50";
+export const amountStyling = "font-semibold py-1 px-2 rounded-md bg-gray-100 text-gray-600";
+export const unitStyling = "font-normal italic text-gray-600 py-1 px-2 rounded-md bg-gray-100";
+export const ingredientStyling = "font-bold text-gray-800 py-1 px-2 rounded-md bg-gray-200";
+export const preperationDescriptionStyling = "font-light italic text-gray-600";
+export const ignoredStyling = "font-normal text-gray-600 py-1 px-2 rounded-md bg-gray-50";
 
 const ignoreWords = ["a", "an", "the", "of"];
 
@@ -17,11 +17,16 @@ const numeric = {
 };
 
 const units = {
-    'g': 'g', 'gram': 'g', 'grams': 'g',
-    'ml': 'ml', 'milliliter': 'ml', 'milliliters': 'ml',
-    'tsp': 'tsp', 'teaspoon': 'tsp', 'teaspoons': 'tsp',
-    'tbsp': 'tbsp', 'tablespoon': 'tbsp', 'tablespoons': 'tbsp',
-    'pinch': 'free',
+    'g': 'G', 'gram': 'G', 'grams': 'G',
+    'ml': 'ML', 'milliliter': 'ML', 'milliliters': 'ML',
+    'tsp': 'TSP', 'teaspoon': 'TSP', 'teaspoons': 'TSP',
+    'tbsp': 'TBSP', 'tablespoon': 'TBSP', 'tablespoons': 'TBSP',
+    'cup': 'CUP', 'cups': 'CUP',
+    'oz': 'OZ', 'ounce': 'OZ', 'ounces': 'OZ',
+    'lb': 'LB', 'pound': 'LB', 'pounds': 'LB', 'lbs': 'LB',
+    'l': 'L', 'liter': 'L', 'liters': 'L',
+    'kg': 'KG', 'kilogram': 'KG', 'kilograms': 'KG',
+    'pinch': 'FREE', 'pinches': 'FREE',
 };
 
 function parseNumeric(word: string): number | null {
@@ -115,9 +120,9 @@ type ParsedPart = {
 
 export async function parseIngredientString(client: SupabaseClient, ingredientString: string) {
     let amount = null;
-    let unit = null;
+    let unit = 'UNITS';
     let ingredient = null;
-    let extra = null;
+    let preperationDescription = null;
 
     const tokens = ingredientString.split(' ').filter(word => word.trim() !== '').map(word => word.trim());
     const parsed: ParsedPart[] = [];
@@ -176,16 +181,24 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
         
         if (searchTerm) {
             try {
-                const { data, error } = await client.rpc('search_foods_top', {
+                const { data, error } = await client.rpc('search_foods', {
                     query: searchTerm,
+                    max: 1,
                 });
                 
                 if (data?.[0]) {
-                    ingredient = data[0];
+                    ingredient = data[0].food;
+                    ingredient.name = data[0].matched_alias ?? ingredient.name;
+                    
+                    if(unit == "UNITS" && amount && amount > 1) {
+                        ingredient.name = pluralizeWord(ingredient.name);
+                    }
+
                     parsed.push({ text: ingredient.name, styling: ingredientStyling });
                     if (extra) {
                         extra = extra.replace(/^,/, '');
-                        parsed.push({ text: extra, styling: extraStyling });
+                        preperationDescription = extra;
+                        parsed.push({ text: extra, styling: preperationDescriptionStyling });
                     }
                     break;
                 }
@@ -197,14 +210,12 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
         // If no ingredient found, mark as ignored
         parsed.push({ text: word, styling: ignoredStyling });
     }
-    if(!unit) {
-        unit = 'UNITS';
-    }
+
     return {
         amount,
         unit,
         ingredient,
-        extra,
+        preperationDescription,
         parsed,
     };
 }

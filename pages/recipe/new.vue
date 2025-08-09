@@ -1,9 +1,9 @@
 <template>
-  <div class="flex justify-center max-w-[850px] mx-auto">
-    <div class="p-6 pt-14 space-y-4 w-full">
+  <div class="flex justify-center w-full">
+    <div class="p-6 pt-14 space-y-4 w-full max-w-screen-lg">
       <div
         @click="triggerFileInput"
-        class="relative cursor-pointer w-75 max-w-1/2 aspect-square rounded-xl overflow-hidden flex items-center justify-center bg-gray-100 group"
+        class="md:ml-4 relative cursor-pointer w-75 max-w-1/2 aspect-square rounded-xl overflow-hidden flex items-center justify-center bg-gray-100 group"
       >
         <input
           ref="imgUpload"
@@ -33,7 +33,7 @@
         v-auto-resize
         rows="1"
         placeholder="New Recipe"
-        class="w-full font-bold text-3xl border-box bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
+        class="md:ml-4 w-full font-bold text-3xl border-box bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
       />
 
       <textarea
@@ -41,55 +41,48 @@
         v-auto-resize
         rows="1"
         placeholder="Description"
-        class="w-full bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1 text-sm"
+        class="md:ml-4 w-full bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1 text-sm"
       ></textarea>
-      <div class="flex gap-10 mt-6 flex-wrap w-full">
+      <div class="flex gap-10 mt-6 w-full flex-wrap">
         <PagesRecipeIngredientListEditable
           v-model="recipe.ingredients_editable"
-          class="flex-1"
+          class=""
         ></PagesRecipeIngredientListEditable>
 
         <PagesRecipeInstructionContainerEditable
           v-model="recipe.instructions"
-          class="flex-1"
+          class=""
         ></PagesRecipeInstructionContainerEditable>
 
-        <NutritionLabel
-          v-if="displayInfo"
-          :recipe="recipeComputed"
-          class="flex-1"
-        />
+        <NutritionLabel v-if="displayInfo" :recipe="recipeComputed" class="" />
 
         <HealthFacts
           v-if="displayInfo"
           :recipe="recipeComputed"
           :on-report="onClickReport"
-          class="flex-1"
+          class=""
         />
       </div>
-    </div>
-    <div
-      class="fixed bottom-22 xm:bottom-6 xm:right-6 z-100 flex gap-2 w-full justify-center xm:w-auto xm:justify-end"
-    >
-      <button
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
-        @click=""
+      <div
+        class="fixed right-15 bottom-22 xm:bottom-6 xm:right-6 z-100 flex gap-2 w-full xm:w-auto justify-end"
       >
-        <span class="material-symbols-outlined"> visibility </span>
-        Preview
-      </button>
-      <button
-        class="flex gap-2 items-center justify-center bg-[#DBFCE7] border-[#98E9AF] text-[#008236] border-3 rounded-xl p-2 font-bold shadow-lg"
-        @click="submit()"
-      >
-        <span v-if="!loadingStep" class="material-symbols-outlined">
-          arrow_right_alt
-        </span>
-        <ClientOnly v-else>
-          <Vue3Lottie animationLink="/loading.json" :height="24" :width="24" />
-        </ClientOnly>
-        Submit
-      </button>
+        <button
+          class="flex gap-2 items-center justify-center bg-main border-3 border-primary text-primary rounded-xl p-2 font-bold shadow-lg"
+          @click="submit()"
+        >
+          <span v-if="!loadingStep" class="material-symbols-outlined">
+            arrow_right_alt
+          </span>
+          <ClientOnly v-else>
+            <Vue3Lottie
+              animationLink="/loading.json"
+              :height="24"
+              :width="24"
+            />
+          </ClientOnly>
+          Submit
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -121,7 +114,7 @@ const recipe = ref({
         categoryName: 'uncategorized',
         ingredients: [
           {
-            text: '',
+            rawText: '',
             parsed: [],
           },
         ],
@@ -156,7 +149,7 @@ onMounted(async () => {
           categoryName: 'uncategorized',
           ingredients: [
             {
-              text: '',
+              rawText: '',
               parsed: [],
             },
           ],

@@ -15,7 +15,7 @@
           <div class="mb-8 mt-8">
             <div class="w-full bg-white/20 rounded-full h-2">
               <div
-                class="bg-gradient-to-r from-primary to-secondary h-2 rounded-full transition-all duration-500 ease-out"
+                class="bg-gradient-to-r from-primary-400 to-primary-600 h-2 rounded-full transition-all duration-500 ease-out"
                 :style="{
                   width: `${((currentStepIndex + 1) / steps.length) * 100}%`,
                 }"

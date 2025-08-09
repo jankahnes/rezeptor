@@ -4,12 +4,12 @@
       <div class="space-y-5">
         <button
           @click="router.back()"
-          class="button flex items-center justify-center p-2 text-2xl font-bold ml-6 !bg-primary/10"
+          class="button flex items-center justify-center p-2 text-2xl font-bold ml-2 md:ml-6 !bg-primary/10"
         >
           <span class="material-symbols-outlined"> arrow_back </span>
         </button>
         <div
-          class="mx-2 px-3 py-2 ml-6 bg-primary text-white rounded-lg inline-flex"
+          class="mx-2 px-3 py-2 ml-2 md:ml-6 bg-main text-primary border-4 border-primary rounded-lg inline-flex"
         >
           <h1 class="text-4xl font-bold">{{ food?.name }}</h1>
         </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full gap-6 mt-4 items-start md:items-center">
+  <div class="flex flex-col w-full gap-6 mt-4 items-start md:items-center" ref="root">
     <div class="flex flex-col items-start p-2 md:p-6">
       <div class="!pb-3">
         <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
@@ -81,6 +81,8 @@
 const props = defineProps<{
   id: number;
 }>();
+
+const root = ref<HTMLElement | null>(null);
 
 const auth = useAuthStore();
 const editingComment = ref(false);
@@ -172,6 +174,12 @@ function submitComment() {
     editingComment.value = false;
   }
 }
+
+function scrollIntoView() {
+  root.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+defineExpose({ scrollIntoView });
 </script>
 
 <style scoped></style>

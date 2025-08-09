@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2 md:p-6 bg-white rounded-2xl">
+  <div class="p-2 md:p-6 bg-white rounded-2xl flex-[1_1_22rem]">
     <div class="flex flex-col lg:flex-row gap-8 h-full">
       <div class="flex-1 items-start flex flex-col">
         <div class="flex justify-between items-start w-full flex-wrap gap-4">

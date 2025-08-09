@@ -10,11 +10,11 @@ export function getStringFromAmountInfo(
     return `To taste`;
   }
 
-  if (unit === 'G' || unit === 'ML') {
+  if (unit === 'G' || unit === 'ML' || unit === 'L' || unit === 'OZ' || unit === 'LB' || unit === 'KG') {
     return `${Math.round(totalAmount)}${unit.toLowerCase()}`;
   }
 
-  if (unit === 'TSP' || unit === 'TBSP' || unit === 'UNITS') {
+  if (unit === 'TSP' || unit === 'TBSP' || unit === 'UNITS' || unit === 'CUP') {
     const errorTolerancePercent = 0.1; // 10% probably acceptable error for cooking context (within personal measurement error anyway)
     const errorTolerance = totalAmount * errorTolerancePercent;
     
@@ -60,11 +60,14 @@ export function getStringFromAmountInfo(
     if (unit === 'UNITS') {
       if (pieceName === 'self') {
         unitName = '';
-      } else if (!pieceName.endsWith('s') && totalAmount > 1) {
+      } else if (!pieceName.endsWith('s') && totalAmount != 1) {
         unitName = pieceName + 's';
       } else {
         unitName = pieceName;
       }
+    }
+    if (unit === 'CUP' && totalAmount != 1) {
+      unitName = 'cups';
     }
 
     const wholeNumberDisplay = wholeNumber === 0 ? '' : wholeNumber

@@ -1,3 +1,7 @@
+import {amountStyling, unitStyling, ingredientStyling, preperationDescriptionStyling, ignoredStyling} from '~/utils/format/parseIngredientString';
+import pluralizeWord from '~/utils/format/pluralizeWord';
+
+
 export const useRecipeStore = defineStore('recipe', () => {
   const recipe = ref<RecipeProcessed | null>(null);
   const currentRecipeId = ref<number | null>(null);
@@ -10,6 +14,10 @@ export const useRecipeStore = defineStore('recipe', () => {
 
   async function setIndexRecipes(recipes: RecipeProcessed[]) {
     indexRecipes.value = recipes;
+  }
+
+  async function deleteRecipe(id: number) {
+    indexRecipes.value = indexRecipes.value.filter((recipe) => recipe.id !== id);
   }
 
   async function setRecipe(newRecipe: RecipeProcessed) {
@@ -44,13 +52,49 @@ export const useRecipeStore = defineStore('recipe', () => {
       mergedIngredient.possibleUnits = mergedIngredient.possibleUnits.map(
         (item) =>
           item === 'UNITS'
-            ? pluralize(matchingFood.unit_name).toLowerCase()
-            : item.toLowerCase()
+            ? pluralizeWord(matchingFood.unit_name).toLowerCase()
+            : item
       );
-      mergedIngredient.unit =
-        mergedIngredient.unit === 'UNITS'
-          ? pluralize(matchingFood.unit_name).toLowerCase()
-          : mergedIngredient.unit.toLowerCase();
+      let unitName = mergedIngredient.unit.toLowerCase();
+      if(mergedIngredient.unit === 'UNITS') {
+        if(mergedIngredient.unit_name == 'self') {
+          unitName = '';
+        }
+        else {
+          unitName = mergedIngredient.unit_name;
+          if(mergedIngredient.amount != 1) {
+            unitName = pluralizeWord(unitName)
+          }
+        }
+      }
+      const parsed = [
+        {
+          text: mergedIngredient.amount,
+          styling: amountStyling
+        },
+        {
+          text: mergedIngredient.name,
+          styling: ingredientStyling
+        }
+      ];
+      if(unitName != '') {
+        parsed.splice(1, 0, {
+          text: unitName,
+          styling: unitStyling
+        })
+      }
+
+      mergedIngredient.parsed = parsed;
+      mergedIngredient.rawText = mergedIngredient.amount + " " + unitName + " " + mergedIngredient.name;
+
+      if(mergedIngredient.preperation_description) {
+        parsed.push({
+          text: mergedIngredient.preperation_description,
+          styling: preperationDescriptionStyling
+        })
+        mergedIngredient.rawText += ", " + mergedIngredient.preperation_description;
+      }
+
       let foundCategory = recipe.value.ingredients_editable.ingredients.find(
         (category) => category.categoryName == ingredient.category
       );
@@ -187,5 +231,6 @@ export const useRecipeStore = defineStore('recipe', () => {
     indexRecipes,
     isEditingNew,
     setRecipeFromNew,
+    deleteRecipe,
   };
 });
