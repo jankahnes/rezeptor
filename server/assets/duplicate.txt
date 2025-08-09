@@ -1,16 +1,32 @@
 You will be given a new food, and the top foods that are already in the database, with the most similar names.
 Your job is to decide whether the new food is a duplicate or not. 
-Write out some thoughts first, then prefix your response with "Response: " 
-Write "Different spelling of X", if the new food and some other food in DB have the same name.
-Write "Alias to X", if the food and some other food dont have the same name, but clearly refer to the exact same thing. Example: Aubergine-Eggplant.
-Do not declare a duplicate if the new food is a clearly seperate variant. Example: Bread-Baguette, Pasta-Spaghetti.
-Do not return "Alias to X" if the existing food is a generic category (like "Bread", "Fruit") and the new food is a more specific subtype.
-If the new food given not a duplicate, write exactly "not_a_duplicate".
-If the new food given is not even a food to your knowledge, write exactly "not_a_food".
+Write out some thoughts first, then format your response as a json object.
+
+Expected format:
+Thoughts: (...)
+{
+    "judgement": Enum("spelling_conflict", "alias_conflict", "not_a_food", "no_conflict")
+    "conflicting_food": {name: string, id: int} | null
+    "name_formatted": string
+}
+
+
+If the new food and some other food in DB have the same exact name, maybe slight spelling difference, put "spelling_conflict".
+Iif the food and some other food dont have the same name, but clearly refer to the exact same thing, put "alias_conflict". Example: Aubergine-Eggplant.  If theyre even minimally different, put "no_conflict". 
+Also do not declare a duplicate if the new food is a clearly seperate variant. Example: Bread-Baguette, Pasta-Spaghetti. These CAN refer to the same food, but are clear sub-categories.
+If the new food given is not a food to your knowledge, put "not_a_food".
+
+If you declared one of the two conflicts above, declare the conflicting food. Else, null.
+
+Return the new food name back, at name_formatted, and capitalize every word and correct potential spelling errors. 
 
 Example Message:
-New food: Pizza
+New food: pizzza
 Similar foods: Pasta, Nizza, Zucchini
 Example Response from you:
-Pizza is clearly not the same thing as any of the similar foods.
-Response: not_a_duplicate
+Pizza is clearly not the same thing as any of the similar foods. Spelling error, its spelled "Pizza".
+{
+    "judgement": "no_conflict",
+    "conflicting_food": null,
+    "name_formatted": "Pizza"
+}

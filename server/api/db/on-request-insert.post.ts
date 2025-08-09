@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     logCheckpoint('Prompt files loaded')
 
     const input = await readBody(event)
-    const {food_name} = input
+    let {food_name} = input
     let id = null;
 
     try {
@@ -39,11 +39,11 @@ export default defineEventHandler(async (event) => {
         logCheckpoint('Request inserted to DB')
 
         //step 1: use search rpc to find out top 5 potentially similar foods
-        const similarFoods = await client.rpc('search_foods', {search_text: food_name})
+        const similarFoods = await client.rpc('search_foods', {query: food_name, max: 5}) as {data: {matched_alias: string, food: {name: string, id: number}}[]}
         if (similarFoods.error) {
             throw new Error('Error searching for similar foods')
         }
-        const similarFoodsNames = similarFoods.data.map((food) => food.name).slice(0, 5).join(', ')
+        const similarFoodsNames = similarFoods.data?.map((result: {matched_alias: string, food: {name: string, id: number}}) => `"Name: ${result.matched_alias ?? result.food.name} / ID: ${result.food.id}"`).slice(0, 5).join(' ; ') ?? ""
         logCheckpoint('Similar foods search completed')
 
         //step 2: call GPT to find out if the food is a duplicate
@@ -57,13 +57,33 @@ export default defineEventHandler(async (event) => {
         if (!response) throw new Error('No content returned from duplicate GPT response');
         logCheckpoint('Duplicate check GPT call completed')
 
-        const match = response.match(/Response:\s*(.*)/s);
-        const responseJudgement = match ? match[1].trim() : null;
-        if (responseJudgement === 'not_a_food') {
-            throw new Error('Not a food')
+        const duplicateCheck = JSON.parse(extractJson(response)) as {judgement: 'not_a_food' | 'spelling_conflict' | 'alias_conflict', conflicting_food: {name: string, id: number} | null, name_formatted: string}
+        if (!duplicateCheck) throw new Error('No content returned from duplicate GPT response');
+        food_name = duplicateCheck.name_formatted
+        let status_info = "No duplicate found"; let new_status = "PROCESSING";
+
+        if (duplicateCheck.judgement === 'not_a_food') {
+            status_info = 'Not a food'
+            new_status = 'CLOSED_NOT_INSERTED'
         }
-        else if (responseJudgement !== 'not_a_duplicate') {
-            throw new Error(responseJudgement)
+        else if (duplicateCheck.judgement === 'spelling_conflict') {
+            status_info = `Rejected: Different spelling of ${duplicateCheck.conflicting_food?.name}`
+            new_status = 'CLOSED_NOT_INSERTED'
+        }
+        else if (duplicateCheck.judgement === 'alias_conflict') {
+            status_info = `Accepted as alias to ${duplicateCheck.conflicting_food?.name}`
+            new_status = 'ALIAS_INSERTED'
+        }
+
+        if(new_status === 'CLOSED_NOT_INSERTED') {
+            await client.from('food_requests').update({status: new_status, status_info: status_info}).eq('id', id)
+            return {status: 'ok', data: {status: new_status, status_info: status_info, conflicting_food: duplicateCheck.conflicting_food ?? null}}
+        }
+
+        if(new_status === 'ALIAS_INSERTED') {
+            await client.from('food_aliases').insert({food_id: duplicateCheck.conflicting_food?.id, alias: food_name})
+            await client.from('food_requests').update({status: new_status, status_info: status_info, new_food_id: duplicateCheck.conflicting_food?.id}).eq('id', id)
+            return {status: 'ok', data: {status: new_status, status_info: status_info, conflicting_food: duplicateCheck.conflicting_food ?? null}}
         }
 
         //step 3: use GPT to fill in fields from food name - PARALLELIZED

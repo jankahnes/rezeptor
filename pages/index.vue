@@ -35,7 +35,7 @@
           <div
             v-for="category in categories"
             :key="category.tag"
-            class="flex flex-col sm:flex-row items-center gap-2 sm:shadow-sm rounded-lg p-2 hover:shadow-md transition-all duration-300 flex-shrink-0"
+            class="flex flex-col sm:flex-row items-center gap-2 p-2 transition-all duration-300 flex-shrink-0 button category-button m-1"
           >
             <span class="text-2xl">{{ category.icon }}</span>
             <span
@@ -75,7 +75,7 @@ if (!recipeStore.indexRecipes.length) {
     () => ({
       eq: { visibility: 'PUBLIC' },
       not: { picture: null },
-      orderBy: { column: 'title', ascending: true },
+      orderBy: { column: 'created_at', ascending: false },
       limit: 14,
     }),
     'index'
@@ -155,4 +155,10 @@ const categories = ref([
 ]);
 </script>
 
-<style scoped></style>
+<style scoped>
+.category-button {
+  @media (max-width: 768px) {
+    box-shadow: none !important;
+  }
+}
+</style>

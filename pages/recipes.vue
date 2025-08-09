@@ -123,13 +123,24 @@
     </div>
     <div class="my-6 mx-2 sm:mx-6 z-2">
       <div
-        class="flex flex-wrap gap-4 sm:gap-6 md:justify-start justify-center"
+        class="flex-wrap gap-4 sm:gap-6 md:justify-start justify-center hidden md:flex"
         v-if="!pending"
       >
         <RecipeCard
           :recipe="recipe"
           class="flex-1 max-w-45 min-w-38 basis-38 text-[16px] h-70 sm:max-w-90 sm:min-w-80 sm:h-120 sm:text-[34px] sm:basis-80"
           v-for="recipe in results"
+        />
+      </div>
+      <div
+        class="flex flex-wrap gap-4 md:hidden"
+        v-if="!pending"
+      >
+        <RecipeCard
+          :recipe="recipe"
+          class=""
+          v-for="recipe in results"
+          horizontal
         />
       </div>
       <div class="flex flex-wrap gap-6 md:justify-start justify-center" v-else>

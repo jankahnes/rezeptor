@@ -82,9 +82,17 @@
             <span class="material-symbols-outlined"> open_in_new </span>
             Accepted
           </NuxtLink>
+          <NuxtLink
+            v-else-if="request.status === 'ALIAS_INSERTED'"
+            :to="`/foods/${request.new_food_id}`"
+            class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-green-200"
+          >
+            <span class="material-symbols-outlined"> check </span>
+            {{ request.status_info }}
+          </NuxtLink>
           <span
             v-else
-            class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-red-300"
+            class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-red-100"
           >
             <span class="material-symbols-outlined"> close </span>
             {{ getStatusString(request.status, request.status_info) }}</span
@@ -100,7 +108,12 @@
 interface FoodRequest {
   id: string | number;
   food_name: string;
-  status: 'OPEN' | 'PROCESSING' | 'CLOSED_INSERTED' | 'CLOSED_NOT_INSERTED';
+  status:
+    | 'OPEN'
+    | 'PROCESSING'
+    | 'CLOSED_INSERTED'
+    | 'CLOSED_NOT_INSERTED'
+    | 'ALIAS_INSERTED';
   new_food_id?: number;
   status_info?: string;
   created_at?: string;
@@ -110,8 +123,10 @@ interface FoodRequest {
 interface APIResponse {
   status: 'ok';
   data: {
-    new_food_id: number;
-    status: 'CLOSED_INSERTED';
+    status: 'CLOSED_INSERTED' | 'CLOSED_NOT_INSERTED' | 'ALIAS_INSERTED';
+    status_info: string;
+    conflicting_food: { name: string; id: number } | null;
+    new_food_id?: number;
   };
 }
 
@@ -121,29 +136,20 @@ const requestsStore = useRequestsStore();
 
 const getStatusString = (status: string, status_info?: string) => {
   if (status === 'CLOSED_INSERTED') return 'Accepted';
-  if (status === 'CLOSED_NOT_INSERTED') {
-    if (
-      status_info?.startsWith('Alias') ||
-      status_info?.startsWith('Different')
-    )
-      return `Rejected: ${status_info}`;
-    else if (status_info === 'not_a_food') return 'Rejected: Not a food';
-    else return 'Rejected: Something went wrong';
-  }
+  if (status === 'CLOSED_NOT_INSERTED') return status_info;
+  if (status === 'ALIAS_INSERTED') return status_info;
   if (status === 'PROCESSING') return 'Processing';
   if (status === 'OPEN') return 'Open';
   return status;
 };
 
 const requestFood = async () => {
-  if (requestsStore.requestsOpen) {
-    const newRequest: FoodRequest = {
-      id: 'new',
-      food_name: foodName.value,
-      status: 'PROCESSING',
-    };
-    requestsStore.requests.unshift(newRequest);
-  }
+  const newRequest: FoodRequest = {
+    id: 'new',
+    food_name: foodName.value,
+    status: 'PROCESSING',
+  };
+  requestsStore.requests.unshift(newRequest);
 
   try {
     const response = await $fetch<APIResponse>('/api/db/on-request-insert', {
@@ -154,17 +160,15 @@ const requestFood = async () => {
     });
 
     const requestIndex = requestsStore.requests.findIndex(
-      (request: FoodRequest) => request.id === 'new'
+      (request: FoodRequest) => request.food_name === newRequest.food_name
     );
     if (response.status === 'ok' && requestIndex !== -1) {
-      requestsStore.requests[requestIndex].status = 'CLOSED_INSERTED';
-      requestsStore.requests[requestIndex].new_food_id =
-        response.data.new_food_id;
+      Object.assign(requestsStore.requests[requestIndex], response.data);
     }
   } catch (error: any) {
     // Handle the error case - API throws error instead of returning error response
     const requestIndex = requestsStore.requests.findIndex(
-      (request: FoodRequest) => request.id === 'new'
+      (request: FoodRequest) => request.food_name === newRequest.food_name
     );
     if (requestIndex !== -1) {
       requestsStore.requests[requestIndex].status = 'CLOSED_NOT_INSERTED';

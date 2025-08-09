@@ -50,14 +50,6 @@ const thermalGptToDB = {
   HIGH: 'HIGH (180+C)',
 };
 
-const convertUnit = (unit: string) => {
-  if (['g', 'tsp', 'tbsp', 'ml', 'free'].includes(unit)) {
-    return unit.toUpperCase();
-  } else {
-    return 'UNITS';
-  }
-};
-
 const micronutrient_weights = [
   { name: 'iron_mg', weight: 1.5, rda: 8.0 },
   { name: 'magnesium_mg', weight: 1.2, rda: 400.0 },
@@ -414,7 +406,7 @@ export default class RecipeCalculator {
         if (ingredient.amount &&ingredient.amount !== 0) {
           recipeFoods.push({
             food_id: ingredient.id,
-            unit: convertUnit(ingredient.unit),
+            unit: ingredient.unit,
             amount: ingredient.amount / this.servingSize,
             category: category.categoryName,
             thermal_intensity:
@@ -573,10 +565,9 @@ export default class RecipeCalculator {
 
     // First pass: calculate basic totals and weight
     for (const ingredient of ingredients) {
-      const unit = convertUnit(ingredient.unit);
       let originalGrams = convertToGrams(
         ingredient.amount,
-        unit,
+        ingredient.unit,
         ingredient.density,
         ingredient.unit_weight
       );
@@ -617,10 +608,9 @@ export default class RecipeCalculator {
 
     // Second pass: apply alpha functions to individual ingredient contributions
     for (const ingredient of ingredients) {
-      const unit = convertUnit(ingredient.unit);
       let originalGrams = convertToGrams(
         ingredient.amount,
-        unit,
+        ingredient.unit,
         ingredient.density,
         ingredient.unit_weight
       );
@@ -882,7 +872,7 @@ export default class RecipeCalculator {
     );
     const giProxy =
       (1.2693123441054426 * this.recipePer100.sugar + starch_grams) /
-      this.recipePer100.carbohydrates;
+      (this.recipePer100.carbohydrates + 1e-6);
     let ff = 0;
     if (this.recipePer100.kcal == 0) {
       ff = 0;
@@ -943,24 +933,33 @@ export default class RecipeCalculator {
 
   getSaltScore() {
     const saltRDA = 5;
+    
+    // na in mg = nacl * 0.4 * 1000
+    const na_k = this.recipePer100.salt * 1000 * 0.4 / (this.recipePer100.potassium_mg + 1e-6);
+
+    const na_k_score = 100 - this.scale_by_points(na_k, [
+      [0.2, -20],
+      [0.5, 0],
+      [2, 55],
+      [3, 100],
+      [5, 150]
+    ]);
+
+    const total_salt_score = this.scale_by_points(this.recipePer100.salt, [
+      [0, 100],
+      [2, 0],
+      [20, -100],
+    ]);
+
     if (this.logToReport) {
       this.report.salt = {
         saltPer100g: this.recipePer100.salt,
         saltRDAPerServing: this.recipeComputed.salt / saltRDA,
+        na_k_ratio: na_k
       };
     }
 
-    return Math.min(
-      100,
-      this.scale_by_points(this.recipePer100.salt, [
-        [0, 100],
-        [0.15, 80],
-        [0.5, 65],
-        [1, 20],
-        [2, 0],
-        [20, -100],
-      ])
-    );
+    return 0.7*na_k_score + 0.3*total_salt_score;
   }
 
   getSugarScore() {
@@ -1329,7 +1328,6 @@ export default class RecipeCalculator {
     const protective_score = this.getProtectiveCompoundScore();
     const processing_level_score = this.getPLScore();
     const satiety = 0.5 * ed + 0.5 * sidx;
-
     const hidx = this.getHIDX(
       satiety,
       protein_score,

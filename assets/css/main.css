@@ -18,23 +18,25 @@
   --font-main: 'Libertinus Sans', sans-serif;
   --color-main: #ffffff;
   --color-primary: #1c2536;
-  --color-primary-20: #fdf8f9;
-  --color-primary-50: #fdf2f5;
-  --color-primary-100: #fbe8ee;
-  --color-primary-200: #f5c5d2;
-  --color-primary-300: #ee9db3;
-  --color-primary-400: #e26d8d;
-  --color-primary-500: #d1406b;
-  --color-primary-600: #b23158;
-  --color-primary-700: #921a40;
-  --color-primary-800: #741632;
-  --color-primary-900: #5a1127;
+
+  --color-primary-20: color-mix(in srgb, var(--color-primary) 5%, white);
+  --color-primary-50: color-mix(in srgb, var(--color-primary) 10%, white);
+  --color-primary-100: color-mix(in srgb, var(--color-primary) 20%, white);
+  --color-primary-200: color-mix(in srgb, var(--color-primary) 35%, white);
+  --color-primary-300: color-mix(in srgb, var(--color-primary) 50%, white);
+  --color-primary-400: color-mix(in srgb, var(--color-primary) 70%, white);
+  --color-primary-500: color-mix(in srgb, var(--color-primary) 90%, white);
+  --color-primary-600: var(--color-primary);
+  --color-primary-700: color-mix(in srgb, var(--color-primary) 70%, black);
+  --color-primary-800: color-mix(in srgb, var(--color-primary) 50%, black);
+  --color-primary-900: color-mix(in srgb, var(--color-primary) 20%, black);
+
   --color-secondary: #c75b7a;
   --color-secondary-500: #f4d9d0;
   --color-tertiary: #f4d9d0;
   --rounded-main: 10px;
 
-  --text-scale: 1.05;
+  --text-scale: 1.08;
 
   --text-xs: calc(0.75rem * var(--text-scale));
   --text-sm: calc(0.875rem * var(--text-scale));
@@ -70,20 +72,20 @@
   position: relative;
   z-index: 0;
   border-radius: 10px;
-  transition: filter 0.2s ease, transform 0.1s ease, border-radius 0.2s ease;
+  transition: all 0.2s ease;
   overflow: hidden;
-  background-color: #fffefc;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
+  background-color: var(--color-main);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03), 0 4px 6px rgba(0, 0, 0, 0.01);
 }
 
 .button:hover {
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.07), 0 4px 6px rgba(0, 0, 0, 0.04);
 }
 
 .button:active {
-  filter: brightness(95%);
-  transform: scale(0.98);
-  border-radius: 11px;
+  background-color: var(--color-primary-20);
+  border-radius: 12px;
+  transform: scale(0.985);
 }
 
 .button:disabled {
@@ -136,7 +138,11 @@
 }
 
 .onboarding-gradient {
-  background: linear-gradient(135deg, #921a40 0%, #c75b7a 65%, #f4d9d0 100%);
+  background: linear-gradient(
+    50deg,
+    color-mix(in srgb, var(--color-primary-400), white) 0%,
+    var(--color-primary) 100%
+  );
   filter: brightness(1.2);
 }
 

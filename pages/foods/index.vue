@@ -67,12 +67,18 @@ async function search() {
     return;
   }
   const { data, error } = await supabase.rpc('search_foods', {
-    search_text: foodResultsStore.searchQuery,
+    query: foodResultsStore.searchQuery,
+    max: 10,
   });
+  //returned data: {food: food, matched_alias: string} -> map to {...food, name: matched_alias ?? food.name}
+  const foodResults = data?.map((result: { food: Food; matched_alias: string }) => ({
+      ...result.food,
+      name: result.matched_alias ?? result.food.name,
+    })) ?? [];
   if (error) {
     console.error(error);
   } else {
-    foodResultsStore.setFoodResults(data, foodResultsStore.searchQuery);
+    foodResultsStore.setFoodResults(foodResults, foodResultsStore.searchQuery);
     navigateTo(
       `/foods?search=${encodeURIComponent(foodResultsStore.searchQuery)}`,
       {

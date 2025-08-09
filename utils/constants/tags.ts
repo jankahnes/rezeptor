@@ -13,18 +13,18 @@ export const TAGS = [
   { id: 12, name: 'clean eating', value: 4, category: 'GENERAL' }, // ai
   { id: 13, name: 'potluck', value: 4, category: 'GENERAL' }, // ai
 
-  { id: 100, name: 'healthy', value: 0, category: 'DIET' }, //auto, hidx > 70
+  { id: 100, name: 'healthy', value: 10, category: 'DIET' }, //auto, hidx > 70
   { id: 101, name: 'nutritious', value: 10, category: 'DIET' }, //auto, mnidx > 70
-  { id: 102, name: 'vegan', value: 0, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegan'))
-  { id: 103, name: 'vegetarian', value: 0, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegetarian'))
-  { id: 104, name: 'high protein', value: 14, category: 'DIET' }, //auto, protein_score > 70
-  { id: 105, name: 'low carb', value: 3, category: 'DIET' }, //auto, per100.carbs < 5
-  { id: 106, name: 'paleo', value: 0, category: 'DIET' }, //ai
-  { id: 107, name: 'gluten free', value: 0, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('gluten free'))
+  { id: 102, name: 'vegan', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegan'))
+  { id: 103, name: 'vegetarian', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegetarian'))
+  { id: 104, name: 'high protein', value: 6, category: 'DIET' }, //auto, protein_score > 70
+  { id: 105, name: 'low carb', value: 6, category: 'DIET' }, //auto, per100.carbs < 5
+  { id: 106, name: 'paleo', value: 2, category: 'DIET' }, //ai
+  { id: 107, name: 'gluten free', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('gluten free'))
   { id: 108, name: 'low calorie', value: 14, category: 'DIET' }, //auto, kcal < 600
   { id: 109, name: 'satiating', value: -1, category: 'DIET' }, //auto, satiety > 70
-  { id: 110, name: 'low fat', value: 0, category: 'DIET' }, //auto, per100.fat < 3
-  { id: 111, name: 'high fiber', value: 0, category: 'DIET' }, //auto, per100.fiber > 6
+  { id: 110, name: 'low fat', value: 6, category: 'DIET' }, //auto, per100.fat < 3
+  { id: 111, name: 'high fiber', value: 6, category: 'DIET' }, //auto, per100.fiber > 6
 
   { id: 200, name: 'main/dinner', value: 0, category: 'TYPE' }, //ai
   { id: 201, name: 'breakfast', value: 0, category: 'TYPE' }, //ai
@@ -48,32 +48,32 @@ export const TAGS = [
   { id: 219, name: 'cake', value: 0, category: 'TYPE' }, //ai
   { id: 220, name: 'other baked good', value: 0, category: 'TYPE' }, //ai
 
-  { id: 300, name: 'global', value: 0, category: 'CUISINE' }, //ai
+  { id: 300, name: 'global', value: 3, category: 'CUISINE' }, //ai
   { id: 301, name: 'fusion', value: 5, category: 'CUISINE' }, //ai
-  { id: 302, name: 'italian', value: 0, category: 'CUISINE' }, //ai
-  { id: 303, name: 'german', value: 0, category: 'CUISINE' }, //ai
-  { id: 304, name: 'american', value: 0, category: 'CUISINE' }, //ai
-  { id: 305, name: 'vietnamese', value: 0, category: 'CUISINE' }, //ai
-  { id: 306, name: 'chinese', value: 0, category: 'CUISINE' }, //ai
-  { id: 307, name: 'japanese', value: 0, category: 'CUISINE' }, //ai
-  { id: 308, name: 'french', value: 0, category: 'CUISINE' }, //ai
-  { id: 309, name: 'british', value: 0, category: 'CUISINE' }, //ai
-  { id: 310, name: 'indian', value: 0, category: 'CUISINE' }, //ai
-  { id: 311, name: 'spanish', value: 0, category: 'CUISINE' }, //ai
-  { id: 312, name: 'middle eastern', value: 0, category: 'CUISINE' }, //ai
-  { id: 313, name: 'thai', value: 0, category: 'CUISINE' }, //ai
-  { id: 314, name: 'mediterranean', value: 0, category: 'CUISINE' }, //ai
-  { id: 315, name: 'greek', value: 0, category: 'CUISINE' }, //ai
-  { id: 316, name: 'turkish', value: 0, category: 'CUISINE' }, //ai
-  { id: 317, name: 'portuguese', value: 0, category: 'CUISINE' }, //ai
-  { id: 318, name: 'eastern european', value: 0, category: 'CUISINE' }, //ai
-  { id: 319, name: 'scandinavian', value: 0, category: 'CUISINE' }, //ai
-  { id: 320, name: 'basque', value: 0, category: 'CUISINE' }, //ai
-  { id: 321, name: 'korean', value: 0, category: 'CUISINE' }, //ai
-  { id: 322, name: 'malaysian', value: 0, category: 'CUISINE' }, //ai
-  { id: 323, name: 'african', value: 0, category: 'CUISINE' }, //ai
-  { id: 324, name: 'brazilian', value: 0, category: 'CUISINE' }, //ai
-  { id: 325, name: 'russian', value: 0, category: 'CUISINE' }, //ai
+  { id: 302, name: 'italian', value: 3, category: 'CUISINE' }, //ai
+  { id: 303, name: 'german', value: 3, category: 'CUISINE' }, //ai
+  { id: 304, name: 'american', value: 3, category: 'CUISINE' }, //ai
+  { id: 305, name: 'vietnamese', value: 3, category: 'CUISINE' }, //ai
+  { id: 306, name: 'chinese', value: 3, category: 'CUISINE' }, //ai
+  { id: 307, name: 'japanese', value: 3, category: 'CUISINE' }, //ai
+  { id: 308, name: 'french', value: 3, category: 'CUISINE' }, //ai
+  { id: 309, name: 'british', value: 3, category: 'CUISINE' }, //ai
+  { id: 310, name: 'indian', value: 3, category: 'CUISINE' }, //ai
+  { id: 311, name: 'spanish', value: 3, category: 'CUISINE' }, //ai
+  { id: 312, name: 'middle eastern', value: 3, category: 'CUISINE' }, //ai
+  { id: 313, name: 'thai', value: 3, category: 'CUISINE' }, //ai
+  { id: 314, name: 'mediterranean', value: 3, category: 'CUISINE' }, //ai
+  { id: 315, name: 'greek', value: 3, category: 'CUISINE' }, //ai
+  { id: 316, name: 'turkish', value: 3, category: 'CUISINE' }, //ai
+  { id: 317, name: 'portuguese', value: 3, category: 'CUISINE' }, //ai
+  { id: 318, name: 'eastern european', value: 3, category: 'CUISINE' }, //ai
+  { id: 319, name: 'scandinavian', value: 3, category: 'CUISINE' }, //ai
+  { id: 320, name: 'basque', value: 3, category: 'CUISINE' }, //ai
+  { id: 321, name: 'korean', value: 3, category: 'CUISINE' }, //ai
+  { id: 322, name: 'malaysian', value: 3, category: 'CUISINE' }, //ai
+  { id: 323, name: 'african', value: 3, category: 'CUISINE' }, //ai
+  { id: 324, name: 'brazilian', value: 3, category: 'CUISINE' }, //ai
+  { id: 325, name: 'russian', value: 3, category: 'CUISINE' }, //ai
 
 ] as const;
 

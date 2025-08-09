@@ -18,11 +18,22 @@ const saltRDAPerServingThresholds = {
     0.9: {...POOR},
 }
 
+const naKRatioThresholds = {
+    0: {description: "Optimal", ...EXCELLENT},
+    0.5: {description: "Very Good", ...GREAT},
+    1: {description: "Good", ...GOOD},
+    1.5: {description: "Okay", ...OKAY},
+    2: {description: "Bad", ...SUBOPTIMAL},
+    2.5: {description: "Poor", ...BAD},
+    3: {description: "Very Poor", ...POOR},
+}
+
 export default function saltToReadable(report: any) {
     if(!report.salt) return []
     const items = []
     const saltPer100gItem = getHighestThreshold(report.salt.saltPer100g, saltPer100gThresholds)
     const saltRDAPerServingItem = getHighestThreshold(report.salt.saltRDAPerServing, saltRDAPerServingThresholds)
+    const naKRatioItem = getHighestThreshold(report.salt.na_k_ratio, naKRatioThresholds)
     items.push({
         ...saltPer100gItem,
         description: saltPer100gItem.description + " sodium per 100g",
@@ -30,6 +41,10 @@ export default function saltToReadable(report: any) {
     items.push({
         ...saltRDAPerServingItem,
         description: (report.salt.saltRDAPerServing * 100).toFixed(0) + "% of sodium RDA per serving",
+    })
+    items.push({
+        ...naKRatioItem,
+        description: naKRatioItem.description + " sodium/potassium ratio"
     })
     const contributors = report.contributors["salt_without_added"]?.contributors || []
     for(const contributor of contributors) {

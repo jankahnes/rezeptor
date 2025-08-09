@@ -1,11 +1,32 @@
 <template>
-  <div class="h-full flex flex-col min-w-92 items-start">
+  <div class="h-full flex flex-col min-w-92">
     <div class="p-2 md:p-6 !pb-2">
-      <div
-        class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex"
-        v-if="!hideHeader"
-      >
-        <h2 class="text-lg font-bold">INGREDIENTS</h2>
+      <div class="flex justify-between items-center w-full mb-4">
+        <div
+          class="px-4 py-1 bg-primary text-white rounded-lg"
+          v-if="!hideHeader"
+        >
+          <h2 class="text-lg font-bold">INGREDIENTS</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs"
+            @click="copyIngredients"
+          >
+            <span class="material-symbols-outlined !text-sm">copy_all</span>
+            Copy
+          </button>
+          <transition name="fade-slide" mode="out-in">
+            <button
+              v-if="notOnDefaultUnits"
+              class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform"
+              @click="resetUnits"
+            >
+              <span class="material-symbols-outlined !text-sm">refresh</span>
+              <span>Reset Units</span>
+            </button>
+          </transition>
+        </div>
       </div>
       <p class="text-sm text-gray-600 ml-1 font-light">
         Servings:
@@ -13,13 +34,13 @@
           v-model="servingSize"
           :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
           :expanded="false"
-          class="max-w-[150px]"
+          class="max-w-[180px] -ml-2"
         />
       </p>
     </div>
 
     <div class="flex-1 px-2 md:px-6 pb-2">
-      <div class="max-w-md space-y-4">
+      <div class="max-w-md space-y-4 select-none">
         <template
           v-for="(group, category) in {
             uncategorized: groupedIngredients.uncategorized,
@@ -29,23 +50,37 @@
         >
           <div v-if="category !== 'uncategorized' && group.length > 0">
             <h3
-              class="text-lg font-semibold text-gray-800 mb-3 border-b border-primary-200 pb-2"
+              class="text-lg font-semibold text-gray-800 mb-3 border-b border-primary/20 pb-2"
             >
               {{ category }}
             </h3>
           </div>
 
-          <div class="">
-            <div
+          <ul
+            class="grid grid-cols-[max-content_max-content_1fr] gap-x-1 gap-y-5 ml-2"
+            role="list"
+          >
+            <li
               v-for="ingredient in group"
               :key="ingredient.name"
-              class="flex items-center p-3 cursor-pointer group"
-              @click="onClickIngredient(ingredient)"
+              class="col-span-3 grid grid-cols-subgrid items-center group space-x-2 relative"
+              :class="{
+                'ingredient-checked': checkedIngredients.has(ingredient.name),
+              }"
             >
+              <div class="flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  :checked="checkedIngredients.has(ingredient.name)"
+                  @change="toggleIngredientChecked(ingredient.name)"
+                  class="w-4 h-4 !accent-primary rounded"
+                />
+              </div>
               <transition name="fade-slide" mode="out-in">
                 <span
                   :key="`${servingSize}-${ingredient?.currentUnit}`"
-                  class="select-none group-hover:text-gray-900 transition-colors"
+                  class="tabular-nums whitespace-nowrap font-semibold cursor-pointer"
+                  @click="onClickIngredient(ingredient)"
                 >
                   {{
                     getStringFromAmountInfo(
@@ -56,17 +91,28 @@
                   }}
                 </span>
               </transition>
-              <span class="font-semibold ml-2 text-nowrap">{{
-                ingredient?.name
-              }}</span>
-              <span
-                v-if="ingredient.preperation_description"
-                class="font-light text-xs mt-1"
+              <div
+                class="cursor-pointer"
+                @mousedown="startHold(ingredient)"
+                @mouseup="endHold(ingredient)"
+                @mouseleave="cancelHold()"
+                @touchstart="startHold(ingredient)"
+                @touchend="endHold(ingredient)"
+                @touchcancel="cancelHold()"
+                @contextmenu.prevent
               >
-                , {{ ingredient.preperation_description }}
-              </span>
-            </div>
-          </div>
+                <span class="ml-2 text-nowrap whitespace-nowrap">{{
+                  getIngredientName(ingredient)
+                }}</span>
+                <span
+                  v-if="ingredient.preperation_description"
+                  class="font-light text-xs mt-1 text-gray-600 -ml-1"
+                >
+                  , {{ ingredient.preperation_description }}
+                </span>
+              </div>
+            </li>
+          </ul>
         </template>
 
         <div
@@ -95,14 +141,109 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
-const props = defineProps({ ingredients: Array<any>, hideHeader: Boolean });
+const props = defineProps({
+  ingredients: Array<any>,
+  hideHeader: Boolean,
+});
 const servingSize = ref(2);
+const checkedIngredients = ref<Set<string>>(new Set());
+const holdDuration = 400;
+
+const holdTimer = ref<NodeJS.Timeout | null>(null);
+const isHolding = ref(false);
+const holdStarted = ref(false);
+
+const notOnDefaultUnits = computed(() => {
+  return props.ingredients?.some(
+    (ingredient: any) => ingredient.currentUnit !== 0
+  );
+});
+
+function getIngredientName(ingredient: any) {
+  const amountInfo = ingredient?.amountInfo?.[ingredient?.currentUnit];
+  if (
+    amountInfo[1] == 'UNITS' &&
+    amountInfo[0] * servingSize.value > 1 &&
+    ingredient.unit_name == 'self'
+  ) {
+    return pluralizeWord(ingredient.name);
+  }
+  return ingredient.name;
+}
+
+function toggleIngredientChecked(ingredientName: string) {
+  if (checkedIngredients.value.has(ingredientName)) {
+    checkedIngredients.value.delete(ingredientName);
+  } else {
+    checkedIngredients.value.add(ingredientName);
+  }
+}
 
 function onClickIngredient(ingredient: any) {
   if (ingredient.currentUnit == ingredient.amountInfo.length - 1) {
     ingredient.currentUnit = 0;
   } else {
     ingredient.currentUnit += 1;
+  }
+}
+
+function startHold(ingredient: any) {
+  holdStarted.value = true;
+  isHolding.value = false;
+
+  holdTimer.value = setTimeout(() => {
+    isHolding.value = true;
+    navigateToFood(ingredient);
+  }, holdDuration);
+}
+
+function endHold(ingredient: any) {
+  if (holdTimer.value) {
+    clearTimeout(holdTimer.value);
+    holdTimer.value = null;
+  }
+
+  if (holdStarted.value && !isHolding.value) {
+    onClickIngredient(ingredient);
+  }
+
+  holdStarted.value = false;
+  isHolding.value = false;
+}
+
+function cancelHold() {
+  if (holdTimer.value) {
+    clearTimeout(holdTimer.value);
+    holdTimer.value = null;
+  }
+  holdStarted.value = false;
+  isHolding.value = false;
+}
+
+function navigateToFood(ingredient: any) {
+  if (ingredient.id) {
+    navigateTo(`/foods/${ingredient.id}`);
+  }
+}
+
+function copyIngredients() {
+  navigator.clipboard.writeText(
+    props.ingredients
+      ?.map(
+        (ingredient) =>
+          `${ingredient.name}: ${getStringFromAmountInfo(
+            ingredient.amountInfo[ingredient.currentUnit],
+            servingSize.value,
+            ingredient.unit_name
+          )}`
+      )
+      .join('\n') ?? ''
+  );
+}
+
+function resetUnits() {
+  for (const ingredient of props.ingredients || []) {
+    ingredient.currentUnit = 0;
   }
 }
 
@@ -129,8 +270,7 @@ const groupedIngredients = computed(() => {
 <style scoped>
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition: all 0.1s ease;
-  display: inline-block;
+  transition: all 0.12s ease;
 }
 
 .fade-slide-enter-from {
@@ -141,5 +281,18 @@ const groupedIngredients = computed(() => {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateX(5px);
+}
+
+.ingredient-checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 30px;
+  right: 20px;
+  height: 1px;
+  background-color: var(--color-primary-600);
+  opacity: 0.2;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 </style>

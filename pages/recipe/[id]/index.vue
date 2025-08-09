@@ -3,36 +3,44 @@
     <div
       class="mx-auto max-w-screen-xl justify-center relative px-3 hidden md:block"
     >
-      <NuxtImg
-        :src="recipeStore.recipe?.picture ?? undefined"
-        class="w-full md:h-100 object-cover rounded-xl"
-      />
+      <div class="relative w-full md:h-120 rounded-xl overflow-hidden">
+        <NuxtImg
+          :src="recipeStore.recipe?.picture ?? undefined"
+          class="object-cover w-full h-full"
+        />
+        <div
+          class="inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute z-0"
+        ></div>
+      </div>
       <div
-        class="max-w-screen-lg flex flex-col gap-4 bg-primary text-white p-8 rounded-xl mx-auto -mt-20 relative z-10 shadow-md"
+        class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto -mt-50 relative z-10"
       >
-        <div class="flex justify-between items-start gap-4">
-          <h1 class="text-4xl font-bold">{{ recipeStore.recipe?.title }}</h1>
-          <div class="flex gap-2 flex-wrap">
-            <button
-              class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border border-white"
-            >
-              <span class="material-symbols-outlined">share</span>
-            </button>
+        <div class="flex justify-between items-start gap-10">
+          <h1 class="text-5xl font-bold tracking-tight">
+            {{ recipeStore.recipe?.title }}
+          </h1>
+          <div class="flex gap-2 flex-nowrap items-center">
             <NuxtLink
               :to="{ path: '/recipe/new', query: { editCurrent: 'true' } }"
-              class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border border-white"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
             >
-              <span class="material-symbols-outlined">edit</span>
+              <span class="material-symbols-outlined !text-xl">edit</span>
             </NuxtLink>
             <button
-              class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border border-white"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
             >
-              <span class="material-symbols-outlined">delete</span>
+              <span class="material-symbols-outlined !text-xl">share</span>
             </button>
             <button
-              class="button px-3 py-1 rounded-lg flex items-center !bg-transparent border border-white"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
             >
-              <span class="material-symbols-outlined">print</span>
+              <span class="material-symbols-outlined !text-xl">print</span>
+            </button>
+            <button
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              @click="deleteRecipe"
+            >
+              <span class="material-symbols-outlined !text-xl">delete</span>
             </button>
           </div>
         </div>
@@ -43,35 +51,39 @@
             {{ timeAgo(recipeStore.recipe?.created_at) }}</span
           >
         </div>
-        <div class="flex items-center gap-1 flex-wrap">
+        <div class="flex items-center gap-[2px] flex-wrap">
           <FormsRatingField
             v-if="recipeStore.recipe?.rating"
             v-model="recipeStore.recipe.rating"
             :select="false"
-            :star-width="20"
-            :star-height="20"
+            :star-width="18"
+            :star-height="18"
             :spacing="-2"
             :id="250"
           ></FormsRatingField>
           <span class="text-sm font-semibold"
             >{{ recipeStore.recipe?.rating?.toFixed(1) }}
           </span>
-          <span class="material-symbols-outlined ml-3 !text-2xl">timer</span>
+          <span class="mx-2 text-xl">·</span>
+          <span class="material-symbols-outlined !text-xl">timer</span>
           <span class="text-sm"
             >{{ capitalize(recipeStore.recipe?.effort) }} Effort</span
           >
-          <span class="material-symbols-outlined ml-3 !text-2xl">bolt</span>
+          <span class="mx-2 text-xl">·</span>
+          <span class="material-symbols-outlined !text-xl">bolt</span>
           <span class="text-sm"
             >{{ capitalize(recipeStore.recipe?.difficulty) }} Difficulty</span
           >
-          <span class="material-symbols-outlined ml-3 !text-2xl"
-            >attach_money</span
-          >
+          <span class="mx-2 text-xl">·</span>
+          <span class="material-symbols-outlined !text-xl">attach_money</span>
           <span class="text-sm"
             >{{ formatMoney(recipeStore.recipe?.price) }} per serving</span
           >
         </div>
-        <div class="">
+        <div
+          class="text-sm leading-relaxed max-w-[80ch]"
+          @click="showFullDescriptionDesktop = !showFullDescriptionDesktop"
+        >
           <span
             v-if="
               !showFullDescriptionDesktop &&
@@ -81,7 +93,6 @@
           >
             {{ recipeStore.recipe.description.slice(0, desktopCharLimit) }}...
             <button
-              @click="showFullDescriptionDesktop = true"
               class="text-secondary-400 hover:text-secondary-300 underline ml-1"
             >
               View More
@@ -96,7 +107,6 @@
           >
             {{ recipeStore.recipe.description }}
             <button
-              @click="showFullDescriptionDesktop = false"
               class="text-secondary-400 hover:text-secondary-300 underline ml-1"
             >
               View Less
@@ -106,25 +116,51 @@
             {{ recipeStore.recipe?.description }}
           </span>
         </div>
-        <div class="flex flex-wrap gap-2">
+        <div class="grid grid-cols-[4fr_1fr] gap-20 items-end">
           <div
-            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border border-white"
-            v-if="recipeStore.recipe?.tags"
-            v-for="tag in recipeStore.recipe?.tags"
-            :key="tag"
+            class="flex flex-row-reverse flex-wrap-reverse gap-2 items-start justify-end"
           >
-            {{ getTagByID(tag)?.name }}
+            <div
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100"
+              v-if="recipeStore.recipe?.mappedTags"
+              v-for="tag in recipeStore.recipe?.mappedTags"
+              :key="tag.tag_id"
+            >
+              {{ tag.name }}
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 items-end justify-end">
+            <button
+              @click="scrollIntoView(commentSection as HTMLElement)"
+              class="text-sm px-2 py-1 rounded-lg bg-slate-700/40 text-slate-100 flex items-center gap-1"
+            >
+              Reviews
+              <span class="material-symbols-outlined !text-sm">
+                keyboard_arrow_down
+              </span>
+            </button>
+            <button
+              @click="scrollIntoView(nutritionSection as HTMLElement)"
+              class="text-sm px-2 py-1 rounded-lg bg-slate-700/40 text-slate-100 flex items-center gap-1"
+            >
+              Nutrition
+              <span class="material-symbols-outlined !text-sm">
+                keyboard_arrow_down
+              </span>
+            </button>
+            <NuxtLink
+              :to="`/recipe/${id}/report`"
+              class="text-sm text-right px-2 py-1 rounded-lg bg-slate-700 text-slate-100 flex items-center gap-1"
+            >
+              Full Health Report
+              <span class="material-symbols-outlined !text-sm">
+                open_in_new
+              </span>
+            </NuxtLink>
           </div>
         </div>
-        <div class="flex flex-wrap gap-6 mt-4">
-          <NuxtLink to="#comments" class="text-sm">Reviews ⌵</NuxtLink>
-          <NuxtLink to="#nutrition" class="text-sm">Nutrition ⌵</NuxtLink>
-          <NuxtLink :to="`/recipe/${id}/report`" class="text-sm"
-            >Full Health Report →</NuxtLink
-          >
-        </div>
       </div>
-      <div class="flex gap-10 mt-10 max-w-screen-lg mx-auto flex-wrap">
+      <div class="flex gap-10 gap-y-6 mt-10 max-w-screen-lg mx-auto flex-wrap">
         <PagesRecipeIngredientList
           :ingredients="recipeStore.recipe?.ingredients"
           class="flex-1"
@@ -136,7 +172,7 @@
           :hideHeader="false"
         ></PagesRecipeInstructionContainer>
         <NutritionLabel
-          id="nutrition"
+          ref="nutritionSection"
           v-if="recipeStore.recipe"
           :recipe="recipeStore.recipe"
           class="flex-1"
@@ -146,7 +182,10 @@
           :recipe="recipeStore.recipe"
           class="flex-1"
         ></HealthFacts>
-        <PagesRecipeCommentSection :id="0"></PagesRecipeCommentSection>
+        <PagesRecipeCommentSection
+          ref="commentSection"
+          :id="0"
+        ></PagesRecipeCommentSection>
       </div>
     </div>
 
@@ -156,7 +195,7 @@
         :style="{ backgroundImage: `url(${recipeStore.recipe?.picture})` }"
       >
         <div
-          class="absolute inset-0 bg-gradient-to-b from-main via-transparent to-transparent opacity-80 z-0 h-50"
+          class="absolute inset-0 bg-gradient-to-b from-main via-transparent to-transparent opacity-35 z-0 h-70"
         ></div>
         <div class="flex justify-between items-center z-10">
           <button
@@ -178,7 +217,10 @@
             >
               <span class="material-symbols-outlined">edit</span>
             </NuxtLink>
-            <button class="button p-2 rounded-lg flex items-center shadow-lg">
+            <button
+              class="button p-2 rounded-lg flex items-center shadow-lg"
+              @click="deleteRecipe"
+            >
               <span class="material-symbols-outlined">delete</span>
             </button>
           </div>
@@ -186,31 +228,24 @@
       </div>
 
       <div
-        ref="draggableSection"
+        ref="mobileOverlay"
         class="bg-white rounded-t-4xl z-10 relative"
-        :style="{ marginTop: `${dragOffset}px` }"
-        @touchstart="handleContentTouchStart"
-        @touchmove="handleTouchMove"
-        @touchend="handleTouchEnd"
-        @mousedown="handleContentMouseDown"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @mouseleave="handleMouseUp"
+        :style="{ marginTop: `${overlayMarginTop}px` }"
+        @touchstart="handleTouchStart"
       >
         <div
-          class="w-full h-14 flex items-center justify-center"
-          ref="dragHandle"
-          @touchstart.stop="handleHandleTouchStart"
-          @mousedown.stop="handleHandleMouseDown"
+          class="w-full h-14 flex items-center justify-center cursor-pointer"
         >
-          <div
-            class="h-[6px] mx-auto bg-gray-300 rounded-lg w-16 cursor-grab active:cursor-grabbing"
-          ></div>
+          <div class="h-[6px] mx-auto bg-gray-300 rounded-lg w-16"></div>
         </div>
         <div class="flex flex-col gap-1 px-6">
-          <h1 class="text-3xl font-extrabold">
-            {{ recipeStore.recipe?.title }}
-          </h1>
+          <div
+            class="px-2 py-1 mt-4 border-3 border-primary rounded-lg self-start"
+          >
+            <h1 class="text-3xl font-extrabold">
+              {{ recipeStore.recipe?.title }}
+            </h1>
+          </div>
           <div class="mt-4">
             <div class="flex items-center gap-2">
               <FormsRatingField
@@ -247,7 +282,10 @@
               </div>
             </div>
           </div>
-          <div class="text-sm text-gray-600 mt-4">
+          <div
+            class="text-sm text-gray-600 mt-4"
+            @click="showFullDescriptionMobile = !showFullDescriptionMobile"
+          >
             <span
               v-if="
                 !showFullDescriptionMobile &&
@@ -257,8 +295,7 @@
             >
               {{ recipeStore.recipe.description.slice(0, mobileCharLimit) }}...
               <button
-                @click="showFullDescriptionMobile = true"
-                class="text-primary-600 hover:text-primary-500 underline ml-1"
+                class="text-primary/60 hover:text-primary/80 underline ml-1"
               >
                 View More
               </button>
@@ -272,8 +309,7 @@
             >
               {{ recipeStore.recipe.description }}
               <button
-                @click="showFullDescriptionMobile = false"
-                class="text-primary-600 hover:text-primary-500 underline ml-1"
+                class="text-primary/60 hover:text-primary/80 underline ml-1"
               >
                 View Less
               </button>
@@ -285,11 +321,11 @@
           <div class="flex flex-wrap gap-2 mt-4">
             <div
               class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium metallic-gradient-simple"
-              v-if="recipeStore.recipe?.tags"
-              v-for="tag in recipeStore.recipe?.tags"
-              :key="tag"
+              v-if="recipeStore.recipe?.mappedTags"
+              v-for="tag in recipeStore.recipe?.mappedTags"
+              :key="tag.tag_id"
             >
-              {{ getTagByID(tag)?.name }}
+              {{ tag.name }}
             </div>
           </div>
           <div ref="scrollTarget" class="mt-8 h-0"></div>
@@ -298,7 +334,7 @@
               v-model="mobileChosen"
               :choices="mobileChoices"
               :hideIcon="true"
-              @click.capture="scrollSliderIntoView(scrollTarget as HTMLElement)"
+              @click.capture="scrollIntoView(scrollTarget as HTMLElement)"
             />
           </div>
           <div>
@@ -321,7 +357,7 @@
             id="nutrition"
             v-if="recipeStore.recipe"
             :recipe="recipeStore.recipe"
-            class="flex-1"
+            class="flex-1 mt-8"
           ></NutritionLabel>
           <HealthFacts
             v-if="recipeStore.recipe"
@@ -339,170 +375,100 @@
 const route = useRoute();
 const router = useRouter();
 const recipeStore = useRecipeStore();
+const supabase = useSupabaseClient();
+const auth = useAuthStore();
+
 const id = Number(route.params.id);
 const mobileChosen = ref('INGREDIENTS');
 const mobileChoices = ref<[string, string][]>([
   ['INGREDIENTS', ''],
   ['METHOD', ''],
 ]);
+
 const scrollTarget = ref<HTMLElement>();
+const commentSection = ref<HTMLElement>();
+const nutritionSection = ref<HTMLElement>();
+const mobileOverlay = ref<HTMLElement>();
+
 const showFullDescriptionDesktop = ref(false);
 const showFullDescriptionMobile = ref(false);
-const desktopCharLimit = 400;
+const desktopCharLimit = 200;
 const mobileCharLimit = 200;
 
-const draggableSection = ref<HTMLElement>();
-const dragHandle = ref<HTMLElement>();
-const dragOffset = ref(-20);
-const isDragging = ref(false);
-const isHandleDrag = ref(false);
-const startY = ref(0);
-const startOffset = ref(0);
-
-const handleContentTouchStart = (e: TouchEvent) => {
-  // Only start dragging if we're at the top of scrollable content AND at maxOffset
-  const target = e.target as HTMLElement;
-  const scrollableParent = findScrollableParent(target);
-
-  // If there's scrollable content that can still scroll up, don't drag
-  if (scrollableParent && scrollableParent.scrollTop > 0) {
-    return;
-  }
-
-  // Only allow dragging up when we're at maxOffset (fully dragged down)
-  if (dragOffset.value >= -20) {
-    startDrag(e.touches[0].clientY);
-  }
-};
-
-const handleContentMouseDown = (e: MouseEvent) => {
-  // Only start dragging if we're at the top of scrollable content AND at maxOffset
-  const target = e.target as HTMLElement;
-  const scrollableParent = findScrollableParent(target);
-
-  // If there's scrollable content that can still scroll up, don't drag
-  if (scrollableParent && scrollableParent.scrollTop > 0) {
-    return;
-  }
-
-  // Only allow dragging up when we're at maxOffset (fully dragged down)
-  if (dragOffset.value >= -20) {
-    startDrag(e.clientY);
-  }
-};
-
-const findScrollableParent = (element: HTMLElement): HTMLElement | null => {
-  let parent = element.parentElement;
-
-  while (parent) {
-    const overflow = window.getComputedStyle(parent).overflow;
-    const overflowY = window.getComputedStyle(parent).overflowY;
-
-    if (
-      (overflow === 'auto' ||
-        overflow === 'scroll' ||
-        overflowY === 'auto' ||
-        overflowY === 'scroll') &&
-      parent.scrollHeight > parent.clientHeight
-    ) {
-      return parent;
-    }
-
-    parent = parent.parentElement;
-  }
-
-  return null;
-};
-
-const handleHandleTouchStart = (e: TouchEvent) => {
-  isHandleDrag.value = true;
-  startDrag(e.touches[0].clientY);
-};
-
-const handleHandleMouseDown = (e: MouseEvent) => {
-  isHandleDrag.value = true;
-  startDrag(e.clientY);
-};
-
-const startDrag = (clientY: number) => {
-  isDragging.value = true;
-  startY.value = clientY;
-  startOffset.value = dragOffset.value;
-  document.body.style.userSelect = 'none';
-};
-
-const handleTouchMove = (e: TouchEvent) => {
-  if (isDragging.value) {
-    const newY = e.touches[0].clientY;
-    const deltaY = newY - startY.value;
-    const potentialOffset = startOffset.value + deltaY;
-
-    // If we're trying to drag further up than minOffset, stop dragging and allow page scroll
-    if (potentialOffset < -300) {
-      endDrag();
-      return;
-    }
-
-    e.preventDefault();
-    updateDragPosition(newY);
-  }
-};
-
-const handleMouseMove = (e: MouseEvent) => {
-  if (isDragging.value) {
-    const newY = e.clientY;
-    const deltaY = newY - startY.value;
-    const potentialOffset = startOffset.value + deltaY;
-
-    // If we're trying to drag further up than minOffset, stop dragging and allow page scroll
-    if (potentialOffset < -300) {
-      endDrag();
-      return;
-    }
-
-    e.preventDefault();
-    updateDragPosition(newY);
-  }
-};
-
-const updateDragPosition = (clientY: number) => {
-  const deltaY = clientY - startY.value;
-  let newOffset = startOffset.value + deltaY;
-
-  const minOffset = -300;
-  const maxOffset = -20;
-
-  newOffset = Math.max(minOffset, Math.min(maxOffset, newOffset));
-  dragOffset.value = newOffset;
-};
-
-const handleTouchEnd = () => {
-  endDrag();
-};
-
-const handleMouseUp = () => {
-  endDrag();
-};
-
-const endDrag = () => {
-  isDragging.value = false;
-  isHandleDrag.value = false;
-  document.body.style.userSelect = '';
-};
-
-const scrollSliderIntoView = async (target: HTMLElement) => {
-  if (!target) return;
-  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
+const overlayMarginTop = ref(-32);
+const minMarginTop = -300;
+const maxMarginTop = -32;
 
 if (id) {
   const { data } = await useRecipe({
     eq: { id },
   });
-  recipeStore.setRecipe(data.value as RecipeProcessed);
+  const recipe = data.value as RecipeProcessed;
+  recipe.mappedTags = recipe.tags.map((tag: any) => getTagByID(tag));
+  recipe.mappedTags.sort((a: any, b: any) => a.value - b.value);
+
+  recipeStore.setRecipe(recipe);
 }
 
 useHead({
   title: recipeStore.recipe?.title + ' | Rezeptor',
 });
+
+const scrollIntoView = async (target: HTMLElement | undefined) => {
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+onMounted(() => {
+  if (mobileOverlay.value) {
+    mobileOverlay.value.addEventListener('touchmove', handleTouchMove, {
+      passive: false,
+    });
+  }
+});
+
+onUnmounted(() => {
+  if (mobileOverlay.value) {
+    mobileOverlay.value.removeEventListener('touchmove', handleTouchMove);
+  }
+});
+
+let touchStartY = 0;
+let lastTouchY = 0;
+
+const handleTouchStart = (event: TouchEvent) => {
+  touchStartY = event.touches[0].clientY;
+  lastTouchY = touchStartY;
+};
+
+const handleTouchMove = (event: TouchEvent) => {
+  if (!event.cancelable) {
+    return;
+  }
+  const touch = event.touches[0];
+  const deltaY = lastTouchY - touch.clientY;
+  lastTouchY = touch.clientY;
+  if (
+    (overlayMarginTop.value <= minMarginTop && deltaY > 0) ||
+    (overlayMarginTop.value >= maxMarginTop && deltaY < 0)
+  ) {
+    return;
+  }
+  event.preventDefault();
+  const newMarginTop = Math.max(
+    minMarginTop,
+    Math.min(maxMarginTop, overlayMarginTop.value - deltaY)
+  );
+  overlayMarginTop.value = newMarginTop;
+};
+
+const deleteRecipe = async () => {
+  if (auth?.user?.username !== 'administrator') {
+    return;
+  }
+  await supabase.from('recipes').delete().eq('id', id);
+  recipeStore.deleteRecipe(id);
+  recipeStore.setRecipe({} as RecipeProcessed);
+  router.push('/');
+};
 </script>

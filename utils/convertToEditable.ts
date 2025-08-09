@@ -1,5 +1,4 @@
 import { getFoods } from "~/utils/db/getters/getFoods";
-import pluralize  from "~/utils/format/pluralize";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 type JsonUploadRecipe = {
