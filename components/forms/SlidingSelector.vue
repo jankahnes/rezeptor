@@ -30,8 +30,6 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-
 const props = defineProps({
   modelValue: {
     type: [String, Number],
@@ -49,7 +47,6 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue']);
 
-// Touch interaction
 const dragOffset = ref(0);
 const dragging = ref(false);
 const lastSelectedIndex = ref(props.choices.indexOf(props.modelValue));

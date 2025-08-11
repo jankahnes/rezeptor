@@ -1,6 +1,6 @@
 <template>
   <div
-    class="py-4 w-full max-w-110 rounded-md relative h-max text-[14px] mx-auto"
+    class="py-4 rounded-md relative h-max text-sm flex-[0_1_250px]"
   >
     <div class="flex gap-4 w-full">
       <NuxtLink

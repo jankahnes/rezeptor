@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col w-full gap-6 mt-4 items-start md:items-center" ref="root">
-    <div class="flex flex-col items-start p-2 md:p-6">
+  <div class="flex flex-col gap-6 mt-4 items-start p-2 md:p-6" ref="root">
+    <div class="flex flex-col items-start">
       <div class="!pb-3">
         <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
           <h2 class="text-lg font-bold">WHAT OTHERS SAY</h2>
@@ -11,26 +11,20 @@
         {{ recipe.recipe?.comments?.length === 1 ? 'comment' : 'comments' }}
       </p>
     </div>
-    <div class="gap-4 flex flex-col items-start">
-      <div
-        class="relative bg-main flex flex-col items-center justify-center my-4 gap-1"
-      >
-        <span class="text-bold text-2xl">Your Rating:</span
-        ><FormsRatingField
-          class="text-primary"
-          v-model="userRating"
-          @update:model-value="updateRating"
-          :select="true"
-          :star-width="32"
-          :star-height="32"
-          :spacing="-2"
-          :id="950 + id"
-        ></FormsRatingField>
-      </div>
+    <div class="relative flex flex-col gap-1 my-4">
+      <span class="text-bold text-xl">Your Rating:</span
+      ><FormsRatingField
+        class="text-primary"
+        v-model="userRating"
+        @update:model-value="updateRating"
+        :select="true"
+        :star-width="26"
+        :star-height="26"
+        :spacing="-2"
+        :id="950 + id"
+      ></FormsRatingField>
     </div>
-    <div
-      class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4 w-full"
-    >
+    <div class="flex flex-wrap gap-4 w-full gap-y-8">
       <div
         v-if="!hasComment && auth.user"
         class="p-2 max-w-90 w-full relative bg-main flex items-center justify-center h-max mx-auto"

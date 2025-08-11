@@ -3,17 +3,26 @@
     <div
       class="mx-auto max-w-screen-xl justify-center relative px-3 hidden md:block"
     >
-      <div class="relative w-full md:h-120 rounded-xl overflow-hidden">
+      <div
+        class="relative w-full rounded-xl overflow-hidden"
+        :class="isProcessed ? 'h-150' : 'h-120'"
+      >
         <NuxtImg
           :src="recipeStore.recipe?.picture ?? undefined"
-          class="object-cover w-full h-full"
+          class="w-full h-full"
+          :class="{
+            'object-cover': !isProcessed,
+            'object-contain': isProcessed,
+          }"
         />
         <div
+          v-if="!isProcessed"
           class="inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute z-0"
         ></div>
       </div>
       <div
-        class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto -mt-50 relative z-10"
+        class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto relative z-10"
+        :class="isProcessed ? '-mt-80' : '-mt-50'"
       >
         <div class="flex justify-between items-start gap-10">
           <h1 class="text-5xl font-bold tracking-tight">
@@ -122,8 +131,8 @@
           >
             <div
               class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100"
-              v-if="recipeStore.recipe?.mappedTags"
-              v-for="tag in recipeStore.recipe?.mappedTags"
+              v-if="(recipeStore.recipe as any)?.mappedTags"
+              v-for="tag in (recipeStore.recipe as any)?.mappedTags"
               :key="tag.tag_id"
             >
               {{ tag.name }}
@@ -185,13 +194,30 @@
         <PagesRecipeCommentSection
           ref="commentSection"
           :id="0"
+          class="flex-[1_1_60%]"
         ></PagesRecipeCommentSection>
+        <div
+          class="mt-6 p-2 md:p-6 flex-[1_0_40%] flex flex-col gap-2 items-start"
+        >
+          <div class="py-1 px-4 bg-primary text-white rounded-lg">
+            <h2 class="text-lg font-bold">SIMILAR RECIPES</h2>
+          </div>
+          <div class="flex gap-2">
+            <RecipeCard
+              v-for="recipe in similarRecipes"
+              :key="recipe.id"
+              :recipe="recipe"
+              class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="md:hidden">
       <div
-        class="w-full h-100 object-cover bg-cover bg-center bg-no-repeat p-4 relative z-0"
+        class="w-full h-100 bg-cover bg-center bg-no-repeat p-4 relative z-0"
+        :class="{ '!bg-[length:120%] !bg-[position:center_60px]': isProcessed }"
         :style="{ backgroundImage: `url(${recipeStore.recipe?.picture})` }"
       >
         <div
@@ -200,25 +226,25 @@
         <div class="flex justify-between items-center z-10">
           <button
             @click="router.back()"
-            class="button p-2 rounded-lg flex items-center shadow-lg"
+            class="button p-2 rounded-lg flex items-center shadow-xl"
           >
             <span class="material-symbols-outlined">close</span>
           </button>
           <div class="flex items-center gap-2">
-            <button class="button p-2 rounded-lg flex items-center shadow-lg">
+            <button class="button p-2 rounded-lg flex items-center shadow-xl">
               <span class="material-symbols-outlined">share</span>
             </button>
-            <button class="button p-2 rounded-lg flex items-center shadow-lg">
+            <button class="button p-2 rounded-lg flex items-center shadow-xl">
               <span class="material-symbols-outlined">print</span>
             </button>
             <NuxtLink
               :to="{ path: '/recipe/new', query: { editCurrent: 'true' } }"
-              class="button p-2 rounded-lg flex items-center shadow-lg"
+              class="button p-2 rounded-lg flex items-center shadow-xl"
             >
               <span class="material-symbols-outlined">edit</span>
             </NuxtLink>
             <button
-              class="button p-2 rounded-lg flex items-center shadow-lg"
+              class="button p-2 rounded-lg flex items-center shadow-xl"
               @click="deleteRecipe"
             >
               <span class="material-symbols-outlined">delete</span>
@@ -321,8 +347,8 @@
           <div class="flex flex-wrap gap-2 mt-4">
             <div
               class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium metallic-gradient-simple"
-              v-if="recipeStore.recipe?.mappedTags"
-              v-for="tag in recipeStore.recipe?.mappedTags"
+              v-if="(recipeStore.recipe as any)?.mappedTags"
+              v-for="tag in (recipeStore.recipe as any)?.mappedTags"
               :key="tag.tag_id"
             >
               {{ tag.name }}
@@ -365,6 +391,20 @@
             class="flex-1 mt-8"
           ></HealthFacts>
           <PagesRecipeCommentSection :id="10"></PagesRecipeCommentSection>
+          <div class="mt-6 p-2 flex-[1_1_100%] flex flex-col gap-2 items-start">
+            <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
+              <h2 class="text-lg font-bold">SIMILAR RECIPES</h2>
+            </div>
+            <div class="flex gap-2 flex-col mt-4">
+              <RecipeCard
+                v-for="recipe in similarRecipes"
+                :key="recipe.id"
+                :recipe="recipe"
+                horizontal
+                class="text-lg flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -395,20 +435,49 @@ const showFullDescriptionMobile = ref(false);
 const desktopCharLimit = 200;
 const mobileCharLimit = 200;
 
-const overlayMarginTop = ref(-32);
+const overlayMarginTop = ref(-100);
 const minMarginTop = -300;
 const maxMarginTop = -32;
 
-if (id) {
-  const { data } = await useRecipe({
-    eq: { id },
-  });
-  const recipe = data.value as RecipeProcessed;
-  recipe.mappedTags = recipe.tags.map((tag: any) => getTagByID(tag));
-  recipe.mappedTags.sort((a: any, b: any) => a.value - b.value);
+const isProcessed = ref(false);
+const similarRecipes = ref<RecipeProcessed[]>([]);
 
-  recipeStore.setRecipe(recipe);
-}
+watch(
+  () => recipeStore.recipe?.picture,
+  (newUrl) => {
+    if (!newUrl) {
+      isProcessed.value = false;
+      return;
+    }
+
+    const img = new Image();
+    img.src = newUrl;
+
+    img.onload = () => {
+      isProcessed.value = img.naturalWidth === 500 && img.naturalHeight === 500;
+    };
+
+    img.onerror = () => {
+      isProcessed.value = false;
+    };
+  },
+  { immediate: true }
+);
+
+const loadRecipe = async (recipeId: number) => {
+  if (recipeId) {
+    const { data } = await useRecipe({
+      eq: { id: recipeId },
+    });
+    const recipe = data.value as RecipeProcessed;
+    (recipe as any).mappedTags = recipe.tags.map((tag: any) => getTagByID(tag));
+    (recipe as any).mappedTags.sort((a: any, b: any) => a.value - b.value);
+
+    recipeStore.setRecipe(recipe);
+  }
+};
+
+await loadRecipe(id);
 
 useHead({
   title: recipeStore.recipe?.title + ' | Rezeptor',
@@ -419,12 +488,20 @@ const scrollIntoView = async (target: HTMLElement | undefined) => {
   target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (mobileOverlay.value) {
     mobileOverlay.value.addEventListener('touchmove', handleTouchMove, {
       passive: false,
     });
   }
+  const recipes = await getRecipesPartial(supabase, {
+    eq: { visibility: 'PUBLIC' },
+    neq: { id },
+    not: { picture: null },
+    orderBy: { column: 'created_at', ascending: false },
+    limit: 3,
+  });
+  similarRecipes.value = recipes as RecipeProcessed[];
 });
 
 onUnmounted(() => {
@@ -455,15 +532,17 @@ const handleTouchMove = (event: TouchEvent) => {
     return;
   }
   event.preventDefault();
+
+  const sensitivity = 1.5;
   const newMarginTop = Math.max(
     minMarginTop,
-    Math.min(maxMarginTop, overlayMarginTop.value - deltaY)
+    Math.min(maxMarginTop, overlayMarginTop.value - deltaY * sensitivity)
   );
   overlayMarginTop.value = newMarginTop;
 };
 
 const deleteRecipe = async () => {
-  if (auth?.user?.username !== 'administrator') {
+  if ((auth?.user as any)?.username !== 'administrator') {
     return;
   }
   await supabase.from('recipes').delete().eq('id', id);

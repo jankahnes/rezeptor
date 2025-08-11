@@ -26,6 +26,7 @@ export type RecipeFood = Database['public']['Tables']['recipe_foods']['Row'];
 
 export type GetterOpts = {
   eq?: Record<string, any>;
+  neq?: Record<string, any>;
   in?: Record<string, any[]>;
   not?: Record<string, any>;
   limit?: number;

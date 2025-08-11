@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     }
   }
   const recipe = await convertJsonToEditable(body, client);
-  const recipeCalc = new RecipeCalculator(recipe, true, false, false, false);
+  const recipeCalc = new RecipeCalculator(recipe, true, false, false, true);
   await recipeCalc.computeRecipe();
 
   const recipeRow = stripKeys(recipeCalc.recipeComputed, recipeKeys);
