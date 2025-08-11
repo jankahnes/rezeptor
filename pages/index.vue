@@ -35,7 +35,7 @@
           <div
             v-for="category in categories"
             :key="category.tag"
-            class="flex flex-col sm:flex-row items-center gap-2 p-2 transition-all duration-300 flex-shrink-0 button category-button m-1"
+            class="flex flex-col sm:flex-row items-center gap-x-1 px-2 py-1 transition-all duration-300 flex-shrink-0 button category-button m-1"
           >
             <span class="text-2xl">{{ category.icon }}</span>
             <span
@@ -53,13 +53,13 @@
         <h2 class="text-xl sm:text-2xl font-bold">Recommendations</h2>
         <NuxtLink to="/recipes" class="text-sm text-gray-500">See all</NuxtLink>
       </div>
-      <div class="mt-4">
+      <div class="mt-2">
         <Carousel class="">
           <RecipeCard
             v-for="recipe in recipeStore.indexRecipes"
             :key="recipe.id"
             :recipe="recipe"
-            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
+            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4"
           />
         </Carousel>
       </div>

@@ -118,7 +118,7 @@ type ParsedPart = {
     styling: string;
 }
 
-export async function parseIngredientString(client: SupabaseClient, ingredientString: string) {
+export async function parseIngredientString(client: SupabaseClient, ingredientString: string, hasIngredient: boolean = true) {
     let amount = null;
     let unit = 'UNITS';
     let ingredient = null;
@@ -161,11 +161,8 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
             continue;
         }
         
-        // Everything else should be ingredient name - take remaining words
         const remainingWords = tokens.slice(i).join(' ');
         
-        // The rest is ingredient. Stop parsing ingredient if we find a ( or ,
-        // Check if it matches pattern: ingredient (extra) OR ingredient, (any amt of spaces) extra
         const ingredientRegex = /^(.+?)(?:\s*\(|,\s*)(.+?)(?:\))?$/;
         const match = remainingWords.match(ingredientRegex);
         
@@ -178,19 +175,50 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
         } else {
             searchTerm = remainingWords.trim();
         }
-        
-        if (searchTerm) {
+
+        if (searchTerm && hasIngredient) {
             try {
-                const { data, error } = await client.rpc('search_foods', {
-                    query: searchTerm,
-                    max: 1,
-                });
+                const searchWords = searchTerm.split(' ');
+                const candidates = [];
                 
-                if (data?.[0]) {
-                    ingredient = data[0].food;
-                    ingredient.name = data[0].matched_alias ?? ingredient.name;
+                if (searchWords.length > 1) {
+                    for (let i = 0; i < searchWords.length; i++) {
+                        candidates.push(searchWords.slice(i).join(' '));
+                    }
+                } else {
+                    candidates.push(searchTerm);
+                }
+                
+                let bestResult = null;
+                let bestSimilarity = -1;
+                
+                let bestCandidateIndex = 0;
+                for (let j = 0; j < candidates.length; j++) {
+                    const candidate = candidates[j];
+                    const { data, error } = await client.rpc('search_foods', {
+                        query: candidate,
+                        max: 1,
+                    });
+                    if (data?.[0] && data[0].best_similarity > bestSimilarity) {
+                        bestResult = data[0];
+                        bestSimilarity = data[0].best_similarity;
+                        bestCandidateIndex = j;
+                        if(j==0 && bestSimilarity > 0.8) {
+                            break;
+                        }
+                    }
+                }
+                
+                if (bestResult) {
+                    if (bestCandidateIndex > 0) {   
+                        const excludedWords = searchWords.slice(0, bestCandidateIndex).join(' ');
+                        const excludedParsed = await parseIngredientString(client, excludedWords, false);
+                        parsed.push(...excludedParsed.parsed);
+                    }
+                    ingredient = bestResult.food;
+                    ingredient.name = bestResult.matched_alias ?? ingredient.name;
                     
-                    if(unit == "UNITS" && amount && amount > 1) {
+                    if(unit == "UNITS" && amount && amount > 1 && !parsed.some(p => p.text.toLowerCase() == 'of')) {
                         ingredient.name = pluralizeWord(ingredient.name);
                     }
 
@@ -207,7 +235,6 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
             }
         }
         
-        // If no ingredient found, mark as ignored
         parsed.push({ text: word, styling: ignoredStyling });
     }
 

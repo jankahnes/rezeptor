@@ -10,6 +10,12 @@ export default function buildQuery(
     }
   }
 
+  if (opts.neq) {
+    for (const [key, value] of Object.entries(opts.neq)) {
+      query = query.neq(key, value);
+    }
+  }
+
   if (opts.limit) {
     query = query.limit(opts.limit);
   }

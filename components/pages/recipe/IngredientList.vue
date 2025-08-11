@@ -28,15 +28,13 @@
           </transition>
         </div>
       </div>
-      <p class="text-sm text-gray-600 ml-1 font-light">
-        Servings:
-        <FormsSlidingSelector
-          v-model="servingSize"
-          :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
-          :expanded="false"
-          class="max-w-[180px] -ml-2"
-        />
-      </p>
+      <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
+      <FormsSlidingSelector
+        v-model="servingSize"
+        :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+        :expanded="false"
+        class="max-w-[180px] -ml-2"
+      />
     </div>
 
     <div class="flex-1 px-2 md:px-6 pb-2">

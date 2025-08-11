@@ -12,7 +12,7 @@
       <div ref="desktopContainer" class="overflow-hidden">
         <div
           ref="desktopSlider"
-          class="flex items-center gap-2 py-[1px] select-none cursor-grab active:cursor-grabbing"
+          class="flex items-center gap-2 select-none cursor-grab active:cursor-grabbing w-max"
           :class="{
             'transition-transform duration-300 ease-in-out':
               !isDragging && !isDecelerating,

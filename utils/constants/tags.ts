@@ -44,9 +44,8 @@ export const TAGS = [
   { id: 215, name: 'dip', value: 0, category: 'TYPE' }, //ai
   { id: 216, name: 'casserole', value: 0, category: 'TYPE' }, //ai
   { id: 217, name: 'cocktail', value: 0, category: 'TYPE' }, //ai
-  { id: 218, name: 'bread', value: 0, category: 'TYPE' }, //ai
-  { id: 219, name: 'cake', value: 0, category: 'TYPE' }, //ai
-  { id: 220, name: 'other baked good', value: 0, category: 'TYPE' }, //ai
+  { id: 218, name: 'savory baked good / bread', value: 0, category: 'TYPE' }, //ai
+  { id: 219, name: 'sweet baked good', value: 0, category: 'TYPE' }, //ai
 
   { id: 300, name: 'global', value: 3, category: 'CUISINE' }, //ai
   { id: 301, name: 'fusion', value: 5, category: 'CUISINE' }, //ai

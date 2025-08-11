@@ -108,6 +108,13 @@
               </div>
             </div>
           </div>
+          <button
+            class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary-20 text-primary text-xs will-change-transform self-start ml-8"
+            v-if="card.name == 'micronutrients'"
+            @click="toggleMicronutrientOverview"
+          >
+            {{ micronutrientOverviewExpanded ? 'Show less' : 'Show more' }}
+          </button>
         </div>
 
         <!-- Detail Card: Total Vitamins -->
@@ -289,6 +296,19 @@ useHead({
   title: 'Nutritional Report | Rezeptor',
 });
 
+const micronutrientOverviewExpanded = ref(false);
+
+
+function toggleMicronutrientOverview() {
+  micronutrientOverviewExpanded.value = !micronutrientOverviewExpanded.value;
+  if (micronutrientOverviewExpanded.value) {
+    readableSummaryCards.value.find(card => card.name == 'micronutrients')!.humanReadable = report.value?.humanReadable.micronutrients;
+  } else {
+    readableSummaryCards.value.find(card => card.name == 'micronutrients')!.humanReadable = report.value?.humanReadable.micronutrients.slice(0, 5);
+  }
+}
+
+
 function fillReadableSummaryCards() {
   for (const card of readableSummaryCards.value) {
     const percentile = report.value?.percentiles[card.col];
@@ -307,6 +327,8 @@ function fillReadableSummaryCards() {
     }
     readableSummaryCards.value.sort((a, b) => b.relevancy - a.relevancy);
   }
+  micronutrientOverviewExpanded.value = true;
+  toggleMicronutrientOverview();
   // Set the first three cards to have the "highlight" class
   for (let i = 0; i < 3 && i < readableSummaryCards.value.length; i++) {
     readableSummaryCards.value[i].class = 'highlight';
