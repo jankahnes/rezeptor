@@ -1,4 +1,7 @@
 export const recipeKeys = [
+  'added_fat',
+  'added_salt',
+  'batch_size',
   'carbohydrates',
   'collection',
   'created_at',

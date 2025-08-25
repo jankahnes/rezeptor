@@ -7,7 +7,7 @@ export default defineEventHandler(async (event): Promise<string> => {
 
   try {
     const response = await openai.responses.create({
-      model: 'gpt-4.1-mini',
+      model: body?.model ||'gpt-5-mini',
       instructions: body.systemPrompt,
       input: body.message,
     });

@@ -9,14 +9,14 @@ export const ignoredStyling = "font-normal text-gray-600 py-1 px-2 rounded-md bg
 
 const ignoreWords = ["a", "an", "the", "of"];
 
-const numeric = {
+const numeric: Record<string, number> = {
     "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
     "eight": 8, "nine": 9, "ten": 10, "half": 0.5, "quarter": 0.25, "three-quarters": 0.75,
     '½': 0.5, '¼': 0.25, '¾': 0.75, '⅓': 1/3, '⅔': 2/3, '⅛': 0.125, '⅜': 0.375, 
     '⅝': 0.625, '⅞': 0.875, 'dozen': 12,
 };
 
-const units = {
+export const unitToDBMap: Record<string, string> = {
     'g': 'G', 'gram': 'G', 'grams': 'G',
     'ml': 'ML', 'milliliter': 'ML', 'milliliters': 'ML',
     'tsp': 'TSP', 'teaspoon': 'TSP', 'teaspoons': 'TSP',
@@ -26,7 +26,7 @@ const units = {
     'lb': 'LB', 'pound': 'LB', 'pounds': 'LB', 'lbs': 'LB',
     'l': 'L', 'liter': 'L', 'liters': 'L',
     'kg': 'KG', 'kilogram': 'KG', 'kilograms': 'KG',
-    'pinch': 'FREE', 'pinches': 'FREE',
+    'pinch': 'FREE', 'pinches': 'FREE', 'free': 'FREE',
 };
 
 function parseNumeric(word: string): number | null {
@@ -91,7 +91,7 @@ function parseNumberUnit(word: string): { number: number; unit: string; original
     // If we found a numeric part, check if the remaining part is a valid unit
     if (numericPart && unitPart) {
         const lowerUnit = unitPart.toLowerCase();
-        if (units[lowerUnit as keyof typeof units]) {
+        if (unitToDBMap[lowerUnit as keyof typeof unitToDBMap]) {
             let numberValue: number;
             if (numericPart.includes('/')) {
                 const [num, den] = numericPart.split('/');
@@ -102,7 +102,7 @@ function parseNumberUnit(word: string): { number: number; unit: string; original
             
             return {
                 number: numberValue,
-                unit: units[lowerUnit as keyof typeof units],
+                unit: unitToDBMap[lowerUnit as keyof typeof unitToDBMap],
                 originalText: cleanWord,
                 numberPart: numericPart,
                 unitPart: unitPart,
@@ -155,8 +155,8 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
         
         // Try to parse as standalone unit (case-insensitive)
         const lowerWord = word.toLowerCase();
-        if (units[lowerWord as keyof typeof units]) {
-            unit = units[lowerWord as keyof typeof units];
+        if (unitToDBMap[lowerWord as keyof typeof unitToDBMap]) {
+            unit = unitToDBMap[lowerWord as keyof typeof unitToDBMap];
             parsed.push({ text: word, styling: unitStyling });
             continue;
         }

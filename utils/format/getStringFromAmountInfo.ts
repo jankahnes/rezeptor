@@ -10,8 +10,12 @@ export function getStringFromAmountInfo(
     return `To taste`;
   }
 
-  if (unit === 'G' || unit === 'ML' || unit === 'L' || unit === 'OZ' || unit === 'LB' || unit === 'KG') {
+  if (unit === 'G' || unit === 'ML' || unit === 'OZ') {
     return `${Math.round(totalAmount)}${unit.toLowerCase()}`;
+  }
+
+  if(unit == 'LB' || unit == 'KG' || unit == 'L') {
+    return `${totalAmount.toFixed(1)} ${unit.toLowerCase()}`;
   }
 
   if (unit === 'TSP' || unit === 'TBSP' || unit === 'UNITS' || unit === 'CUP') {
@@ -58,7 +62,7 @@ export function getStringFromAmountInfo(
 
     let unitName = unit.toLowerCase();
     if (unit === 'UNITS') {
-      if (pieceName === 'self') {
+      if (!pieceName || pieceName === 'self') {
         unitName = '';
       } else if (!pieceName.endsWith('s') && totalAmount != 1) {
         unitName = pieceName + 's';
