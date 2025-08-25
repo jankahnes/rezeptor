@@ -58,7 +58,7 @@ export function getStringFromAmountInfo(
 
     let unitName = unit.toLowerCase();
     if (unit === 'UNITS') {
-      if (pieceName === 'self') {
+      if (!pieceName || pieceName === 'self') {
         unitName = '';
       } else if (!pieceName.endsWith('s') && totalAmount != 1) {
         unitName = pieceName + 's';

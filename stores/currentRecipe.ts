@@ -49,15 +49,9 @@ export const useRecipeStore = defineStore('recipe', () => {
         amount: ingredient.amountInfo[0][0],
         unit: ingredient.amountInfo[0][1],
       };
-      mergedIngredient.possibleUnits = mergedIngredient.possibleUnits.map(
-        (item) =>
-          item === 'UNITS'
-            ? pluralizeWord(matchingFood.unit_name).toLowerCase()
-            : item
-      );
       let unitName = mergedIngredient.unit.toLowerCase();
       if(mergedIngredient.unit === 'UNITS') {
-        if(mergedIngredient.unit_name == 'self') {
+        if(!mergedIngredient.unit_name || mergedIngredient.unit_name == 'self') {
           unitName = '';
         }
         else {

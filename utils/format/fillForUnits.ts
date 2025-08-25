@@ -38,7 +38,7 @@ const UNIT_PRIORITY: Record<Unit, number> = {
   'ML': 4,
   'FREE': 9,
   'UNITS': 9,
-  'G': 10, // High priority for grams
+  'G': 10,
 };
 
 export default function fillForUnits(ingredient: Ingredient): void {
