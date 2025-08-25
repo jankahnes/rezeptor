@@ -2,32 +2,39 @@ import formidable from 'formidable';
 import { serverSupabaseClient } from '#supabase/server';
 import fs from 'fs/promises';
 
-// We'll handle parsing manually based on content type
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-async function downloadImageFromUrl(url: string): Promise<Buffer> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to download image: ${response.statusText}`);
+function parseBase64Image(base64String: string): { buffer: Buffer; mimeType: string } {
+  const dataUrlMatch = base64String.match(/^data:([^;]+);base64,(.+)$/);
+  
+  if (dataUrlMatch) {
+    const [, mimeType, base64Data] = dataUrlMatch;
+    return {
+      buffer: Buffer.from(base64Data, 'base64'),
+      mimeType: mimeType
+    };
   }
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  return {
+    buffer: Buffer.from(base64String, 'base64'),
+    mimeType: 'image/jpeg'
+  };
 }
 
 export default defineEventHandler(async (event) => {
-  // Check if this is a JSON request (image_url) or form data (file upload)
+  // Check if this is a JSON request (base64 image) or form data (file upload)
   const contentType = getHeader(event, 'content-type') || '';
   
   let fileBuffer: Buffer;
   let bucket: string;
   let id: string;
   let originalMimetype: string | null = null;
+  
   if (contentType.includes('application/json')) {
-    // Handle image_url case
+    // Handle base64 image case
     const body = await readBody(event);
     
     if (!body.image || !body.bucket || !body.id) {
@@ -38,13 +45,11 @@ export default defineEventHandler(async (event) => {
     id = body.id;
 
     try {
-      fileBuffer = await downloadImageFromUrl(body.image);
-      // Try to infer mimetype from URL extension
-      const urlPath = new URL(body.image).pathname;
-      const extension = urlPath.split('.').pop()?.toLowerCase();
-      originalMimetype = extension ? `image/${extension}` : 'image/jpeg';
+      const { buffer, mimeType } = parseBase64Image(body.image);
+      fileBuffer = buffer;
+      originalMimetype = mimeType;
     } catch (error: any) {
-      throw createError({ statusCode: 400, statusMessage: `Failed to download image: ${error.message}` });
+      throw createError({ statusCode: 400, statusMessage: `Failed to parse base64 image: ${error.message}` });
     }
   } else {
     // Handle file upload case (existing functionality)

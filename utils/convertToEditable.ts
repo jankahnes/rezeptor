@@ -1,5 +1,6 @@
 import { getFoods } from "~/utils/db/getters/getFoods";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { unitToDBMap } from "~/utils/format/parseIngredientString";
 
 type JsonUploadRecipe = {
     title: string;
@@ -15,9 +16,17 @@ type JsonUploadRecipe = {
     serves: number;
     rating: number|null;
     description: string|null;
-    image_url: string|null;
+    image_base64: string|null;
 }
 
+function convertUnitToDB(unit: string) {
+  if(unitToDBMap[unit as keyof typeof unitToDBMap]) {
+    return unitToDBMap[unit as keyof typeof unitToDBMap];
+  }
+  else {
+    return "UNITS";
+  }
+}
 
 export default async function convertJsonToEditable(recipe: JsonUploadRecipe, supabase: SupabaseClient) {
         if (!recipe) {
@@ -41,6 +50,7 @@ export default async function convertJsonToEditable(recipe: JsonUploadRecipe, su
           const mergedIngredient = {
             ...matchingFood,
             ...ingredient,
+            unit: convertUnitToDB(ingredient.unit),
           };
           let foundCategory = recipe.ingredients_editable.ingredients.find(
             (category) => category.categoryName == ingredient.category
@@ -56,5 +66,6 @@ export default async function convertJsonToEditable(recipe: JsonUploadRecipe, su
           }
           foundCategory.ingredients.push(mergedIngredient);
         }
+        console.log("recipe at convertJsonToEditable", recipe)
         return recipe;
       }

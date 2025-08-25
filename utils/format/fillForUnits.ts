@@ -13,14 +13,14 @@ type AmountInfo = [number, Unit];
 // Conversion factors to grams (for weight units) or to ml (for volume units)
 const WEIGHT_TO_GRAMS: Record<string, number> = {
   G: 1,
-  //KG: 1000,
+  KG: 1000,
   OZ: 28.3495,
   LB: 453.592
 };
 
 const VOLUME_TO_ML: Record<string, number> = {
   ML: 1,
-  //L: 1000,
+  L: 1000,
   TSP: 5,
   TBSP: 15,
   CUP: 236.588
@@ -38,7 +38,7 @@ const UNIT_PRIORITY: Record<Unit, number> = {
   'ML': 4,
   'FREE': 9,
   'UNITS': 9,
-  'G': 10, // High priority for grams
+  'G': 10,
 };
 
 export default function fillForUnits(ingredient: Ingredient): void {

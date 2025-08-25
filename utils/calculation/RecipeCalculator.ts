@@ -36,6 +36,7 @@ import capitalize from '~/utils/format/capitalize';
 import convertToGrams from '~/utils/format/convertToGrams';
 import { getGrade } from '~/utils/constants/grades';
 import getReportHumanReadable from '~/utils/format/toHumanReadable/getReportHumanReadable';
+import vegetableOilData from '~/utils/constants/vegetableOil.json';
 
 
 const themalGptToAlpha = {
@@ -123,7 +124,7 @@ const cumulCols = {
   threonine_mg: alpha_EAAs_except_Lysine,
   tryptophan_mg: alpha_EAAs_except_Lysine,
   valine_mg: alpha_EAAs_except_Lysine,
-  processing_level: noAlpha,
+  nova: noAlpha,
   sidx: noAlpha,
   mnidx: noAlpha,
   fat_profile_score: noAlpha,
@@ -139,6 +140,7 @@ export default class RecipeCalculator {
   useGpt = false;
   gptTargetSalt = 0.7;
   gptIngredients = [];
+  gptHydrationIngredients = [];
   servingSize = 1;
   ingredientsFlat = [];
   logToReport = false;
@@ -200,7 +202,6 @@ export default class RecipeCalculator {
     this.considerProcessing = considerProcessing;
     if (isFood) {
       this.recipePer100 = recipe;
-      this.recipePer100.processing_level = recipe.nova;
       this.recipeComputed = {
         title: recipe.name,
         totalWeight: 100
@@ -380,6 +381,7 @@ export default class RecipeCalculator {
     return parts.join(', ');
   }
 
+
   getIngredientsFlat() {
     this.ingredientsFlat = [];
     for (const category of this.recipe.ingredients_editable.ingredients) {
@@ -387,15 +389,44 @@ export default class RecipeCalculator {
         if (ingredient.amount && ingredient.amount !== 0) {
           if (this.useGpt) {
             const gptIngredientInfo = this.gptIngredients.find(
-              (info) => info.ingredient_name === ingredient.name
+              (info) => Number(info.ingredient_id) === Number(ingredient.id)
             );
             if (gptIngredientInfo) {
               Object.assign(ingredient, gptIngredientInfo);
+            }
+            
+            const gptHydrationInfo = this.gptHydrationIngredients.find(
+              (info) => Number(info.ingredient_id) === Number(ingredient.id)
+            );
+            if (gptHydrationInfo) {
+              ingredient.hydration_factor = gptHydrationInfo.hydration_factor || 1;
+              ingredient.consumption_factor = gptHydrationInfo.consumption_factor || 1;
+            } else {
+              // Set defaults if no GPT hydration info found
+              ingredient.hydration_factor = ingredient.hydration_factor || 1;
+              ingredient.consumption_factor = ingredient.consumption_factor || 1;
             }
           }
           this.ingredientsFlat.push(ingredient);
         }
       }
+    }
+    
+    // Add vegetable oil if GPT predicted additional fat is needed
+    if (this.useGpt && this.recipe.added_fat && this.recipe.added_fat > 0) {
+      const oilIngredient = {
+        ...vegetableOilData,
+        amount: this.recipe.added_fat, // in grams
+        unit: 'G',
+        hydration_factor: 1,
+        consumption_factor: 1,
+        thermal_intensity: null,
+        heat_medium: null,
+        mechanical_disruption: 0,
+        thermal_description: null,
+        mechanical_description: null
+      };
+      this.ingredientsFlat.push(oilIngredient);
     }
   }
 
@@ -403,7 +434,7 @@ export default class RecipeCalculator {
     const recipeFoods = [];
     for (const category of this.recipe.ingredients_editable.ingredients) {
       for (const ingredient of category.ingredients) {
-        if (ingredient.amount &&ingredient.amount !== 0) {
+        if (ingredient.amount && ingredient.amount !== 0) {
           recipeFoods.push({
             food_id: ingredient.id,
             unit: ingredient.unit,
@@ -417,6 +448,7 @@ export default class RecipeCalculator {
             thermal_description: ingredient.thermal_description || null,
             mechanical_description: ingredient.mechanical_description || null,
             hydration_factor: Number(ingredient.hydration_factor) || 1,
+            consumption_factor: Number(ingredient.consumption_factor) || 1,
             preperation_description: ingredient.preperation_description || null,
           });
         }
@@ -427,82 +459,82 @@ export default class RecipeCalculator {
 
   getRecipeTagRows() {
     const tagRows = [];
-    for (const tag of this.recipe.tags) {
+    for (const tag of this.recipe.tags) { // general tags by GPT
       tagRows.push({
         tag_id: tag,
       });
     }
-    if(this.ingredientsFlat.length < 5) {
+    if(this.ingredientsFlat.length < 5) { // few ingredients
       tagRows.push({
         tag_id: 1,
       });
     }
-    if(this.recipe.effort === 'LIGHT') {
+    if(this.recipe.effort === 'LIGHT') { // light effort
       tagRows.push({
         tag_id: 2,
       });
     }
-    if(this.recipe.difficulty === 'EASY') {
+    if(this.recipe.difficulty === 'EASY') { // easy difficulty
       tagRows.push({
         tag_id: 3,
       });
     }
-    if(this.recipeComputed.price < 1) {
+    if(this.recipeComputed.price < 1) { // budget
       tagRows.push({
         tag_id: 4,
       });
     }
-    if(this.recipeComputed.hidx > 70) {
+    if(this.recipeComputed.hidx > 70) { // healthy
       tagRows.push({
         tag_id: 100,
       });
     }
-    if(this.recipeComputed.mnidx > 70) {
+    if(this.recipeComputed.mnidx > 70) { // nutritious
       tagRows.push({
         tag_id: 101,
       });
     }
-    if(this.ingredientsFlat.every(ingredient => ingredient.vegan)) {
+    if(this.ingredientsFlat.every(ingredient => ingredient.vegan)) { // vegan
       tagRows.push({
         tag_id: 102,
       });
     }
-    if(this.ingredientsFlat.every(ingredient => ingredient.vegetarian)) {
+    if(this.ingredientsFlat.every(ingredient => ingredient.vegetarian)) { // vegetarian
       tagRows.push({
         tag_id: 103,
       });
     }
-    if(this.recipeComputed.protein > 35) {
+    if(this.recipeComputed.protein > 35) { // high protein
       tagRows.push({
         tag_id: 104,
       });
     }
-    if(this.recipePer100.carbohydrates < 5) {
+    if(this.recipePer100.carbohydrates < 5) { // low carb
       tagRows.push({
         tag_id: 105,
       });
     }
-    if(this.ingredientsFlat.every(ingredient => ingredient.gluten_free)) {
+    if(this.ingredientsFlat.every(ingredient => ingredient.gluten_free)) { // gluten-free
       tagRows.push({
         tag_id: 107,
       });
     }
-    if(this.recipeComputed.kcal < 600) {
+    if(this.recipeComputed.kcal < 600 && this.recipePer100.kcal < 300) { // low calorie
       tagRows.push({
         tag_id: 108,
       });
     }
-    if(this.recipeComputed.satiety > 70) {
+    if(this.recipeComputed.satiety > 70) { // high satiety
       tagRows.push({
         tag_id: 109,
       });
     }
-    if(this.recipePer100.fat < 3) {
+    if(this.recipePer100.fat < 3) { // low fat
       tagRows.push({
         tag_id: 110,
       });
     }
-    if(this.recipePer100.fiber > 6) {
+    if(this.recipePer100.fiber > 6) { // high fiber
       tagRows.push({
         tag_id: 111,
       });
@@ -516,21 +548,29 @@ export default class RecipeCalculator {
     }
     let gptResponse = null;
     if (this.useGpt) {
+      console.log("🔍 Starting GPT");
       gptResponse = await gptCreateRecipe(this.recipe, this.considerProcessing);
-      this.recipe.saltiness = gptResponse?.saltiness || 1;
+      console.log("🔍 GPT response:", gptResponse);
+      this.recipe.saltiness = gptResponse?.salt_and_fat?.saltiness || 1;
+      this.recipe.added_fat = gptResponse?.salt_and_fat?.added_fat || 0;
       this.recipeComputed.saltiness = this.recipe.saltiness;
+      this.recipeComputed.added_fat = this.recipe.added_fat;
+      this.recipeComputed.added_salt = 0; // Will be calculated later
       this.recipe.tags = gptResponse?.general?.tags || [];
       this.recipe.effort = gptResponse?.general?.effort || 'MODERATE';
       this.recipe.difficulty = gptResponse?.general?.difficulty || 'MEDIUM';
     }
-    if (this.recipe.saltiness == 1) {
-      this.gptTargetSalt = 0.6;
+    if (this.recipe.saltiness == 0) {
+      this.gptTargetSalt = 0;
+    } else if (this.recipe.saltiness == 1) {
+      this.gptTargetSalt = 0.5;
     } else if (this.recipe.saltiness == 2) {
-      this.gptTargetSalt = 0.9;
+      this.gptTargetSalt = 1.0;
     } else if (this.recipe.saltiness == 3) {
       this.gptTargetSalt = 1.6;
     }
-    this.gptIngredients = gptResponse?.processing_info || [];
+    this.gptIngredients = gptResponse?.processing?.processing_info || [];
+    this.gptHydrationIngredients = gptResponse?.hydration?.ingredients || [];
 
     this.getIngredientsFlat();
     if (this.ingredientsFlat.length === 0) {
@@ -538,6 +578,8 @@ export default class RecipeCalculator {
     }
 
     this.getCumulCols(this.ingredientsFlat);
+    console.log("Recipe before scoring:", this.recipeComputed);
+    console.log("🔍 Starting scoring");
     const scores = await this.getScoring();
     Object.assign(this.recipeComputed, scores);
     this.recipeComputed.kcal = Math.round(this.recipeComputed.kcal);
@@ -559,7 +601,8 @@ export default class RecipeCalculator {
       };
     }
 
-    let salt = 0;
+    let intrinsicSalt = 0;
+    let addedSaltTotal = 0;
 
     this.recipeComputed.totalWeight = 0;
 
@@ -573,22 +616,38 @@ export default class RecipeCalculator {
       );
       originalGrams = originalGrams / this.servingSize;
 
-      // For total nutrients, use original weight (no hydration factor)
-      const nutrientFactor = originalGrams / 100;
+      // Apply consumption factor for nutrient calculations
+      const consumptionFactor = ingredient.consumption_factor || 1;
+      const consumedGrams = originalGrams * consumptionFactor;
 
-      // For final recipe weight, apply hydration factor
-      const hydratedGrams = originalGrams * (ingredient.hydration_factor || 1);
+      // For total nutrients, use consumed weight
+      const nutrientFactor = consumedGrams / 100;
+
+      // For final recipe weight, apply hydration factor to consumed amount
+      const hydratedGrams = consumedGrams * (ingredient.hydration_factor || 1);
       this.recipeComputed.totalWeight += hydratedGrams;
 
       for (const col in this.cumulColsComputed) {
         this.cumulColsComputed[col].amountTotal +=
           ingredient[col] * nutrientFactor;
       }
-      if (ingredient.salt < this.gptTargetSalt) {
-        salt += this.gptTargetSalt * nutrientFactor;
-      } else {
-        salt += ingredient.salt * nutrientFactor;
-      }
+      
+      // Calculate intrinsic salt
+      intrinsicSalt += ingredient.salt * nutrientFactor;
+    }
+
+    // Calculate per-100g intrinsic salt to compare with target
+    const intrinsicSaltPer100g = (intrinsicSalt / this.recipeComputed.totalWeight) * 100;
+    
+    // If intrinsic salt is below target, add salt to reach target
+    if (intrinsicSaltPer100g < this.gptTargetSalt) {
+      const targetSaltTotal = (this.gptTargetSalt * this.recipeComputed.totalWeight) / 100;
+      addedSaltTotal = targetSaltTotal - intrinsicSalt;
+      this.recipeComputed.added_salt = addedSaltTotal;
+      this.cumulColsComputed.salt.amountTotal = targetSaltTotal;
+    } else {
+      this.recipeComputed.added_salt = 0;
+      this.cumulColsComputed.salt.amountTotal = intrinsicSalt;
     }
 
     // Calculate per-100g values for alpha function input
@@ -616,8 +675,10 @@ export default class RecipeCalculator {
       );
       originalGrams = originalGrams / this.servingSize;
 
-      // Use original weight for nutrient calculations (no hydration factor)
-      const nutrientFactor = originalGrams / 100;
+      // Apply consumption factor for nutrient calculations
+      const consumptionFactor = ingredient.consumption_factor || 1;
+      const consumedGrams = originalGrams * consumptionFactor;
+      const nutrientFactor = consumedGrams / 100;
 
       // Track ingredient data for reporting
       if (this.logToReport) {
@@ -627,7 +688,8 @@ export default class RecipeCalculator {
         }
         this.report.ingredientNutrients.push({
           name: ingredient.name,
-          weight: originalGrams,
+          weight: originalGrams, // Display original weight
+          consumedWeight: consumedGrams, // Track consumed weight for calculations
           nutrients: ingredientNutrients,
           processing: {
             thermal_intensity: ingredient.thermal_intensity,
@@ -661,7 +723,7 @@ export default class RecipeCalculator {
             name: ingredient.name,
             value: contributionPercentage,
             totalContribution: ingredientContribution,
-            processingLevel: ingredient.processing_level,
+            processingLevel: ingredient.nova,
           });
         } else if (contributionPercentage > 0.1) {
           this.cumulColsComputed[col].contributors.push({
@@ -676,13 +738,11 @@ export default class RecipeCalculator {
           alphaValue * ingredientContributionPer100;
       }
     }
-    this.cumulColsComputed['salt'] =
-      this.cumulColsComputed['salt_without_added'];
     this.cumulColsComputed['salt'] = {
-      amountTotal: salt,
-      amountTotalAfterAlpha: salt,
-      amountPer100: (salt / this.recipeComputed.totalWeight) * 100,
-      amountPer100AfterAlpha: (salt / this.recipeComputed.totalWeight) * 100,
+      amountTotal: this.cumulColsComputed.salt.amountTotal,
+      amountTotalAfterAlpha: this.cumulColsComputed.salt.amountTotal, 
+      amountPer100: (this.cumulColsComputed.salt.amountTotal / this.recipeComputed.totalWeight) * 100,
+      amountPer100AfterAlpha: (this.cumulColsComputed.salt.amountTotal / this.recipeComputed.totalWeight) * 100,
       alphaFunction: noAlpha,
     };
 
@@ -792,7 +852,7 @@ export default class RecipeCalculator {
       0.3 * scaledPerGramScore +
       0.1 * scaledPerServingScore;
     if (this.logToReport) {
-      micronutrientDetails.sort((a, b) => b.contribution - a.contribution);
+      micronutrientDetails.sort((a, b) => b.perGramContribution - a.perGramContribution);
       this.report.micronutrients = {
         total_score: weightedTotalScore,
         perGramScore: scaledPerGramScore,
@@ -835,7 +895,7 @@ export default class RecipeCalculator {
     ];
 
     const is_liquid_whole_word = (name) => {
-      const words = name.toLowerCase().split();
+      const words = name.toLowerCase().split(' ');
       const words_cleaned = words.map((word) => word.replace(/[^\w\s]/g, ''));
       return liquid_keywords.some((kw) => words_cleaned.includes(kw));
     };
@@ -843,7 +903,7 @@ export default class RecipeCalculator {
     let waterE = this.recipePer100.water;
     if (is_liquid_whole_word(this?.recipeComputed?.title ?? '')) {
       waterE = waterE * 0.1;
-    } else if (this.recipePer100?.processing_level < 2) {
+    } else if (this.recipePer100?.nova <= 2) {
       waterE = waterE;
     } else if (
       this.recipePer100.kcal > 10 &&
@@ -1104,11 +1164,7 @@ export default class RecipeCalculator {
   getED() {
     return this.scale_by_points(this.recipePer100.kcal, [
       [0, 100],
-      [50, 90],
-      [150, 70],
-      [200, 50],
-      [350, 30],
-      [550, 0],
+      [800, -50],
     ]);
   }
 
@@ -1231,14 +1287,14 @@ export default class RecipeCalculator {
 
   getPLScore() {
     if(this.isFood) {
-      return 100-(((this.recipePer100?.nova || this.recipePer100?.processing_level)-1)*25)
+      return 100-(((this.recipePer100?.nova)-1)*30)
     }
     let whole_food_count = 0;
     let ultra_processed_count = 0;
     for (const ingredient of this.ingredientsFlat) {
-      if (ingredient.processing_level == 0) {
+      if (ingredient.nova == 1) {
         whole_food_count++;
-      } else if (ingredient.processing_level > 5) {
+      } else if (ingredient.nova == 4) {
         ultra_processed_count++;
       }
     }
@@ -1249,11 +1305,11 @@ export default class RecipeCalculator {
       ultra_processed_count / this.ingredientsFlat.length;
 
     const processing_level_score =
-      100 - 17 * this.recipePer100.processing_level;
+    100-(((this.recipePer100?.nova)-1)*30)
 
     const whole_food_score = whole_food_percentage * 100;
 
-    const ultra_processed_score = (1 - ultra_processed_percentage) * 100;
+    const ultra_processed_score = (1 - ultra_processed_percentage*1.5) * 100;
 
     const final_score =
       processing_level_score * 0.8 +
@@ -1282,31 +1338,31 @@ export default class RecipeCalculator {
     protective_compound_score
   ) {
     const hidx =
-      (11 / 50) * satiety + //satiety ; proxy for overeating/obesity risk
-      (8 / 50) * fiber + //direct positive impact
-      (7 / 50) * pl + //processing level, proxy for additives or unwanted processing side effects.
+      1/6 * satiety + //satiety ; proxy for overeating/obesity risk
+      1/8 * fiber + //direct positive impact
+      1/9 * pl + //processing level, proxy for additives or unwanted processing side effects.
       // https://link.springer.com/article/10.1186/s13643-025-02800-8
       // 10% increase in UPF -> 10% risk of all-cause mortality
-      (7 / 50) * fat_profile + //direct impact, mixed based on fatty acid profile
-      (7 / 50) * mnidx + //direct positive impact
-      (7 / 50) * protein + //direct positive impact
-      (7 / 50) * sugar + //direct negative impact
+      1/9 * fat_profile + //direct impact, mixed based on fatty acid profile
+      1/9 * mnidx + //direct positive impact
+      1/9 * protein + //direct positive impact
+      1/9 * sugar + //direct negative impact
       // https://www.mdpi.com/2072-6643/13/8/2636
       // 1 extra soda -> 10% risk of all-cause mortality
-      (7 / 50) * salt + //direct negative impact
+      1/9 * salt + //direct negative impact
       //https://www.nejm.org/doi/full/10.1056/NEJMoa1311889
       // J-shaped curve, >7g / day -> +25% all-cause mortality
-      (5 / 50) * protective_compound_score; //direct positive impact
+      1/13 * protective_compound_score; //direct positive impact
 
-    const MIN = 32;
-    const MAX = 104;
+    const MIN = 25;
+    const MAX = 83;
     const scaled = ((hidx - MIN) * 100) / (MAX - MIN);
     return scaled;
   }
 
   async getScoring() {
     const processing_level_factor =
-      this.recipePer100.processing_level < 2 ? 0.8 : 1.4;
+      this.recipePer100.nova <= 2 ? 0.8 : 1.4;
     this.recipePer100.water = Math.max(
       0,
       100 -

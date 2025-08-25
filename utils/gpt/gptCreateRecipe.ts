@@ -1,58 +1,52 @@
 import extractJson  from "~/utils/format/extractJson";
 
 
-export default async function (recipe: RecipeProcessed, considerProsessing: boolean) {
-    const SYSTEM_PROMPT = `
-    You will be given information about a recipe (May or may not include instructions, but definitely title and ingredients).
-    Your task is to infer, per ingredient, how that ingredient is processed when making that recipe. 
-    As the instructions may be missing, you may have to infer the way the ingredients are probably processed, based on common recipes, title, and ingredient composition.
-    Example: Potatoes are never eaten raw, so they are always at least cooked. 
 
+export default async function (recipe: RecipeProcessed, considerProsessing: boolean) {
+    const SYSTEM_PROMPT_PROCESSING = `
+    You will be given information about a recipe.
+    Your task is to infer, per ingredient, how that ingredient is processed when making that recipe. 
+    As instructions may be missing, you may have to infer processing based on common cooking methods, recipe title, and ingredient composition.
+    Example: Potatoes are typically cooked (never eaten raw), pasta is boiled, onions are often sautéed. Salad is never cooked.
+
+    Return this JSON format:
     {
         "processing_info": [
             {	
-                "ingredient_name": String
-                "thermal_intensity": Enum{"LOW", "MEDIUM", "HIGH"}
-                "heat_medium": Enum{"WET", "DRY", "FAT", "RADIATION"}
-                "mechanical_disruption": Enum{0,1,2}
-                "thermal_description": String
-                "mechanical_description": String
-                "hydration_factor": Float
-            }, ...
+                "ingredient_id": "ingredient ID from recipe",
+                "thermal_intensity": "LOW" | "MEDIUM" | "HIGH" | null,
+                "heat_medium": "WET" | "DRY" | "FAT" | "RADIATION" | null,
+                "mechanical_disruption": 0 | 1 | 2,
+                "thermal_description": "brief cooking method description",
+                "mechanical_description": "brief prep description"
+            }
         ]
-        "saltiness": Enum{0,1,2}
     }
 
-    Some definitions:
-    If no heat is applied, omit thermal_intensity and heat_medium.
-    The Intensity definitions are: 50-99C (Low), 100-180C (Medium), 180+C (High)
-    The Heat Medium Definitions:
-    Use "WET" only if Food is submerged in water or other water-based liquids. (Steamed is Dry!)
-    Use "FAT" if fat is expected to act as primary heat transfer medium. (Pan fried -> Fat, Roasted -> Dry)
-    Use "RADIATION" for microwaved ingredients.
-    Use "DRY" for every other form of heat.
-    The Disruption Definitions: 0=Intact, 1=Minimal/Chopped, 2=Blended/Pureed
+    Definitions:
+    THERMAL INTENSITY (omit if no heat applied):
+    - LOW: 50-99°C (simmering, gentle warming)
+    - MEDIUM: 100-180°C (boiling, baking, standard cooking)  
+    - HIGH: 180°C+ (frying, grilling, roasting at high heat)
 
-    For the Processing Tags, just use common sense to describe the processing done. If its obvious that an ingredient is not processed in either, omit that tag.
-    (Recipe describes cubed, roasted Potatoes) -> thermal_description: "Roasted", mechanical_description: "Cubed"
-    (Recipe describes Salad) -> both descriptions omitted (As users can infer salad is never cooked, maybe put "Chopped" if explicitly stated)
-    (Recipe describes whole, raw cherry tomatoes) -> thermal_description: "Raw", mechanical_desciption: "Whole"
-    If you can not infer the processing type, base it off probability and use generic terms such as "Cooked". 
+    HEAT MEDIUM (omit if no heat applied):
+    - WET: ingredient submerged in water/liquid (boiling, poaching, braising)
+    - FAT: fat is primary heat transfer (pan-frying, deep-frying, sautéing)
+    - DRY: air/surface heat (roasting, baking, grilling, steaming)
+    - RADIATION: microwave cooking
 
-    Use the hydration factor to signify how much weight you expect that ingredient to gain or lose during making the Recipe.
-    For example, Pasta: ~2.2
-    Or when reducing a sauce, for each water-based ingredient in the sauce: 0.5
-    Pay attention to the ingredient names! Assume that every ingredient is raw, unless stated otherwise. If it instead indicates that the ingredient is already cooked, it has to have a hydration_factor 1. 
-    If the ingredient is Pasta (Cooked) for example, it has to have a hydration_factor 1. 
+    MECHANICAL DISRUPTION:
+    - 0: Intact/whole (whole vegetables, whole cuts of meat)
+    - 1: Minimal prep (chopped, diced, sliced)
+    - 2: Highly processed (blended, pureed, ground, mashed)
 
-    Finally, choose one salt status for the whole recipe. Generally, if a specific amount of added salt is already specified in the ingredients list, leave at 0. 
-    If its not there or "To Taste", choose:
-    If you expect the recipe to either not have added salt at all, or to have added salt but not taste salty, leave at 0. (Matches all sweet dishes and some baked goods) Resulting salt level will be 0.2g/100g.
-    If you expect the recipe to taste lightly salted, put 1. (Matches some salads, bowls or cold snacks). Resulting salt level will be 0.5g/100g.
-    If you expect the recipe to taste savory, put 2. (Matches almost all savory dishes, dinners, soups, bread, etc). Resulting salt level will be 1.1g/100g.
-    If you expect the recipe to taste explicitly salty, put 3. (Matches only recipes that are known to be salty, like french fries, deep fried foods, some restaurant-style dishes). Resulting salt level will be 1.6g/100g.
+    DESCRIPTIONS: Keep brief and practical. Omit if obvious/irrelevant.
+    Examples:
+    - Cubed roasted potatoes → thermal: "Roasted", mechanical: "Cubed"
+    - Raw salad greens → thermal: omit, mechanical: "Chopped" (if applicable)
+    - Whole cherry tomatoes → thermal: omit, mechanical: omit
 
-    Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
+     Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
      `;
 
      const SYSTEM_PROMPT_GENERAL = `
@@ -128,14 +122,88 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
 
      Output format as json:
      {
-     "difficulty": Enum{EASY, MEDIUM, HARD}
-     "effort": Enum{LIGHT, MODERATE, HEAVY}
-     "tags": int[]
+     "difficulty": "EASY" | "MEDIUM" | "HARD",
+     "effort": "LIGHT" | "MODERATE" | "HEAVY",
+     "tags": [int]
      }
 
      Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
      `;
-  
+
+     const SYSTEM_PROMPT_SALT_AND_FAT = `
+     You will be given information about a recipe.
+     Your task is to predict how much salt and additional cooking fat the average cook would add that isn't already listed in the ingredients.
+
+     Return this JSON format:
+     {
+       "saltiness": 0 | 1 | 2 | 3,
+       "added_fat": number
+     }
+    
+    ADDED FAT (in grams for entire recipe):
+    - Only count fat that would be added during cooking but isn't listed in ingredients
+    - Consider cooking methods: sautéing, pan-frying, roasting, etc.
+    - Account for absorption vs what stays in the pan
+    - Examples:
+      * Stir fry (no oil listed): ~15-25g oil for 4 servings, ~80% absorbed = 12-20g
+      * Pan-fried chicken: ~10-15g oil per serving, ~70% absorbed
+      * Roasted vegetables: ~5-10g oil per serving, mostly absorbed
+      * Deep frying: calculate based on food surface area and absorption rates
+    - If recipe already lists cooking oil/butter or no fat is needed at all, set to 0
+
+    SALTINESS LEVEL (for entire recipe):
+    - 0: No salt needed (sweet dishes, baked goods)
+    - 1: Lightly salted (0.5g/100g final dish) - some salads, light snacks
+    - 2: Normally salted (1g/100g final dish) - most savory dishes, soups, main courses
+    - 3: Heavily salted (1.6g/100g final dish) - fries, chips, restaurant-style dishes
+
+     Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
+     `;
+
+     const SYSTEM_PROMPT_HYDRATION_AND_CONSUMPTION_FACTORS = `
+     You will be given information about a recipe.
+     Your task is to predict weight changes during cooking and how much of each ingredient actually gets consumed.
+
+     Return this JSON format:
+     {
+       "ingredients": [
+         {
+           "ingredient_id": "ingredient ID from recipe",
+           "hydration_factor": number,
+           "consumption_factor": number
+         }
+       ]
+     }
+
+     HYDRATION FACTOR (weight multiplier during cooking):
+     - How much weight an ingredient gains/loses from raw state to final dish
+     - Examples:
+       * Raw pasta → cooked: ~2.2 (absorbs water)
+       * Raw rice → cooked: ~2.5-3.0 (absorbs water)  
+       * Fresh vegetables (sautéed): ~0.8-0.9 (loses water)
+       * Meat (cooked): ~0.7-0.8 (loses fat/water)
+       * Reducing sauces: ~0.3-0.6 (water evaporates)
+       * Bread dough → baked: ~0.8-0.9 (water loss)
+     - If ingredient name suggests it's pre-cooked (e.g., "cooked pasta"), use 1.0
+     - Default for stable ingredients (oils, spices, canned goods): 1.0
+
+     CONSUMPTION FACTOR (how much actually gets eaten):
+     - What fraction of the ingredient ends up consumed vs discarded
+     - Examples:
+       * Regular ingredients: 1.0 (fully consumed)
+       * Marinades: 0.05-0.15 (mostly discarded, some absorbed)
+       * Wine in sauces: 0.3-0.7 (alcohol evaporates, flavor remains)
+       * Frying oil: 0.0 (reused/discarded, except absorbed portion)
+       * Herb sprigs for flavor: 0.0-0.1 (removed before serving)
+       * Bones in stock: 0.0 (removed)
+     - Default: 1.0 unless ingredient is clearly not fully consumed
+
+     Consider the cooking method and ingredient type carefully for each prediction.
+     Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
+     You dont have to reason out each ingredient, but in categories. Marinade, sauce, dough, etc.
+     `;
+
+
 
      let message = `
      Recipe Title: ${recipe.title}
@@ -160,11 +228,14 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
         `;
         for (const ingredient of category.ingredients) {
         message += `
-        ${ingredient.name} - ${ingredient.amount} ${ingredient.unit}
+        ID: ${ingredient.id} - ${ingredient.name} - ${ingredient.amount} ${ingredient.unit}
         `;
      }}
      let parsed = {
-      general: null
+      general: null,
+      processing: null,
+      salt_and_fat: null,
+      hydration: null
      }
 
     try {
@@ -172,13 +243,16 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
       const response = await $fetch('/api/gpt/getResponse', {
         method: 'POST',
         body: {
-          systemPrompt: SYSTEM_PROMPT,
+          systemPrompt: SYSTEM_PROMPT_PROCESSING,
           message: message,
+          model: 'gpt-5'
         },
       });
       if(!response) throw new Error('No content returned from GPT response');
-      parsed = JSON.parse(extractJson(response));
-
+      const processingResult = extractJson(response);
+      if(!processingResult) throw new Error('No JSON found in processing response');
+      parsed.processing = JSON.parse(processingResult);
+      console.log("🔍 Processing info done.");
     }
       const general_response = await $fetch('/api/gpt/getResponse', {
         method: 'POST',
@@ -188,9 +262,37 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
         },
       });
       if(!general_response) throw new Error('No content returned from GPT response');
-      const general_parsed = JSON.parse(extractJson(general_response));
-  
-      parsed.general = general_parsed
+      const general_result = extractJson(general_response);
+      if(!general_result) throw new Error('No JSON found in general response');
+      parsed.general = JSON.parse(general_result);
+      console.log("🔍 General info done.");
+
+      const salt_fat_response = await $fetch('/api/gpt/getResponse', {
+        method: 'POST',
+        body: {
+          systemPrompt: SYSTEM_PROMPT_SALT_AND_FAT,
+          message: message,
+        },
+      });
+      if(!salt_fat_response) throw new Error('No content returned from salt/fat response');
+      const salt_fat_result = extractJson(salt_fat_response);
+      if(!salt_fat_result) throw new Error('No JSON found in salt/fat response');
+      parsed.salt_and_fat = JSON.parse(salt_fat_result);
+      console.log("🔍 Salt and fat done.");
+
+      // Hydration and Consumption factors
+      const hydration_response = await $fetch('/api/gpt/getResponse', {
+        method: 'POST',
+        body: {
+          systemPrompt: SYSTEM_PROMPT_HYDRATION_AND_CONSUMPTION_FACTORS,
+          message: message,
+        },
+      });
+      if(!hydration_response) throw new Error('No content returned from hydration response');
+      const hydration_result = extractJson(hydration_response);
+      if(!hydration_result) throw new Error('No JSON found in hydration response');
+      parsed.hydration = JSON.parse(hydration_result);
+      console.log("🔍 Hydration done.");
       return parsed;
     } catch (err) {
       console.error('gptCreateRecipe error:', err);
