@@ -34,7 +34,7 @@ const percentOfKcalThresholds = {
 }
 
 
-export default function sugarToReadable(report: any) {
+export default function sugarToReadable(report: any, isFood: boolean) {
     if(!report.sugar) return []
     const items = []
     const totalSugarPer100Item = getHighestThreshold(report.sugar.totalSugarPer100, totalSugarPer100Thresholds)
@@ -52,6 +52,7 @@ export default function sugarToReadable(report: any) {
         ...percentOfKcalItem,
         description: percentOfKcalItem.description + " impact on calories from sugar",
     })
+    if(!isFood) {
     const contributors = report.contributors["sugar"]?.contributors || []
     for(const contributor of contributors) {
         if(contributor.value > 0.3) {
@@ -61,6 +62,7 @@ export default function sugarToReadable(report: any) {
             })
         }
     }
+}
     items.sort((a, b) => b.value - a.value)
     return items
 }

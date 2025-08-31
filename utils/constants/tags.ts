@@ -25,6 +25,7 @@ export const TAGS = [
   { id: 109, name: 'satiating', value: -1, category: 'DIET' }, //auto, satiety > 70
   { id: 110, name: 'low fat', value: 6, category: 'DIET' }, //auto, per100.fat < 3
   { id: 111, name: 'high fiber', value: 6, category: 'DIET' }, //auto, per100.fiber > 6
+  { id: 112, name: 'lactose free', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('lactose free'))
 
   { id: 200, name: 'main/dinner', value: 0, category: 'TYPE' }, //ai
   { id: 201, name: 'breakfast', value: 0, category: 'TYPE' }, //ai

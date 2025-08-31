@@ -14,6 +14,7 @@ type JsonUploadRecipe = {
     }[];
     instructions: string;
     serves: number;
+    batch_size: number|null;
     rating: number|null;
     description: string|null;
     image_base64: string|null;

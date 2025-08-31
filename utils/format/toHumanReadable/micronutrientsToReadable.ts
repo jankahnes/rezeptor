@@ -18,7 +18,7 @@ const rdaThresholds = {
 
 const displayThreshold = 10
 
-export default function micronutrientsToReadable(report) {
+export default function micronutrientsToReadable(report, isFood: boolean) { 
     if(!report.micronutrients) return [];
     const reportMicronutrients = report.micronutrients?.details as MicronutrientItem[]
     const items = []
@@ -28,8 +28,11 @@ export default function micronutrientsToReadable(report) {
             continue
         }
         const highestThreshold = getHighestThreshold(rda, rdaThresholds)
+        let subtitle = null
+        if(!isFood) {
         const contributors = report.contributors[nutrient.name]?.contributors || []
-        const subtitle = contributorsToReadable(contributors)
+        subtitle = contributorsToReadable(contributors)
+        }
         const description = highestThreshold.description + " " + nutrient.displayName
         items.push({
             description,

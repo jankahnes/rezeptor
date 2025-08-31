@@ -21,23 +21,26 @@ const fiberRDAPerServingThresholds = {
     0.6: { description: "Outstanding", ...OUTSTANDING},
 }
 
-export default function fiberToReadable(report: any) {
+export default function fiberToReadable(report: any, isFood: boolean) {
     if(!report.fiber) return []
     const items = []
     const fiberPer100gItem = getHighestThreshold(report.fiber.fiberPer100g, fiberPer100gThresholds)
     const fiberRDAPerServingItem = getHighestThreshold(report.fiber.fiberRDAPerServing, fiberRDAPerServingThresholds)
     items.push({
-        description: fiberPer100gItem.description + " fiber per 100g",
+        description: fiberPer100gItem.description + (isFood ? " fiber per 100g" : " fiber per serving"),
         color: fiberPer100gItem.color,
         icon: fiberPer100gItem.icon,
         value: fiberPer100gItem.value
     })
+    if(!isFood) {
     items.push({
-        description: (report.fiber.fiberRDAPerServing * 100).toFixed(0) + "% of fiber RDA per serving",
+        description: (report.fiber.fiberRDAPerServing * 100).toFixed(0) + "% of fiber RDA per 100g",
         color: fiberRDAPerServingItem.color,
-        icon: fiberRDAPerServingItem.icon,
-        value: fiberRDAPerServingItem.value
-    })
+            icon: fiberRDAPerServingItem.icon,
+            value: fiberRDAPerServingItem.value
+        })
+    }
+    if(!isFood) {
     const contributors = report.contributors["fiber"]?.contributors || []
     for(const contributor of contributors) {
         if(contributor.totalContribution > 75) {
@@ -45,6 +48,7 @@ export default function fiberToReadable(report: any) {
                 description: "Fiber from " + contributor.name,
                 ...GOOD
             })
+            }
         }
     }
     items.sort((a, b) => b.value - a.value)

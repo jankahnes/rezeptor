@@ -4,18 +4,18 @@
     <div class="flex gap-2 w-full">
       <input
         type="text"
-        class="flex-grow px-2 py-1 rounded-lg items-center shadow-main hover:shadow-main-hover"
+        class="flex-grow px-2 py-1 rounded-lg items-center shadow-main hover:shadow-main-hover min-w-0"
         v-model="foodResultsStore.searchQuery"
         @keyup.enter="search"
         placeholder="Search for a food"
       />
-      <button class="button p-2 flex" @click="search">
+      <button class="button p-2 flex flex-shrink-0" @click="search">
         <span class="material-symbols-outlined"> search </span>
       </button>
-      <button class="button p-2 flex" @click="navigateTo('/foods/new')">
+      <button class="button p-2 flex flex-shrink-0" @click="navigateTo('/foods/new')">
         <span class="material-symbols-outlined"> add </span>
       </button>
-      <button class="button p-2 flex" @click="navigateTo('/foods/scan')">
+      <button class="button p-2 flex flex-shrink-0" @click="navigateTo('/foods/scan')">
         <span class="material-symbols-outlined"> flip </span>
       </button>
     </div>

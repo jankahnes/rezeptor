@@ -20,7 +20,7 @@ type ReportHumanReadable = {
     protectiveCompounds: ReportHumanReadableItem[];
 }
 
-export default function getReportHumanReadable(report: any, recipeComputed: any) {
+export default function getReportHumanReadable(report: any, recipeComputed: any, isFood: boolean) {
     const humanReadable: ReportHumanReadable = {
         overall: [],
         micronutrients: [],
@@ -33,15 +33,15 @@ export default function getReportHumanReadable(report: any, recipeComputed: any)
         satiety: [],
         protectiveCompounds: [],
     }
-    humanReadable.overall = gradesToReadable(report, recipeComputed) as ReportHumanReadableItem[]
-    humanReadable.micronutrients = micronutrientsToReadable(report) as ReportHumanReadableItem[]
+    humanReadable.overall = gradesToReadable(report, recipeComputed, isFood) as ReportHumanReadableItem[]
+    humanReadable.processingLevel = processingLevelToReadable(report, isFood) as ReportHumanReadableItem[]
+    humanReadable.protein = proteinToReadable(report, isFood) as ReportHumanReadableItem[]
+    humanReadable.salt = saltToReadable(report, isFood) as ReportHumanReadableItem[]
+    humanReadable.fiber = fiberToReadable(report, isFood) as ReportHumanReadableItem[]
+    humanReadable.satiety = satietyToReadable(report, isFood) as ReportHumanReadableItem[]
+    humanReadable.sugar = sugarToReadable(report, isFood) as ReportHumanReadableItem[]
+    humanReadable.micronutrients = micronutrientsToReadable(report, isFood) as ReportHumanReadableItem[]
     humanReadable.fatProfile = fatProfileToReadable(report) as ReportHumanReadableItem[]
-    humanReadable.processingLevel = processingLevelToReadable(report) as ReportHumanReadableItem[]
-    humanReadable.protein = proteinToReadable(report) as ReportHumanReadableItem[]
-    humanReadable.sugar = sugarToReadable(report) as ReportHumanReadableItem[]
-    humanReadable.salt = saltToReadable(report) as ReportHumanReadableItem[]
-    humanReadable.fiber = fiberToReadable(report) as ReportHumanReadableItem[]
-    humanReadable.satiety = satietyToReadable(report) as ReportHumanReadableItem[]
     humanReadable.protectiveCompounds = protectiveCompoundsToReadable(report) as ReportHumanReadableItem[]
     return humanReadable
 }

@@ -16,6 +16,7 @@ return Math.round(data);
 }
 
 const percentileFields = ["hidx", "protein_score", "mnidx", "fat_profile_score", "sidx", "fiber_score", "salt_score", "sugar_score", "processing_level_score", "protective_score"]
+const percentileFieldsFood = ["hidx", "protein_score", "mnidx", "fat_profile_score", "sidx", "fiber_score", "salt_score", "sugar_score", "nova", "protective_score"]
 const icons = {
     0: POOR,
     10: BAD,
@@ -30,12 +31,12 @@ const icons = {
     
 
 
-export default async function fillReportPercentiles(supabase: SupabaseClient, report) {
+export default async function fillReportPercentiles(supabase: SupabaseClient, report: any, isFood: boolean) {
   report.percentiles = {}
-    for (const field of percentileFields) {
-        const percentile = await getPercentile(supabase, 'recipes', field, report.overall[field])
+    for (const field of isFood ? percentileFieldsFood : percentileFields) {
+        const percentile = await getPercentile(supabase, isFood ? 'foods' : 'recipes', field, report.overall[field])
         const item = getHighestThreshold(percentile, icons)
-        const description = "Better than " + percentile + "% of recipes"
+        const description = "Better than " + percentile + "% of " + (isFood ? "foods" : "recipes")
         report.percentiles[field] = { percentile: percentile,
             description: description,
             ...item

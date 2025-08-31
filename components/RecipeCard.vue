@@ -2,7 +2,7 @@
   <NuxtLink
     v-if="recipe.id"
     :to="'/recipe/' + recipe?.id"
-    class="flex flex-col gap-1 hover:translate-y-[-2px] transition-all duration-300 mr-2"
+    class="flex flex-col gap-1 hover:translate-y-[-2px] transition-all duration-300 mr-2 items-center"
     :class="{ 'flex-row gap-6 w-full': horizontal }"
   >
     <NuxtImg
@@ -14,11 +14,17 @@
       :src="recipe?.picture || ''"
     >
     </NuxtImg>
-    <div class="flex flex-col gap-1" :class="{ 'mt-4 flex-1': horizontal }">
+    <div
+      class="flex flex-col gap-1 items-center"
+      :class="{ 'mt-4 flex-1 items-start': horizontal }"
+    >
       <h2 class="font-bold leading-6 mt-1 text-2xl tracking-tighter">
         {{ recipe?.title }}
       </h2>
-      <div class="flex gap-1 flex-wrap mt-1 text-[0.6em] md:text-[0.4em]">
+      <div
+        class="flex gap-1 flex-wrap mt-1 text-[0.6em] md:text-[0.4em]"
+        :class="{ 'justify-center': !horizontal }"
+      >
         <div
           class="tag flex items-center gap-1.25"
           :class="

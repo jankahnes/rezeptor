@@ -18,8 +18,20 @@ const ultraProcessedThresholds = {
     4: {...POOR}}
 
 
-export default function processingLevelToReadable(report: any) {
+const novaDescriptorsFood = {
+    1: {description: "NOVA Classifiaction: Whole (1)", ...GOOD},
+    2: {description: "NOVA Classifiaction: Traditionally processed (2)", ...OKAY},
+    3: {description: "NOVA Classifiaction: Processed (3)", ...SUBOPTIMAL},
+    4: {description: "NOVA Classifiaction: Ultra-processed (4)", ...BAD},
+}
+
+export default function processingLevelToReadable(report: any, isFood: boolean) {
     if(!report.processingLevel) return []
+    if(isFood) {
+        return [
+            novaDescriptorsFood[report.processingLevel.nova]
+        ]
+    }
     const items = []
     const roundedGrade = getGrade(report.processingLevel.processing_level_score)[0]
     const overallProcessingItem = genericDescriptors[roundedGrade]

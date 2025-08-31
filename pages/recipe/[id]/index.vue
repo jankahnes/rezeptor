@@ -172,6 +172,7 @@
       <div class="flex gap-10 gap-y-6 mt-10 max-w-screen-lg mx-auto flex-wrap">
         <PagesRecipeIngredientList
           :ingredients="recipeStore.recipe?.ingredients"
+          :batchSize="recipeStore.recipe?.batch_size ?? undefined"
           class="flex-1"
         ></PagesRecipeIngredientList>
         <PagesRecipeInstructionContainer
@@ -217,7 +218,7 @@
     <div class="md:hidden">
       <div
         class="w-full h-100 bg-cover bg-center bg-no-repeat p-4 relative z-0"
-        :class="{ '!bg-[length:120%] !bg-[position:center_60px]': isProcessed }"
+        :class="{ '!bg-[length:90%] !bg-[position:center_60px]': isProcessed }"
         :style="{ backgroundImage: `url(${recipeStore.recipe?.picture})` }"
       >
         <div
@@ -255,14 +256,14 @@
 
       <div
         ref="mobileOverlay"
-        class="bg-white rounded-t-4xl z-10 relative"
+        class="bg-white rounded-t-4xl z-10 relative border-t-1 border-primary-100"
         :style="{ marginTop: `${overlayMarginTop}px` }"
         @touchstart="handleTouchStart"
       >
         <div
           class="w-full h-14 flex items-center justify-center cursor-pointer"
         >
-          <div class="h-[6px] mx-auto bg-gray-300 rounded-lg w-16"></div>
+          <div class="h-[6px] mx-auto bg-primary-100 rounded-lg w-16"></div>
         </div>
         <div class="flex flex-col gap-1 px-6">
           <div
@@ -369,6 +370,7 @@
               class="flex-1"
               v-if="mobileChosen === 'INGREDIENTS'"
               :hideHeader="true"
+              :batchSize="recipeStore.recipe?.batch_size ?? undefined"
             ></PagesRecipeIngredientList>
             <PagesRecipeInstructionContainer
               v-if="
@@ -397,11 +399,12 @@
             </div>
             <div class="flex gap-2 flex-col mt-4">
               <RecipeCard
-                v-for="recipe in similarRecipes"
+                v-for="(recipe, index) in similarRecipes"
                 :key="recipe.id"
                 :recipe="recipe"
                 horizontal
                 class="text-lg flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
+                :class="{'pl-4': index === 0}"
               />
             </div>
           </div>
@@ -435,7 +438,7 @@ const showFullDescriptionMobile = ref(false);
 const desktopCharLimit = 200;
 const mobileCharLimit = 200;
 
-const overlayMarginTop = ref(-100);
+const overlayMarginTop = ref(-150);
 const minMarginTop = -300;
 const maxMarginTop = -32;
 

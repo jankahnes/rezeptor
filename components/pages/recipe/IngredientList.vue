@@ -28,13 +28,33 @@
           </transition>
         </div>
       </div>
-      <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
-      <FormsSlidingSelector
-        v-model="servingSize"
-        :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
-        :expanded="false"
-        class="max-w-[180px] -ml-2"
-      />
+      <div class="mb-4" v-if="batchSize && !servingMode">
+        <p class="text-gray-600 ml-1 font-light">
+          For one batch of {{ batchSize }} servings
+        </p>
+        <p
+          @click="servingMode = !servingMode"
+          class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer italic"
+        >
+          Adjust servings
+        </p>
+      </div>
+      <div v-else>
+        <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
+        <FormsSlidingSelector
+          v-model="servingSize"
+          :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+          :expanded="false"
+          class="max-w-[180px]"
+        />
+        <p
+          v-if="batchSize"
+          @click="servingMode = !servingMode"
+          class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer mb-4 italic"
+        >
+          Show ingredients for one batch
+        </p>
+      </div>
     </div>
 
     <div class="flex-1 px-2 md:px-6 pb-2">
@@ -89,16 +109,7 @@
                   }}
                 </span>
               </transition>
-              <div
-                class="cursor-pointer"
-                @mousedown="startHold(ingredient)"
-                @mouseup="endHold(ingredient)"
-                @mouseleave="cancelHold()"
-                @touchstart="startHold(ingredient)"
-                @touchend="endHold(ingredient)"
-                @touchcancel="cancelHold()"
-                @contextmenu.prevent
-              >
+              <NuxtLink :to="`/foods/${ingredient.id}`" class="cursor-pointer">
                 <span class="ml-2 text-nowrap whitespace-nowrap">{{
                   getIngredientName(ingredient)
                 }}</span>
@@ -108,7 +119,7 @@
                 >
                   , {{ ingredient.preperation_description }}
                 </span>
-              </div>
+              </NuxtLink>
             </li>
           </ul>
         </template>
@@ -142,14 +153,11 @@ import { computed, ref } from 'vue';
 const props = defineProps({
   ingredients: Array<any>,
   hideHeader: Boolean,
+  batchSize: Number,
 });
-const servingSize = ref(2);
+const servingSize = ref(props.batchSize ?? 2);
+const servingMode = ref(!props.batchSize);
 const checkedIngredients = ref<Set<string>>(new Set());
-const holdDuration = 400;
-
-const holdTimer = ref<NodeJS.Timeout | null>(null);
-const isHolding = ref(false);
-const holdStarted = ref(false);
 
 const notOnDefaultUnits = computed(() => {
   return props.ingredients?.some(
@@ -182,45 +190,6 @@ function onClickIngredient(ingredient: any) {
     ingredient.currentUnit = 0;
   } else {
     ingredient.currentUnit += 1;
-  }
-}
-
-function startHold(ingredient: any) {
-  holdStarted.value = true;
-  isHolding.value = false;
-
-  holdTimer.value = setTimeout(() => {
-    isHolding.value = true;
-    navigateToFood(ingredient);
-  }, holdDuration);
-}
-
-function endHold(ingredient: any) {
-  if (holdTimer.value) {
-    clearTimeout(holdTimer.value);
-    holdTimer.value = null;
-  }
-
-  if (holdStarted.value && !isHolding.value) {
-    onClickIngredient(ingredient);
-  }
-
-  holdStarted.value = false;
-  isHolding.value = false;
-}
-
-function cancelHold() {
-  if (holdTimer.value) {
-    clearTimeout(holdTimer.value);
-    holdTimer.value = null;
-  }
-  holdStarted.value = false;
-  isHolding.value = false;
-}
-
-function navigateToFood(ingredient: any) {
-  if (ingredient.id) {
-    navigateTo(`/foods/${ingredient.id}`);
   }
 }
 

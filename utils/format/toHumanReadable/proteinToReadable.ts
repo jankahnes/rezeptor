@@ -35,16 +35,16 @@ const proteinPerKcalDescriptors = {
 
 
 
-export default function proteinToReadable(report) {
+export default function proteinToReadable(report, isFood: boolean) {
     const items = []
     const qualityItem = getHighestThreshold(report.protein.limitingAA_ratio, aminoAcidRatioDescriptors)
     const proteinPerServingItem = getHighestThreshold(report.protein.total_protein_per_serving, proteinPerServingDescriptors)
     const proteinPerKcalItem = getHighestThreshold(report.protein.protein_kcal_ratio, proteinPerKcalDescriptors)
-
+    console.log(isFood, report.protein)
     items.push(qualityItem)
     items.push({
         ...proteinPerServingItem,
-        description: (report.protein.total_protein_per_serving).toFixed(0) + "g protein per serving",
+        description: isFood ? (report.protein.total_protein_per_100g.toFixed(0) + "g protein per 100g") : ((report.protein.total_protein_per_serving).toFixed(0) + "g protein per serving"),
     })
     items.push({
         ...proteinPerKcalItem,
