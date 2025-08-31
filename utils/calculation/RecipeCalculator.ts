@@ -202,9 +202,11 @@ export default class RecipeCalculator {
     this.considerProcessing = considerProcessing;
     if (isFood) {
       this.recipePer100 = recipe;
-      this.recipeComputed = {
+    this.logToReport = logToReport;
+    this.recipeComputed = {
         title: recipe.name,
-        totalWeight: 100
+        totalWeight: 100,
+        ...this.recipePer100
       }
       return;
     }
@@ -502,6 +504,11 @@ export default class RecipeCalculator {
     if(this.ingredientsFlat.every(ingredient => ingredient.vegetarian)) { // vegetarian
       tagRows.push({
         tag_id: 103,
+      });
+    }
+    if(this.ingredientsFlat.every(ingredient => ingredient.lactose_free)) { // lactose-free
+      tagRows.push({
+        tag_id: 112,
       });
     }
     if(this.recipeComputed.protein > 35) { // high protein
@@ -1033,11 +1040,12 @@ export default class RecipeCalculator {
 
     if (this.logToReport) {
       let percentContributedFromNaturalScources = 0;
+      if(this.cumulColsComputed?.sugar?.contributors) {
       for (const contributor of this.cumulColsComputed.sugar.contributors) {
         if (contributor.processingLevel <= 2) {
           percentContributedFromNaturalScources += contributor.value;
         }
-      }
+      }}
       const percentOfKcal =
         (this.recipePer100.sugar * 4) / (this.recipePer100.kcal + 1e-6);
       this.report.sugar = {
@@ -1266,7 +1274,7 @@ export default class RecipeCalculator {
     const quality = this.getProteinQualityScore();
     const quantity = this.getProteinQuantityScore();
     const ovr = (quality * quantity) / 100;
-
+    console.log(this.logToReport)
     if (this.logToReport) {
       this.report.protein = {
         ...this.report.protein,
@@ -1275,7 +1283,7 @@ export default class RecipeCalculator {
         total_protein_per_100g:
           Math.round(this.recipePer100.protein * 100) / 100,
         total_protein_per_serving:
-          this.cumulColsComputed.protein.amountTotalAfterAlpha,
+          this?.cumulColsComputed?.protein?.amountTotalAfterAlpha,
         protein_kcal_ratio:
           (this.recipePer100.protein * 4) / (this.recipePer100.kcal + 1e-6),
         overall_score: Math.round(ovr),
@@ -1287,7 +1295,14 @@ export default class RecipeCalculator {
 
   getPLScore() {
     if(this.isFood) {
-      return 100-(((this.recipePer100?.nova)-1)*30)
+      const final_score = 100-(((this.recipePer100?.nova)-1)*30)
+      if (this.logToReport) {
+        this.report.processingLevel = {
+          nova: this.recipePer100?.nova,
+          final_score,
+        };
+      }
+      return final_score
     }
     let whole_food_count = 0;
     let ultra_processed_count = 0;
@@ -1444,12 +1459,14 @@ export default class RecipeCalculator {
       mnidx: this.recipeComputed.mnidx,
       processing_level_score: this.recipeComputed.processing_level_score,
       protective_score: this.recipeComputed.protective_score,
+      nova: this.recipeComputed.nova,
       grade: getGrade(this.recipeComputed.hidx, 'hidx'),
       total_weight: Math.round(this.recipeComputed.totalWeight),
       kcal_per_100g: Math.round(this.recipePer100.kcal),
       serving_size: this.servingSize,
     };
 
+    if (!this.isFood) {
     // Process ingredient-level analysis
     this.report.processingEffects = [];
 
@@ -1474,10 +1491,11 @@ export default class RecipeCalculator {
         });
       }
     }
-
+  }
     this.report.humanReadable = getReportHumanReadable(
       this.report,
-      this.recipeComputed
+      this.recipeComputed,
+      this.isFood
     );
   }
 }

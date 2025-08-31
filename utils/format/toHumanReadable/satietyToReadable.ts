@@ -55,7 +55,7 @@ const scoreDescriptors = {
 }
 
 
-export default function satietyToReadable(report: any) {
+export default function satietyToReadable(report: any, isFood: boolean) {
     if(!report.satiety) return []
     const items = []
     for(const [key, value] of Object.entries(scoreDescriptors)) {
@@ -70,6 +70,7 @@ export default function satietyToReadable(report: any) {
             value: item.value
         })
     }
+    if(!isFood) {
     const contributors = report.contributors["sidx"]?.contributors || []
     for(const contributor of contributors) {
         if(contributor.totalContribution > 75) {
@@ -79,6 +80,7 @@ export default function satietyToReadable(report: any) {
             })
         }
     }
+}
     items.sort((a, b) => b.value - a.value)
     return items
 }

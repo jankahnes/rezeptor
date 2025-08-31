@@ -16,6 +16,7 @@ type JsonUploadRecipe = {
     }[];
     instructions: string;
     serves: number;
+    batch_size: number|null;
     rating: number|null;
     description: string|null;
     image_base64: string|null;
@@ -51,11 +52,17 @@ export default defineEventHandler(async (event) => {
     } as any)
     .select('id')
     .single();
-  if (error) throw error;
+  if (error) {
+    console.error("🔍 Error inserting recipe:", error);
+    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe' });
+  }
   console.log("🔍 Recipe inserted.");
 
   const recipeId = (data as { id: number })?.id;
-  if (!recipeId) throw createError({ statusCode: 500, statusMessage: 'Failed to get recipe ID' });
+  if (!recipeId) {
+    console.error("🔍 Failed to get recipe ID");
+    throw createError({ statusCode: 500, statusMessage: 'Failed to get recipe ID' });
+  }
 
   if (body.image_base64) {
     //make post request to /api/db/upload-image
@@ -67,23 +74,37 @@ export default defineEventHandler(async (event) => {
       body: { image: body.image_base64, bucket: 'recipe', id: recipeId },
     });
     const pictureUrl = imageData.publicUrl;
-    if (!pictureUrl) return;
+    if (!pictureUrl) {
+      console.error("🔍 Failed to get picture URL");
+      throw createError({ statusCode: 500, statusMessage: 'Failed to get picture URL' });
+    }
     const { error: updateError } = await client
       .from('recipes')
-        .update({ picture: pictureUrl } )
+        .update({ picture: pictureUrl } as never)
       .eq('id', recipeId);
-    if (updateError) throw updateError;
+    if (updateError) {
+      console.error("🔍 Error updating recipe picture:", updateError);
+      throw createError({ statusCode: 500, statusMessage: 'Failed to update recipe picture' });
+    }
   }
   console.log("🔍 Recipe picture converted and uploaded.");
 
   console.log("🔍 Recipe foods:", recipeFoodsRows);
-  await client
+  const { error: recipeFoodsError } = await client
   .from('recipe_foods')
   .insert(recipeFoodsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any);
 
-  await client
+  const { error: recipeTagsError } = await client
   .from('recipe_tags')
   .insert(recipeTagsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any);
+  if (recipeFoodsError) {
+    console.error("🔍 Error inserting recipe foods:", recipeFoodsError);
+    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe foods' });
+  }
+  if (recipeTagsError) {
+    console.error("🔍 Error inserting recipe tags:", recipeTagsError);
+    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe tags' });
+  }
   console.log("🔍 Recipe foods and tags inserted.");
 
   console.log(`✅ Recipe uploaded successfully: ${recipeId}, ${body.title}`);

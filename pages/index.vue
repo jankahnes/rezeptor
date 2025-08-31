@@ -56,10 +56,11 @@
       <div class="mt-2">
         <Carousel class="">
           <RecipeCard
-            v-for="recipe in recipeStore.indexRecipes"
+            v-for="(recipe, index) in recipeStore.indexRecipes"
             :key="recipe.id"
             :recipe="recipe"
-            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4"
+            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4 pl-2"
+            :class="{'pl-3': index === 0}"
           />
         </Carousel>
       </div>

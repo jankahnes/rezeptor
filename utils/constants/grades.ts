@@ -109,13 +109,13 @@ export const gradeBorderColors: Record<string, string> = {
 };
 
 const gradeShadows: Record<string, string> = {
-  S: 'shadow-halo shadow-halo-blue',
-  A: 'shadow-halo shadow-halo-emerald',
-  B: 'shadow-halo shadow-halo-green',
-  C: 'shadow-halo shadow-gray-200',
-  D: 'shadow-halo shadow-gray-200',
-  E: 'shadow-halo shadow-gray-200',
-  F: 'shadow-halo shadow-gray-200',
+  S: 'shadow-halo-blue shadow-halo ',
+  A: 'shadow-halo-emerald shadow-halo ',
+  B: 'shadow-halo-green shadow-halo ',
+  C: 'shadow-gray-200 shadow-halo ',
+  D: 'shadow-gray-200 shadow-halo ',
+  E: 'shadow-gray-200 shadow-halo ',
+  F: 'shadow-gray-200 shadow-halo ',
 }
 
 export function getGradeBorderColor(score: number, type: 'hidx' | 'score' = 'score') {

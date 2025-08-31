@@ -8,7 +8,6 @@
               <h2 class="text-lg font-bold">HEALTH SUMMARY</h2>
             </div>
             <button
-              v-if="!props.noReport"
               @click="onReport"
               class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs mt-3"
             >
@@ -50,18 +49,18 @@
 const props = defineProps<{
   recipe: RecipeProcessed;
   onReport?: () => void;
-  noReport?: boolean;
+  isFood?: boolean;
 }>();
 
 const onReport =
   props.onReport ??
   (() => {
-    navigateTo(`/recipe/${props.recipe.id}/report`);
+    navigateTo(`/${props.isFood ? 'foods' : 'recipe'}/${props.recipe.id}/report`);
   });
 
 const recipeStore = useRecipeStore();
 
-const readableGrades = gradesToReadable({}, props.recipe).filter(
+const readableGrades = gradesToReadable({}, props.recipe, props.isFood).filter(
   (grade) => grade.value >= 4
 );
 </script>

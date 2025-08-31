@@ -13,6 +13,7 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
     {
         "processing_info": [
             {	
+                "ingredient_name": "ingredient name from recipe",
                 "ingredient_id": "ingredient ID from recipe",
                 "thermal_intensity": "LOW" | "MEDIUM" | "HIGH" | null,
                 "heat_medium": "WET" | "DRY" | "FAT" | "RADIATION" | null,
@@ -168,6 +169,7 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
      {
        "ingredients": [
          {
+           "ingredient_name": "ingredient name from recipe",
            "ingredient_id": "ingredient ID from recipe",
            "hydration_factor": number,
            "consumption_factor": number

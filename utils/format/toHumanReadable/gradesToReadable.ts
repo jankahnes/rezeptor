@@ -61,6 +61,16 @@ const processingLevelDescriptors = {
     "S": {description: "Whole ingredients", ...EXCELLENT},
 }
 
+const processingLevelDescriptorsFood = {
+    "F": {description: "Ultra-processed", ...POOR},
+    "E": {description: "Ultra-processed", ...POOR},
+    "D": {descripton: "Processed", ...SUBOPTIMAL},
+    "C": {descripton: "Processed", ...SUBOPTIMAL},
+    "B": {descripton: "Processed", ...SUBOPTIMAL},
+    "A": {descripton: "Traditionally processed", ...OKAY},
+    "S": {descripton: "Whole", ...GREAT},
+    }
+
 const scoreDescriptors= {
     mnidx: {
         appendName: "Micronutrients",
@@ -86,6 +96,7 @@ const scoreDescriptors= {
     processing_level_score: {
         appendName: "",
         descriptor: processingLevelDescriptors,
+        descriptorFood: processingLevelDescriptorsFood,
     },
     protein_score: {
         appendName: "Protein",
@@ -124,22 +135,32 @@ const scoreDescriptors= {
     },
 }
 
-export default function gradesToReadable(report, recipe: RecipeProcessed) {
+export default function gradesToReadable(report, recipe: RecipeProcessed, isFood: boolean) {
+    if(isFood) {
+        delete scoreDescriptors.processing_level_score
+    }
     const readable: ReadableGrades = []
     for (const scoreCategory in scoreDescriptors) {
         const score = recipe[scoreCategory]
         const roundedGrade = getGrade(score)[0]
         const item = scoreDescriptors[scoreCategory]
-        const descriptor = item.descriptor[roundedGrade]
+        let descriptor = item.descriptor[roundedGrade]
+        if(isFood && item.descriptorFood) {
+            descriptor = item.descriptorFood[roundedGrade]
+        }
         if(!descriptor){
             throw new Error(`No descriptor found for score category: ${scoreCategory}`)
         }
         const description = descriptor.description + " " + item.appendName
-        const contributors = report?.contributors?.[item.contributor_col]?.contributors || []
-        const subtitle = contributorsToReadable(contributors)
-        const display_subtitle_thresh = item.display_subtitle_thresh
-        const display_if = item.display_if
-        const display_subtitle = display_if === "bigger" ? score > display_subtitle_thresh : score < display_subtitle_thresh
+        let subtitle = null
+        let display_subtitle = false
+        if(isFood) {
+            const contributors = report?.contributors?.[item.contributor_col]?.contributors || []
+            subtitle = contributorsToReadable(contributors)
+            const display_subtitle_thresh = item.display_subtitle_thresh
+            const display_if = item.display_if
+            display_subtitle = display_if === "bigger" ? score > display_subtitle_thresh : score < display_subtitle_thresh
+        }
         readable.push({
             value: descriptor.value,
             description,
