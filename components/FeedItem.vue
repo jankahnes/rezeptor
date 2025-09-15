@@ -92,7 +92,7 @@ function getLinkTarget() {
   } else if (props.feedItem?.type === 'USER_CREATION') {
     return '/profile/' + props.feedItem?.user_id;
   } else if (props.feedItem?.type === 'FOOD_CREATION') {
-    return '/foods/' + props.feedItem?.food_id;
+    return '/foods/' + props.feedItem?.food_name_id;
   }
 }
 </script>

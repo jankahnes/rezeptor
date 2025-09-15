@@ -114,10 +114,10 @@
                   getIngredientName(ingredient)
                 }}</span>
                 <span
-                  v-if="ingredient.preperation_description"
+                  v-if="ingredient.preparation_description"
                   class="font-light text-xs mt-1 text-gray-600 -ml-1"
                 >
-                  , {{ ingredient.preperation_description }}
+                  , {{ ingredient.preparation_description }}
                 </span>
               </NuxtLink>
             </li>

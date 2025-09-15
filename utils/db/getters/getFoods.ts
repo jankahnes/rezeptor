@@ -56,3 +56,18 @@ export async function getFoods(
 export async function getFood(client: SupabaseClient, opts: GetterOpts = {}) {
   return expectSingle(await getFoods(client, opts));
 }
+
+export async function getFoodNames(client: SupabaseClient, opts: GetterOpts = {}) {
+  let query = client.from('food_names').select(`
+    *,
+    food:foods(*)
+  `);
+  query = buildQuery(query, opts);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
+}
+
+export async function getFoodName(client: SupabaseClient, opts: GetterOpts = {}) {
+  return expectSingle(await getFoodNames(client, opts));
+}

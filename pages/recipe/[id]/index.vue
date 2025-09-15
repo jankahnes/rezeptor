@@ -46,6 +46,16 @@
               <span class="material-symbols-outlined !text-xl">print</span>
             </button>
             <button
+              v-if="(auth?.user as any)?.username === 'administrator'"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              @click="recomputeRecipe"
+              :disabled="isRecomputing"
+            >
+              <span class="material-symbols-outlined !text-xl">
+                {{ isRecomputing ? 'hourglass_empty' : 'refresh' }}
+              </span>
+            </button>
+            <button
               class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
               @click="deleteRecipe"
             >
@@ -245,6 +255,16 @@
               <span class="material-symbols-outlined">edit</span>
             </NuxtLink>
             <button
+              v-if="(auth?.user as any)?.username === 'administrator'"
+              class="button p-2 rounded-lg flex items-center shadow-xl"
+              @click="recomputeRecipe"
+              :disabled="isRecomputing"
+            >
+              <span class="material-symbols-outlined">
+                {{ isRecomputing ? 'hourglass_empty' : 'refresh' }}
+              </span>
+            </button>
+            <button
               class="button p-2 rounded-lg flex items-center shadow-xl"
               @click="deleteRecipe"
             >
@@ -404,7 +424,7 @@
                 :recipe="recipe"
                 horizontal
                 class="text-lg flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
-                :class="{'pl-4': index === 0}"
+                :class="{ 'pl-4': index === 0 }"
               />
             </div>
           </div>
@@ -415,6 +435,10 @@
 </template>
 
 <script setup lang="ts">
+import RecipeCalculator from '~/utils/calculation/RecipeCalculator';
+import stripKeys from '~/utils/format/stripKeys';
+import { recipeKeys } from '~/types/keys';
+
 const route = useRoute();
 const router = useRouter();
 const recipeStore = useRecipeStore();
@@ -444,6 +468,7 @@ const maxMarginTop = -32;
 
 const isProcessed = ref(false);
 const similarRecipes = ref<RecipeProcessed[]>([]);
+const isRecomputing = ref(false);
 
 watch(
   () => recipeStore.recipe?.picture,
@@ -552,5 +577,46 @@ const deleteRecipe = async () => {
   recipeStore.deleteRecipe(id);
   recipeStore.setRecipe({} as RecipeProcessed);
   router.push('/');
+};
+
+const recomputeRecipe = async () => {
+  if ((auth?.user as any)?.username !== 'administrator') {
+    return;
+  }
+
+  try {
+    isRecomputing.value = true;
+
+    // Convert recipe to editable format
+    const editableRecipe = await recipeStore.convertToEditable();
+
+    // Use RecipeCalculator to compute nutrition and health facts
+    const calc = new RecipeCalculator(
+      JSON.parse(JSON.stringify(editableRecipe)),
+      false,
+      false,
+      false,
+      false
+    );
+    await calc.computeRecipe();
+
+    // Get the computed values, filtered by valid recipe keys
+    const recomputedValues = stripKeys(calc.recipeComputed, recipeKeys);
+
+    const { error: updateError } = await (supabase as any)
+      .from('recipes')
+      .update(recomputedValues)
+      .eq('id', id);
+
+    if (updateError) throw updateError;
+
+    await loadRecipe(id);
+
+    console.log('Recipe recomputed successfully');
+  } catch (error) {
+    console.error('Error recomputing recipe:', error);
+  } finally {
+    isRecomputing.value = false;
+  }
 };
 </script>

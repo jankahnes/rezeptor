@@ -52,8 +52,12 @@ export async function getRecipes(
         ingredients:recipe_foods(
           amount,
           unit,
-          food:foods(
-            id, name, price, density, unit_weight, unit_name, measurements
+          food_name:food_names(
+            id,
+            name,
+            food:foods(
+              id, price, density, unit_weight, unit_name, measurements
+            )
           ),
           category,
           thermal_intensity,
@@ -62,7 +66,7 @@ export async function getRecipes(
           thermal_description,
           mechanical_description,
           hydration_factor,
-          preperation_description
+          preparation_description
         ),
         comments:comments(*),
         user:profiles(id, username, picture)
@@ -113,22 +117,17 @@ export async function getRecipes(
 
     recipe.ingredients = recipe.ingredients.map((ingredient) => {
       return {
-        id: ingredient.food.id,
-        name: ingredient.food.name,
-        price: ingredient.food.price,
-        density: ingredient.food.density,
-        unit_weight: ingredient.food.unit_weight,
-        unit_name: ingredient.food.unit_name,
-        measurements: Array.isArray(ingredient.food.measurements)
-          ? ingredient.food.measurements
+        id: ingredient.food_name.id,
+        name: ingredient.food_name.name,
+        price: ingredient.food_name.food.price,
+        density: ingredient.food_name.food.density,
+        unit_weight: ingredient.food_name.food.unit_weight,
+        unit_name: ingredient.food_name.food.unit_name,
+        measurements: Array.isArray(ingredient.food_name.food.measurements)
+          ? ingredient.food_name.food.measurements
           : [],
         category: ingredient.category,
         amountInfo: [[ingredient.amount, ingredient.unit]],
-        possibleUnits: getPossibleUnits(
-          Array.isArray(ingredient.food.measurements)
-            ? ingredient.food.measurements
-            : []
-        ),
         currentUnit: 0,
         thermal_intensity: ingredient.thermal_intensity,
         mechanical_disruption: ingredient.mechanical_disruption,
@@ -136,7 +135,7 @@ export async function getRecipes(
         thermal_description: ingredient.thermal_description,
         mechanical_description: ingredient.mechanical_description,
         hydration_factor: ingredient.hydration_factor,
-        preperation_description: ingredient.preperation_description,
+        preparation_description: ingredient.preparation_description,
       };
     });
     recipe.ingredients.forEach(fillForUnits);
