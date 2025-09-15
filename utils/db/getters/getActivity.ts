@@ -29,9 +29,7 @@ export async function getActivity(
           picture
         )
       ),
-      food: food_id (
-        name
-      )
+      food: food_name_id ( name )
     `
   );
   query = buildQuery(query, opts);

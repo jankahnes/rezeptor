@@ -4,7 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const amountStyling = "font-semibold py-1 px-2 rounded-md bg-gray-100 text-gray-600";
 export const unitStyling = "font-normal italic text-gray-600 py-1 px-2 rounded-md bg-gray-100";
 export const ingredientStyling = "font-bold text-gray-800 py-1 px-2 rounded-md bg-gray-200";
-export const preperationDescriptionStyling = "font-light italic text-gray-600";
+export const preparationDescriptionStyling = "font-light italic text-gray-600";
 export const ignoredStyling = "font-normal text-gray-600 py-1 px-2 rounded-md bg-gray-50";
 
 const ignoreWords = ["a", "an", "the", "of"];
@@ -122,7 +122,7 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
     let amount = null;
     let unit = 'UNITS';
     let ingredient = null;
-    let preperationDescription = null;
+    let preparationDescription = null;
 
     const tokens = ingredientString.split(' ').filter(word => word.trim() !== '').map(word => word.trim());
     const parsed: ParsedPart[] = [];
@@ -225,8 +225,8 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
                     parsed.push({ text: ingredient.name, styling: ingredientStyling });
                     if (extra) {
                         extra = extra.replace(/^,/, '');
-                        preperationDescription = extra;
-                        parsed.push({ text: extra, styling: preperationDescriptionStyling });
+                        preparationDescription = extra;
+                        parsed.push({ text: extra, styling: preparationDescriptionStyling });
                     }
                     break;
                 }
@@ -242,7 +242,7 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
         amount,
         unit,
         ingredient,
-        preperationDescription,
+        preparationDescription,
         parsed,
     };
 }

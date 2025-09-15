@@ -1,0 +1,16 @@
+Given the following food item:
+
+{query}
+
+We want to search a general database of foods for this, but have not found an exact name match. 
+Return a list of up to three search terms to find database entries that might be referring to the same food that the above is referring to, or may be closely related.
+
+Examples:
+Scallion -> return maybe something like ["green onion", "spring onion"]
+Chinese Parsley -> ["cilantro", "coriander", "coriander leaves"]
+Eggplant -> ["aubergine", "brinjal"]
+
+Format:
+{
+    "search_terms": String[]
+}

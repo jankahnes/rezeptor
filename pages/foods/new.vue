@@ -76,7 +76,7 @@
           </ClientOnly>
           <NuxtLink
             v-else-if="request.status === 'CLOSED_INSERTED'"
-            :to="`/foods/${request.new_food_id}`"
+            :to="`/foods/${request.food_name_id}`"
             class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-green-300"
           >
             <span class="material-symbols-outlined"> open_in_new </span>
@@ -84,7 +84,7 @@
           </NuxtLink>
           <NuxtLink
             v-else-if="request.status === 'ALIAS_INSERTED'"
-            :to="`/foods/${request.new_food_id}`"
+            :to="`/foods/${request.food_name_id}`"
             class="button flex items-center gap-2 px-4 py-2 rounded-lg !bg-green-200"
           >
             <span class="material-symbols-outlined"> check </span>
@@ -114,7 +114,7 @@ interface FoodRequest {
     | 'CLOSED_INSERTED'
     | 'CLOSED_NOT_INSERTED'
     | 'ALIAS_INSERTED';
-  new_food_id?: number;
+  food_name_id?: number;
   status_info?: string;
   created_at?: string;
 }
@@ -126,7 +126,7 @@ interface APIResponse {
     status: 'CLOSED_INSERTED' | 'CLOSED_NOT_INSERTED' | 'ALIAS_INSERTED';
     status_info: string;
     conflicting_food: { name: string; id: number } | null;
-    new_food_id?: number;
+    food_name_id?: number;
   };
 }
 
@@ -152,10 +152,11 @@ const requestFood = async () => {
   requestsStore.requests.unshift(newRequest);
 
   try {
-    const response = await $fetch<APIResponse>('/api/db/on-request-insert', {
+    const response = await $fetch<APIResponse>('/api/db/request-food', {
       method: 'POST',
       body: {
-        food_name: foodName.value,
+        query: foodName.value,
+        from_user: true,
       },
     });
 

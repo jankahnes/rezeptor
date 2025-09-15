@@ -1,4 +1,4 @@
-import {amountStyling, unitStyling, ingredientStyling, preperationDescriptionStyling, ignoredStyling} from '~/utils/format/parseIngredientString';
+import {amountStyling, unitStyling, ingredientStyling, preparationDescriptionStyling, ignoredStyling} from '~/utils/format/parseIngredientString';
 import pluralizeWord from '~/utils/format/pluralizeWord';
 
 
@@ -38,13 +38,13 @@ export const useRecipeStore = defineStore('recipe', () => {
     const ingredientIds = recipe.value.ingredients.map(
       (ingredient) => ingredient.id
     );
-    const foodsFromDb = await getFoods(supabase, { in: { id: ingredientIds } });
+    const foodsFromDb = await getFoodNames(supabase, { in: { id: ingredientIds } });
     for (const ingredient of recipe.value.ingredients) {
       const matchingFood = foodsFromDb.find(
         (food) => food.id === ingredient.id
       );
       const mergedIngredient = {
-        ...matchingFood,
+        ...matchingFood?.food,
         ...ingredient,
         amount: ingredient.amountInfo[0][0],
         unit: ingredient.amountInfo[0][1],
@@ -81,12 +81,12 @@ export const useRecipeStore = defineStore('recipe', () => {
       mergedIngredient.parsed = parsed;
       mergedIngredient.rawText = mergedIngredient.amount + " " + unitName + " " + mergedIngredient.name;
 
-      if(mergedIngredient.preperation_description) {
+      if(mergedIngredient.preparation_description) {
         parsed.push({
-          text: mergedIngredient.preperation_description,
-          styling: preperationDescriptionStyling
+          text: mergedIngredient.preparation_description,
+          styling: preparationDescriptionStyling
         })
-        mergedIngredient.rawText += ", " + mergedIngredient.preperation_description;
+        mergedIngredient.rawText += ", " + mergedIngredient.preparation_description;
       }
 
       let foundCategory = recipe.value.ingredients_editable.ingredients.find(

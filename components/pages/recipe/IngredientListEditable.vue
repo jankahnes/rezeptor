@@ -201,7 +201,7 @@ function createEmptyIngredient() {
     amount: null,
     unit: null,
     food: null,
-    preperation_description: null,
+    preparation_description: null,
     parsed: [],
     isEditing: true, // New ingredients start in edit mode
   };
@@ -226,7 +226,7 @@ async function handleInput(category, index) {
     ingredient.parsed = [];
     ingredient.amount = null;
     ingredient.unit = null;
-    ingredient.preperation_description = null;
+    ingredient.preparation_description = null;
   }
 
   // Ensure exactly one empty ingredient exists
@@ -286,7 +286,7 @@ async function parseIngredient(category, index) {
     ingredient.amount = result.amount;
     ingredient.unit = result.unit;
     Object.assign(ingredient, result.ingredient);
-    ingredient.preperation_description = result.preperation_description;
+    ingredient.preparation_description = result.preparation_description;
     ingredient.parsed = result.parsed;
   } catch (error) {
     console.error('Error parsing ingredient:', error);

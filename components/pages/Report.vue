@@ -10,7 +10,6 @@
           class="min-w-80 max-w-120 h-80 shadow-sm rounded-2xl flex-1"
         />
       </div>
-
     </div>
 
     <div v-else class="mx-4 flex flex-col gap-10">
@@ -19,7 +18,11 @@
         <div class="flex flex-col md:flex-row gap-8 items-start">
           <div class="flex-1">
             <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-2">
-              {{ calculator.recipeComputed?.title || recipeStore.recipe?.title || 'New Recipe' }}
+              {{
+                calculator.recipeComputed?.title ||
+                recipeStore.recipe?.title ||
+                'New Recipe'
+              }}
             </h1>
             <p class="text-lg text-gray-600 mb-4">Nutritional Analysis 🔎</p>
 
@@ -106,7 +109,10 @@
           </div>
           <button
             class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary-20 text-primary text-xs will-change-transform self-start ml-8"
-            v-if="card.name == 'micronutrients' && report.humanReadable.micronutrients.length > 5"
+            v-if="
+              card.name == 'micronutrients' &&
+              report.humanReadable.micronutrients.length > 5
+            "
             @click="toggleMicronutrientOverview"
           >
             {{ micronutrientOverviewExpanded ? 'Show less' : 'Show more' }}
@@ -328,8 +334,10 @@ function fillReadableSummaryCards() {
     }
     readableSummaryCards.value.sort((a, b) => b.relevancy - a.relevancy);
   }
-  if(props.isFood) {
-  readableSummaryCards.value.find((card) => card.name == 'processingLevel').score = report.value?.processingLevel.final_score;
+  if (props.isFood) {
+    readableSummaryCards.value.find(
+      (card) => card.name == 'processingLevel'
+    ).score = report.value?.processingLevel.final_score;
   }
   micronutrientOverviewExpanded.value = true;
   toggleMicronutrientOverview();
@@ -346,7 +354,7 @@ function fillReadableSummaryCards() {
 onMounted(async () => {
   try {
     if (props.isFood) {
-      const data = await getFood(supabase, {
+      const data = await getFoodName(supabase, {
         eq: { id: Number(props.id) },
       });
       calculator.value = new RecipeCalculator(data, false, true, true, false);

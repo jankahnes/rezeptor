@@ -4,7 +4,6 @@ interface Ingredient {
   amountInfo?: [string | number, Unit][];
   density?: number;
   unit_weight?: number;
-  possibleUnits: Unit[];
   name?: string;
 }
 
@@ -37,8 +36,8 @@ const UNIT_PRIORITY: Record<Unit, number> = {
   'CUP': 4,
   'ML': 4,
   'FREE': 9,
-  'UNITS': 9,
   'G': 10,
+  'UNITS': 11,
 };
 
 export default function fillForUnits(ingredient: Ingredient): void {
@@ -48,11 +47,11 @@ export default function fillForUnits(ingredient: Ingredient): void {
   const [amountStr, originalUnit] = base;
   const amount = Number(amountStr);
   const conversions = new Map<Unit, number>(); // Use Map to avoid duplicates
-  const { density = 1, unit_weight, possibleUnits } = ingredient;
+  const { density = 1, unit_weight } = ingredient;
 
   // Helper to add conversions to our map
   const addConversion = (val: number, u: Unit): void => {
-    if (possibleUnits.includes(u) && !conversions.has(u)) {
+    if (!conversions.has(u)) {
       conversions.set(u, Number(val.toFixed(2)));
     }
   };

@@ -12,18 +12,24 @@
       <button class="button p-2 flex flex-shrink-0" @click="search">
         <span class="material-symbols-outlined"> search </span>
       </button>
-      <button class="button p-2 flex flex-shrink-0" @click="navigateTo('/foods/new')">
+      <button
+        class="button p-2 flex flex-shrink-0"
+        @click="navigateTo('/foods/new')"
+      >
         <span class="material-symbols-outlined"> add </span>
       </button>
-      <button class="button p-2 flex flex-shrink-0" @click="navigateTo('/foods/scan')">
+      <button
+        class="button p-2 flex flex-shrink-0"
+        @click="navigateTo('/foods/scan')"
+      >
         <span class="material-symbols-outlined"> flip </span>
       </button>
     </div>
     <div class="flex flex-col gap-4 w-full mb-10">
-      <div
+      <NuxtLink
         class="flex gap-2 w-full shadow-main hover:shadow-main-hover pl-4 py-0 rounded-lg select-none cursor-pointer items-center"
         v-for="food in foodResultsStore.foodResults"
-        @click="navigateTo(`/foods/${food.id}`)"
+        :to="`/foods/${food.id}`"
       >
         <div class="flex-grow">
           <h2>{{ food.name }}</h2>
@@ -33,7 +39,7 @@
           :type="'hidx'"
           class="text-xl !h-14 !w-12 rounded-r-lg"
         />
-      </div>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -66,12 +72,13 @@ async function search() {
     navigateTo('/foods', { replace: true });
     return;
   }
-  const { data, error } = await supabase.rpc('search_foods', {
+  const { data, error } = await supabase.rpc('search_foods_deduplicated', {
     query: foodResultsStore.searchQuery,
     max: 10,
   });
   //returned data: {food: food, matched_alias: string} -> map to {...food, name: matched_alias ?? food.name}
-  const foodResults = data?.map((result: { food: Food; matched_alias: string }) => ({
+  const foodResults =
+    data?.map((result: { food: Food; matched_alias: string }) => ({
       ...result.food,
       name: result.matched_alias ?? result.food.name,
     })) ?? [];

@@ -65,7 +65,7 @@ export function getStringFromAmountInfo(
       if (!pieceName || pieceName === 'self') {
         unitName = '';
       } else if (!pieceName.endsWith('s') && totalAmount != 1) {
-        unitName = pieceName + 's';
+        unitName = pluralizeWord(pieceName);
       } else {
         unitName = pieceName;
       }

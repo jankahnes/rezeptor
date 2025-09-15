@@ -12,7 +12,7 @@ type JsonUploadRecipe = {
         amount: number;
         unit: string;
         category: string|null;
-        preperation_description: string|null;
+        preparation_description: string|null;
     }[];
     instructions: string;
     serves: number;

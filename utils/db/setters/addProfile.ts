@@ -14,7 +14,7 @@ export default async function addProfile(
       .insert(
         preferredFoods.map((food) => ({
           user_id: profileRow.id,
-          food_id: food,
+          food_name_id: food,
         }))
       );
     const { data: preferredTagsData, error: preferredTagsError } = await client

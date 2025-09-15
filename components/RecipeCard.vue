@@ -18,7 +18,7 @@
       class="flex flex-col gap-1 items-center"
       :class="{ 'mt-4 flex-1 items-start': horizontal }"
     >
-      <h2 class="font-bold leading-6 mt-1 text-2xl tracking-tighter">
+      <h2 class="font-bold leading-6 mt-1 text-2xl tracking-tighter text-center">
         {{ recipe?.title }}
       </h2>
       <div

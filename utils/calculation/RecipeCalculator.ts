@@ -145,7 +145,8 @@ export default class RecipeCalculator {
   ingredientsFlat = [];
   logToReport = false;
   report = {};
-
+  // use this to detect unusual kcal values first, but adjust down after detection to regulate to a uniform range of 300-800kcal   
+  unusualKcalThreshold = 2000;
   isFood = false;
   considerProcessing = false;
   // Constants for reporting
@@ -220,6 +221,7 @@ export default class RecipeCalculator {
       instructions: recipe?.instructions,
       collection: recipe?.collection,
       total_time_mins: recipe?.total_time_mins,
+      batch_size: recipe?.batch_size,
       rating: recipe?.rating
     };
     this.useGpt = useGpt;
@@ -438,7 +440,7 @@ export default class RecipeCalculator {
       for (const ingredient of category.ingredients) {
         if (ingredient.amount && ingredient.amount !== 0) {
           recipeFoods.push({
-            food_id: ingredient.id,
+            food_name_id: ingredient.id,
             unit: ingredient.unit,
             amount: ingredient.amount / this.servingSize,
             category: category.categoryName,
@@ -451,13 +453,15 @@ export default class RecipeCalculator {
             mechanical_description: ingredient.mechanical_description || null,
             hydration_factor: Number(ingredient.hydration_factor) || 1,
             consumption_factor: Number(ingredient.consumption_factor) || 1,
-            preperation_description: ingredient.preperation_description || null,
+            preparation_description: ingredient.preparation_description || null,
           });
         }
       }
     }
     return recipeFoods;
   }
+
+
 
   getRecipeTagRows() {
     const tagRows = [];
@@ -471,12 +475,12 @@ export default class RecipeCalculator {
         tag_id: 1,
       });
     }
-    if(this.recipe.effort === 'LIGHT') { // light effort
+    if(this.recipeComputed.effort === 'LIGHT') { // light effort
       tagRows.push({
         tag_id: 2,
       });
     }
-    if(this.recipe.difficulty === 'EASY') { // easy difficulty
+    if(this.recipeComputed.difficulty === 'EASY') { // easy difficulty
       tagRows.push({
         tag_id: 3,
       });
@@ -557,15 +561,14 @@ export default class RecipeCalculator {
     if (this.useGpt) {
       console.log("🔍 Starting GPT");
       gptResponse = await gptCreateRecipe(this.recipe, this.considerProcessing);
-      console.log("🔍 GPT response:", gptResponse);
       this.recipe.saltiness = gptResponse?.salt_and_fat?.saltiness || 1;
       this.recipe.added_fat = gptResponse?.salt_and_fat?.added_fat || 0;
       this.recipeComputed.saltiness = this.recipe.saltiness;
       this.recipeComputed.added_fat = this.recipe.added_fat;
       this.recipeComputed.added_salt = 0; // Will be calculated later
       this.recipe.tags = gptResponse?.general?.tags || [];
-      this.recipe.effort = gptResponse?.general?.effort || 'MODERATE';
-      this.recipe.difficulty = gptResponse?.general?.difficulty || 'MEDIUM';
+      this.recipeComputed.effort = gptResponse?.general?.effort || 'MODERATE';
+      this.recipeComputed.difficulty = gptResponse?.general?.difficulty || 'MEDIUM';
     }
     if (this.recipe.saltiness == 0) {
       this.gptTargetSalt = 0;
@@ -585,7 +588,9 @@ export default class RecipeCalculator {
     }
 
     this.getCumulCols(this.ingredientsFlat);
-    console.log("Recipe before scoring:", this.recipeComputed);
+    if(this.recipeComputed.batch_size && this.recipeComputed.batch_size < this.servingSize) {
+      this.recipeComputed.batch_size = this.servingSize;
+    }
     console.log("🔍 Starting scoring");
     const scores = await this.getScoring();
     Object.assign(this.recipeComputed, scores);
@@ -732,7 +737,7 @@ export default class RecipeCalculator {
             totalContribution: ingredientContribution,
             processingLevel: ingredient.nova,
           });
-        } else if (contributionPercentage > 0.1) {
+        } else if (contributionPercentage > 0.1 || col == 'kcal') {
           this.cumulColsComputed[col].contributors.push({
             name: ingredient.name,
             value: contributionPercentage,
@@ -752,6 +757,19 @@ export default class RecipeCalculator {
       amountPer100AfterAlpha: (this.cumulColsComputed.salt.amountTotal / this.recipeComputed.totalWeight) * 100,
       alphaFunction: noAlpha,
     };
+
+    // sanity check for unusually high serving sizes
+    // proposed: recursive approach to increase serving size until its reasonable
+    if(this.recipeComputed.totalWeight > 1500 || this.cumulColsComputed.kcal.amountTotal > this.unusualKcalThreshold) {
+      this.unusualKcalThreshold = 800;
+      const probableYieldSizes = [2,3,4,5,6,8,10,12,15,18,24]
+      const nextBiggest = probableYieldSizes.find(size => size > this.servingSize)
+      if(!nextBiggest) {
+        throw new Error('Serving size is too large');
+      }
+      this.servingSize = nextBiggest;
+      this.getCumulCols(this.ingredientsFlat);
+    }
 
     this.recipePer100 = Object.fromEntries(
       Object.entries(this.cumulColsComputed).map(([col, data]) => [

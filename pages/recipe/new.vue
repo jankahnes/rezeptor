@@ -341,7 +341,7 @@ async function submit() {
     true,
     false,
     false,
-    false
+    true
   );
   await calc.computeRecipe();
   recipeComputed.value = stripKeys(calc.recipeComputed, recipeKeys);
