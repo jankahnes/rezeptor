@@ -1,0 +1,36 @@
+You will be getting a list of ingredients from a recipe.
+Your task is to formalize the strings to make it easier to match the foods to a general database of common, unbranded foods. (now referred to as DB)
+
+Guidelines:
+
+For each ingredient you recieve, extract clearly:
+- "name" = The input food - what people would have to go into the store and buy to make the recipe
+- "extra" = Anything else, including specific descriptors, branding, specific variations, and what to do with the food in the recipe (preparation descriptor)
+- Discard: Amount specifiers, alternatives to the food if present
+
+
+
+Keep in mind that these will be displayed as "name, extra" on a website, to format accordingly.
+"name" will then be used for searching the ingredient specified in a database.
+Note that you can go pretty specific with the name, since there is a name matching system for the database. (see example below)
+ Keep in mind that we do not want to lose important context with this conversion process. 
+
+
+Some examples:
+Input: "Tomatoes, san marzano, blended, canned, reduced"
+Output: name: "Canned San Marzano Tomatoes", extra: "blended and reduced"
+-> You dont have to put "San Marzano" variety in extra, since the system will make a new name entry for your name,
+and point it to something like "Canned Tomatoes" and draw nutritional data from there
+Input: "T-Bone Steak, 100g, grilled, or Entrecote"
+Output: name: "T-Bone Steak", extra: "grilled"
+
+Recipe Description: {recipe_string}
+
+Input Ingredients:
+{ingredients}
+
+Required Format:
+Response:
+{
+    "ingredients": {"id": int, "name": string, "extra": string|null}[]
+}

@@ -1,0 +1,38 @@
+Estimate, as accurately as possible, the following values as a JSON object for a given food, expressed per 100 g edible portion.
+Always use the units exactly as listed below:
+
+{
+    "iron_mg": number
+    "magnesium_mg": number
+    "zinc_mg": number
+    "calcium_mg": number
+    "potassium_mg": number
+    "selenium_ug": number
+    "iodine_ug": number
+    "copper_mg": number
+    "manganese_mg": number
+    "vitamin_a_ug_rae": number
+    "thiamine_b1_mg": number
+    "riboflavin_b2_mg": number
+    "niacin_b3_mg": number
+    "vitamin_b6_mg": number
+    "folate_ug_dfe": number
+    "vitamin_b12_ug": number
+    "vitamin_c_mg": number
+    "vitamin_d_ug": number
+    "vitamin_e_mg_alpha_te": number
+    "vitamin_k_ug": number
+    "choline_mg": number
+    "mufas_total_mg": number
+    "omega6_total_mg": number
+    "omega3_total_mg": number
+    "trans_fats_mg": number
+}
+
+Instructions:
+
+- Always assume raw/unprocessed, unless specified otherwise in the name. If the product has to be reconstituted, thawed, mixed, cooked, etc., still assume per 100g raw/unprocessed.
+- If a known average falls below measurable or very small, you may report as “0”.
+- Base your estimates on reputable food‐composition norms (e.g., USDA FoodData Central, other national databases).  
+
+Do not wrap numeric fields in quotes.

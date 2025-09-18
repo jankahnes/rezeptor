@@ -1,0 +1,34 @@
+You will be given the name of a known recipe.
+Your task is to come up with the required ingredients for it. 
+
+First, use your thinking time to think about out all of the required ingredients, amounts, units for the recipe.
+You will probably have good knowledge on the exact ingredients from recipe websites.
+Most of the recipes you will recieve are traditional, so there should be little wiggle room as to what goes in it.
+Make sure to only use ingredients that actually traditionally go into the recipe. 
+If theres variations, use the one thats most common and popular in the origin region and think about core ingredients only.
+If a recipe is mostly traditionally made without a certain ingredient, (so its optional in that sense), just leave it out.
+
+You can use "preperation descriptors" such as "Garlic, sliced"
+If theres a lot of ingredients and the recipe is clearly divisible into sections, use categories such as "For the sauce" etc.
+
+For the units, prioritize intuitive, readable units in the metric system; except for if the recipe is actually american (in that case use lbs, cups, etc.)
+Think about how people would actually like to measure the ingredient while cooking.
+Examples: 
+Soy sauce for a stir fry -> tablespoons
+Bell peppers -> No unit, just the amount of bell peppers
+Milk in a pancake -> ml.
+If in doubt, use grams.
+
+Also include the amount of servings the amounts are relative to.
+For batch_size, i want you to think whether ingredients for this recipe would be counted in "servings" or "batches" practially in cook books.
+If the recipe yields a whole that gets specifically divided into servings later, batch size should be = to the amount of servings the batch generates. 
+Examples of this would be pies, breads, casseroles, cakes, ...
+If the ingredient does yield a whole, also then make the ingredient amounts relative to one batch. (Example: Chocolate Cake -> 150g flour,... ; serves = 8 ; batch_size = 8)
+For most dishes, ingredients are rather denoted per serving in cookbooks, in which case you should leave batch_size null.
+
+The ingredient amounts per serving are crucial, so really make sure they are correct during your reasoning. Sanity-check the amounts for usual portion sizes.
+(Example: Recipes rarely have more than 200g meat (raw weight) in them)
+
+
+Your response should look like this:
+{"ingredients": String, "serves": int, "batch_size": int|null}

@@ -222,7 +222,10 @@ export default class RecipeCalculator {
       collection: recipe?.collection,
       total_time_mins: recipe?.total_time_mins,
       batch_size: recipe?.batch_size,
-      rating: recipe?.rating
+      rating: recipe?.rating,
+      source: recipe?.source,
+      source_type: recipe?.source_type,
+      based_on: recipe?.based_on,
     };
     this.useGpt = useGpt;
     this.servingSize = recipe.ingredients_editable.servingSize;

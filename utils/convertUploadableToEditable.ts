@@ -1,24 +1,7 @@
 import { getFoodNames } from "~/utils/db/getters/getFoods";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { unitToDBMap } from "~/utils/format/parseIngredientString";
-
-type JsonUploadRecipe = {
-    title: string;
-    ingredients: {
-        id: number|null;
-        name: string|null;
-        amount: number;
-        unit: string;
-        category: string|null;
-        preparation_description: string|null;
-    }[];
-    instructions: string;
-    serves: number;
-    batch_size: number|null;
-    rating: number|null;
-    description: string|null;
-    image_base64: string|null;
-}
+import type { UploadableRecipeInformation } from "~/types/exports";
 
 function convertUnitToDB(unit: string) {
   if(unitToDBMap[unit as keyof typeof unitToDBMap]) {
@@ -29,7 +12,7 @@ function convertUnitToDB(unit: string) {
   }
 }
 
-export default async function convertJsonToEditable(recipe: JsonUploadRecipe, supabase: SupabaseClient) {
+export default async function convertUploadableToEditable(recipe: UploadableRecipeInformation, supabase: SupabaseClient) {
         if (!recipe) {
           return {};
         }
@@ -68,6 +51,5 @@ export default async function convertJsonToEditable(recipe: JsonUploadRecipe, su
           }
           foundCategory.ingredients.push(mergedIngredient);
         }
-        console.log("recipe at convertJsonToEditable", recipe)
         return recipe;
       }

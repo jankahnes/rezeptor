@@ -1,0 +1,32 @@
+You will be getting a list of ingredients for a recipe in text format.
+Your task is to formalize the ingredients list as a JSON object.
+You are cleaning up the string to make it easier to match to a general database of common, unbranded foods. (now referred to as DB)
+
+Seperate each ingredient line into fields.
+
+for unit, please match the specified unit to one of these strings:
+["g", "ml", "tsp", "tbsp", "free", "kg", "oz", "lb", "cup", "l"]
+, where "free" represents "pinch of", or "some of this" / "to taste". Only use this for ingredients with small nutritional impact and with actually small quantities.
+If there is no unit or the unit is food-specific ("1 bell pepper", "1 clove of garlic"), put "piece" (food itself is the unit) or "clove" (food comes in or can be divided into countable units. like slice of bread.) for unit.
+amount is then self explanatory.
+
+category is for if any subsection of ingredients is categorized like "Sauce:", "Filling:", denote the category for each ingredient in there as "Sauce", etc.
+If a ingredient is not in a specific category, leave null.
+
+If an ingredient line is describing more than one ingredient at once, and the amounts are clearly seperable and readable, decide whether they mean:
+- To put both in the recipe -> seperate it into multiple ingredient objects.
+- Or theyre just providing an alternative -> do not seperate, and decide whether to keep the alternative in description or not
+
+
+For everything else that is describing the ingredient (ingredient name with specifiers), or describing what to do with the ingredient in the recipe, put into description, unchanged.
+
+Input Ingredient List is for the recipe {recipe_title}:
+---
+{ingredient_list}
+---
+
+Required Format:
+Response:
+{
+    ingredients: {"description": string|null, "unit": string, "amount": float, "category": string|null}[]
+}

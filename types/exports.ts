@@ -45,3 +45,40 @@ export type Filtering = {
   kcal: [number, number];
   price: [number, number];
 };
+
+export type BaseRecipeInformation = {
+  title: string;
+  ingredients_string: string[];
+  publish: boolean;
+  serves: number;
+  source: string|null;
+  source_type: "website" | "title" | "picture" | "media" | "text" | "preparsed";
+  user_id: string|null;
+  batch_size?: number|null;
+  collection?: string|null;
+  description?: string|null;
+  instructions?: string[]|null;
+}
+
+export type UploadableRecipeInformation = {
+  title: string;
+  source: string;
+  user_id: string|null;
+  publish: boolean;
+  based_on: number|null;
+  source_type: "website" | "title" | "picture" | "media" | "text" | "preparsed";
+  ingredients: {
+    id: number;
+    name: string;
+    amount: number;
+    unit: string;
+    category: string|null;
+    preparation_description: string|null;
+  }[];
+  instructions: string[];
+  description: string|null;
+  batch_size: number|null;
+  collection: string|null;
+  serves: number;
+  image_base64: string|null;
+}

@@ -242,7 +242,7 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
 
     try {
         if (considerProsessing) {
-      const response = await $fetch('/api/gpt/getResponse', {
+      const response = await $fetch('/api/gpt/response', {
         method: 'POST',
         body: {
           systemPrompt: SYSTEM_PROMPT_PROCESSING,
@@ -256,7 +256,7 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
       parsed.processing = JSON.parse(processingResult);
       console.log("🔍 Processing info done.");
     }
-      const general_response = await $fetch('/api/gpt/getResponse', {
+      const general_response = await $fetch('/api/gpt/response', {
         method: 'POST',
         body: {
           systemPrompt: SYSTEM_PROMPT_GENERAL,
@@ -269,7 +269,7 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
       parsed.general = JSON.parse(general_result);
       console.log("🔍 General info done.");
 
-      const salt_fat_response = await $fetch('/api/gpt/getResponse', {
+      const salt_fat_response = await $fetch('/api/gpt/response', {
         method: 'POST',
         body: {
           systemPrompt: SYSTEM_PROMPT_SALT_AND_FAT,
@@ -283,7 +283,7 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
       console.log("🔍 Salt and fat done.");
 
       // Hydration and Consumption factors
-      const hydration_response = await $fetch('/api/gpt/getResponse', {
+      const hydration_response = await $fetch('/api/gpt/response', {
         method: 'POST',
         body: {
           systemPrompt: SYSTEM_PROMPT_HYDRATION_AND_CONSUMPTION_FACTORS,

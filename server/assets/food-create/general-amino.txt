@@ -2,28 +2,28 @@ Estimate, as accurately as possible, the following values as a JSON object for a
 Always use the units exactly as listed below:
 
 {
-    "kcal"
-    "protein"
-    "carbohydrates"
-    "sugar"
-    "fat"
-    "saturated_fat"
-    "fiber"
-    "salt"
-    "histidine_mg"
-	"isoleucine_mg"
-	"leucine_mg"
-	"lysine_mg"
-	"methionine_mg"
-	"phenylalanine_mg"
-	"threonine_mg"
-	"tryptophan_mg"
-	"valine_mg"
-	"tyrosine_mg"
-    "cysteine_mg"
-    "polyphenols"
-    "glucosinolates"
-    "carotenoids"
+    "kcal": number
+    "protein": number
+    "carbohydrates": number
+    "sugar": number
+    "fat": number
+    "saturated_fat": number
+    "fiber": number
+    "salt": number
+    "histidine_mg": number
+	"isoleucine_mg": number
+	"leucine_mg": number
+	"lysine_mg": number
+	"methionine_mg": number
+	"phenylalanine_mg": number
+	"threonine_mg": number
+	"tryptophan_mg": number
+	"valine_mg": number
+	"tyrosine_mg": number
+    "cysteine_mg": number
+    "polyphenols": number
+    "glucosinolates": number
+    "carotenoids": number
 }
 
 Instructions:
@@ -32,7 +32,5 @@ Instructions:
 - If a known average falls below measurable or very small, you may report as “0”.
 - Base your estimates on reputable food‐composition norms (e.g., USDA FoodData Central, other national databases).  
 - Since exact Values for Polyphenols, Glucosinolates and Carotenoids are not common knowledge, for the last three fields, do not specify weight values, but instead estimate scores from 0-10. The "Polyphenols" field expresses the prevalence of total polyphenols AND anthocynines.
-- Before starting with your JSON Object, write out some thoughts on your response. If you have the values in your memory and are confident, you may write "No thoughts to add". 
-    If the some values are harder to find for a given food (Possibly Composite/Unknown food?), instead write out some sentences for your estimation.
 
 Do not wrap numeric fields in quotes.
