@@ -4,11 +4,12 @@
       class="mx-auto max-w-screen-xl justify-center relative px-3 hidden md:block"
     >
       <div
+        v-if="recipeStore.recipe?.picture"
         class="relative w-full rounded-xl overflow-hidden"
         :class="isProcessed ? 'h-150' : 'h-120'"
       >
         <NuxtImg
-          :src="recipeStore.recipe?.picture ?? undefined"
+          :src="recipeStore.recipe?.picture"
           class="w-full h-full"
           :class="{
             'object-cover': !isProcessed,
@@ -22,7 +23,13 @@
       </div>
       <div
         class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto relative z-10"
-        :class="isProcessed ? '-mt-80' : '-mt-50'"
+        :class="
+          isProcessed
+            ? '-mt-80'
+            : '-mt-50' + !recipeStore.recipe?.picture
+            ? ' mt-10'
+            : ''
+        "
       >
         <div class="flex justify-between items-start gap-10">
           <h1 class="text-5xl font-bold tracking-tight">

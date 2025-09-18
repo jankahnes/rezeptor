@@ -10,7 +10,7 @@ export default defineEventHandler(async (event): Promise<string> => {
       model: body?.model ||'gpt-5-mini',
       instructions: body.systemPrompt,
       input: body.message,
-      reasoning: {effort: "low"}
+      reasoning: {effort: 'low'},
        });
     const raw = response.output_text;
     if (!raw) throw new Error('No content returned from GPT response');

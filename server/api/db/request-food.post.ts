@@ -2,6 +2,7 @@ import { serverSupabaseClient } from '#supabase/server'
 import RecipeCalculator from '~/utils/calculation/RecipeCalculator'
 import extractJson from '~/utils/format/extractJson'
 import pluralizeWord from '~/utils/format/pluralizeWord'
+import pluralize from 'pluralize'
 
 
 /**
@@ -34,11 +35,11 @@ export default defineEventHandler(async (event) => {
 
     const matchSimilarityThreshold = 0.9
 
-    const searchPrompt = await assets.getItem('search_related.txt') as string
-    const judgePrompt = await assets.getItem('judge_results.txt') as string
-    const contextPrompt = await assets.getItem('context.txt') as string  
-    const generalAminoPrompt = await assets.getItem('general-amino.txt') as string
-    const micronutrientsPrompt = await assets.getItem('micronutrients.txt') as string
+    const searchPrompt = await assets.getItem('food-match/search_related.txt') as string
+    const judgePrompt = await assets.getItem('food-match/judge_results.txt') as string
+    const contextPrompt = await assets.getItem('food-create/context.txt') as string  
+    const generalAminoPrompt = await assets.getItem('food-create/general-amino.txt') as string
+    const micronutrientsPrompt = await assets.getItem('food-create/micronutrients.txt') as string
     logCheckpoint('Prompt files loaded')
 
     const input = await readBody(event)
@@ -57,14 +58,14 @@ export default defineEventHandler(async (event) => {
     }
 
         //step 1: use search rpc to find if there is an exact match
-        const exactMatchSingular = await client.rpc('search_foods', {query: query, max: 1}) as {data: {food: {name: string, id: number}, best_similarity: number}[]}
-        const exactMatchPlural = await client.rpc('search_foods', {query: pluralizeWord(query), max: 1}) as {data: {food: {name: string, id: number}, best_similarity: number}[]}
-        if (exactMatchSingular.error || exactMatchPlural.error) {
-            throw new Error('Error searching for similar foods: ' + exactMatchSingular.error.message + ' ' + exactMatchPlural.error.message)
+        //first try singular form (either original query singularized, or original if already singular)
+        const singularQuery = pluralize.singular(query)
+        const exactMatchSingular = await client.rpc('search_foods', {query: singularQuery, max: 1}) as {data: {food: {name: string, id: number}, best_similarity: number}[]}
+        if (exactMatchSingular.error) {
+            throw new Error('Error searching for similar foods (singular): ' + exactMatchSingular.error.message)
         }
         const matchingFoodSingular = exactMatchSingular.data?.[0]
-        const matchingFoodPlural = exactMatchPlural.data?.[0]
-        //if there is an exact match, return the id
+        //if there is an exact match with singular, return the id
         if (matchingFoodSingular?.best_similarity > matchSimilarityThreshold) {
             logCheckpoint('Exact match found (singular)')
             if(from_user) {
@@ -73,7 +74,16 @@ export default defineEventHandler(async (event) => {
             console.log(`🎉 Total execution time: ${Date.now() - startTime}ms`)
             return {status: 'ok', data: {action_taken: 'found', id: matchingFoodSingular?.food?.id}}
         }
-        else if (matchingFoodPlural?.best_similarity > matchSimilarityThreshold) {
+        
+        //if no singular match, try plural form
+        const pluralQuery = pluralizeWord(query)
+        const exactMatchPlural = await client.rpc('search_foods', {query: pluralQuery, max: 1}) as {data: {food: {name: string, id: number}, best_similarity: number}[]}
+        if (exactMatchPlural.error) {
+            throw new Error('Error searching for similar foods (plural): ' + exactMatchPlural.error.message)
+        }
+        const matchingFoodPlural = exactMatchPlural.data?.[0]
+        //if there is an exact match with plural, return the id
+        if (matchingFoodPlural?.best_similarity > matchSimilarityThreshold) {
             logCheckpoint('Exact match found (plural)')
             if(from_user) {
                 await client.from('food_requests').update({status: 'REJECTED', status_info: 'Exact match found', food_name_id: matchingFoodPlural?.food?.id}).eq('id', request_id)
@@ -83,7 +93,7 @@ export default defineEventHandler(async (event) => {
         }
         //if there is no exact match, call GPT to generate alternative search queries
         logCheckpoint('Generating alternative search queries')
-        const response = await $fetch('/api/gpt/getResponse', {
+        const response = await $fetch('/api/gpt/response', {
             method: 'POST',
             body: {
               message: searchPrompt.replace('{query}', query),
@@ -117,7 +127,7 @@ export default defineEventHandler(async (event) => {
         const relevantFoodsNames = relevantFoods.map((food) => `"Name: ${food.food.name} / ID: ${food.food.food_id}"`).join(' ;\n ')
 
         //after getting potentially relevant foods, call GPT to judge what to do with the food
-        const judgeResponse = await $fetch('/api/gpt/getResponse', {
+        const judgeResponse = await $fetch('/api/gpt/response', {
             method: 'POST',
             body: {
               message: judgePrompt.replace('{query}', query).replace('{results}', relevantFoodsNames),
@@ -151,21 +161,21 @@ export default defineEventHandler(async (event) => {
         let primaryName = judgeResults.primary_name ?? judgeResults.query_formatted
         //step 3: use GPT to fill in fields from food name
         const [generalAminoResponse, contextResponse, micronutrientsResponse] = await Promise.all([
-            $fetch('/api/gpt/getResponse', {
+            $fetch('/api/gpt/response', {
                 method: 'POST',
                 body: {
                   systemPrompt: generalAminoPrompt,
                   message: `Food: ${primaryName}`,
                 },
             }),
-            $fetch('/api/gpt/getResponse', {
+            $fetch('/api/gpt/response', {
                 method: 'POST',
                 body: {
                   systemPrompt: contextPrompt,
                   message: `Food: ${primaryName}`,
                 },
             }),
-            $fetch('/api/gpt/getResponse', {
+            $fetch('/api/gpt/response', {
                 method: 'POST',
                 body: {
                   systemPrompt: micronutrientsPrompt,
