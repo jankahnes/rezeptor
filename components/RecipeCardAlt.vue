@@ -4,34 +4,30 @@
     :to="'/recipe/' + recipe?.id"
     class="flex flex-col gap-1 mr-2 items-center transition-all duration-300"
     :class="{
-      'flex-row gap-6': horizontal,
+      'flex-row gap-6 w-full hover:translate-x-[2px]': horizontal,
       'hover:translate-y-[-2px]': !horizontal,
     }"
   >
-    <NuxtImg
-      v-if="recipe?.picture"
-      class="w-full aspect-square object-cover bg-transparent rounded-full [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))]"
-      :class="{
-        'min-w-28 xs:min-w-34 !w-[20%] max-w-34 shrink-0': horizontal,
-        [getGradeShadow(recipe?.hidx || 0, 'hidx')]: true,
-      }"
-      :src="recipe?.picture || ''"
-    >
-    </NuxtImg>
+    <div class="relative w-[90%] aspect-square overflow-hidden rounded-full">
+      <NuxtImg
+        class="w-full aspect-square object-cover bg-transparent rounded-full [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] z-0"
+        :class="{
+          '!w-40 !h-40 shrink-0': horizontal,
+          [getGradeShadow(recipe?.hidx || 0, 'hidx')]: true,
+        }"
+        :src="recipe?.picture || ''"
+      >
+      </NuxtImg>
+      <div class="absolute bottom-0 w-full h-[30%] bg-white"></div>
+    </div>
     <div
-      class="flex flex-col gap-1 items-center"
+      class="flex flex-col gap-1 bg-white rounded-xl p-2 shadow-sm -mt-30 z-10 w-full"
       :class="{ 'mt-4 flex-1 items-start': horizontal }"
     >
-      <h2
-        class="font-bold leading-6 mt-1 text-xl sm:text-2xl tracking-tighter text-center"
-        :class="{ 'text-left min-w-80': horizontal }"
-      >
+      <h2 class="font-bold leading-5 mt-1 text-xl tracking-tight">
         {{ recipe?.title }}
       </h2>
-      <div
-        class="flex gap-1 flex-wrap mt-1 text-[0.6em] md:text-[0.4em]"
-        :class="{ 'justify-center': !horizontal }"
-      >
+      <div class="flex gap-1 flex-wrap mt-1 text-[0.6em] md:text-[0.4em]">
         <div
           class="tag flex items-center gap-1.25"
           :class="

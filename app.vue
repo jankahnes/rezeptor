@@ -14,11 +14,11 @@
       >
         <p class="text-black/30 text-sm">
           This website is a non-commercial student project and in active
-          development.
+          development
         </p>
         <p class="text-black/30 text-sm">
           <a href="https://github.com/jankahnes/rezeptor" target="_blank"
-            >Developed by Jan Kahnes @GitHub</a
+            >Jan Kahnes @GitHub</a
           >
         </p>
       </div>

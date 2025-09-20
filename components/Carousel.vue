@@ -105,11 +105,23 @@ const updateDesktopState = () => {
     itemWidth.value = rect.width + gap;
   }
 
-  canScrollLeft.value = currentOffset.value > 0;
-  canScrollRight.value = currentOffset.value < sliderWidth - containerWidth;
+  // Only allow scrolling if content is wider than container
+  const needsScrolling = sliderWidth > containerWidth;
+  canScrollLeft.value = needsScrolling && currentOffset.value > 0;
+  canScrollRight.value =
+    needsScrolling && currentOffset.value < sliderWidth - containerWidth;
 };
 
 const handleResize = () => {
+  // Reset offset if content now fits in container
+  if (desktopContainer.value && desktopSlider.value) {
+    const container = desktopContainer.value;
+    const slider = desktopSlider.value;
+    const needsScrolling = slider.scrollWidth > container.clientWidth;
+    if (!needsScrolling) {
+      currentOffset.value = 0;
+    }
+  }
   updateDesktopState();
 };
 
@@ -169,6 +181,14 @@ const getEventY = (event) => {
 
 const startDrag = (event) => {
   if (event.target.closest('button')) return;
+
+  // Check if scrolling is needed - if content fits in container, don't allow dragging
+  if (desktopContainer.value && desktopSlider.value) {
+    const container = desktopContainer.value;
+    const slider = desktopSlider.value;
+    const needsScrolling = slider.scrollWidth > container.clientWidth;
+    if (!needsScrolling) return;
+  }
 
   const x = getEventX(event);
   const y = getEventY(event);
@@ -305,6 +325,8 @@ const globalClickHandler = (event) => {
 
 onMounted(() => {
   nextTick(() => {
+    // Reset offset to 0 when component mounts to ensure proper initial state
+    currentOffset.value = 0;
     updateDesktopState();
   });
 

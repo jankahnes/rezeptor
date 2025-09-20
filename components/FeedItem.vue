@@ -1,14 +1,13 @@
 <template>
   <NuxtLink
     :to="getLinkTarget()"
-    class="flex items-start p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 space-x-4"
+    class="flex items-center p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 space-x-4"
   >
     <!-- Avatar -->
-    <div class="flex-shrink-0">
+    <div class="flex-shrink-0 flex items-center justify-center min-w-10">
       <Avatar v-if="feedItem.user" :user="feedItem.user" class="w-10 h-10" />
       <div
-        v-else-if="feedItem.type === 'FOOD_CREATION'"
-        class="w-10 h-10 text-green-500"
+        v-else-if="feedItem.type === 'FOOD_CREATION' || feedItem.type === 'RECIPE_CREATION'"
       >
         <span class="material-symbols-outlined">add</span>
       </div>
@@ -25,6 +24,7 @@
             {{ feedItem.user.username }}
           </template>
           <template v-else-if="feedItem.food"> New Food Added </template>
+          <template v-else-if="feedItem.recipe"> New Recipe Added </template>
         </div>
         <time :datetime="feedItem.created_at" class="text-xs">
           {{ timeAgo(feedItem.created_at) }}
@@ -39,7 +39,7 @@
         </template>
 
         <template v-else-if="feedItem.type === 'RECIPE_CREATION'">
-          created a new recipe
+          <span v-if="feedItem.user">created a new recipe</span>
           <h4 class="mt-2 font-bold">
             {{ feedItem.recipe.title }}
           </h4>

@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
         }).eq('id', jobId);
     }
     
-    if(base_recipe_information.publish) {
+    if(base_recipe_information.publish || base_recipe_information.uploading_protocol === 'full') {
         if(!base_recipe_information.description || !base_recipe_information?.instructions?.length) {
         const descAndInstructionsResponse = await $fetch('/api/gpt/response', {
             method: 'POST',
