@@ -8,5 +8,5 @@ const rawUrl = Array.isArray(route.params.url)
   ? route.params.url.join('/')
   : route.params.url;
 
-router.replace(`/recipe/import/${encodeURIComponent(rawUrl)}`);
+router.replace(`/recipe/new?link=${encodeURIComponent(rawUrl)}`);
 </script>

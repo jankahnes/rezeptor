@@ -26,7 +26,7 @@
         <div class="ml-38 sm:ml-52 mt-5 text-wrap">
           <h1 class="font-extrabold text-2xl sm:text-4xl">
             {{ user.username }}
-          </h1>
+          </h1> 
           <p class="font-light text-sm">
             Joined {{ dateToString(user.created_at) }}
           </p>
@@ -47,22 +47,22 @@
             class=""
             v-model="selectedView"
             :choices="choices"
-            :hide-icon="true"
             buttonStyle="py-1 text-sm font-bold"
           ></FormsChoiceSlider>
         </div>
         <div
-          v-if="selectedView == 'RECIPES'"
-          class="flex flex-wrap gap-6 justify-center"
+          v-if="selectedView == 'recipes'"
+          class="flex flex-wrap gap-6 justify-center mt-12"
         >
           <RecipeCard
             :recipe="recipe"
             :hide-tags="true"
+            :horizontal="true"
             v-for="recipe in user?.recipes"
-            class="flex-1 aspect-2/3 text-2xl max-w-70 basis-80"
+            class="flex-1 text-2xl"
           />
         </div>
-        <div v-if="selectedView == 'ACTIVITY'" class="w-full space-y-4">
+        <div v-if="selectedView == 'activity'" class="w-full space-y-4">
           <FeedItem v-for="item in user?.activity" :feed-item="item" />
         </div>
       </div>
@@ -71,13 +71,13 @@
 </template>
 
 <script setup lang="ts">
-const choices: [string, string][] = [
-  ['RECIPES', ''],
-  ['ACTIVITY', ''],
-  ['LIKES', ''],
-  ['STATS', ''],
+const choices: { value: string; displayName: string }[] = [
+  { value: 'recipes', displayName: 'Recipes' },
+  { value: 'activity', displayName: 'Activity' },
+  { value: 'likes', displayName: 'Likes' },
+  { value: 'stats', displayName: 'Stats' },
 ];
-const selectedView = ref('RECIPES');
+const selectedView = ref('recipes');
 const route = useRoute();
 const userID = route.params.id;
 const auth = useAuthStore();

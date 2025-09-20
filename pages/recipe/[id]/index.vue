@@ -387,7 +387,6 @@
             <FormsChoiceSlider
               v-model="mobileChosen"
               :choices="mobileChoices"
-              :hideIcon="true"
               @click.capture="scrollIntoView(scrollTarget as HTMLElement)"
             />
           </div>
@@ -395,13 +394,13 @@
             <PagesRecipeIngredientList
               :ingredients="recipeStore.recipe?.ingredients"
               class="flex-1"
-              v-if="mobileChosen === 'INGREDIENTS'"
+              v-if="mobileChosen === 'ingredients'"
               :hideHeader="true"
               :batchSize="recipeStore.recipe?.batch_size ?? undefined"
             ></PagesRecipeIngredientList>
             <PagesRecipeInstructionContainer
               v-if="
-                mobileChosen === 'METHOD' && recipeStore.recipe?.instructions
+                mobileChosen === 'method' && recipeStore.recipe?.instructions
               "
               :instructions="recipeStore.recipe?.instructions ?? undefined"
               class="flex-1"
@@ -453,10 +452,10 @@ const supabase = useSupabaseClient();
 const auth = useAuthStore();
 
 const id = Number(route.params.id);
-const mobileChosen = ref('INGREDIENTS');
-const mobileChoices = ref<[string, string][]>([
-  ['INGREDIENTS', ''],
-  ['METHOD', ''],
+const mobileChosen = ref('ingredients');
+const mobileChoices = ref<{ value: string; displayName: string }[]>([
+  { value: 'ingredients', displayName: 'INGREDIENTS' },
+  { value: 'method', displayName: 'METHOD' },
 ]);
 
 const scrollTarget = ref<HTMLElement>();

@@ -30,7 +30,7 @@
       </div>
       <div class="mb-4" v-if="batchSize && !servingMode">
         <p class="text-gray-600 ml-1 font-light">
-          For one batch of {{ batchSize }} servings
+          For {{ batchSize }} servings
         </p>
         <p
           @click="servingMode = !servingMode"

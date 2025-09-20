@@ -226,6 +226,7 @@ export default class RecipeCalculator {
       source: recipe?.source,
       source_type: recipe?.source_type,
       based_on: recipe?.based_on,
+      user_id: recipe?.user_id,
     };
     this.useGpt = useGpt;
     this.servingSize = recipe.ingredients_editable.servingSize;
@@ -468,11 +469,13 @@ export default class RecipeCalculator {
 
   getRecipeTagRows() {
     const tagRows = [];
+    if(this.recipe.tags) {
     for (const tag of this.recipe.tags) { // general tags by GPT
       tagRows.push({
         tag_id: tag,
       });
     }
+  }
     if(this.ingredientsFlat.length < 5) { // few ingredients
       tagRows.push({
         tag_id: 1,

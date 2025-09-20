@@ -154,7 +154,7 @@ export default function gradesToReadable(report, recipe: RecipeProcessed, isFood
         const description = descriptor.description + " " + item.appendName
         let subtitle = null
         let display_subtitle = false
-        if(isFood) {
+        if(!isFood) {
             const contributors = report?.contributors?.[item.contributor_col]?.contributors || []
             subtitle = contributorsToReadable(contributors)
             const display_subtitle_thresh = item.display_subtitle_thresh

@@ -16,16 +16,13 @@
       class="relative z-10 flex-1 flex items-center justify-center text-lg transition-colors duration-300 py-1 font-bold"
       :class="{
         buttonStyle: true,
-        'text-white': choice[0] === modelValue,
-        'text-primary': choice[0] !== modelValue,
+        'text-white': choice.value === modelValue,
+        'text-primary': choice.value !== modelValue,
       }"
-      @click="updateValue(choice[0])"
+      @click="updateValue(choice.value)"
     >
-      <span v-if="!hideIcon" class="material-symbols-outlined mx-[2px]">
-        {{ choice[1] }}
-      </span>
-      <span v-if="!hideLabel" class="mx-[2px]">
-        {{ choice[0] }}
+      <span class="mx-[2px]">
+        {{ choice.displayName }}
       </span>
     </button>
   </div>
@@ -33,12 +30,10 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  choices: [string, string][];
+  choices: { value: string; displayName: string }[];
   modelValue: string;
   vertical?: boolean;
   buttonStyle?: string;
-  hideLabel?: boolean;
-  hideIcon?: boolean;
 }>();
 const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
 
@@ -66,7 +61,7 @@ function measureSegments() {
 onMounted(measureSegments);
 
 const currentIndex = computed(() =>
-  props.choices.findIndex(([label]) => label === props.modelValue)
+  props.choices.findIndex((choice) => choice.value === props.modelValue)
 );
 
 const backgroundStyle = computed(() => {

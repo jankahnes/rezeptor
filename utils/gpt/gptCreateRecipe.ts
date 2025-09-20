@@ -195,14 +195,14 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
        * Regular ingredients: 1.0 (fully consumed)
        * Marinades: 0.05-0.15 (mostly discarded, some absorbed)
        * Wine in sauces: 0.3-0.7 (alcohol evaporates, flavor remains)
-       * Frying oil: 0.0 (reused/discarded, except absorbed portion)
+       * Deep Frying oil, if actually listed: 0.0 (reused/discarded, except absorbed portion)
        * Herb sprigs for flavor: 0.0-0.1 (removed before serving)
        * Bones in stock: 0.0 (removed)
      - Default: 1.0 unless ingredient is clearly not fully consumed
 
      Consider the cooking method and ingredient type carefully for each prediction.
-     Important: Before writing the JSON Object, write out some lines for thinking/commenting purposes. It makes your thought process more clear. After that, you can just start the JSON object with {, it will be parsed automatically. 
-     You dont have to reason out each ingredient, but in categories. Marinade, sauce, dough, etc.
+     In your JSON response, you can leave out any ingredients that you have both factors within 0.9-1.1. Values in this range you can also individually skip.
+     Only include values and lines that are meaningful for calculations to make your response shorter.
      `;
 
 

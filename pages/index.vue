@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[clamp(70vw,1550px,100%)] mx-auto mt-6 space-y-8 sm:space-y-10 px-4"
+    class="w-[clamp(70vw,1550px,100%)] mx-auto mt-2 space-y-8 sm:space-y-10 px-4"
   >
     <div class="flex flex-col items-start">
       <Logo class="xm:hidden" />
@@ -10,9 +10,31 @@
         }}</span>
         <span class="text-base sm:text-lg font-light">{{ greeting.base }}</span>
       </div>
-      <h1 class="text-2xl sm:text-4xl font-bold">
+      <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">
         What would you like to cook today?
       </h1>
+    </div>
+
+    <!-- Your Recipes -->
+    <div v-if="userRecipes && userRecipes.length > 0" class="pt-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight">Your Recipes</h2>
+        <NuxtLink
+          :to="auth.isUser() ? `/profile/${auth.user?.id}` : '/onboarding'"
+          class="text-sm text-gray-500"
+        >
+          See all
+        </NuxtLink>
+      </div>
+      <Carousel>
+        <RecipeCard
+          v-for="(recipe, index) in userRecipes"
+          :key="recipe.id"
+          :recipe="recipe"
+          :horizontal="true"
+          class="w-80 h-36 max-w-140 text-xl flex-shrink-0 my-4 pr-2"
+        />
+      </Carousel>
     </div>
 
     <div
@@ -59,17 +81,37 @@
             v-for="(recipe, index) in recipeStore.indexRecipes"
             :key="recipe.id"
             :recipe="recipe"
-            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4 pl-2"
-            :class="{'pl-3': index === 0}"
+            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4 pr-2"
+            :class="{ 'pl-3': index === 0 }"
           />
         </Carousel>
       </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div v-if="recentActivity && recentActivity.length > 0">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl sm:text-2xl font-bold">Recent Activity</h2>
+      </div>
+      <Carousel class="mt-4 items-start">
+        <FeedItem
+          v-for="item in recentActivity.slice(0, 8)"
+          :key="item.id"
+          :feed-item="item"
+          class="min-w-90 ml-2 mb-4"
+        />
+      </Carousel>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const supabase = useSupabaseClient();
 const recipeStore = useRecipeStore();
+const auth = useAuthStore();
+
+const userRecipes = ref(null);
+const recentActivity = ref(null);
 
 if (!recipeStore.indexRecipes.length) {
   const { data, pending, error } = await useRecipesPartial(
@@ -86,7 +128,24 @@ if (!recipeStore.indexRecipes.length) {
   });
 }
 
-const auth = useAuthStore();
+const loadUserData = async () => {
+  if (auth.isUser()) {
+    // Fetch user's recipes
+    const { data: recipes } = await useRecipesPartial(
+      () => ({
+        eq: { user_id: auth.user?.id },
+        orderBy: { column: 'created_at', ascending: false },
+        limit: 10,
+      }),
+      `user-recipes-${auth.user?.id}`
+    );
+    userRecipes.value = recipes.value;
+  }
+};
+
+// Load data when auth is ready
+watch(() => auth.user?.id, loadUserData, { immediate: true });
+
 const greeting = computed(() => {
   let base;
   let icon;
@@ -101,8 +160,10 @@ const greeting = computed(() => {
     base = 'Good evening';
     icon = 'local_bar';
   }
-  if (auth.user) {
+  if (auth.isUser()) {
     base = `${base}, ${(auth.user as any).username}`;
+  } else {
+    base = base + '!';
   }
   return { base, icon };
 });
@@ -154,6 +215,13 @@ const categories = ref([
     tag: 5,
   },
 ]);
+
+onMounted(async () => {
+  recentActivity.value = await getActivity(supabase, {
+    orderBy: { column: 'created_at', ascending: false },
+    limit: 10,
+  });
+});
 </script>
 
 <style scoped>

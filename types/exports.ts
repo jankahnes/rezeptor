@@ -77,8 +77,9 @@ export type UploadableRecipeInformation = {
   }[];
   instructions: string[];
   description: string|null;
-  batch_size: number|null;
-  collection: string|null;
+  batch_size?: number|null;
+  collection?: string|null;
   serves: number;
-  image_base64: string|null;
+  image_base64?: string|null;
+  uploading_protocol?: "fast" | "accurate" | "full" | null;
 }

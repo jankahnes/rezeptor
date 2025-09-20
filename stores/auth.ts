@@ -14,22 +14,46 @@ export const useAuthStore = defineStore('auth', () => {
     if (userFetched.value) {
       return;
     }
+    
     const { data } = await supabase.auth.getUser();
-    user.value = data.user;
+    
+    if (data.user) {
+      // User is authenticated (either regular or anonymous)
+      user.value = data.user;
+    } else {
+      // No user session - sign in anonymously
+      const { data: anonData, error } = await supabase.auth.signInAnonymously();
+      if (anonData.user) {
+        user.value = anonData.user;
+      } else {
+        console.error('Failed to sign in anonymously:', error);
+      }
+    }
+    
     userFetched.value = true;
   }
+
   function listenToAuthChanges() {
     if (authListenerSet.value) return;
-    supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.onAuthStateChange(async (_event, session) => {
       const newUser = session?.user ?? null;
       if (user.value?.id !== newUser?.id) {
-        user.value = newUser;
-        fetchProfile();
+        if (newUser) {
+          user.value = newUser;
+          fetchProfile();
+        } else {
+          // No session - sign in anonymously
+          const { data: anonData, error } = await supabase.auth.signInAnonymously();
+          if (anonData.user) {
+            user.value = anonData.user;
+          }
+        }
       }
     });
 
     authListenerSet.value = true;
   }
+
   async function signIn(email: string, password: string) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -38,6 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (data?.user) user.value = data.user;
     return { data, error };
   }
+
   async function signUp(email: string, password: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -46,10 +71,16 @@ export const useAuthStore = defineStore('auth', () => {
     if (data?.user) user.value = data.user;
     return { data, error };
   }
+
   async function signOut() {
     await supabase.auth.signOut();
-    user.value = null;
+    // After sign out, Supabase will trigger onAuthStateChange which will sign in anonymously
   }
+
+  function isUser() {
+    return user.value && !user.value.is_anonymous;
+  }
+
   return {
     user,
     authListenerSet,
@@ -60,5 +91,6 @@ export const useAuthStore = defineStore('auth', () => {
     signUp,
     signOut,
     listenToAuthChanges,
+    isUser,
   };
 });

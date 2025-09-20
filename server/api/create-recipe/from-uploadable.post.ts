@@ -8,18 +8,31 @@ import convertUploadableToEditable from '~/utils/convertUploadableToEditable';
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event);
-  const body = await readBody<UploadableRecipeInformation & {jobId: string}>(event);
-  //if any of the id's are null, return error
-  
+  const body = await readBody<UploadableRecipeInformation & {jobId: string, ingredients_editable: any|null|undefined}>(event);
+  const isEditable = body.ingredients_editable && body.ingredients_editable.ingredients.length;
+  if(!isEditable) {
   for (const ingredient of body.ingredients) {
     if (ingredient.id === null) {
       throw createError({ statusCode: 400, statusMessage: 'All ingredients must have an id' });
     }
   }
-  const recipe = await convertUploadableToEditable(body, client);
+  }
+  let recipe;
+  if(!isEditable) {
+    recipe = await convertUploadableToEditable(body, client);
+  } else {
+    recipe = body;
+  }
   console.log("🔍 Recipe converted to editable.");
 
-  const recipeCalc = new RecipeCalculator(recipe, true, false, false, false);
+  const recipeCalc = new RecipeCalculator(recipe);
+  if(body.uploading_protocol === "accurate") {
+    recipeCalc.useGpt = true;
+  } else if(body.uploading_protocol === "full") {
+    recipeCalc.useGpt = true;
+    recipeCalc.considerProcessing = true;
+  }
+
   await recipeCalc.computeRecipe();
   console.log("🔍 Recipe computed.");
   if(body.jobId) {
@@ -38,6 +51,7 @@ export default defineEventHandler(async (event) => {
     .insert({
       ...recipeRow,
       picture: null,
+      visibility: body.publish ? 'PUBLIC' : 'UNLISTED',
     } as any)
     .select('id')
     .single();
@@ -78,7 +92,6 @@ export default defineEventHandler(async (event) => {
   }
   console.log("🔍 Recipe picture converted and uploaded.");
 
-  console.log("🔍 Recipe foods:", recipeFoodsRows);
   const { error: recipeFoodsError } = await client
   .from('recipe_foods')
   .insert(recipeFoodsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any);
