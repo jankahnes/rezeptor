@@ -58,6 +58,9 @@ export type BaseRecipeInformation = {
   collection?: string|null;
   description?: string|null;
   instructions?: string[]|null;
+  useNaturalLanguage?: boolean;
+  uploading_protocol?: "fast" | "accurate" | "full" | null;
+  based_on?: number|null;
 }
 
 export type UploadableRecipeInformation = {
@@ -82,4 +85,5 @@ export type UploadableRecipeInformation = {
   serves: number;
   image_base64?: string|null;
   uploading_protocol?: "fast" | "accurate" | "full" | null;
+  useNaturalLanguage?: boolean;
 }

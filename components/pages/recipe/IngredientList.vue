@@ -57,7 +57,7 @@
       </div>
     </div>
 
-    <div class="flex-1 px-2 md:px-6 pb-2">
+    <div class="flex-1 px-2 md:px-6 py-2">
       <div class="max-w-md space-y-4 select-none">
         <template
           v-for="(group, category) in {
@@ -75,7 +75,7 @@
           </div>
 
           <ul
-            class="grid grid-cols-[max-content_max-content_1fr] gap-x-1 gap-y-5 ml-2"
+            class="grid grid-cols-[max-content_max-content_1fr] gap-x-1 gap-y-6 ml-2"
             role="list"
           >
             <li
@@ -103,12 +103,25 @@
                   {{
                     getStringFromAmountInfo(
                       ingredient?.amountInfo?.[ingredient?.currentUnit],
-                      servingSize,
-                      ingredient?.unit_name
+                      servingSize
                     )
                   }}
+                  <span
+                    class="font-light text-xs ml-[2px] text-gray-600"
+                    v-if="
+                      isCountable(
+                        ingredient?.amountInfo?.[ingredient?.currentUnit][1]
+                      ) &&
+                      unitIsNoun(
+                        ingredient?.amountInfo?.[ingredient?.currentUnit][1]
+                      )
+                    "
+                  >
+                    of</span
+                  >
                 </span>
               </transition>
+
               <NuxtLink :to="`/foods/${ingredient.id}`" class="cursor-pointer">
                 <span class="ml-2 text-nowrap whitespace-nowrap">{{
                   getIngredientName(ingredient)
@@ -166,11 +179,14 @@ const notOnDefaultUnits = computed(() => {
 });
 
 function getIngredientName(ingredient: any) {
+  if (!ingredient?.amountInfo || !ingredient?.amountInfo.length) {
+    return ingredient.name;
+  }
   const amountInfo = ingredient?.amountInfo?.[ingredient?.currentUnit];
   if (
-    amountInfo[1] == 'UNITS' &&
+    isCountable(amountInfo[1]) &&
     amountInfo[0] * servingSize.value > 1 &&
-    ingredient.unit_name == 'self'
+    !amountInfo[1]
   ) {
     return pluralizeWord(ingredient.name);
   }
@@ -200,8 +216,7 @@ function copyIngredients() {
         (ingredient) =>
           `${ingredient.name}: ${getStringFromAmountInfo(
             ingredient.amountInfo[ingredient.currentUnit],
-            servingSize.value,
-            ingredient.unit_name
+            servingSize.value
           )}`
       )
       .join('\n') ?? ''

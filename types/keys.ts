@@ -39,5 +39,6 @@ export const recipeKeys = [
   'title',
   'total_time_mins',
   'user_id',
+  'uploading_protocol',
   'visibility',
 ] as const;

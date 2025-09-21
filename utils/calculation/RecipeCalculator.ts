@@ -227,6 +227,7 @@ export default class RecipeCalculator {
       source_type: recipe?.source_type,
       based_on: recipe?.based_on,
       user_id: recipe?.user_id,
+      uploading_protocol: recipe?.uploading_protocol,
     };
     this.useGpt = useGpt;
     this.servingSize = recipe.ingredients_editable.servingSize;
@@ -626,11 +627,12 @@ export default class RecipeCalculator {
 
     // First pass: calculate basic totals and weight
     for (const ingredient of ingredients) {
+      const unit_weight = ingredient?.countable_units?.[ingredient.unit] || ingredient.unit_weight || 0;
       let originalGrams = convertToGrams(
         ingredient.amount,
         ingredient.unit,
         ingredient.density,
-        ingredient.unit_weight
+        unit_weight
       );
       originalGrams = originalGrams / this.servingSize;
 
@@ -685,11 +687,12 @@ export default class RecipeCalculator {
 
     // Second pass: apply alpha functions to individual ingredient contributions
     for (const ingredient of ingredients) {
+      const unit_weight = ingredient?.countable_units?.[ingredient.unit] || ingredient.unit_weight || 0;
       let originalGrams = convertToGrams(
         ingredient.amount,
         ingredient.unit,
         ingredient.density,
-        ingredient.unit_weight
+        unit_weight
       );
       originalGrams = originalGrams / this.servingSize;
 

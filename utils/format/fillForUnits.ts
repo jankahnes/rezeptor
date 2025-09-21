@@ -1,4 +1,7 @@
-type Unit = 'G' | 'KG' | 'OZ' | 'LB' | 'ML' | 'L' | 'TSP' | 'TBSP' | 'CUP' | 'UNITS' | 'FREE';
+import isCountable from './isCountable';
+
+
+type Unit = 'G' | 'KG' | 'OZ' | 'LB' | 'ML' | 'L' | 'TSP' | 'TBSP' | 'CUP' | 'FREE';
 
 interface Ingredient {
   amountInfo?: [string | number, Unit][];
@@ -8,6 +11,8 @@ interface Ingredient {
 }
 
 type AmountInfo = [number, Unit];
+
+const excludeList = ['OZ', 'LB', 'L', 'KG', 'CUP']
 
 // Conversion factors to grams (for weight units) or to ml (for volume units)
 const WEIGHT_TO_GRAMS: Record<string, number> = {
@@ -37,8 +42,9 @@ const UNIT_PRIORITY: Record<Unit, number> = {
   'ML': 4,
   'FREE': 9,
   'G': 10,
-  'UNITS': 11,
 };
+
+const zeroThreshold = 0.05;
 
 export default function fillForUnits(ingredient: Ingredient): void {
   const base = ingredient.amountInfo?.[0];
@@ -46,11 +52,14 @@ export default function fillForUnits(ingredient: Ingredient): void {
 
   const [amountStr, originalUnit] = base;
   const amount = Number(amountStr);
-  const conversions = new Map<Unit, number>(); // Use Map to avoid duplicates
-  const { density = 1, unit_weight } = ingredient;
+  const conversions = new Map<Unit, number>(); // Use Map to avoid duplicates. initialize with base
+  conversions.set(originalUnit, amount);
+  const { density = 1, countable_units } = ingredient;
+  const unit_weight = countable_units?.[originalUnit];
 
   // Helper to add conversions to our map
   const addConversion = (val: number, u: Unit): void => {
+    if (excludeList.includes(u) || val < zeroThreshold) return;
     if (!conversions.has(u)) {
       conversions.set(u, Number(val.toFixed(2)));
     }
@@ -71,7 +80,8 @@ export default function fillForUnits(ingredient: Ingredient): void {
   };
 
   // Convert grams to volume units using density
-  const addVolumeFromWeight = (grams: number): void => {
+  const addVolumeFromWeight = (): void => {
+    const grams = conversions.get("G");
     if (density) {
       const ml = grams / density;
       addVolumeConversions(ml);
@@ -84,19 +94,21 @@ export default function fillForUnits(ingredient: Ingredient): void {
     addWeightConversions(grams);
   };
 
-  // Add units conversions from weight
-  const addUnitsFromWeight = (grams: number): void => {
-    if (unit_weight) {
-      addConversion(grams / unit_weight, 'UNITS');
-    }
-  };
-
   // Add weight conversions from units
   const addWeightFromUnits = (units: number): void => {
     if (unit_weight) {
       const grams = units * unit_weight;
       addWeightConversions(grams);
-      addVolumeFromWeight(grams);
+      addVolumeFromWeight();
+    }
+  };
+
+  const addCountableUnitsFromWeight = (): void => {
+    const grams = conversions.get("G");
+    if (countable_units && grams) {
+    Object.entries(countable_units).forEach(([unit, weight]: [string, number]) => {
+      addConversion(grams / weight, unit as Unit);
+    });
     }
   };
 
@@ -105,25 +117,24 @@ export default function fillForUnits(ingredient: Ingredient): void {
     // Weight unit input
     const grams = amount * WEIGHT_TO_GRAMS[originalUnit];
     addWeightConversions(grams);
-    addVolumeFromWeight(grams);
-    addUnitsFromWeight(grams);
+    addVolumeFromWeight();
+    addCountableUnitsFromWeight();
   } else if (VOLUME_TO_ML[originalUnit]) {
     // Volume unit input
     const ml = amount * VOLUME_TO_ML[originalUnit];
     addVolumeConversions(ml);
     addWeightFromVolume(ml);
-    
-    // Convert to units via weight
-    if (density && unit_weight) {
-      const grams = ml * density;
-      addConversion(grams / unit_weight, 'UNITS');
+    addCountableUnitsFromWeight();
+
+  } else if (isCountable(originalUnit)) {
+    if (!countable_units || !countable_units[originalUnit]) {
+      console.error('Countable unit ' + originalUnit + ' not found for ingredient: ' + ingredient.name);
     }
-  } else if (originalUnit === 'UNITS') {
-    if (!unit_weight) {
-      throw new Error('Unit weight not found for ingredient: ' + ingredient.name);
-    }
-    addConversion(amount, 'UNITS');
+    else {
     addWeightFromUnits(amount);
+    addVolumeFromWeight();
+    addCountableUnitsFromWeight();
+    }
   } else if (originalUnit === 'FREE') {
     addConversion(0, 'FREE');
   }

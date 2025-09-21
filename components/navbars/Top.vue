@@ -25,7 +25,7 @@
           <span class="text-base">Foods</span>
         </NuxtLink>
         <NuxtLink
-          to="/recipe/new"
+          to="/recipe/new?view=form"
           class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
           active-class="!bg-primary !text-white"
         >

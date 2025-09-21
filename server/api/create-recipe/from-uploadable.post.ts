@@ -9,7 +9,7 @@ import convertUploadableToEditable from '~/utils/convertUploadableToEditable';
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event);
   const body = await readBody<UploadableRecipeInformation & {jobId: string, ingredients_editable: any|null|undefined}>(event);
-  const isEditable = body.ingredients_editable && body.ingredients_editable.ingredients.length;
+  const isEditable = body.ingredients_editable && body.ingredients_editable.ingredients.length && !body.useNaturalLanguage;
   if(!isEditable) {
   for (const ingredient of body.ingredients) {
     if (ingredient.id === null) {

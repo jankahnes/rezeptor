@@ -25,11 +25,9 @@ export default function convertToGrams(amount, unit, density, unit_weight): numb
       return num * 15 * density;
     case 'CUP':
       return num * 236.588 * density;
-
-    case 'UNITS':
-      return num * unit_weight;
     case 'FREE':
-    default:
       return 0;
+    default:
+      return num * unit_weight;
   }
 }

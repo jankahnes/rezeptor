@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ instructions?: string[]; hideHeader: Boolean }>();
+defineProps<{ instructions: string[]|null; hideHeader: Boolean }>();
 </script>
 
 <style scoped></style>

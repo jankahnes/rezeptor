@@ -126,16 +126,13 @@
         class="flex-wrap gap-4 sm:gap-6 hidden md:flex justify-center"
         v-if="!pending"
       >
-        <RecipeCard
+        <RecipeCardNew
           :recipe="recipe"
-          class="flex-1 max-w-90 min-w-80 h-120 text-[32px] basis-80"
+          class="max-w-85 min-w-75 basis-75 min-h-110 text-[32px] flex-1"
           v-for="recipe in results"
         />
       </div>
-      <div
-        class="flex flex-wrap gap-4 md:hidden"
-        v-if="!pending"
-      >
+      <div class="flex flex-wrap gap-4 md:hidden" v-if="!pending">
         <RecipeCard
           :recipe="recipe"
           class=""

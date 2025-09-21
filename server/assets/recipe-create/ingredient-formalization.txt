@@ -7,8 +7,9 @@ Seperate each ingredient line into fields.
 for unit, please match the specified unit to one of these strings:
 ["g", "ml", "tsp", "tbsp", "free", "kg", "oz", "lb", "cup", "l"]
 , where "free" represents "pinch of", or "some of this" / "to taste". Only use this for ingredients with small nutritional impact and with actually small quantities.
-If there is no unit or the unit is food-specific ("1 bell pepper", "1 clove of garlic"), put "piece" (food itself is the unit) or "clove" (food comes in or can be divided into countable units. like slice of bread.) for unit.
-amount is then self explanatory.
+If the unit instead is either food-specific, just use the name of that unit instead. If it instead is just the food itself, use "whole". Examples:
+"1 slice of cheese" -> unit="slice"
+"1 Banana" -> unit="whole"
 
 category is for if any subsection of ingredients is categorized like "Sauce:", "Filling:", denote the category for each ingredient in there as "Sauce", etc.
 If a ingredient is not in a specific category, leave null.

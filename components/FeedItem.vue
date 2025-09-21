@@ -5,7 +5,7 @@
   >
     <!-- Avatar -->
     <div class="flex-shrink-0 flex items-center justify-center min-w-10">
-      <Avatar v-if="feedItem.user" :user="feedItem.user" class="w-10 h-10" />
+      <Avatar v-if="feedItem.user && feedItem.user.username" :user="feedItem.user" class="w-10 h-10" />
       <div
         v-else-if="feedItem.type === 'FOOD_CREATION' || feedItem.type === 'RECIPE_CREATION'"
       >
@@ -20,7 +20,7 @@
     <div class="flex-1">
       <div class="flex items-center justify-between">
         <div class="text-sm font-semibold">
-          <template v-if="feedItem.user">
+          <template v-if="feedItem.user && feedItem.user.username">
             {{ feedItem.user.username }}
           </template>
           <template v-else-if="feedItem.food"> New Food Added </template>
@@ -39,7 +39,7 @@
         </template>
 
         <template v-else-if="feedItem.type === 'RECIPE_CREATION'">
-          <span v-if="feedItem.user">created a new recipe</span>
+          <span v-if="feedItem.user && feedItem.user.username">created a new recipe</span>
           <h4 class="mt-2 font-bold">
             {{ feedItem.recipe.title }}
           </h4>

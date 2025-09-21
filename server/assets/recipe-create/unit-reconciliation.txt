@@ -1,0 +1,28 @@
+Recipe unit: {unit}
+
+Available countable units for this food:
+{available_units}
+
+Your task: Match the recipe unit to an available unit, or create a new one.
+
+If the recipe unit matches or is very similar to any available unit (accounting for plurals, abbreviations, synonyms), pick that existing unit.
+
+If no available unit matches, create a new unit with an estimated weight in grams.
+
+Note: "whole" represents the food item itself (like "1 banana", "1 apple") - the default unit when counting the food directly.
+
+Examples:
+- Recipe unit "cloves" matches available "clove"
+- Recipe unit "slice" might match available "piece" 
+- Recipe unit "piece" or "whole" matches available "whole"
+- Recipe unit "bulb" is new if only "clove" is available
+
+Response format:
+{
+    "action": "match" | "create",
+    "unit_name": string,
+    "weight_grams": number | null
+}
+
+For "match": use existing unit_name, weight_grams should be null
+For "create": provide new unit_name and estimated weight_grams

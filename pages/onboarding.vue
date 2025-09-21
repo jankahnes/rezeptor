@@ -396,7 +396,10 @@ const triggerFileInput = () => {
 };
 
 async function register() {
-  const { data, error } = await auth.signUp(email.value, password.value);
+  const { data, error } = await supabase.auth.updateUser({
+    email: email.value,
+    password: password.value,
+  });
   if (error || !data.user?.id) return;
 
   if (!username.value) username.value = email.value.split('@')[0];

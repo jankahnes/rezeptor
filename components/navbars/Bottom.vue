@@ -9,16 +9,21 @@
       <NuxtLink to="/recipes" class="flex">
         <span class="material-symbols-outlined !text-3xl"> search </span>
       </NuxtLink>
-      <NuxtLink to="/recipe/new" class="flex">
+      <NuxtLink to="/recipe/new?view=form" class="flex">
         <span class="material-symbols-outlined !text-3xl"> add </span>
       </NuxtLink>
-      <NuxtLink to="/foods" class="flex">
-        <span class="material-symbols-outlined !text-3xl"> grocery </span>
+      <NuxtLink v-if="!auth.isUser()" to="/login" class="flex">
+        <span class="material-symbols-outlined !text-3xl"> login </span>
+      </NuxtLink>
+      <NuxtLink :to="'/profile/' + auth.user?.id" class="flex" v-else>
+        <span class="material-symbols-outlined !text-3xl"> person </span>
       </NuxtLink>
     </div>
   </nav>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const auth = useAuthStore();
+</script>
 
 <style scoped></style>

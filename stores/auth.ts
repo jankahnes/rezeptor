@@ -78,7 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function isUser() {
-    return user.value && !user.value.is_anonymous;
+    return user.value && !user.value.is_anonymous && user.value.username;
   }
 
   return {

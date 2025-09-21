@@ -120,7 +120,7 @@ type ParsedPart = {
 
 export async function parseIngredientString(client: SupabaseClient, ingredientString: string, hasIngredient: boolean = true) {
     let amount = null;
-    let unit = 'UNITS';
+    let unit = '';
     let ingredient = null;
     let preparationDescription = null;
 
@@ -218,7 +218,7 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
                     ingredient = bestResult.food;
                     ingredient.name = bestResult.matched_alias ?? ingredient.name;
                     
-                    if(unit == "UNITS" && amount && amount > 1 && !parsed.some(p => p.text.toLowerCase() == 'of')) {
+                    if(unit == "" && amount && amount > 1 && !parsed.some(p => p.text.toLowerCase() == 'of')) {
                         ingredient.name = pluralizeWord(ingredient.name);
                     }
 

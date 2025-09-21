@@ -13,10 +13,13 @@
         <div
           ref="desktopSlider"
           class="flex items-center select-none cursor-grab active:cursor-grabbing w-max"
-          :class="{
-            'transition-transform duration-300 ease-in-out':
-              !isDragging && !isDecelerating,
-          }"
+          :class="[
+            {
+              'transition-transform duration-300 ease-in-out':
+                !isDragging && !isDecelerating,
+            },
+            flexClass,
+          ]"
           :style="{ transform: `translateX(${-currentOffset}px)` }"
           @mousedown="startDrag"
           @touchstart="startDrag"
@@ -50,6 +53,10 @@ const props = defineProps({
   showProgress: {
     type: Boolean,
     default: false,
+  },
+  flexClass: {
+    type: String,
+    default: '',
   },
 });
 

@@ -21,7 +21,10 @@
       }"
       @click="updateValue(choice.value)"
     >
-      <span class="mx-[2px]">
+      <span v-if="choice.icon" class="material-symbols-outlined mx-1 !text-xl">{{
+        choice.icon
+      }}</span>
+      <span class="mx-1">
         {{ choice.displayName }}
       </span>
     </button>
@@ -30,14 +33,12 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  choices: { value: string; displayName: string }[];
+  choices: { value: string; displayName: string; icon?: string }[];
   modelValue: string;
   vertical?: boolean;
   buttonStyle?: string;
 }>();
 const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>();
-
-defineOptions({ name: 'FormsChoiceSlider' });
 
 const btnRefs = ref<Array<HTMLElement | null>>([]);
 
