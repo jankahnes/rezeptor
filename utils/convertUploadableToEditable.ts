@@ -8,7 +8,7 @@ function convertUnitToDB(unit: string) {
     return unitToDBMap[unit as keyof typeof unitToDBMap];
   }
   else {
-    return "UNITS";
+    return unit;
   }
 }
 

@@ -181,10 +181,10 @@ onMounted(async () => {
 
     pollingRates.value = {
       0: 500,
-      1: 4000,
-      2: 4000,
-      3: 3000,
-      4: 7000,
+      1: 2000,
+      2: 2000,
+      3: 4000,
+      4: 4000,
     };
   } else if (job.value?.type === 'uploadable') {
     steps.value = {
@@ -194,6 +194,37 @@ onMounted(async () => {
     pollingRates.value = {
       0: 500,
       6: 500,
+    };
+  } else if (job.value?.type === 'natural-language') {
+    steps.value = {
+      0: '📝 Parsing ingredients',
+      2: '🔍 Extracting names',
+      3: '🍎 Matching foods to our database',
+      4: '📊 Adding up Nutrition Facts',
+      6: '✨ Finishing up',
+    };
+
+    pollingRates.value = {
+      0: 2000,
+      2: 2000,
+      3: 4000,
+      4: 4000,
+    };
+  } else if (job.value?.type === 'picture') {
+    steps.value = {
+      0: '📸 Analyzing your picture',
+      1: '📝 Parsing ingredients',
+      2: '🔍 Extracting names',
+      3: '🍎 Matching foods to our database',
+      4: '📊 Adding up Nutrition Facts',
+      6: '✨ Finishing up',
+    };
+    pollingRates.value = {
+      0: 8000,
+      1: 2000,
+      2: 2000,
+      3: 4000,
+      4: 4000,
     };
   }
   startPolling();

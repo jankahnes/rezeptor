@@ -1,8 +1,10 @@
 export function getStringFromAmountInfo(
   amountInfo: [number, string], // [amount, unit]
   servingSize: number,
-  pieceName: string
 ): string {
+  if(!amountInfo || !amountInfo.length) {
+    return '';
+  }
   const [amount, unit] = amountInfo;
   const totalAmount = amount * servingSize;
 
@@ -15,10 +17,10 @@ export function getStringFromAmountInfo(
   }
 
   if(unit == 'LB' || unit == 'KG' || unit == 'L') {
-    return `${totalAmount.toFixed(1)} ${unit.toLowerCase()}`;
+    return `${Number(totalAmount.toFixed(1))} ${unit.toLowerCase()}`;
   }
 
-  if (unit === 'TSP' || unit === 'TBSP' || unit === 'UNITS' || unit === 'CUP') {
+  if (unit === 'TSP' || unit === 'TBSP' || isCountable(unit) || unit === 'CUP') {
     const errorTolerancePercent = 0.1; // 10% probably acceptable error for cooking context (within personal measurement error anyway)
     const errorTolerance = totalAmount * errorTolerancePercent;
     
@@ -61,15 +63,9 @@ export function getStringFromAmountInfo(
     }
 
     let unitName = unit.toLowerCase();
-    if (unit === 'UNITS') {
-      if (!pieceName || pieceName === 'self') {
-        unitName = '';
-      } else if (!pieceName.endsWith('s') && totalAmount != 1) {
-        unitName = pluralizeWord(pieceName);
-      } else {
-        unitName = pieceName;
+    if (isCountable(unit) && totalAmount > 1 && unit && unitIsNoun(unit)) {
+        unitName = pluralizeWord(unit);
       }
-    }
     if (unit === 'CUP' && totalAmount != 1) {
       unitName = 'cups';
     }

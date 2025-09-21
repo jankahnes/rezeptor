@@ -26,7 +26,7 @@
         <div class="ml-38 sm:ml-52 mt-5 text-wrap">
           <h1 class="font-extrabold text-2xl sm:text-4xl">
             {{ user.username }}
-          </h1> 
+          </h1>
           <p class="font-light text-sm">
             Joined {{ dateToString(user.created_at) }}
           </p>
@@ -36,7 +36,9 @@
           to="/account"
           class="flex justify-end"
         >
-          <button class="button !bg-secondary flex items-center justify-center p-1">
+          <button
+            class="button !bg-secondary flex items-center justify-center p-1"
+          >
             <span class="material-symbols-outlined"> settings </span>
           </button>
         </NuxtLink>
@@ -52,7 +54,7 @@
         </div>
         <div
           v-if="selectedView == 'recipes'"
-          class="flex flex-wrap gap-6 justify-center mt-12"
+          class="flex flex-col gap-6 justify-center mt-12"
         >
           <RecipeCard
             :recipe="recipe"

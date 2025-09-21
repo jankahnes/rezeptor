@@ -20,11 +20,11 @@
     </NuxtImg>
     <div
       class="flex flex-col gap-1 items-center"
-      :class="{ 'mt-4 flex-1 items-start': horizontal }"
+      :class="{ 'items-start': horizontal }"
     >
       <h2
-        class="font-bold leading-6 mt-1 text-xl sm:text-2xl tracking-tighter text-center"
-        :class="{ 'text-left min-w-80': horizontal }"
+        class="font-bold leading-6 mt-1 text-xl sm:text-2xl tracking-tighter text-center line-clamp-2"
+        :class="{ 'text-left': horizontal }"
       >
         {{ recipe?.title }}
       </h2>

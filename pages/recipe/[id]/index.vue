@@ -37,7 +37,10 @@
           </h1>
           <div class="flex gap-2 flex-nowrap items-center">
             <NuxtLink
-              :to="{ path: '/recipe/new', query: { editCurrent: 'true' } }"
+              :to="{
+                path: '/recipe/new',
+                query: { editCurrent: 'true', view: 'form' },
+              }"
               class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
             >
               <span class="material-symbols-outlined !text-xl">edit</span>
@@ -70,7 +73,10 @@
             </button>
           </div>
         </div>
-        <div class="flex items-center gap-2" v-if="recipeStore.recipe?.user">
+        <div
+          class="flex items-center gap-2"
+          v-if="recipeStore.recipe?.user?.username"
+        >
           <Avatar :user="recipeStore.recipe?.user as any" class="w-8 h-8" />
           <span class="text-sm"
             >{{ recipeStore.recipe?.user?.username }} ·
@@ -142,9 +148,9 @@
             {{ recipeStore.recipe?.description }}
           </span>
         </div>
-        <div class="grid grid-cols-[4fr_1fr] gap-20 items-end">
+        <div class="flex gap-10 items-end">
           <div
-            class="flex flex-row-reverse flex-wrap-reverse gap-2 items-start justify-end"
+            class="flex flex-1 flex-row-reverse flex-wrap-reverse gap-2 items-start justify-end"
           >
             <div
               class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100"
@@ -155,7 +161,7 @@
               {{ tag.name }}
             </div>
           </div>
-          <div class="flex flex-col gap-2 items-end justify-end">
+          <div class="flex flex-shrink-0 flex-col gap-2 items-end justify-end">
             <button
               @click="scrollIntoView(commentSection as HTMLElement)"
               class="text-sm px-2 py-1 rounded-lg bg-slate-700/40 text-slate-100 flex items-center gap-1"
@@ -193,8 +199,8 @@
           class="flex-1"
         ></PagesRecipeIngredientList>
         <PagesRecipeInstructionContainer
-          v-if="recipeStore.recipe?.instructions"
-          :instructions="recipeStore.recipe?.instructions ?? undefined"
+          v-if="recipeStore.recipe"
+          :instructions="recipeStore.recipe?.instructions"
           class="flex-1"
           :hideHeader="false"
         ></PagesRecipeInstructionContainer>
@@ -209,6 +215,15 @@
           :recipe="recipeStore.recipe"
           class="flex-1"
         ></HealthFacts>
+        <PagesRecipePublishChecklist
+          v-if="
+            recipeStore.recipe &&
+            (auth.user?.username === 'administrator' ||
+              auth.user?.id === recipeStore.recipe?.user?.id)
+          "
+          :recipe="recipeStore.recipe"
+          class="flex-1 flex-shrink-0 w-full"
+        ></PagesRecipePublishChecklist>
         <PagesRecipeCommentSection
           ref="commentSection"
           :id="0"
@@ -235,7 +250,10 @@
     <div class="md:hidden">
       <div
         class="w-full h-100 bg-cover bg-center bg-no-repeat p-4 relative z-0"
-        :class="{ '!bg-[length:90%] !bg-[position:center_60px]': isProcessed }"
+        :class="{
+          '!bg-[length:90%] !bg-[position:center_60px]': isProcessed,
+          '!h-40': !recipeStore.recipe?.picture,
+        }"
         :style="{ backgroundImage: `url(${recipeStore.recipe?.picture})` }"
       >
         <div
@@ -256,7 +274,10 @@
               <span class="material-symbols-outlined">print</span>
             </button>
             <NuxtLink
-              :to="{ path: '/recipe/new', query: { editCurrent: 'true' } }"
+              :to="{
+                path: '/recipe/new',
+                query: { editCurrent: 'true', view: 'form' },
+              }"
               class="button p-2 rounded-lg flex items-center shadow-xl"
             >
               <span class="material-symbols-outlined">edit</span>
@@ -283,12 +304,16 @@
 
       <div
         ref="mobileOverlay"
-        class="bg-white rounded-t-4xl z-10 relative border-t-1 border-primary-100"
+        class="bg-white rounded-t-4xl z-10 relative"
+        :class="{
+          'border-t-1 border-primary-100': recipeStore.recipe?.picture,
+        }"
         :style="{ marginTop: `${overlayMarginTop}px` }"
         @touchstart="handleTouchStart"
       >
         <div
           class="w-full h-14 flex items-center justify-center cursor-pointer"
+          v-if="recipeStore.recipe?.picture"
         >
           <div class="h-[6px] mx-auto bg-primary-100 rounded-lg w-16"></div>
         </div>
@@ -418,6 +443,15 @@
             :recipe="recipeStore.recipe"
             class="flex-1 mt-8"
           ></HealthFacts>
+          <PagesRecipePublishChecklist
+            v-if="
+              recipeStore.recipe &&
+              (auth.user?.username === 'administrator' ||
+                auth.user?.id === recipeStore.recipe?.user?.id)
+            "
+            :recipe="recipeStore.recipe"
+            class="flex-1 flex-shrink-0 w-full"
+          ></PagesRecipePublishChecklist>
           <PagesRecipeCommentSection :id="10"></PagesRecipeCommentSection>
           <div class="mt-6 p-2 flex-[1_1_100%] flex flex-col gap-2 items-start">
             <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
@@ -429,8 +463,7 @@
                 :key="recipe.id"
                 :recipe="recipe"
                 horizontal
-                class="text-lg flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
-                :class="{ 'pl-4': index === 0 }"
+                class="text-lg flex-shrink-0 transition-all duration-300"
               />
             </div>
           </div>
@@ -469,8 +502,9 @@ const desktopCharLimit = 200;
 const mobileCharLimit = 200;
 
 const overlayMarginTop = ref(-150);
-const minMarginTop = -300;
-const maxMarginTop = -32;
+if(!recipeStore.recipe?.picture) {
+  overlayMarginTop.value = -80;
+}
 
 const isProcessed = ref(false);
 const similarRecipes = ref<RecipeProcessed[]>([]);
@@ -523,11 +557,6 @@ const scrollIntoView = async (target: HTMLElement | undefined) => {
 };
 
 onMounted(async () => {
-  if (mobileOverlay.value) {
-    mobileOverlay.value.addEventListener('touchmove', handleTouchMove, {
-      passive: false,
-    });
-  }
   const recipes = await getRecipesPartial(supabase, {
     eq: { visibility: 'PUBLIC' },
     neq: { id },
@@ -537,43 +566,6 @@ onMounted(async () => {
   });
   similarRecipes.value = recipes as RecipeProcessed[];
 });
-
-onUnmounted(() => {
-  if (mobileOverlay.value) {
-    mobileOverlay.value.removeEventListener('touchmove', handleTouchMove);
-  }
-});
-
-let touchStartY = 0;
-let lastTouchY = 0;
-
-const handleTouchStart = (event: TouchEvent) => {
-  touchStartY = event.touches[0].clientY;
-  lastTouchY = touchStartY;
-};
-
-const handleTouchMove = (event: TouchEvent) => {
-  if (!event.cancelable) {
-    return;
-  }
-  const touch = event.touches[0];
-  const deltaY = lastTouchY - touch.clientY;
-  lastTouchY = touch.clientY;
-  if (
-    (overlayMarginTop.value <= minMarginTop && deltaY > 0) ||
-    (overlayMarginTop.value >= maxMarginTop && deltaY < 0)
-  ) {
-    return;
-  }
-  event.preventDefault();
-
-  const sensitivity = 1.5;
-  const newMarginTop = Math.max(
-    minMarginTop,
-    Math.min(maxMarginTop, overlayMarginTop.value - deltaY * sensitivity)
-  );
-  overlayMarginTop.value = newMarginTop;
-};
 
 const deleteRecipe = async () => {
   if ((auth?.user as any)?.username !== 'administrator') {

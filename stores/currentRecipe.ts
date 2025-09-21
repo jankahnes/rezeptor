@@ -50,17 +50,9 @@ export const useRecipeStore = defineStore('recipe', () => {
         unit: ingredient.amountInfo[0][1],
       };
       let unitName = mergedIngredient.unit.toLowerCase();
-      if(mergedIngredient.unit === 'UNITS') {
-        if(!mergedIngredient.unit_name || mergedIngredient.unit_name == 'self') {
-          unitName = '';
-        }
-        else {
-          unitName = mergedIngredient.unit_name;
-          if(mergedIngredient.amount != 1) {
+      if(isCountable(mergedIngredient.unit) && mergedIngredient.amount != 1 && mergedIngredient.unit) {
             unitName = pluralizeWord(unitName)
-          }
         }
-      }
       const parsed = [
         {
           text: mergedIngredient.amount,

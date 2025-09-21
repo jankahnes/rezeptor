@@ -1,13 +1,11 @@
 <template>
-  <div class="mx-auto max-w-screen-md p-6">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">
-        Tired of scattered Recipes?
-      </h1>
-      <p class="text-gray-600 mt-2">Import your recipes from any link here.</p>
-    </div>
+  <div class="w-full mt-10 md:px-10">
+    <h1 class="text-3xl font-bold text-gray-900">
+      Tired of scattered Recipes?
+    </h1>
+    <p class="text-gray-600">Import your recipes from any link here.</p>
 
-    <div class="flex gap-4 items-center justify-center flex-col md:flex-row">
+    <div class="flex gap-4 flex-col md:flex-row mt-6">
       <div class="flex-1">
         <div class="relative">
           <span
@@ -19,14 +17,14 @@
             v-model="link"
             type="text"
             placeholder="www.yourrecipe.com"
-            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none transition-colors"
           />
         </div>
       </div>
       <button
         @click="submit(link)"
         :disabled="!link"
-        class="relative px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ai-gradient"
+        class="px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-white bg-primary rounded-lg font-bold"
       >
         Import
       </button>
@@ -35,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   submit: (link: string) => void;
 }>();
 const link = ref('');

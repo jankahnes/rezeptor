@@ -6,7 +6,7 @@ export default async function addProfile(
   preferredTags: number[],
   preferredFoods: number[]
 ) {
-  const { data, error } = await client.from('profiles').insert(profileRow);
+  const { data, error } = await client.from('profiles').update(profileRow).eq('id', profileRow.id);
   if (error) throw error;
 
   const { data: preferredFoodsData, error: preferredFoodsError } = await client

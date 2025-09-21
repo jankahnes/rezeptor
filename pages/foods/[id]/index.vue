@@ -43,14 +43,6 @@
                   <span>Density</span>
                   <span>{{ food.density.toFixed(2) }} g/ml</span>
                 </div>
-                <div v-if="food?.unit_weight" class="flex justify-between">
-                  <span>Unit Weight</span>
-                  <span>{{ food.unit_weight.toFixed(1) }}g</span>
-                </div>
-                <div v-if="food?.unit_name" class="flex justify-between">
-                  <span>Unit Name</span>
-                  <span>{{ food.unit_name }}</span>
-                </div>
                 <div
                   v-if="food?.measurements?.length"
                   class="flex justify-between"

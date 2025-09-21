@@ -3,7 +3,7 @@
     class="w-[clamp(70vw,1550px,100%)] mx-auto mt-2 space-y-8 sm:space-y-10 px-4"
   >
     <div class="flex flex-col items-start">
-      <Logo class="xm:hidden" />
+      <Logo class="xm:hidden mt-2" />
       <div class="flex items-center gap-2 mt-10">
         <span class="material-symbols-outlined !text-2xl">{{
           greeting.icon
@@ -18,7 +18,9 @@
     <!-- Your Recipes -->
     <div v-if="userRecipes && userRecipes.length > 0" class="pt-4">
       <div class="flex justify-between items-center">
-        <h2 class="text-xl sm:text-2xl font-bold tracking-tight">Your Recipes</h2>
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight">
+          Your Recipes
+        </h2>
         <NuxtLink
           :to="auth.isUser() ? `/profile/${auth.user?.id}` : '/onboarding'"
           class="text-sm text-gray-500"
@@ -26,13 +28,13 @@
           See all
         </NuxtLink>
       </div>
-      <Carousel>
+      <Carousel :flex-class="'items-start'">
         <RecipeCard
           v-for="(recipe, index) in userRecipes"
           :key="recipe.id"
           :recipe="recipe"
           :horizontal="true"
-          class="w-80 h-36 max-w-140 text-xl flex-shrink-0 my-4 pr-2"
+          class="h-36 text-xl my-4 pr-4 max-w-100"
         />
       </Carousel>
     </div>
@@ -76,13 +78,12 @@
         <NuxtLink to="/recipes" class="text-sm text-gray-500">See all</NuxtLink>
       </div>
       <div class="mt-2">
-        <Carousel class="">
-          <RecipeCard
+        <Carousel class="" :flexClass="'!items-stretch'">
+          <RecipeCardNew
             v-for="(recipe, index) in recipeStore.indexRecipes"
             :key="recipe.id"
             :recipe="recipe"
-            class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4 pr-2"
-            :class="{ 'pl-3': index === 0 }"
+            class="w-50 min-h-70 text-[20px] sm:w-70 sm:min-h-95 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-6 mb-2 mr-4"
           />
         </Carousel>
       </div>
@@ -93,7 +94,7 @@
       <div class="flex justify-between items-center">
         <h2 class="text-xl sm:text-2xl font-bold">Recent Activity</h2>
       </div>
-      <Carousel class="mt-4 items-start">
+      <Carousel class="mt-4" :flexClass="'!items-stretch'">
         <FeedItem
           v-for="item in recentActivity.slice(0, 8)"
           :key="item.id"
@@ -129,7 +130,7 @@ if (!recipeStore.indexRecipes.length) {
 }
 
 const loadUserData = async () => {
-  if (auth.isUser()) {
+  if (auth.user?.id) {
     // Fetch user's recipes
     const { data: recipes } = await useRecipesPartial(
       () => ({
@@ -221,6 +222,7 @@ onMounted(async () => {
     orderBy: { column: 'created_at', ascending: false },
     limit: 10,
   });
+  loadUserData();
 });
 </script>
 

@@ -5,17 +5,37 @@
     </div>
     <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
     <FormsSlidingSelector
-      v-model="modelValue.servingSize"
+      v-model="modelValue.ingredients_editable.servingSize"
       :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
       :expanded="false"
       class="max-w-[150px]"
     />
-
+    <button
+      class="md:ml-1 button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform mt-2"
+      @click="modelValue.useNaturalLanguage = !modelValue.useNaturalLanguage"
+    >
+      <span class="material-symbols-outlined !text-sm">autorenew</span>
+      <span>{{
+        modelValue.useNaturalLanguage
+          ? 'Use Precise Parsing'
+          : 'Use Natural Language'
+      }}</span>
+    </button>
+    <textarea
+      v-if="modelValue.useNaturalLanguage"
+      v-model="modelValue.ingredients_string"
+      v-auto-resize
+      rows="4"
+      placeholder="For the dough:
+100g of flour
+2 tablespoons of olive oil"
+      class="md:ml-1 w-full bg-transparent rounded-xl p-2 border border-gray-300 focus:outline-none resize-none flex-1 text-sm mt-4"
+    ></textarea>
     <!-- Ingredients List -->
-    <div class="flex flex-col rounded-lg px-2 z-15">
+    <div class="flex flex-col rounded-lg px-2 z-15" v-else>
       <div class="space-y-3 mt-4">
         <div
-          v-for="category in props.modelValue.ingredients"
+          v-for="category in modelValue.ingredients_editable.ingredients"
           :key="category.categoryName"
           class="flex flex-col gap-2 relative min-h-12"
         >
@@ -127,7 +147,7 @@
           </button>
           <button
             @click="
-              modelValue.ingredients.push({
+              modelValue.ingredients_editable.ingredients.push({
                 categoryName: newCategoryName,
                 ingredients: [createEmptyIngredient()],
                 searchQuery: '',
@@ -176,7 +196,7 @@ onMounted(() => {
 });
 
 function ensureIngredientsStructure() {
-  props.modelValue.ingredients.forEach((category) => {
+  props.modelValue.ingredients_editable.ingredients.forEach((category) => {
     if (!category.ingredients) {
       category.ingredients = [];
     }
@@ -247,7 +267,7 @@ async function handleBlur(category, index) {
 async function handleEnter(category, index) {
   const ingredient = category.ingredients[index];
 
-  if (ingredient.rawText.trim()) {  
+  if (ingredient.rawText.trim()) {
     await parseIngredient(category, index);
     ingredient.isEditing = false;
   }
@@ -337,7 +357,7 @@ function ensureOneEmptyIngredient(category) {
 }
 
 function removeCategory(category) {
-  const uncategorized = props.modelValue.ingredients.find(
+  const uncategorized = props.modelValue.ingredients_editable.ingredients.find(
     (cat) => cat.categoryName === 'uncategorized'
   );
   if (uncategorized) {
@@ -348,14 +368,11 @@ function removeCategory(category) {
       uncategorized.finalizedIngredients.push(...category.finalizedIngredients);
     }
   }
-  const idx = props.modelValue.ingredients.findIndex(
+  const idx = props.modelValue.ingredients_editable.ingredients.findIndex(
     (cat) => cat.categoryName === category.categoryName
   );
   if (idx !== -1) {
-    props.modelValue.ingredients.splice(idx, 1);
+    props.modelValue.ingredients_editable.ingredients.splice(idx, 1);
   }
 }
 </script>
-
-<style scoped>
-</style>

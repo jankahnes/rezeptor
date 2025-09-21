@@ -18,7 +18,8 @@ export default defineEventHandler(async (event) => {
     if(jobId) {
         await supabase.from('jobs').update({
             step_index: 4,
-            updated_at: new Date()
+            updated_at: new Date(),
+            message: ''
         }).eq('id', jobId);
     }
     

@@ -5,7 +5,6 @@ import { getUserPartial } from '~/utils/db/getters/getUser';
 import buildQuery from '~/utils/db/getters/buildQuery';
 import buildQueryFromRecipeFiltering from '~/utils/db/getters/buildQueryFromRecipeFiltering';
 import type { GetterOpts } from '~/types/exports';
-import getPossibleUnits from '~/utils/format/getPossibleUnits';
 import fillForUnits from '~/utils/format/fillForUnits';
 
 
@@ -56,7 +55,7 @@ export async function getRecipes(
             id,
             name,
             food:foods(
-              id, price, density, unit_weight, unit_name, measurements
+              id, price, density, measurements, countable_units
             )
           ),
           category,
@@ -121,8 +120,6 @@ export async function getRecipes(
         name: ingredient.food_name.name,
         price: ingredient.food_name.food.price,
         density: ingredient.food_name.food.density,
-        unit_weight: ingredient.food_name.food.unit_weight,
-        unit_name: ingredient.food_name.food.unit_name,
         measurements: Array.isArray(ingredient.food_name.food.measurements)
           ? ingredient.food_name.food.measurements
           : [],
@@ -136,6 +133,7 @@ export async function getRecipes(
         mechanical_description: ingredient.mechanical_description,
         hydration_factor: ingredient.hydration_factor,
         preparation_description: ingredient.preparation_description,
+        countable_units: ingredient.food_name.food.countable_units,
       };
     });
     recipe.ingredients.forEach(fillForUnits);

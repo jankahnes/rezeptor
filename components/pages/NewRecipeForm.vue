@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-center w-full">
-    <div class="pt-18 space-y-4 w-full max-w-screen-lg">
+    <div class="pt-18 space-y-4 w-full max-w-screen-md">
       <textarea
         v-model="recipe.title"
         v-auto-resize
@@ -18,8 +18,7 @@
       ></textarea>
       <div class="flex mt-6 w-full flex-wrap">
         <PagesRecipeIngredientListEditable
-          v-model="recipe.ingredients_editable"
-          class=""
+          v-model="recipe"
         ></PagesRecipeIngredientListEditable>
 
         <PagesRecipeInstructionContainerEditable
@@ -36,11 +35,9 @@
           class=""
         />
       </div>
-      <div
-        class="fixed right-15 bottom-22 xm:bottom-6 xm:right-6 z-100 flex gap-2 w-full xm:w-auto justify-end"
-      >
+      <div class="flex gap-2 w-full justify-end mt-6">
         <button
-          class="flex gap-2 items-center justify-center bg-main border-3 border-primary text-primary rounded-xl p-2 font-bold shadow-lg"
+          class="flex gap-2 items-center justify-center bg-primary text-white border-3 border-primary rounded-xl px-2 py-1 font-bold shadow-lg"
           @click="submit(recipe)"
         >
           Submit
@@ -62,6 +59,8 @@ const isEditing = ref(false);
 const route = useRoute();
 const recipeStore = useRecipeStore();
 
+const useNaturalLanguage = ref(false);
+
 const displayInfo = computed(() => {
   return recipeComputed.value.hidx;
 });
@@ -69,6 +68,7 @@ const displayInfo = computed(() => {
 const recipe = ref({
   title: '',
   description: '',
+  ingredients_string: '',
   ingredients_editable: {
     servingSize: 1,
     ingredients: [
@@ -86,9 +86,6 @@ const recipe = ref({
     ],
   },
   instructions: [],
-  effort: null,
-  difficulty: null,
-  visibility: null,
 });
 
 const recipeComputed = ref({});

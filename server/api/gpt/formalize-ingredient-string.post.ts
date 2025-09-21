@@ -118,6 +118,21 @@ export default defineEventHandler(async (event) => {
                 ingredient.id = "Request was rejected."
             } else {
                 ingredient.id = response?.data?.id
+                
+                if (ingredient.id && (!["g", "ml", "tsp", "tbsp", "free", "kg", "oz", "lb", "cup", "l"].includes(ingredient.unit))) {
+                    try {
+                        const unitResponse = await $fetch('/api/db/reconcile-unit', {
+                            method: 'POST',
+                            body: { 
+                                food_name_id: ingredient.id,
+                                unit: ingredient.unit
+                            }
+                        })
+                        ingredient.unit = unitResponse.unit_name
+                    } catch (unitError) {
+                        console.error(`Error reconciling unit for ${ingredient.name_original}:`, unitError)
+                    }
+                }
             }
         } catch (error) {
             console.error(`Error processing ingredient ${ingredient.name_original}:`, error)
