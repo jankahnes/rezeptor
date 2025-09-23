@@ -90,6 +90,18 @@ export async function getRecipes(
     if (!recipe.satiety) {
       recipe.satiety = 0.5 * getED(recipe.kcal ?? 0) + 0.5 * (recipe.sidx ?? 0);
     }
+
+    //backwards compatibility
+    const hasInstructions = recipe.instructions && recipe.instructions.length > 0;
+    if(recipe.processing_requirements.has_instructions != (hasInstructions)) {
+      recipe.processing_requirements.has_instructions = hasInstructions;
+    }
+    if(recipe.processing_requirements.has_picture != Boolean(recipe.picture)) {
+      recipe.processing_requirements.has_picture = Boolean(recipe.picture);
+    }
+    //---
+
+
     for (const c of recipe.comments) {
       const match = ratings.find(
         (r) => r.user_id === c.user_id && r.recipe_id === recipe.id
@@ -121,6 +133,8 @@ export async function getRecipes(
         density: ingredient.food_name.food.density,
         category: ingredient.category,
         amountInfo: [[ingredient.amount, ingredient.unit]],
+        amount: ingredient.amount,
+        unit: ingredient.unit,
         currentUnit: 0,
         thermal_intensity: ingredient.thermal_intensity,
         mechanical_disruption: ingredient.mechanical_disruption,

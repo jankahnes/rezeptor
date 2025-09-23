@@ -164,7 +164,8 @@ const restartPolling = () => {
   startPolling();
 };
 
-onMounted(async () => {
+async function fetchAndStartPolling() {
+  if (!props.jobId || job.value) return;
   job.value = (
     await supabase.from('jobs').select('*').eq('id', props.jobId).single()
   ).data;
@@ -228,8 +229,17 @@ onMounted(async () => {
     };
   }
   startPolling();
+}
+onMounted(async () => {
+  await fetchAndStartPolling();
 });
 
+watch(
+  () => props.jobId,
+  async () => {
+    await fetchAndStartPolling();
+  }
+);
 onUnmounted(() => {
   stopPolling();
 });

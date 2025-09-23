@@ -52,6 +52,7 @@ export default defineEventHandler(async (event) => {
             instructions: string[] | null;
             description: string | null;
             serves: number;
+            use_as_image: boolean | null;
         };
 
         if (!pictureAnalysisResponse || !pictureAnalysisResponse.title) {
@@ -68,6 +69,10 @@ export default defineEventHandler(async (event) => {
             batch_size: pictureAnalysisResponse.serves,
             ...args // Merge the args (publish, source_type, user_id, etc.)
         };
+
+        if(pictureAnalysisResponse.use_as_image) {
+            responseBase.image_base64 = payload.imageBase64;
+        }
 
         // Update job progress
         if (jobId) {
