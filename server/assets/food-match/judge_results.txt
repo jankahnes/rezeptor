@@ -13,7 +13,9 @@ When to judge as alias / Case 1:
 - There exists one or multiple foods in the search results that refer to the same or a very similar food.
 - Also, you expect that matching food to have:
     - The same or only minimally different nutritional data, also including amino acids and micronutrients
+    - We included the kcal/100g for each entry, that can sometimes aid you in judging if the foods would match or not.
     - The same or only minimally different metadata, such as processing level, density, price, and ways to measure
+    - Keep in mind that unless specified otherwise, the foods in the database refer to the raw/unprocessed versions of the foods.
 - In that case, mark the ID of that food (if multiple match, just do the best one) in your response as matching_id
 
 When not to judge as alias / Case 2:

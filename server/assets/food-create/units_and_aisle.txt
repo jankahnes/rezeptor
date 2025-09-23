@@ -1,0 +1,42 @@
+Return the following values for a given food:
+
+{
+    "countable_units": {"name": weight},
+    "aisle": string
+}
+
+Instructions:
+- Countable units are discrete items that people naturally count in recipes (eggs, apples, slices) rather than measure by weight/volume. Ask: 'Would someone say I need 3 of these?' vs 'I need 200g of this?
+- When talking about "countable", we are disregarding usual weight/volume based units such as g,tsp,ml,etc. Do not include these in your units response, as they are already handled.
+- As an example, "Flour" is not at all countable -> just leave empty {}.
+- So for the given food, find names for the ways to count the food, and add the avg. weight of that unit in grams. If the food itself is countable, leave the name empty for that kv-pair.
+- First example: Banana - {"": 115}
+- Then, if there could be a conceivable way to measure "servings" of the food, add that as unit too - often times, that will have the same weight as other units.
+- Use common dietary guidelines, from health orgs, databases, or just the common serving size of that food.
+- For the weight, always assume average or medium- sized. However, if the weight of a food differs heavily or recipes commonly differ between sizes, you may also include sizes as units.
+- In that case, use small-medium-large by default and dont forget to include the standard case "" for medium.
+- Example: Egg - {"": 50, "small": 43, "medium": 50, "large": 65, "serving": 50} (serving could arguably also be 100, but both work)
+- Other example: Garlic - {"clove": 5, "large clove": 8} (servings would be a very unusual way to count garlic)
+- Or: Sourdough Bread - {"loaf": 1000, "slice": 50, "serving": 50}
+- Lastly, also think about ways the foods are sold/packaged. For example, Vanillin Sugar and Ketchup sometimes come in small packets for dosing. Include and name the pre-portioned units too.
+- Keep in mind that this will be displayed as (amt) (unit.name) ("of"|"") (food name), so pay attention to the grammar.
+    -> Here, it also should also become clear why we are using "" for self-countable foods - the above {"": 115} would be displayed as 1 Banana. (no unit.name). 
+
+- For aisle, just pick one of these, based on what "aisle"/section of a supermarket you would find that food.
+"Produce"
+"Bakery"
+"Dairy"
+"Meat"
+"Other Refrigerated"
+"Condiments & Sauces"
+"Canned Goods"
+"Baking"
+"Pasta, Rice & Grains"
+"Cereal & Breakfast"
+"Candy & Snacks"
+"Other Dry Goods & Pantry"
+"Frozen"
+"International"
+"Special Diets/Health"
+"Beverages"
+"Other"

@@ -5,7 +5,7 @@ import { recipeKeys } from '~/types/keys';
 import type { UploadableRecipeInformation } from '~/types/exports';
 import convertUploadableToEditable from '~/utils/convertUploadableToEditable';
 
-
+//Uploads a recipe from UploadableRecipeInformation object
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event);
   const body = await readBody<UploadableRecipeInformation & {jobId: string, ingredients_editable: any|null|undefined}>(event);

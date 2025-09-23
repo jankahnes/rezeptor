@@ -1,12 +1,13 @@
 import extractJson from "~/utils/format/extractJson"
 import { serverSupabaseClient } from '#supabase/server'
 
+
+//Uploads a recipe from BaseRecipeInformation object
 export default defineEventHandler(async (event) => {
     const input = await readBody(event)
     const {base_recipe_information, jobId} = input
     const supabase = await serverSupabaseClient(event);
     const assets = useStorage('assets:server')
-    const descAndInstructionsPrompt = await assets.getItem('recipe-create/desc-and-instructions-from-ingredients.txt') as string
     Object.assign(base_recipe_information, await $fetch('/api/gpt/formalize-ingredient-string', {
         method: 'POST',
         body: {
@@ -24,22 +25,37 @@ export default defineEventHandler(async (event) => {
     }
     
     if(base_recipe_information.publish || base_recipe_information.uploading_protocol === 'full') {
-        if(!base_recipe_information.description || !base_recipe_information?.instructions?.length) {
-        const descAndInstructionsResponse = await $fetch('/api/gpt/response', {
+        const ingredientsString = base_recipe_information.ingredients.map((ingredient) => `${ingredient.name}, ID ${ingredient.id}`).join(';\n')
+        let response = null;
+        if(!base_recipe_information?.instructions?.length) {
+        const descAndInstructionsPrompt = await assets.getItem('recipe-create/desc-and-instructions-from-ingredients.txt') as string
+        response = await $fetch('/api/gpt/response', {
             method: 'POST',
             body: {
-                message: descAndInstructionsPrompt.replace('{ingredients}', base_recipe_information.ingredients_string),
+                message: descAndInstructionsPrompt.replace('{ingredient_list}', ingredientsString).replace('{title_info}', base_recipe_information.title),
                 model: 'gpt-5'
             }
-        })
-        if(descAndInstructionsResponse) {
-            const descAndInstructionJson = extractJson(descAndInstructionsResponse)
+        })}
+        else {
+            const descAndInstructionsPrompt = await assets.getItem('recipe-create/desc-and-instructions-from-ingredients-with-base.txt') as string
+            response = await $fetch('/api/gpt/response', {
+                method: 'POST',
+                body: {
+                    message: descAndInstructionsPrompt.replace('{ingredient_list}', ingredientsString).replace('{title_info}', base_recipe_information.title).replace('{instructions}', base_recipe_information.instructions.join('\n')),
+                    model: 'gpt-5'
+                }
+            })
+        }
+        if(response) {
+            const descAndInstructionJson = extractJson(response)
             if(!descAndInstructionJson) {
                 throw new Error('No JSON found in desc and instructions response')
             }
             const descAndInstructionsResult = JSON.parse(descAndInstructionJson)
-            Object.assign(base_recipe_information, descAndInstructionsResult)
-        }
+            if(!base_recipe_information.description) {
+                base_recipe_information.description = descAndInstructionsResult.description
+            }
+            base_recipe_information.instructions = descAndInstructionsResult.instructions
         }
         if(jobId) {
             await supabase.from('jobs').update({

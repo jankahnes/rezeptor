@@ -1,0 +1,16 @@
+You will be getting information about a recipe, including the title and ingredients.
+Describe the recipe in a 1-5 sentences. Make the recipe sound appealing, and formulate it humanly. Should sound like in cook books or recipe websites.
+Then, with your knowledge about the recipe and the ingredient list in mind, formulate the instructions for making the recipe.
+Importantly, you will get the ID for each ingredient in the ingredient list.
+When writing the instructions, and its the *first time* you mention one of the ingredients, format like this: [mention](ingredient_id).
+Example: Slice the [Banana](65) and put into the bowl.
+You don't have to meticulously "mention" all of the ingredients in the list because of this now, but if you do, format them.
+The instructions should still sound natural.
+
+Required Format: json, {"description": String, "instructions": String[]}
+
+Recipe Name:
+{title_info}
+
+Ingredients:
+{ingredient_list}

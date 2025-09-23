@@ -37,9 +37,7 @@ export default defineEventHandler(async (event) => {
 
     const searchPrompt = await assets.getItem('food-match/search_related.txt') as string
     const judgePrompt = await assets.getItem('food-match/judge_results.txt') as string
-    const contextPrompt = await assets.getItem('food-create/context.txt') as string  
-    const generalAminoPrompt = await assets.getItem('food-create/general-amino.txt') as string
-    const micronutrientsPrompt = await assets.getItem('food-create/micronutrients.txt') as string
+    
     logCheckpoint('Prompt files loaded')
 
     const input = await readBody(event)
@@ -124,7 +122,7 @@ export default defineEventHandler(async (event) => {
             index === self.findIndex((t) => t.food.food_id === food.food.food_id)
         )
         relevantFoods = relevantFoods.slice(0, 10)
-        const relevantFoodsNames = relevantFoods.map((food) => `"Name: ${food.food.name} / ID: ${food.food.food_id}"`).join(' ;\n ')
+        const relevantFoodsNames = relevantFoods.map((food) => `"Name: ${food.food.name} / ID: ${food.food.food_id} / Kcal/100g: ${food.food.kcal}"`).join(' ;\n ')
 
         //after getting potentially relevant foods, call GPT to judge what to do with the food
         const judgeResponse = await $fetch('/api/gpt/response', {
@@ -159,8 +157,12 @@ export default defineEventHandler(async (event) => {
 
         //Else, we need to insert the food as a new food
         let primaryName = judgeResults.primary_name ?? judgeResults.query_formatted
+        const contextPrompt = await assets.getItem('food-create/context.txt') as string  
+        const generalAminoPrompt = await assets.getItem('food-create/general-amino.txt') as string
+        const micronutrientsPrompt = await assets.getItem('food-create/micronutrients.txt') as string
+        const unitsPrompt = await assets.getItem('food-create/units_and_aisle.txt') as string
         //step 3: use GPT to fill in fields from food name
-        const [generalAminoResponse, contextResponse, micronutrientsResponse] = await Promise.all([
+        const [generalAminoResponse, contextResponse, micronutrientsResponse, unitsResponse] = await Promise.all([
             $fetch('/api/gpt/response', {
                 method: 'POST',
                 body: {
@@ -181,14 +183,22 @@ export default defineEventHandler(async (event) => {
                   systemPrompt: micronutrientsPrompt,
                   message: `Food: ${primaryName}`,
                 },
+            }),
+            $fetch('/api/gpt/response', {
+                method: 'POST',
+                body: {
+                  systemPrompt: unitsPrompt,
+                  message: `Food: ${primaryName}`,
+                },
             })
         ]);
-        logCheckpoint('All 3 parallel GPT calls completed')
+        logCheckpoint('All 4 parallel GPT calls completed')
         
         if (!generalAminoResponse || !contextResponse || !micronutrientsResponse) throw new Error('No content returned from a GPT response');
         const generalAmino = JSON.parse(extractJson(generalAminoResponse))
         const context = JSON.parse(extractJson(contextResponse))
         const micronutrients = JSON.parse(extractJson(micronutrientsResponse))
+        const units = JSON.parse(extractJson(unitsResponse))
         logCheckpoint('GPT responses parsed')
 
         const foodObject = {
@@ -196,6 +206,7 @@ export default defineEventHandler(async (event) => {
             ...generalAmino,
             ...context,
             ...micronutrients,
+            ...units,
         }
         logCheckpoint('Food object created')
 

@@ -2,20 +2,11 @@ import type { BaseRecipeInformation } from '~/types/exports';
 
 import { serverSupabaseClient } from '#supabase/server'
 
+//Uploads a recipe from a link
 export default defineEventHandler(async (event) => {
     const input = await readBody(event)
     const {link, args, jobId} = input
     const supabase = await serverSupabaseClient(event);
-
-    //placeholder: call python api to use recipe-scrapers to scrape info
-    //endpoint will return {
-    //    title: string,
-    //    ingredients_string: string[],
-    //    instructions: string[]|null,
-    //    description: string|null,
-    //    serves: number,
-    //    batch_size: number,
-    //}
     
     const responseBase = await $fetch('https://jk-api.onrender.com/scrape-recipe-page', {
         method: 'POST',
@@ -31,7 +22,6 @@ export default defineEventHandler(async (event) => {
             updated_at: new Date()
         }).eq('id', jobId);
     }
-
 
     return await $fetch('/api/create-recipe/from-base', {
         method: 'POST',
