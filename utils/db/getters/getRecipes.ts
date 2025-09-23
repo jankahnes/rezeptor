@@ -7,7 +7,6 @@ import buildQueryFromRecipeFiltering from '~/utils/db/getters/buildQueryFromReci
 import type { GetterOpts } from '~/types/exports';
 import fillForUnits from '~/utils/format/fillForUnits';
 
-
 //TODO all of this can be removed once satiety is filled in DB 
 function scale_by_points(value: number, points: [number, number][]) {
   if (value <= points[0][0]) {
@@ -55,7 +54,7 @@ export async function getRecipes(
             id,
             name,
             food:foods(
-              id, price, density, measurements, countable_units
+              id, price, density, countable_units
             )
           ),
           category,
@@ -120,9 +119,6 @@ export async function getRecipes(
         name: ingredient.food_name.name,
         price: ingredient.food_name.food.price,
         density: ingredient.food_name.food.density,
-        measurements: Array.isArray(ingredient.food_name.food.measurements)
-          ? ingredient.food_name.food.measurements
-          : [],
         category: ingredient.category,
         amountInfo: [[ingredient.amount, ingredient.unit]],
         currentUnit: 0,

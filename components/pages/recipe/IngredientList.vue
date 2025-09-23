@@ -49,7 +49,7 @@
         />
         <p
           v-if="batchSize"
-          @click="servingMode = !servingMode"
+          @click="servingMode = !servingMode; servingSize = batchSize"
           class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer mb-4 italic"
         >
           Show ingredients for one batch
@@ -161,14 +161,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-
 const props = defineProps({
   ingredients: Array<any>,
   hideHeader: Boolean,
   batchSize: Number,
+  servingSize: Number,
 });
-const servingSize = ref(props.batchSize ?? 2);
+
+const emit = defineEmits(['update:servingSize']);
+
+// Use computed for two-way binding with parent component
+const servingSize = computed({
+  get: () => props.servingSize,
+  set: (value) => emit('update:servingSize', value),
+});
+
 const servingMode = ref(!props.batchSize);
 const checkedIngredients = ref<Set<string>>(new Set());
 

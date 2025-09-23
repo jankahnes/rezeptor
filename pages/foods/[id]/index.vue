@@ -43,13 +43,6 @@
                   <span>Density</span>
                   <span>{{ food.density.toFixed(2) }} g/ml</span>
                 </div>
-                <div
-                  v-if="food?.measurements?.length"
-                  class="flex justify-between"
-                >
-                  <span>Usual ways to measure</span>
-                  <span>{{ food.measurements?.join(', ') }}</span>
-                </div>
               </div>
 
               <!-- Dietary Information -->

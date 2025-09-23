@@ -196,11 +196,14 @@
         <PagesRecipeIngredientList
           :ingredients="recipeStore.recipe?.ingredients"
           :batchSize="recipeStore.recipe?.batch_size ?? undefined"
+          v-model:servingSize="servingSize"
           class="flex-1"
         ></PagesRecipeIngredientList>
         <PagesRecipeInstructionContainer
           v-if="recipeStore.recipe"
           :instructions="recipeStore.recipe?.instructions"
+          :ingredients="recipeStore.recipe?.ingredients"
+          :servingSize="servingSize"
           class="flex-1"
           :hideHeader="false"
         ></PagesRecipeInstructionContainer>
@@ -422,12 +425,15 @@
               v-if="mobileChosen === 'ingredients'"
               :hideHeader="true"
               :batchSize="recipeStore.recipe?.batch_size ?? undefined"
+              v-model:servingSize="servingSize"
             ></PagesRecipeIngredientList>
             <PagesRecipeInstructionContainer
               v-if="
                 mobileChosen === 'method' && recipeStore.recipe?.instructions
               "
               :instructions="recipeStore.recipe?.instructions ?? undefined"
+              :ingredients="recipeStore.recipe?.ingredients"
+              :servingSize="servingSize"
               class="flex-1"
               :hideHeader="true"
             ></PagesRecipeInstructionContainer>
@@ -491,6 +497,9 @@ const mobileChoices = ref<{ value: string; displayName: string }[]>([
   { value: 'method', displayName: 'METHOD' },
 ]);
 
+// Serving size state - managed at page level for both IngredientList and InstructionContainer
+const servingSize = ref(2); // Default to 2 servings
+
 const scrollTarget = ref<HTMLElement>();
 const commentSection = ref<HTMLElement>();
 const nutritionSection = ref<HTMLElement>();
@@ -502,7 +511,7 @@ const desktopCharLimit = 200;
 const mobileCharLimit = 200;
 
 const overlayMarginTop = ref(-150);
-if(!recipeStore.recipe?.picture) {
+if (!recipeStore.recipe?.picture) {
   overlayMarginTop.value = -80;
 }
 
@@ -542,6 +551,11 @@ const loadRecipe = async (recipeId: number) => {
     (recipe as any).mappedTags.sort((a: any, b: any) => a.value - b.value);
 
     recipeStore.setRecipe(recipe);
+
+    // Initialize serving size from recipe batch_size
+    if (recipe.batch_size) {
+      servingSize.value = recipe.batch_size;
+    }
   }
 };
 
