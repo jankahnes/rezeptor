@@ -13,6 +13,7 @@ export const recipeKeys = [
   'fat_profile_score',
   'fiber',
   'fiber_score',
+  'generated_image_url',
   'hidx',
   'id',
   'initiator',
@@ -39,6 +40,6 @@ export const recipeKeys = [
   'title',
   'total_time_mins',
   'user_id',
-  'uploading_protocol',
   'visibility',
+  'processing_requirements',
 ] as const;

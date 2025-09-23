@@ -16,6 +16,7 @@ Look carefully at the image and extract the following information:
   "instructions": ["step 1", "step 2", "..."] or null,
   "description": "string" or null,
   "serves": number
+  "use_as_image: bool
 }
 ```
 
@@ -25,11 +26,16 @@ Look carefully at the image and extract the following information:
 - Extract ingredient string exactly as written, including quantities and units
 - Only return the JSON object, no additional text or explanations
 - Note that the recipe document might be in a different language, in which case you should translate the text to english into the json.
-  - Use common sense when translating ingredient names and units
-  - Use your thinking to do the translation and sanity-check if everything looks correct
+- Use common sense when translating ingredient names and units
+- Use your thinking to do the translation and sanity-check if everything looks correct
 
 - If instead of a document, you get a picture of a final dish, also return the required fields, but estimate each based on what you see.
 - You have a high degree of freedom in that case, so make it sound like out of a cookbook in that case. Note the ingredient amounts and "serves" based on the amount you see. 
+- In this case, if the picture additionaly also seems to fulfill these standards:
+      - High-Quality
+      - Top-down, plate forming a circle
+      - Plate/Dish/other subject fully in view
+  -> Also set "use_as_image" to true. Else, just omit or set null/false.
 
 **Error Handling**:
 - If ingredients are completely unreadable or missing: Return {"error": "Cannot read ingredients section clearly"}

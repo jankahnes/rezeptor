@@ -213,6 +213,7 @@ export default class RecipeCalculator {
     }
     this.recipe = recipe;
     this.recipeComputed = {
+      id: recipe?.id,
       title: recipe?.title,
       description: recipe?.description,
       effort: recipe?.effort?.toUpperCase(),
@@ -227,7 +228,8 @@ export default class RecipeCalculator {
       source_type: recipe?.source_type,
       based_on: recipe?.based_on,
       user_id: recipe?.user_id,
-      uploading_protocol: recipe?.uploading_protocol,
+      generated_image_url: recipe?.generated_image_url,
+      processing_requirements: recipe?.processing_requirements,
     };
     this.useGpt = useGpt;
     this.servingSize = recipe.ingredients_editable.servingSize;
@@ -470,8 +472,8 @@ export default class RecipeCalculator {
 
   getRecipeTagRows() {
     const tagRows = [];
-    if(this.recipe.tags) {
-    for (const tag of this.recipe.tags) { // general tags by GPT
+    if(this.recipe.gptTags) {
+    for (const tag of this.recipe.gptTags) { // general tags by GPT
       tagRows.push({
         tag_id: tag,
       });
@@ -573,7 +575,7 @@ export default class RecipeCalculator {
       this.recipeComputed.saltiness = this.recipe.saltiness;
       this.recipeComputed.added_fat = this.recipe.added_fat;
       this.recipeComputed.added_salt = 0; // Will be calculated later
-      this.recipe.tags = gptResponse?.general?.tags || [];
+      this.recipe.gptTags = gptResponse?.general?.tags || [];
       this.recipeComputed.effort = gptResponse?.general?.effort || 'MODERATE';
       this.recipeComputed.difficulty = gptResponse?.general?.difficulty || 'MEDIUM';
     }
@@ -609,6 +611,7 @@ export default class RecipeCalculator {
   }
 
   getCumulCols(ingredients) {
+
     for (const col in cumulCols) {
       this.cumulColsComputed[col] = {
         amountTotal: 0,
@@ -627,6 +630,7 @@ export default class RecipeCalculator {
 
     // First pass: calculate basic totals and weight
     for (const ingredient of ingredients) {
+      
       const unit_weight = ingredient?.countable_units?.[ingredient.unit] || ingredient.unit_weight || 0;
       let originalGrams = convertToGrams(
         ingredient.amount,
@@ -636,6 +640,12 @@ export default class RecipeCalculator {
       );
       originalGrams = originalGrams / this.servingSize;
 
+      //console.log(ingredient.name);
+      //console.log(ingredient.unit);
+      //console.log(ingredient.amount);
+      //console.log(ingredient.kcal);
+      //console.log(originalGrams);
+      //console.log("--------")
       // Apply consumption factor for nutrient calculations
       const consumptionFactor = ingredient.consumption_factor || 1;
       const consumedGrams = originalGrams * consumptionFactor;
@@ -648,12 +658,14 @@ export default class RecipeCalculator {
       this.recipeComputed.totalWeight += hydratedGrams;
 
       for (const col in this.cumulColsComputed) {
+        const nutrientValue = ingredient[col] || 0;
         this.cumulColsComputed[col].amountTotal +=
-          ingredient[col] * nutrientFactor;
+          nutrientValue * nutrientFactor;
       }
       
       // Calculate intrinsic salt
-      intrinsicSalt += ingredient.salt * nutrientFactor;
+      const saltValue = ingredient.salt || 0;
+      intrinsicSalt += saltValue * nutrientFactor;
     }
 
     // Calculate per-100g intrinsic salt to compare with target
@@ -705,7 +717,8 @@ export default class RecipeCalculator {
       if (this.logToReport) {
         const ingredientNutrients = {};
         for (const col of Object.keys(this.cumulColsComputed)) {
-          ingredientNutrients[col] = ingredient[col] * nutrientFactor;
+          const nutrientValue = ingredient[col] || 0;
+          ingredientNutrients[col] = nutrientValue * nutrientFactor;
         }
         this.report.ingredientNutrients.push({
           name: ingredient.name,
@@ -731,7 +744,8 @@ export default class RecipeCalculator {
           ingredient?.mechanical_disruption || 0
         );
 
-        const ingredientContribution = ingredient[col] * nutrientFactor;
+        const nutrientValue = ingredient[col] || 0;
+        const ingredientContribution = nutrientValue * nutrientFactor;
         const ingredientContributionPer100 =
           (ingredientContribution / this.recipeComputed.totalWeight) * 100;
         const contributionPercentage =
@@ -1301,7 +1315,6 @@ export default class RecipeCalculator {
     const quality = this.getProteinQualityScore();
     const quantity = this.getProteinQuantityScore();
     const ovr = (quality * quantity) / 100;
-    console.log(this.logToReport)
     if (this.logToReport) {
       this.report.protein = {
         ...this.report.protein,

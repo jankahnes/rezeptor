@@ -224,7 +224,7 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
      message += `
      Ingredients:
      `;
-     for (const category of recipe.ingredients_editable.ingredients) {
+     for (const category of (recipe as any).ingredients_editable.ingredients) {
         message += `
         Category: ${category.categoryName}
         `;
@@ -241,61 +241,71 @@ export default async function (recipe: RecipeProcessed, considerProsessing: bool
      }
 
     try {
+        // Create promises for all requests
+        const promises = [];
+        const promiseTypes = [];
+
+        // Processing request (conditional)
         if (considerProsessing) {
-      const response = await $fetch('/api/gpt/response', {
-        method: 'POST',
-        body: {
-          systemPrompt: SYSTEM_PROMPT_PROCESSING,
-          message: message,
-          model: 'gpt-5'
-        },
-      });
-      if(!response) throw new Error('No content returned from GPT response');
-      const processingResult = extractJson(response);
-      if(!processingResult) throw new Error('No JSON found in processing response');
-      parsed.processing = JSON.parse(processingResult);
-      console.log("🔍 Processing info done.");
-    }
-      const general_response = await $fetch('/api/gpt/response', {
-        method: 'POST',
-        body: {
-          systemPrompt: SYSTEM_PROMPT_GENERAL,
-          message: message,
-        },
-      });
-      if(!general_response) throw new Error('No content returned from GPT response');
-      const general_result = extractJson(general_response);
-      if(!general_result) throw new Error('No JSON found in general response');
-      parsed.general = JSON.parse(general_result);
-      console.log("🔍 General info done.");
+            promises.push($fetch('/api/gpt/response', {
+                method: 'POST',
+                body: {
+                    systemPrompt: SYSTEM_PROMPT_PROCESSING,
+                    message: message,
+                    model: 'gpt-5'
+                },
+            }));
+            promiseTypes.push('processing');
+        }
 
-      const salt_fat_response = await $fetch('/api/gpt/response', {
-        method: 'POST',
-        body: {
-          systemPrompt: SYSTEM_PROMPT_SALT_AND_FAT,
-          message: message,
-        },
-      });
-      if(!salt_fat_response) throw new Error('No content returned from salt/fat response');
-      const salt_fat_result = extractJson(salt_fat_response);
-      if(!salt_fat_result) throw new Error('No JSON found in salt/fat response');
-      parsed.salt_and_fat = JSON.parse(salt_fat_result);
-      console.log("🔍 Salt and fat done.");
+        // General request
+        promises.push($fetch('/api/gpt/response', {
+            method: 'POST',
+            body: {
+                systemPrompt: SYSTEM_PROMPT_GENERAL,
+                message: message,
+            },
+        }));
+        promiseTypes.push('general');
 
-      // Hydration and Consumption factors
-      const hydration_response = await $fetch('/api/gpt/response', {
-        method: 'POST',
-        body: {
-          systemPrompt: SYSTEM_PROMPT_HYDRATION_AND_CONSUMPTION_FACTORS,
-          message: message,
-        },
-      });
-      if(!hydration_response) throw new Error('No content returned from hydration response');
-      const hydration_result = extractJson(hydration_response);
-      if(!hydration_result) throw new Error('No JSON found in hydration response');
-      parsed.hydration = JSON.parse(hydration_result);
-      console.log("🔍 Hydration done.");
-      return parsed;
+        // Salt and fat request
+        promises.push($fetch('/api/gpt/response', {
+            method: 'POST',
+            body: {
+                systemPrompt: SYSTEM_PROMPT_SALT_AND_FAT,
+                message: message,
+            },
+        }));
+        promiseTypes.push('salt_and_fat');
+
+        // Hydration request
+        promises.push($fetch('/api/gpt/response', {
+            method: 'POST',
+            body: {
+                systemPrompt: SYSTEM_PROMPT_HYDRATION_AND_CONSUMPTION_FACTORS,
+                message: message,
+            },
+        }));
+        promiseTypes.push('hydration');
+
+        // Wait for all promises to resolve
+        const responses = await Promise.all(promises);
+
+        // Process each response
+        for (let i = 0; i < responses.length; i++) {
+            const response = responses[i];
+            const type = promiseTypes[i];
+
+            if (!response) throw new Error(`No content returned from ${type} GPT response`);
+            
+            const result = extractJson(response);
+            if (!result) throw new Error(`No JSON found in ${type} response`);
+            
+            (parsed as any)[type] = JSON.parse(result);
+            console.log(`🔍 ${type.charAt(0).toUpperCase() + type.slice(1)} info done.`);
+        }
+
+        return parsed;
     } catch (err) {
       console.error('gptCreateRecipe error:', err);
       throw err;

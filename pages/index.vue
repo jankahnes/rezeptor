@@ -14,7 +14,6 @@
         What would you like to cook today?
       </h1>
     </div>
-
     <!-- Your Recipes -->
     <div v-if="userRecipes && userRecipes.length > 0" class="pt-4">
       <div class="flex justify-between items-center">

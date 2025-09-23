@@ -5,31 +5,16 @@
     >
       <div
         v-if="recipeStore.recipe?.picture"
-        class="relative w-full rounded-xl overflow-hidden"
-        :class="isProcessed ? 'h-150' : 'h-120'"
+        class="relative w-full rounded-xl overflow-hidden h-150"
       >
         <NuxtImg
           :src="recipeStore.recipe?.picture"
-          class="w-full h-full"
-          :class="{
-            'object-cover': !isProcessed,
-            'object-contain': isProcessed,
-          }"
+          class="w-full h-full object-contain"
         />
-        <div
-          v-if="!isProcessed"
-          class="inset-x-0 bottom-0 h-[50%] bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute z-0"
-        ></div>
       </div>
       <div
-        class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto relative z-10"
-        :class="
-          isProcessed
-            ? '-mt-80'
-            : '-mt-50' + !recipeStore.recipe?.picture
-            ? ' mt-10'
-            : ''
-        "
+        class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto relative z-10 -mt-80"
+        :class="!recipeStore.recipe?.picture ? ' mt-10' : ''"
       >
         <div class="flex justify-between items-start gap-10">
           <h1 class="text-5xl font-bold tracking-tight">
@@ -225,6 +210,7 @@
               auth.user?.id === recipeStore.recipe?.user?.id)
           "
           :recipe="recipeStore.recipe"
+          :refresh="loadRecipe"
           class="flex-1 flex-shrink-0 w-full"
         ></PagesRecipePublishChecklist>
         <PagesRecipeCommentSection
@@ -252,9 +238,8 @@
 
     <div class="md:hidden">
       <div
-        class="w-full h-100 bg-cover bg-center bg-no-repeat p-4 relative z-0"
+        class="w-full h-100 bg-cover bg-center bg-no-repeat p-4 relative z-0 !bg-[length:90%] !bg-[position:center_60px]"
         :class="{
-          '!bg-[length:90%] !bg-[position:center_60px]': isProcessed,
           '!h-40': !recipeStore.recipe?.picture,
         }"
         :style="{ backgroundImage: `url(${recipeStore.recipe?.picture})` }"
@@ -456,6 +441,7 @@
                 auth.user?.id === recipeStore.recipe?.user?.id)
             "
             :recipe="recipeStore.recipe"
+            :refresh="loadRecipe"
             class="flex-1 flex-shrink-0 w-full"
           ></PagesRecipePublishChecklist>
           <PagesRecipeCommentSection :id="10"></PagesRecipeCommentSection>
@@ -511,11 +497,7 @@ const desktopCharLimit = 200;
 const mobileCharLimit = 200;
 
 const overlayMarginTop = ref(-150);
-if (!recipeStore.recipe?.picture) {
-  overlayMarginTop.value = -80;
-}
 
-const isProcessed = ref(false);
 const similarRecipes = ref<RecipeProcessed[]>([]);
 const isRecomputing = ref(false);
 
@@ -523,20 +505,11 @@ watch(
   () => recipeStore.recipe?.picture,
   (newUrl) => {
     if (!newUrl) {
-      isProcessed.value = false;
       return;
     }
 
     const img = new Image();
     img.src = newUrl;
-
-    img.onload = () => {
-      isProcessed.value = img.naturalWidth === 500 && img.naturalHeight === 500;
-    };
-
-    img.onerror = () => {
-      isProcessed.value = false;
-    };
   },
   { immediate: true }
 );
@@ -571,6 +544,9 @@ const scrollIntoView = async (target: HTMLElement | undefined) => {
 };
 
 onMounted(async () => {
+  if (!recipeStore.recipe?.picture) {
+    overlayMarginTop.value = -80;
+  }
   const recipes = await getRecipesPartial(supabase, {
     eq: { visibility: 'PUBLIC' },
     neq: { id },

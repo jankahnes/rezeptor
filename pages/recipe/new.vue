@@ -171,8 +171,8 @@ const submitFromLink = async (link: string) => {
 };
 
 const submitFromPicture = async (file: File) => {
-  await createJob('picture');
   currentView.value = 'loading';
+  await createJob('picture');
 
   const formData = new FormData();
   formData.append('image', file);
@@ -216,7 +216,7 @@ onMounted(async () => {
   if (route.query.link) {
     const validUrl = new URL(route.query.link as string);
     if (validUrl.protocol === 'http:' || validUrl.protocol === 'https:') {
-      router.replace({ query: { view: 'import' } });
+      router.replace({ query: { view: 'loading' } });
       await auth.fetchUser();
       submitFromLink(validUrl.href);
     }
