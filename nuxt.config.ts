@@ -26,7 +26,7 @@ export default defineNuxtConfig({
         }
       ]
     },
-    pageTransition: { name: 'page', mode: 'out-in' }
+    pageTransition: false
   },
   vite: {
     plugins: [tailwindcss(), svgLoader()],
@@ -39,7 +39,6 @@ export default defineNuxtConfig({
   },
   imports: {
     dirs: [
-      'animations',
       'types',
       'utils/db',
       'utils/gpt',
@@ -59,10 +58,6 @@ export default defineNuxtConfig({
     {
       path: '~/components',
       pathPrefix: true,
-    },
-    {
-      path: '~/animations',
-      pathPrefix: false,
     },
   ],
   modules: [

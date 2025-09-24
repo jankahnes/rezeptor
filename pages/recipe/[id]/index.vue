@@ -475,6 +475,7 @@ const router = useRouter();
 const recipeStore = useRecipeStore();
 const supabase = useSupabaseClient();
 const auth = useAuthStore();
+const { useAsyncDataWithLoading } = useGlobalLoading();
 
 const id = Number(route.params.id);
 const mobileChosen = ref('ingredients');
@@ -514,25 +515,30 @@ watch(
   { immediate: true }
 );
 
-const loadRecipe = async (recipeId: number) => {
-  if (recipeId) {
-    const { data } = await useRecipe({
-      eq: { id: recipeId },
-    });
+const loadRecipe = async (recipeId: number, force: boolean = false) => {
+  if (recipeId && (force || recipeStore.recipe?.id !== recipeId)) {
+    const { data } = await useAsyncDataWithLoading('recipe', () =>
+      getRecipe(supabase, {
+        eq: { id: recipeId },
+      })
+    );
     const recipe = data.value as RecipeProcessed;
-    (recipe as any).mappedTags = recipe.tags.map((tag: any) => getTagByID(tag));
-    (recipe as any).mappedTags.sort((a: any, b: any) => a.value - b.value);
-
-    recipeStore.setRecipe(recipe);
-
-    // Initialize serving size from recipe batch_size
-    if (recipe.batch_size) {
-      servingSize.value = recipe.batch_size;
-    }
+    recipeStore.setRecipe(recipe as RecipeProcessed);
   }
 };
 
-await loadRecipe(id);
+await loadRecipe(id, false);
+
+if (recipeStore.recipe) {
+  recipeStore.recipe.mappedTags = recipeStore.recipe.tags.map((tag: any) =>
+    getTagByID(tag)
+  );
+  recipeStore.recipe.mappedTags.sort((a: any, b: any) => a.value - b.value);
+}
+
+if (recipeStore.recipe?.batch_size) {
+  servingSize.value = recipeStore.recipe?.batch_size;
+}
 
 useHead({
   title: recipeStore.recipe?.title + ' | Rezeptor',
@@ -598,7 +604,7 @@ const recomputeRecipe = async () => {
 
     if (updateError) throw updateError;
 
-    await loadRecipe(id);
+    await loadRecipe(id, true);
 
     console.log('Recipe recomputed successfully');
   } catch (error) {

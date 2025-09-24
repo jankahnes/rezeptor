@@ -114,14 +114,13 @@ const userRecipes = ref(null);
 const recentActivity = ref(null);
 
 if (!recipeStore.indexRecipes.length) {
-  const { data, pending, error } = await useRecipesPartial(
-    () => ({
+  const { data } = await useAsyncData('index', () =>
+    getRecipesPartial(supabase, {
       eq: { visibility: 'PUBLIC' },
       not: { picture: null },
       orderBy: { column: 'created_at', ascending: false },
       limit: 14,
-    }),
-    'index'
+    })
   );
   watchEffect(() => {
     recipeStore.setIndexRecipes(data.value ?? []);
@@ -131,20 +130,29 @@ if (!recipeStore.indexRecipes.length) {
 const loadUserData = async () => {
   if (auth.user?.id) {
     // Fetch user's recipes
-    const { data: recipes } = await useRecipesPartial(
-      () => ({
-        eq: { user_id: auth.user?.id },
-        orderBy: { column: 'created_at', ascending: false },
-        limit: 10,
-      }),
-      `user-recipes-${auth.user?.id}`
-    );
-    userRecipes.value = recipes.value;
+    userRecipes.value = await getRecipesPartial(supabase, {
+      eq: { user_id: auth.user?.id },
+      orderBy: { column: 'created_at', ascending: false },
+      limit: 10,
+    });
   }
 };
 
 // Load data when auth is ready
 watch(() => auth.user?.id, loadUserData, { immediate: true });
+
+const { data: activity } = await useLazyAsyncData('recent-activity', () =>
+  getActivity(supabase, {
+    orderBy: { column: 'created_at', ascending: false },
+    limit: 10,
+  })
+);
+
+watchEffect(() => {
+  if (activity.value) {
+    recentActivity.value = activity.value;
+  }
+});
 
 const greeting = computed(() => {
   let base;
@@ -217,10 +225,6 @@ const categories = ref([
 ]);
 
 onMounted(async () => {
-  recentActivity.value = await getActivity(supabase, {
-    orderBy: { column: 'created_at', ascending: false },
-    limit: 10,
-  });
   loadUserData();
 });
 </script>

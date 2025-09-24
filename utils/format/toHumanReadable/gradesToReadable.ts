@@ -136,14 +136,16 @@ const scoreDescriptors= {
 }
 
 export default function gradesToReadable(report, recipe: RecipeProcessed, isFood: boolean) {
-    if(isFood) {
-        delete scoreDescriptors.processing_level_score
-    }
+    // Create a copy to avoid mutating the global object
+    const descriptors = isFood 
+        ? Object.fromEntries(Object.entries(scoreDescriptors).filter(([key]) => key !== 'processing_level_score'))
+        : scoreDescriptors;
+    
     const readable: ReadableGrades = []
-    for (const scoreCategory in scoreDescriptors) {
+    for (const scoreCategory in descriptors) {
         const score = recipe[scoreCategory]
         const roundedGrade = getGrade(score)[0]
-        const item = scoreDescriptors[scoreCategory]
+        const item = descriptors[scoreCategory]
         let descriptor = item.descriptor[roundedGrade]
         if(isFood && item.descriptorFood) {
             descriptor = item.descriptorFood[roundedGrade]

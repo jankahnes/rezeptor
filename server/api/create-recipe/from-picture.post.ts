@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
         };
 
         if(pictureAnalysisResponse.use_as_image) {
-            responseBase.image_base64 = payload.imageBase64;
+            responseBase.original_image_base64 = payload.imageBase64;
         }
 
         // Update job progress

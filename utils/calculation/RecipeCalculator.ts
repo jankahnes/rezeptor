@@ -31,7 +31,6 @@ import {
 } from '~/utils/calculation/alphas';
 
 import { predictSatiety } from '~/utils/predictSatiety';
-import gptCreateRecipe from '~/utils/gpt/gptCreateRecipe';
 import capitalize from '~/utils/format/capitalize';
 import convertToGrams from '~/utils/format/convertToGrams';
 import { getGrade } from '~/utils/constants/grades';
@@ -569,7 +568,13 @@ export default class RecipeCalculator {
     let gptResponse = null;
     if (this.useGpt) {
       console.log("🔍 Starting GPT");
-      gptResponse = await gptCreateRecipe(this.recipe, this.considerProcessing);
+      gptResponse = await $fetch('/api/gpt/get-full-recipe-metadata', {
+        method: 'POST',
+        body: {
+          recipe: this.recipe,
+          considerProcessing: this.considerProcessing
+        }
+      });
       this.recipe.saltiness = gptResponse?.salt_and_fat?.saltiness || 1;
       this.recipe.added_fat = gptResponse?.salt_and_fat?.added_fat || 0;
       this.recipeComputed.saltiness = this.recipe.saltiness;

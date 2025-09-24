@@ -58,16 +58,17 @@ export function getStringFromAmountInfo(
       }
     }
 
-    if(bestFraction === null) {
-      return `-`;
-    }
-
     let unitName = unit.toLowerCase();
     if (isCountable(unit) && totalAmount > 1 && unit && unitIsNoun(unit)) {
         unitName = pluralizeWord(unit);
       }
     if (unit === 'CUP' && totalAmount != 1) {
       unitName = 'cups';
+    }
+
+
+    if(bestFraction === null) {
+      return `${Number(totalAmount.toFixed(1))} ${unitName}`;
     }
 
     const wholeNumberDisplay = wholeNumber === 0 ? '' : wholeNumber

@@ -1,11 +1,10 @@
 export default defineEventHandler(async (event) => {
   const base_recipe_information = await readBody(event);
-  if (base_recipe_information.image_base64) {
+  if (base_recipe_information.original_image_base64) {
     // Remove background from existing image
     try {
-      base_recipe_information.original_image_base64 = base_recipe_information.image_base64;
       // Convert base64 to blob
-      const base64Data = base_recipe_information.image_base64.replace(
+      const base64Data = base_recipe_information.original_image_base64.replace(
         /^data:image\/[a-z]+;base64,/,
         ''
       );

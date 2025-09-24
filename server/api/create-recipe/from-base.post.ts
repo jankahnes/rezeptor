@@ -6,6 +6,16 @@ export default defineEventHandler(async (event) => {
   const input = await readBody(event);
   const { base_recipe_information, jobId } = input;
   const supabase = await serverSupabaseClient(event);
+
+  if(!base_recipe_information.processing_requirements) {
+    base_recipe_information.processing_requirements = {
+      has_picture: false,
+      has_instructions: false,
+      instructions_matched_to_ingredients: false,
+      full_nutri_processing: false,
+    }
+  }
+  
   if(!base_recipe_information.ingredients) {
   Object.assign(
     base_recipe_information,
@@ -18,6 +28,7 @@ export default defineEventHandler(async (event) => {
       },
     })
   );
+
   if (jobId) {
     await supabase
       .from('jobs')
@@ -53,9 +64,10 @@ export default defineEventHandler(async (event) => {
   }
   // Image handling logic
   if (
-    (base_recipe_information.publish ||
+    ((base_recipe_information.publish ||
     base_recipe_information.uploading_protocol === 'full') &&
-    !base_recipe_information.processing_requirements?.has_picture
+    !base_recipe_information.processing_requirements?.has_picture)
+    || base_recipe_information.original_image_base64
   ) {
     const response = await $fetch('/api/create-recipe/get-processed-image', {
       method: 'POST',
