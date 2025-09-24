@@ -83,6 +83,7 @@ const selectedView = ref('recipes');
 const route = useRoute();
 const userID = route.params.id;
 const auth = useAuthStore();
+const supabase = useSupabaseClient();
 const user = ref(null);
 const loading = ref(true);
 const error = ref(null);
@@ -97,11 +98,15 @@ if (auth.user?.id == userID) {
   user.value = auth.user;
   loading.value = false;
 } else {
-  const { data, pending, error } = await useUser({ eq: { id: userID } });
-  if (data.value) {
-    user.value = data.value;
-  }
-  loading.value = false;
+  const { data, pending, error } = useAsyncData('user', () =>
+    getUserPartial(supabase, { eq: { id: userID } })
+  );
+  watchEffect(() => {
+    if (data.value) {
+      user.value = data.value;
+    }
+    loading.value = false;
+  });
 }
 </script>
 

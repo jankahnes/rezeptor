@@ -369,40 +369,46 @@ onMounted(async () => {
     } else {
       if (props.id === 'new') {
         editableRecipe.value = recipeStore.recipe;
-      } else if (!recipeStore.recipe || recipeStore.recipe.id != props.id) {
-        const data = await getRecipe(supabase, {
-          eq: { id: Number(props.id) },
-        });
-        recipeStore.setRecipe(data as RecipeProcessed);
-        editableRecipe.value = await recipeStore.convertToEditable();
       } else {
-        editableRecipe.value = await recipeStore.convertToEditable();
-      }
+        if (!recipeStore.recipe || recipeStore.recipe.id != props.id) {
+          const data = await getRecipe(supabase, {
+            eq: { id: Number(props.id) },
+          });
+          recipeStore.setRecipe(data as RecipeProcessed);
+        }
+        useHead({
+          title:
+            'Nutritional Report for ' +
+            recipeStore.recipe?.title +
+            ' | Rezeptor',
+        });
+        if (recipeStore.recipe.report) {
+          calculator.value = {}
+          calculator.value.report = recipeStore.recipe.report;
+          console.log('Report found in recipe store');
+        } else {
+          editableRecipe.value = await recipeStore.convertToEditable();
 
-      // Update head with recipe title
-      useHead({
-        title:
-          'Nutritional Report for ' + recipeStore.recipe?.title + ' | Rezeptor',
-      });
-
-      // Compute recipe calculations
-      if (editableRecipe.value) {
-        calculator.value = new RecipeCalculator(
-          editableRecipe.value,
-          false,
-          true,
-          props.isFood,
-          false
-        );
-        await calculator.value.computeRecipe();
-        overwrite(editableRecipe.value, calculator.value.recipeComputed);
-        await fillReportPercentiles(supabase, calculator.value.report, false);
-        fillReadableSummaryCards();
+          if (editableRecipe.value) {
+            calculator.value = new RecipeCalculator(
+              editableRecipe.value,
+              false,
+              true,
+              props.isFood,
+              false
+            );
+            await calculator.value.computeRecipe();
+            overwrite(editableRecipe.value, calculator.value.recipeComputed);
+            console.log('Report computed');
+          }
+        }
       }
     }
   } catch (error) {
     console.error('Error loading recipe report:', error);
   } finally {
+    await fillReportPercentiles(supabase, calculator.value.report, false);
+    fillReadableSummaryCards();
     loading.value = false;
   }
 });

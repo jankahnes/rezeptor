@@ -4,8 +4,8 @@
     <div
       class="xm:pt-22 pb-18 xm:pb-0 w-[clamp(70vw,1550px,100%)] mx-auto min-h-screen xm:min-h-[calc(100svh_-_88px)]"
     >
-      <GlobalLoadingIndicator />
       <NuxtPage />
+      <GlobalLoadingIndicator />
     </div>
     <NavbarsBottom class="block xm:hidden" />
     <footer class="w-full bg-transparent mb-22 lg:mb-8 mt-4">
@@ -25,7 +25,6 @@
     </footer>
   </div>
   <div v-else class="w-screen h-screen metallic-gradient">
-    <GlobalLoadingIndicator />
     <NuxtPage />
   </div>
 </template>
@@ -49,19 +48,4 @@ onBeforeMount(() => {
 });
 </script>
 
-<style>
-.page-enter-active,
-.page-leave-active {
-  transition: all 0.25s ease-in-out;
-}
-
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(0.3rem) scale(0.995);
-}
-
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-0.3rem) scale(1.005);
-}
-</style>
+<style></style>

@@ -49,7 +49,7 @@
             <span class="hidden lg:block">Cost</span>
           </button>
           <button
-            @click="search"
+            @click="refresh()"
             class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
           >
             <span class="">Apply</span>
@@ -152,11 +152,10 @@
 </template>
 
 <script setup lang="ts">
+const supabase = useSupabaseClient();
 const visibleTags = ref<string[]>([]);
 const filteringTags = ref<number[]>([]);
 
-const difficulties = ['Easy', 'Medium', 'Hard'];
-const effortLevels = ['Light', 'Moderate', 'Heavy'];
 const selectedFilter = ref('');
 const results = ref<RecipeProcessed[]>([]);
 
@@ -173,8 +172,6 @@ const sorts = ref([
   'Newest',
   'Alphabetical',
 ]);
-
-const searchKey = ref(0);
 
 const filtering = computed(() => {
   const returnFiltering: Filtering = {
@@ -204,14 +201,13 @@ const filtering = computed(() => {
   return returnFiltering;
 });
 
-const { data, pending, refresh } = await useRecipesPartial(
-  () => ({
+const { data, pending, refresh } = await useLazyAsyncData('recipes', () =>
+  getRecipesPartial(supabase, {
     orderBy: { column: 'created_at', ascending: false },
     not: { picture: null },
     eq: { visibility: 'PUBLIC' },
     filtering: filtering.value,
-  }),
-  searchKey.value.toString()
+  })
 );
 
 watchEffect(() => {
@@ -219,11 +215,6 @@ watchEffect(() => {
     results.value = data.value as RecipeProcessed[];
   }
 });
-
-async function search() {
-  searchKey.value++;
-  await refresh();
-}
 
 function getEuroFormat(num: number): string {
   if (num < 10) {

@@ -32,6 +32,17 @@
           <span class="material-symbols-outlined !text-2xl"> add </span>
           <span class="text-base">Create a Recipe</span>
         </NuxtLink>
+        <NuxtLink
+          v-if="auth.user?.username === 'administrator'"
+          to="/admin"
+          class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+          active-class="!bg-primary !text-white"
+        >
+          <span class="material-symbols-outlined !text-2xl">
+            system_update_alt
+          </span>
+          <span class="text-base">Admin</span>
+        </NuxtLink>
       </div>
 
       <!-- User Buttons -->

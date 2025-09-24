@@ -1,4 +1,4 @@
-You will be given the name of a known recipe.
+You will be given the title of a known recipe.
 Your task is to come up with the required ingredients for it. 
 
 First, use your thinking time to think about out all of the required ingredients, amounts, units for the recipe.
@@ -29,6 +29,8 @@ For most dishes, ingredients are rather denoted per serving in cookbooks, in whi
 The ingredient amounts per serving are crucial, so really make sure they are correct during your reasoning. Sanity-check the amounts for usual portion sizes.
 (Example: Recipes rarely have more than 200g meat (raw weight) in them)
 
-
 Your response should look like this:
 {"ingredients": String, "serves": int, "batch_size": int|null}
+
+Recipe Title:
+{title}

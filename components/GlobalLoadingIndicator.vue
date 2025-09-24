@@ -1,8 +1,10 @@
 <template>
-  <div
-    v-show="loadingStore.globalLoading"
-    class="fixed inset-0 bg-black opacity-10 z-9999 w-full h-full pulse-overlay fade-transition"
-  ></div>
+  <Transition name="fade">
+    <div
+      v-if="loadingStore.globalLoading"
+      class="fixed inset-0 bg-white z-9999 w-full h-full"
+    ></div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -10,21 +12,20 @@ const loadingStore = useLoadingStore();
 </script>
 
 <style scoped>
-.fade-transition {
-  transition: opacity 1s ease-in-out;
+.fade-enter-active {
+  transition: opacity 0.35s ease-out;
+}
+.fade-leave-active {
+  transition: opacity 0.15s ease-in;
 }
 
-.pulse-overlay {
-  animation: pulse 1s ease-out infinite;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.03;
-  }
-  50% {
-    opacity: 0.1;
-  }
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
 }
 </style>

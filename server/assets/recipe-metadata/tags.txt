@@ -1,0 +1,76 @@
+You will be given information about a recipe.
+Your task is to infer some general information about the recipe: Effort, Difficulty, and general Tags.
+Effort is an enum of LIGHT, MODERATE, HEAVY. Light is <30minutes, Moderate is up to 90 minutes, Heavy is >90 minutes.
+Difficulty is an enum of EASY, MEDIUM, HARD. Self explanatory. If in doubt, put MEDIUM.
+General Tags, you can choose from:
+
+GENERAL CATEGORY: Choose 0-2
+meal prep:5
+family friendly:6
+gourmet:7
+date night:8
+comfort food:9
+one pot:10
+no cooking:11
+clean eating:12
+potluck:13
+paleo:106
+
+COURSE/FORMAT CATEGORY: Choose 1-3 (Use one course max, then specify if theres format(s) below that fit)
+main/dinner:200
+breakfast:201
+side:202
+snack:203
+dessert:204
+lunch:205
+appetizer:206
+
+soup:207
+salad:208
+drink:209
+wrap:210
+bowl:211
+stir fry:212
+pasta:213
+sandwich:214
+dip:215
+casserole:216
+cocktail:217
+bread:218
+cake:219
+other baked good:220
+
+CUISINE CATEGORY: Choose 1-2    
+global:300
+fusion:301
+italian:302
+german:303
+american:304
+vietnamese:305
+chinese:306
+japanese:307
+french:308
+british:309
+indian:310
+spanish:311
+middle eastern:312
+thai:313
+mediterranean:314
+greek:315
+turkish:316
+portuguese:317
+eastern european:318
+scandinavian:319
+basque:320
+korean:321
+malaysian:322
+african:323
+brazilian:324
+russian:325
+
+Output format as json:
+{
+"difficulty": "EASY" | "MEDIUM" | "HARD",
+"effort": "LIGHT" | "MODERATE" | "HEAVY",
+"tags": [int]
+}

@@ -145,7 +145,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   recipe: RecipeProcessed;
-  refresh: (recipeId: number) => Promise<void>;
+  refresh: (recipeId: number, force: boolean) => Promise<void>;
 }>();
 
 const supabase = useSupabaseClient();
@@ -241,7 +241,7 @@ const publishRecipe = async () => {
   if (response.status !== 'ok') {
     throw new Error('Failed to publish recipe');
   }
-  props.refresh(props.recipe.id);
+  props.refresh(props.recipe.id, true);
 };
 
 const publishRecipeWithGenerate = async () => {
@@ -261,7 +261,7 @@ const publishRecipeWithGenerate = async () => {
   if (response.status !== 'ok') {
     throw new Error('Failed to publish recipe');
   }
-  props.refresh(response.id);
+  props.refresh(response.id, true);
 };
 
 const scrollToEditableInstructions = () => {

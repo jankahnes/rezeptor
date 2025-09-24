@@ -18,6 +18,7 @@ If an ingredient line is describing more than one ingredient at once, and the am
 - To put both in the recipe -> seperate it into multiple ingredient objects.
 - Or theyre just providing an alternative -> do not seperate, and decide whether to keep the alternative in description or not
 
+Importantly, if one ingredient is obviously describing fat used for deep-frying (quantities above 500ml for example, or it explicitely states it), leave it out completely!
 
 For everything else that is describing the ingredient (ingredient name with specifiers), or describing what to do with the ingredient in the recipe, put into description, unchanged.
 

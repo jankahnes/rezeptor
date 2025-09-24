@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { getModelConfig } from '~/server/utils/state';
 
 export default defineEventHandler(async (event): Promise<any> => {
   const config = useRuntimeConfig();
@@ -19,9 +20,9 @@ export default defineEventHandler(async (event): Promise<any> => {
     }
     console.log('🔍 Starting vision call');
     const response = await openai.responses.create({
-      model: 'gpt-5-mini',
+      ...getModelConfig('vision'),
       input: [
-        {
+        { 
           role: 'user',
           content: [
             {

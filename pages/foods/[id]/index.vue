@@ -19,8 +19,8 @@
           </p>
         </div>
         <div class="flex justify-center gap-y-10 flex-col md:flex-row">
-          <NutritionLabel :recipe="food" class="flex-1" />
-          <HealthFacts :recipe="food" isFood class="flex-1" />
+          <NutritionLabel v-if="food" :recipe="food" class="flex-1" />
+          <HealthFacts v-if="food" :recipe="food" isFood class="flex-1" />
         </div>
 
         <p
@@ -242,6 +242,7 @@ const food = ref<Food>();
 const expanded = ref(false);
 const foodName = ref('');
 const refencingName = ref<string | null>(null);
+const client = useSupabaseClient();
 
 if (id.startsWith('barcode-')) {
   const barcode = id.split('-')[1];
@@ -249,67 +250,20 @@ if (id.startsWith('barcode-')) {
     name: `TBI ${barcode}`,
     id: 0,
     created_at: new Date().toISOString(),
-    kcal: null,
-    protein: null,
-    carbohydrates: null,
-    fat: null,
-    saturated_fat: null,
-    sugar: null,
-    fiber: null,
-    salt: null,
-    price: null,
-    density: null,
-    unit_weight: null,
-    unit_name: null,
-    measurements: [],
-    vegan: null,
-    vegetarian: null,
-    gluten_free: null,
-    processing_level: null,
-    hidx: null,
-    sidx: null,
-    mnidx: null,
-    ed: null,
-    fat_profile_score: null,
-    fiber_score: null,
-    protein_score: null,
-    salt_score: null,
-    sugar_score: null,
-    iron_mg: null,
-    magnesium_mg: null,
-    zinc_mg: null,
-    calcium_mg: null,
-    potassium_mg: null,
-    selenium_ug: null,
-    iodine_ug: null,
-    copper_mg: null,
-    manganese_mg: null,
-    vitamin_a_ug_rae: null,
-    vitamin_c_mg: null,
-    vitamin_d_ug: null,
-    vitamin_e_mg_alpha_te: null,
-    vitamin_k_ug: null,
-    thiamine_b1_mg: null,
-    riboflavin_b2_mg: null,
-    niacin_b3_mg: null,
-    vitamin_b6_mg: null,
-    folate_ug_dfe: null,
-    vitamin_b12_ug: null,
-    trans_fats_mg: null,
-    mufas_total_mg: null,
-    polyphenols_total_mg: null,
-    choline_mg: null,
-    omega6_total_mg: null,
-    omega3_total_mg: null,
   };
+  foodName.value = `TBI ${barcode}`;
 } else {
-  const { data } = await useFoodName({ eq: { id: Number(id) } });
-  foodName.value = data.value?.name ?? data.value?.food?.primary_name ?? '';
-  if (!data.value?.is_primary) {
-    refencingName.value = data.value?.food?.primary_name ?? '';
+  const { data } = await useAsyncData('foodname', () => {
+    return getFoodName(client, { eq: { id: Number(id) } });
+  });
+  if (data.value) {
+    foodName.value = data.value?.name ?? data.value?.food?.primary_name ?? '';
+    if (!data.value?.is_primary) {
+      refencingName.value = data.value?.food?.primary_name ?? '';
+    }
+    food.value = data.value?.food as Food;
+    food.value.processing_level_score = 100 - 17 * food.value.processing_level;
   }
-  food.value = data.value?.food as Food;
-  food.value.processing_level_score = 100 - 17 * food.value.processing_level;
 }
 
 useHead({

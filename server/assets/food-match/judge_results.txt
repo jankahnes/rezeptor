@@ -42,8 +42,6 @@ In the above example, lets say the query is "Pimentón Dulce" and the results on
 . Add "Sweet Paprika Powder" as primary_name. The food will then be added under that primary name, and an alias pointing to it from the original query.
 
 Your Response should now be formatted like this:
-Thoughts:
-(think about the task, the given inputs, and reason about what to return given your instructions)
 Response:
 {
     "query_formatted": String,

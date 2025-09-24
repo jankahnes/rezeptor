@@ -95,6 +95,7 @@ export default defineEventHandler(async (event) => {
             method: 'POST',
             body: {
               message: searchPrompt.replace('{query}', query),
+              type: 'quick'
             },
         });
         if (!response) throw new Error('No content returned from search GPT response');
@@ -129,6 +130,7 @@ export default defineEventHandler(async (event) => {
             method: 'POST',
             body: {
               message: judgePrompt.replace('{query}', query).replace('{results}', relevantFoodsNames),
+              type: 'default'
             },
         });
         logCheckpoint('Judge GPT call completed')
@@ -168,6 +170,7 @@ export default defineEventHandler(async (event) => {
                 body: {
                   systemPrompt: generalAminoPrompt,
                   message: `Food: ${primaryName}`,
+                  type: 'accurate'
                 },
             }),
             $fetch('/api/gpt/response', {
@@ -175,6 +178,7 @@ export default defineEventHandler(async (event) => {
                 body: {
                   systemPrompt: contextPrompt,
                   message: `Food: ${primaryName}`,
+                  type: 'accurate'
                 },
             }),
             $fetch('/api/gpt/response', {
@@ -182,6 +186,7 @@ export default defineEventHandler(async (event) => {
                 body: {
                   systemPrompt: micronutrientsPrompt,
                   message: `Food: ${primaryName}`,
+                  type: 'accurate'
                 },
             }),
             $fetch('/api/gpt/response', {
@@ -189,6 +194,7 @@ export default defineEventHandler(async (event) => {
                 body: {
                   systemPrompt: unitsPrompt,
                   message: `Food: ${primaryName}`,
+                  type: 'accurate'
                 },
             })
         ]);
@@ -233,11 +239,13 @@ export default defineEventHandler(async (event) => {
         const {data: foodNameData, error: foodNameError} = await client.from('food_names').insert({food_id: foodData?.[0]?.id, name: primaryName, is_primary: true}).select()
         if(foodNameError) throw new Error('Error inserting food name into food_names table: ' + foodNameError.message)
         newFoodNameId = foodNameData?.[0]?.id
-        if(judgeResults.primary_name) {
+
+        if(judgeResults.primary_name && judgeResults.query_formatted !== primaryName) {
         const {data: foodNameData, error: foodNameError} = await client.from('food_names').insert({food_id: foodData?.[0]?.id, name: judgeResults.query_formatted, is_primary: false}).select()
         if(foodNameError) throw new Error('Error inserting food name into food_names table: ' + foodNameError.message)
         newFoodNameId = foodNameData?.[0]?.id
         }
+        
         logCheckpoint('Food inserted to database')
 
         if(from_user) {

@@ -1,0 +1,25 @@
+You will be given information about a recipe.
+Your task is to predict how much salt and additional cooking fat the average cook would add that isn't already listed in the ingredients.
+
+Return this JSON format:
+{
+"saltiness": 0 | 1 | 2 | 3,
+"added_fat": number
+}
+
+ADDED FAT (in grams for entire recipe):
+- Only count fat that would be added during cooking but isn't listed in ingredients
+- Number returned should represent what ends up on the plate, and is used for nutritional calculations; so account for absorption vs what stays in the pan
+- Consider cooking methods: sautéing, pan-frying, roasting, etc.
+- Examples:
+* Stir fry (no oil listed): ~15-25g oil for 4 servings, ~80% absorbed = 12-20g
+* Pan-fried chicken: ~10-15g oil per serving, ~70% absorbed
+* Roasted vegetables: ~5-10g oil per serving, mostly absorbed
+* Deep frying: calculate based on food surface area and absorption rates
+- If recipe already lists sufficient cooking oil/butter or no fat is needed at all, set to 0
+
+SALTINESS LEVEL (for entire recipe):
+- 0: No salt needed (sweet dishes, baked goods)
+- 1: Lightly salted (0.5g/100g final dish) - some salads, light snacks
+- 2: Normally salted (1g/100g final dish) - most savory dishes, soups, main courses
+- 3: Well salted (1.6g/100g final dish) - fries, fast food, restaurant-style dishes

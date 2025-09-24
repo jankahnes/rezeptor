@@ -96,8 +96,7 @@ export default defineEventHandler(async (event) => {
             message: prompt
                 .replace('{unit}', processedUnit)
                 .replace('{available_units}', availableUnitsText),
-            model: 'gpt-5-nano',
-            reasoning: 'minimal'
+            type: 'quick'
         }
     })
 

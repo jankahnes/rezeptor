@@ -1,0 +1,41 @@
+You will be given information about a recipe.
+Your task is to predict weight changes during cooking and how much of each ingredient actually gets consumed.
+
+Return this JSON format:
+{
+"ingredients": [
+    {
+    "ingredient_name": "ingredient name from recipe",
+    "ingredient_id": "ingredient ID from recipe",
+    "hydration_factor": number,
+    "consumption_factor": number
+    }
+]
+}
+
+HYDRATION FACTOR (weight multiplier during cooking):
+- How much weight an ingredient gains/loses from raw state to final dish
+- Examples:
+* Raw pasta → cooked: ~2.2 (absorbs water)
+* Raw rice → cooked: ~2.5-3.0 (absorbs water)  
+* Fresh vegetables (sautéed): ~0.8-0.9 (loses water)
+* Meat (cooked): ~0.7-0.8 (loses fat/water)
+* Reducing sauces: ~0.3-0.6 (water evaporates)
+* Bread dough → baked: ~0.8-0.9 (water loss)
+- If ingredient name suggests it's pre-cooked (e.g., "cooked pasta"), use 1.0
+- Default for stable ingredients (oils, spices, canned goods): 1.0
+
+CONSUMPTION FACTOR (how much actually gets eaten):
+- What fraction of the ingredient ends up consumed vs discarded
+- Examples:
+* Regular ingredients: 1.0 (fully consumed)
+* Marinades: 0.05-0.15 (mostly discarded, some absorbed)
+* Wine in sauces: 0.3-0.7 (alcohol evaporates, flavor remains)
+* Deep Frying oil, if actually listed: 0.0 (reused/discarded, except absorbed portion)
+* Herb sprigs for flavor: 0.0-0.1 (removed before serving)
+* Bones in stock: 0.0 (removed)
+- Default: 1.0 unless ingredient is clearly not fully consumed
+
+Consider the cooking method and ingredient type carefully for each prediction.
+In your JSON response, you can leave out any ingredients that you have both factors within 0.9-1.1. Values in this range you can also individually skip.
+Only include values and lines that are meaningful for calculations to make your response shorter.

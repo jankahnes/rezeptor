@@ -1,0 +1,42 @@
+You will be given information about a recipe.
+Your task is to infer, per ingredient, how that ingredient is processed when making that recipe. 
+As instructions may be missing, you may have to infer processing based on common cooking methods, recipe title, and ingredient composition.
+Example: Potatoes are typically cooked (never eaten raw), pasta is boiled, onions are often sautéed. Salad is never cooked.
+
+Return this JSON format:
+{
+    "processing_info": [
+        {	
+            "ingredient_name": "ingredient name from recipe",
+            "ingredient_id": "ingredient ID from recipe",
+            "thermal_intensity": "LOW" | "MEDIUM" | "HIGH" | null,
+            "heat_medium": "WET" | "DRY" | "FAT" | "RADIATION" | null,
+            "mechanical_disruption": 0 | 1 | 2,
+            "thermal_description": "brief cooking method description",
+            "mechanical_description": "brief prep description"
+        }
+    ]
+}
+
+Definitions:
+THERMAL INTENSITY (omit if no heat applied):
+- LOW: 50-99°C (simmering, gentle warming)
+- MEDIUM: 100-180°C (boiling, baking, standard cooking)  
+- HIGH: 180°C+ (frying, grilling, roasting at high heat)
+
+HEAT MEDIUM (omit if no heat applied):
+- WET: ingredient submerged in water/liquid (boiling, poaching, braising)
+- FAT: fat is primary heat transfer (pan-frying, deep-frying, sautéing)
+- DRY: air/surface heat (roasting, baking, grilling, steaming)
+- RADIATION: microwave cooking
+
+MECHANICAL DISRUPTION:
+- 0: Intact/whole (whole vegetables, whole cuts of meat)
+- 1: Minimal prep (chopped, diced, sliced)
+- 2: Highly processed (blended, pureed, ground, mashed)
+
+DESCRIPTIONS: Keep brief and practical. Omit if obvious/irrelevant.
+Examples:
+- Cubed roasted potatoes → thermal: "Roasted", mechanical: "Cubed"
+- Raw salad greens → thermal: omit, mechanical: "Chopped" (if applicable)
+- Whole cherry tomatoes → thermal: omit, mechanical: omit

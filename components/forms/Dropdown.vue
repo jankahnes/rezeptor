@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full">
+  <div class="h-full z-99">
     <button
       ref="buttonRef"
       @click.stop="toggle"
@@ -26,19 +26,16 @@
         <ul class="">
           <li v-for="choice in choices" class="rounded-xl cursor-pointer">
             <button
-              v-if="modelValue == choice"
               class="flex w-full h-full items-center justify-between p-2"
-              @click="emit('update:modelValue', choice)"
+              @click="emit('update:modelValue', choice); isOpen = false;"
             >
               <span class="font-bold">{{ choice }}</span>
-              <span class="material-symbols-outlined"> check </span>
-            </button>
-            <button
-              v-else
-              class="flex items-center w-full h-full p-2"
-              @click="emit('update:modelValue', choice)"
-            >
-              <span>{{ choice }}</span>
+              <span
+                class="material-symbols-outlined"
+                v-if="modelValue === choice"
+              >
+                check
+              </span>
             </button>
           </li>
         </ul>

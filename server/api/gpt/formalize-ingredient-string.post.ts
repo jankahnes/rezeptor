@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body: {
             message: formalizePrompt.replace('{ingredient_list}', ingredients_string).replace('{recipe_title}', recipe_context_string),
-            model: 'gpt-5'
+            type: 'default'
         },
     })
     if (!formalizeResponse) throw new Error('No content returned from formalize response');
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body: {
             message: parsePrompt.replace('{ingredients}', relevant_recipe_data_for_prompt).replace('{recipe_string}', recipe_context_string),
-            model: 'gpt-5'
+            type: 'default'
         },
     })
     if (!parseResponse) throw new Error('No content returned from parse response');

@@ -55,10 +55,10 @@ const props = defineProps<{
 const onReport =
   props.onReport ??
   (() => {
-    navigateTo(`/${props.isFood ? 'foods' : 'recipe'}/${props.recipe.id}/report`);
+    navigateTo(
+      `/${props.isFood ? 'foods' : 'recipe'}/${props.recipe.id}/report`
+    );
   });
-
-const recipeStore = useRecipeStore();
 
 const readableGrades = gradesToReadable({}, props.recipe, props.isFood).filter(
   (grade) => grade.value >= 4
