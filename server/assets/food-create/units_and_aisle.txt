@@ -30,6 +30,7 @@ Instructions:
 "Other Refrigerated"
 "Condiments & Sauces"
 "Canned Goods"
+"Spices"
 "Baking"
 "Pasta, Rice & Grains"
 "Cereal & Breakfast"

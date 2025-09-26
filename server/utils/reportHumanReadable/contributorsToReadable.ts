@@ -8,13 +8,13 @@ export default function contributorsToReadable(contributors: {name: string, valu
     const [first, second, third] = top3;
     
     // Threshold helpers
-    const dominantThresh = 0.5;
+    const dominantThresh = 0.6;
     const majorThresh = 0.35;
     const minorGroupThresh = 0.15;
     
     // 1. Dominant contributor
     if (first.value > dominantThresh) {
-      return `Largely from ${first.name}`;
+      return `From ${first.name}`;
     }
     
     // 2. Strong single contributor

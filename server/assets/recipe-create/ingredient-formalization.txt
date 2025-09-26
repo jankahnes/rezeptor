@@ -14,9 +14,10 @@ If the unit instead is either food-specific, just use the name of that unit inst
 category is for if any subsection of ingredients is categorized like "Sauce:", "Filling:", denote the category for each ingredient in there as "Sauce", etc.
 If a ingredient is not in a specific category, leave null.
 
-If an ingredient line is describing more than one ingredient at once, and the amounts are clearly seperable and readable, decide whether they mean:
+If an ingredient line is describing more than one ingredient at once, decide whether they mean:
 - To put both in the recipe -> seperate it into multiple ingredient objects.
 - Or theyre just providing an alternative -> do not seperate, and decide whether to keep the alternative in description or not
+When judging whether a line is "describing more than one ingredient at once", think about whether the described mixture of ingredients is common or sold as that mixture.
 
 Importantly, if one ingredient is obviously describing fat used for deep-frying (quantities above 500ml for example, or it explicitely states it), leave it out completely!
 

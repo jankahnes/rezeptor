@@ -1,3 +1,7 @@
+import * as generics from "~/utils/format/genericDescriptors";
+import contributorsToReadable from "~/server/utils/reportHumanReadable/contributorsToReadable";
+import { getGrade } from "~/utils/constants/grades";
+
 type ReadableGradeItem = {
     value: number;
     description: string;
@@ -9,72 +13,37 @@ type ReadableGradeItem = {
 
 type ReadableGrades = ReadableGradeItem[]
 
-const gradeSorters = {
-    "F": {
-        value: 0,
-        ...POOR
-    },
-    "E": {
-        value: 1,
-        ...BAD
-    },
-    "D": {
-        value: 2,
-        ...SUBOPTIMAL
-    },
-    "C": {
-        value: 3,
-        ...NEUTRAL
-    },
-    "B": {
-        value: 4,
-        ...GOOD
-    },
-    "A": {
-        value: 5,
-        ...GREAT
-    },
-    "S": {
-        value: 6,
-        ...EXCELLENT
-    },
-}
-
-
 const satietyDescriptors = {
-    "F": {description: "Not filling at all", ...POOR},
-    "E": {description: "Not very filling", ...BAD},
-    "D": {description: "Not very filling", ...SUBOPTIMAL},
-    "C": {description: "Somewhat filling", ...OKAY},
-    "B": {description: "Filling", ...GOOD},
-    "A": {description: "Very filling", ...GREAT},
-    "S": {description: "Extremely filling", ...EXCELLENT},
+    "F": {description: "Not filling at all", ...generics.POOR},
+    "E": {description: "Not very filling", ...generics.BAD},
+    "D": {description: "Not very filling", ...generics.SUBOPTIMAL},
+    "C": {description: "Somewhat filling", ...generics.OKAY},
+    "B": {description: "Filling", ...generics.GOOD},
+    "A": {description: "Very filling", ...generics.GREAT},
+    "S": {description: "Extremely filling", ...generics.EXCELLENT},
 }
 
 const processingLevelDescriptors = {
-    "F": {description: "Highly processed ingredients", ...POOR},
-    "E": {description: "Very processed ingredients", ...BAD},
-    "D": {description: "Mostly processed ingredients", ...SUBOPTIMAL},
-    "C": {description: "Moderately processed ingredients", ...OKAY},
-    "B": {description: "Mostly whole ingredients", ...GOOD},
-    "A": {description: "Minimally processed ingredients", ...GREAT},
-    "S": {description: "Whole ingredients", ...EXCELLENT},
+    "F": {description: "Ultra-processed ingredients", ...generics.POOR},
+    "E": {description: "Very processed ingredients", ...generics.BAD},
+    "D": {description: "Mostly processed ingredients", ...generics.SUBOPTIMAL},
+    "C": {description: "Moderately processed ingredients", ...generics.OKAY},
+    "B": {description: "Mostly unprocessed ingredients", ...generics.GOOD},
+    "A": {description: "Minimally processed ingredients", ...generics.GREAT},
+    "S": {description: "Unprocessed ingredients", ...generics.EXCELLENT},
 }
 
 const processingLevelDescriptorsFood = {
-    "F": {description: "Ultra-processed", ...POOR},
-    "E": {description: "Ultra-processed", ...POOR},
-    "D": {descripton: "Processed", ...SUBOPTIMAL},
-    "C": {descripton: "Processed", ...SUBOPTIMAL},
-    "B": {descripton: "Processed", ...SUBOPTIMAL},
-    "A": {descripton: "Traditionally processed", ...OKAY},
-    "S": {descripton: "Whole", ...GREAT},
-    }
+    4: {description: "Ultra-processed", ...generics.POOR},
+    3: {description: "Processed Food", ...generics.SUBOPTIMAL},
+    2: {description: "Traditionally processed", ...generics.OKAY},
+    1: {description: "Unprocessed Food", ...generics.GREAT},
+}
 
 const scoreDescriptors= {
     mnidx: {
         appendName: "Micronutrients",
-        descriptor: positiveAmountDescriptors,
+        descriptor: generics.positiveAmountDescriptors,
         contributor_col: "mnidx",
         display_subtitle_thresh: 38,
         display_if: "bigger"
@@ -88,7 +57,7 @@ const scoreDescriptors= {
     },
     fat_profile_score: {
         appendName: "Fatty Acid Profile",
-        descriptor: genericDescriptors,
+        descriptor: generics.genericDescriptors,
         //contributor_col: "fat_profile_score",
         //display_subtitle_thresh: 38,
         //display_if: "bigger"
@@ -96,46 +65,45 @@ const scoreDescriptors= {
     processing_level_score: {
         appendName: "",
         descriptor: processingLevelDescriptors,
-        descriptorFood: processingLevelDescriptorsFood,
     },
     protein_score: {
         appendName: "Protein",
-        descriptor: positiveAmountDescriptors,
+        descriptor: generics.positiveAmountDescriptors,
         contributor_col: "protein",
         display_subtitle_thresh: 38,
         display_if: "bigger"
     },
     sugar_score: {
         appendName: "Sugar",
-        descriptor: negativeAmountDescriptors,
+        descriptor: generics.negativeAmountDescriptors,
         contributor_col: "sugar",
         display_subtitle_thresh: 38,
         display_if: "smaller"
     },
     fiber_score: {
         appendName: "Fiber",
-        descriptor: positiveAmountDescriptors,
+        descriptor: generics.positiveAmountDescriptors,
         contributor_col: "fiber",
         display_subtitle_thresh: 38,
         display_if: "bigger"
     },
     salt_score: {
         appendName: "Sodium",
-        descriptor: negativeAmountDescriptors,
+        descriptor: generics.negativeAmountDescriptors,
         contributor_col: "salt",
         display_subtitle_thresh: 38,
         display_if: "smaller"
     },
     protective_score: {
         appendName: "Protective Compounds",
-        descriptor: positiveAmountDescriptors,
+        descriptor: generics.positiveAmountDescriptors,
         contributor_col: "protective_score",
         display_subtitle_thresh: 38,
         display_if: "bigger"
     },
 }
 
-export default function gradesToReadable(report, recipe: RecipeProcessed, isFood: boolean) {
+export default function gradesToReadable(report: any, recipe: any, isFood: boolean) {
     // Create a copy to avoid mutating the global object
     const descriptors = isFood 
         ? Object.fromEntries(Object.entries(scoreDescriptors).filter(([key]) => key !== 'processing_level_score'))
@@ -147,11 +115,8 @@ export default function gradesToReadable(report, recipe: RecipeProcessed, isFood
         const roundedGrade = getGrade(score)[0]
         const item = descriptors[scoreCategory]
         let descriptor = item.descriptor[roundedGrade]
-        if(isFood && item.descriptorFood) {
-            descriptor = item.descriptorFood[roundedGrade]
-        }
         if(!descriptor){
-            throw new Error(`No descriptor found for score category: ${scoreCategory}`)
+            throw new Error(`No descriptor found for score category: ${scoreCategory} for ${roundedGrade}`)
         }
         const description = descriptor.description + " " + item.appendName
         let subtitle = null
@@ -171,6 +136,12 @@ export default function gradesToReadable(report, recipe: RecipeProcessed, isFood
             icon: descriptor.icon,
             subtitle: (display_subtitle && subtitle) ? subtitle : null,
         })
+    }
+    if(isFood) {
+        if(recipe.aisle === "Produce") {
+            processingLevelDescriptorsFood[1].description = "Whole Food"
+        }
+        readable.push(processingLevelDescriptorsFood[recipe.nova])
     }
     readable.sort((a, b) => b.value - a.value)
     return readable

@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
                 body: {
                     systemPrompt: processingPrompt,
                     message: message,
-                    type: 'accurate'
+                    type: 'default'
                 },
             }));
             promiseTypes.push('processing');

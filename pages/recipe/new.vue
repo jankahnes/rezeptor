@@ -50,7 +50,7 @@ const views: { value: string; displayName: string; icon?: string }[] = [
   {
     value: 'picture',
     displayName: 'Scan',
-    icon: 'scan',
+    icon: 'visibility',
   },
 ];
 const currentView = ref((route.query.view as string) || '');
@@ -86,7 +86,7 @@ const submitFromFormWithNaturalLanguage = async (recipe: any) => {
     source: null,
     based_on: null,
     serves: recipe.ingredients_editable.servingSize,
-    batch_size: recipe.ingredients_editable.servingSize,
+    batch_size: recipe.ingredients_editable.servingSize > 1 ? recipe.ingredients_editable.servingSize : null,
   };
   const response = await $fetch('/api/create-recipe/from-base', {
     method: 'POST',
@@ -111,7 +111,8 @@ const submitFromForm = async (recipe: RecipeProcessed) => {
     source_type: 'preparsed',
     user_id: auth.user?.id ?? null,
     publish: false,
-    batch_size: recipe.ingredients_editable.servingSize,
+    serves: recipe.ingredients_editable.servingSize,
+    batch_size: recipe.ingredients_editable.servingSize > 1 ? recipe.ingredients_editable.servingSize : null,
   };
   const response = await $fetch('/api/create-recipe/from-uploadable', {
     method: 'POST',

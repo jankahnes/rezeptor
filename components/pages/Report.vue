@@ -19,7 +19,7 @@
           <div class="flex-1">
             <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-2">
               {{
-                calculator.recipeComputed?.title ||
+                recipeComputed?.title ||
                 recipeStore.recipe?.title ||
                 'New Recipe'
               }}
@@ -228,9 +228,9 @@ const recipeStore = useRecipeStore();
 const editableRecipe = ref<RecipeProcessed | null>(null);
 const micronutrientsExpanded = ref(false);
 const loading = ref(true);
-const calculator = ref<any>(null);
-const report = computed(() => calculator.value?.report);
+const recipeComputed = ref<any>(null);
 const supabase = useSupabaseClient();
+const report = computed(() => recipeComputed.value?.report);
 const readableSummaryCards = ref<any[]>([
   {
     title: '🧪 Micronutrients',
@@ -287,14 +287,6 @@ const readableSummaryCards = ref<any[]>([
     name: 'protectiveCompounds',
   },
 ]);
-
-function overwrite(objA: any, objB: any) {
-  for (const key in objB) {
-    if (objA.hasOwnProperty(key)) {
-      objA[key] = objB[key];
-    }
-  }
-}
 
 // Set up head early with basic info
 useHead({
@@ -357,15 +349,24 @@ onMounted(async () => {
       const data = await getFoodName(supabase, {
         eq: { id: Number(props.id) },
       });
-      calculator.value = new RecipeCalculator(data, false, true, true, false);
+      const response = await $fetch('/api/calculate/nutrition', {
+        method: 'POST',
+        body: {
+          calculatorArgs: {
+            recipe: data.food,
+            useGpt: false,
+            logToReport: true,
+            isFood: true,
+            considerProcessing: false,
+          },
+        },
+      });
+      report.value = response.report;
+      recipeComputed.value = response.nutritionComputed;
+      recipeComputed.value.title = data.name;
       useHead({
         title: 'Nutritional Report for ' + data.name + ' | Rezeptor',
       });
-      const scores = await calculator.value.getScoring();
-      Object.assign(calculator.value.recipeComputed, scores);
-      await calculator.value.generateReport();
-      await fillReportPercentiles(supabase, calculator.value.report, true);
-      fillReadableSummaryCards();
     } else {
       if (props.id === 'new') {
         editableRecipe.value = recipeStore.recipe;
@@ -383,39 +384,40 @@ onMounted(async () => {
             ' | Rezeptor',
         });
         if (recipeStore.recipe.report) {
-          calculator.value = {}
-          calculator.value.report = recipeStore.recipe.report;
+          report.value = recipeStore.recipe.report;
+          recipeComputed.value = recipeStore.recipe;
           console.log('Report found in recipe store');
         } else {
           editableRecipe.value = await recipeStore.convertToEditable();
-
-          if (editableRecipe.value) {
-            calculator.value = new RecipeCalculator(
-              editableRecipe.value,
-              false,
-              true,
-              props.isFood,
-              false
-            );
-            await calculator.value.computeRecipe();
-            overwrite(editableRecipe.value, calculator.value.recipeComputed);
-            console.log('Report computed');
-          }
+          const response = await $fetch('/api/calculate/recipe', {
+            method: 'POST',
+            body: {
+              calculatorArgs: {
+                recipe: editableRecipe.value,
+                useGpt: false,
+                logToReport: true,
+                isFood: props.isFood,
+                considerProcessing: false,
+              },
+            },
+          });
+          recipeComputed.value = response.recipeComputed;
+          console.log('Report computed');
         }
       }
     }
   } catch (error) {
     console.error('Error loading recipe report:', error);
   } finally {
-    await fillReportPercentiles(supabase, calculator.value.report, false);
+    await fillReportPercentiles(supabase, report.value, props.isFood);
     fillReadableSummaryCards();
     loading.value = false;
   }
 });
 
 const sortedMicros = computed(() => {
-  if (!calculator.value?.report?.micronutrients?.details) return [];
-  return calculator.value.report.micronutrients.details.sort(
+  if (!report.value?.micronutrients?.details) return [];
+  return report.value.micronutrients.details.sort(
     (a: any, b: any) => b.rdaPerServing - a.rdaPerServing
   );
 });

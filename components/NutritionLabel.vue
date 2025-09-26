@@ -4,14 +4,28 @@
       <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
         <h2 class="text-lg font-bold">NUTRITION INFO</h2>
       </div>
-      <p class="text-sm font-light mt-2 text-gray-600 ml-1" v-if="isFood">
+      <p
+        class="text-sm font-light mt-2 text-gray-600 ml-1 cursor-pointer hover:underline select-none"
+        v-if="mode === '100g'"
+        @click="switchMode"
+      >
         Per 100g
       </p>
-      <p class="text-sm font-light mt-2 text-gray-600 ml-1" v-else>
+      <p
+        class="text-sm font-light mt-2 text-gray-600 ml-1 cursor-pointer hover:underline select-none"
+        v-else-if="mode === 'serving'"
+        @click="switchMode"
+      >
         Per Serving
       </p>
       <div class="px-4 py-2 bg-primary-50 rounded-lg text-xl font-bold mt-4">
-        {{ recipe?.kcal }} kcal
+        {{
+          (mode === 'serving'
+            ? recipe?.kcal
+            : (recipe?.kcal * 100) / totalWeight
+          )?.toFixed(0)
+        }}
+        kcal
       </div>
 
       <div class="flex flex-col gap-x-4 mt-4 w-full">
@@ -40,7 +54,12 @@
             </template>
             <template v-else>
               <p class="text-xs">{{ item.label.toUpperCase() }}</p>
-              <p class="font-semibold">{{ recipe?.[item.key]?.toFixed(1) }}g</p>
+              <p class="font-semibold" v-if="mode === 'serving'">
+                {{ recipe?.[item.key]?.toFixed(1) }}g
+              </p>
+              <p class="font-semibold" v-else>
+                {{ ((recipe?.[item.key] * 100) / totalWeight)?.toFixed(1) }}g
+              </p>
             </template>
           </div>
         </div>
@@ -53,14 +72,21 @@
 interface NutritionalItem {
   key: string;
   label: string;
-  indented?: boolean;
-  style?: string;
 }
 
 const props = defineProps<{ recipe?: any }>();
 const root = ref<HTMLElement | null>(null);
 
 const isFood = computed(() => Boolean(props.recipe?.name));
+const mode = ref(isFood.value ? '100g' : 'serving');
+const totalWeight = props.recipe?.total_weight || 100;
+
+const switchMode = () => {
+  if (isFood.value || !totalWeight) {
+    return;
+  }
+  mode.value = mode.value === '100g' ? 'serving' : '100g';
+};
 
 const nutritionalItems: NutritionalItem[] = [
   { key: 'carbohydrates', label: 'Carbs' },
