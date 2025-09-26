@@ -302,7 +302,7 @@ export function alpha_vitaminK(row, T, M, D) {
   const alpha_D = D_map[D] || 1.0;
 
   // Combine
-  const alpha = S * alpha_T * alpha_M * alpha_D;
+  let alpha = S * alpha_T * alpha_M * alpha_D;
 
   // Constrain to [0, 2]
   if (alpha < 0.0) {

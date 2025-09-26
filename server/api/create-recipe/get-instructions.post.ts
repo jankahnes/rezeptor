@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body: {
             message: descAndInstructionsPrompt.replace('{ingredient_list}', ingredientsString).replace('{title_info}', base_recipe_information.title),
-            type: 'accurate'
+            type: 'default'
         }
     })
     }
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
             method: 'POST',
             body: {
                 message: descAndInstructionsPrompt.replace('{ingredient_list}', ingredientsString).replace('{title_info}', base_recipe_information.title).replace('{instructions}', base_recipe_information.instructions.join('\n')),
-                type: 'accurate'
+                type: 'default'
             }
         })
     }

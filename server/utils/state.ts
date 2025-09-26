@@ -16,8 +16,8 @@ export interface GlobalState {
   // Initial state. OpenAI library is incorrectly marking 'minimal' as invalid, however gpt-5 models do support it. 
   let state: GlobalState = {
     quick: {model: 'gpt-5-nano', reasoning: 'low'},
-    vision: {model: 'gpt-5-mini', reasoning: 'low'},
-    default: {model: 'gpt-5', reasoning: 'low'},
+    vision: {model: 'gpt-5-mini', reasoning: 'medium'},
+    default: {model: 'gpt-5-mini', reasoning: 'medium'},
     accurate: {model: 'gpt-5', reasoning: 'low'} 
   };
   

@@ -40,13 +40,10 @@
       class="button mt-4 px-4 py-2 flex items-center gap-2"
     >
       <ClientOnly>
-        <Vue3Lottie
+        <img
           v-if="requestsStore.requestsLoading"
-          animationLink="/loading-alt.json"
-          class="flex items-center justify-center"
-          :height="20"
-          :width="20"
-          :scale="3"
+          src="/loading.png"
+          class="h-8 w-8"
         />
       </ClientOnly>
       See recent requests
@@ -66,12 +63,9 @@
         </div>
         <div class="flex items-center gap-2">
           <ClientOnly v-if="request.status === 'PROCESSING'">
-            <Vue3Lottie
-              animationLink="/loading-alt.json"
-              class="flex items-center justify-center"
-              :height="30"
-              :width="30"
-              :scale="4"
+            <img
+              src="/loading.png"
+              class="h-8 w-8"
             />
           </ClientOnly>
           <NuxtLink

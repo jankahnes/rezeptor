@@ -27,6 +27,10 @@ export default defineEventHandler(async (event) => {
         batch_size: ingredientsResponseJson.batch_size,
         ...args
     }
+    
+    if(!baseRecipeInformation.batch_size && baseRecipeInformation.serves > 1) {
+        baseRecipeInformation.batch_size = baseRecipeInformation.serves;
+    }
 
     if(jobId) {
         await supabase.from('jobs').update({

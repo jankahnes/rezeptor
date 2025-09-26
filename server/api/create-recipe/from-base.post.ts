@@ -10,11 +10,11 @@ export default defineEventHandler(async (event) => {
   if(!base_recipe_information.processing_requirements) {
     base_recipe_information.processing_requirements = {
       has_picture: false,
-      has_instructions: false,
+      has_instructions: base_recipe_information.instructions?.length,
       instructions_matched_to_ingredients: false,
       full_nutri_processing: false,
     }
-  }
+  } 
   
   if(!base_recipe_information.ingredients) {
   Object.assign(

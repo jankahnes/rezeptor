@@ -1,9 +1,9 @@
 <template>
   <div class="w-full mt-10 md:px-10">
     <h1 class="text-3xl font-bold text-gray-900">
-      Tired of scattered Recipes?
+      Import your recipe from a link
     </h1>
-    <p class="text-gray-600">Import your recipes from any link here.</p>
+    <p class="text-gray-600">You can use links from all popular recipe sites.</p>
 
     <div class="flex gap-4 flex-col md:flex-row mt-6">
       <div class="flex-1">

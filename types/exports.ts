@@ -67,10 +67,10 @@ export type BaseRecipeInformation = {
 
 export type UploadableRecipeInformation = {
   title: string;
-  source: string;
   user_id: string|null;
   publish: boolean;
-  based_on: number|null;
+  source?: string|null;
+  based_on?: number|null;
   source_type: "website" | "title" | "picture" | "media" | "text" | "preparsed";
   ingredients: {
     id: number;

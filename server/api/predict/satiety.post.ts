@@ -6,7 +6,9 @@ export default defineEventHandler(async (event) => {
     waterE: number;
     kcal: number;
   };
-
+  if([ff, giProxy, waterE, kcal].some((value) => value === null || isNaN(value))) {
+    return 0;
+  }
   const response = await $fetch("https://jk-api.onrender.com/predict-satiety", {
     method: "POST",
     headers: {

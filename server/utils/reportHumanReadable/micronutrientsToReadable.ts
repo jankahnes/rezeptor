@@ -1,3 +1,7 @@
+import * as generics from "~/utils/format/genericDescriptors";
+import contributorsToReadable from "~/server/utils/reportHumanReadable/contributorsToReadable";
+
+
 type MicronutrientItem = {
     description: string;
     color: string;
@@ -7,18 +11,18 @@ type MicronutrientItem = {
 const rdaThresholds = {
     0: {
         description: "No",
-        ...NEUTRAL
+        ...generics.NEUTRAL
     },
-    5: {description: "Low source of", ...OKAY},
-    15: {description: "Source of", ...GOOD},
-    35: {description: "High in", ...GREAT},
-    50: {description: "Excellent source of", ...EXCELLENT},
-    75: {description: "Exceptionally high in", ...OUTSTANDING},
+    5: {description: "Low source of", ...generics.OKAY},
+    15: {description: "Source of", ...generics.GOOD},
+    35: {description: "High in", ...generics.GREAT},
+    50: {description: "Excellent source of", ...generics.EXCELLENT},
+    75: {description: "Exceptionally high in", ...generics.OUTSTANDING},
 };
 
 const displayThreshold = 10
 
-export default function micronutrientsToReadable(report, isFood: boolean) { 
+export default function micronutrientsToReadable(report: any, isFood: boolean) { 
     if(!report.micronutrients) return [];
     const reportMicronutrients = report.micronutrients?.details as MicronutrientItem[]
     const items = []
@@ -27,7 +31,7 @@ export default function micronutrientsToReadable(report, isFood: boolean) {
         if(rda < displayThreshold) {
             continue
         }
-        const highestThreshold = getHighestThreshold(rda, rdaThresholds)
+        const highestThreshold = generics.getHighestThreshold(rda, rdaThresholds)
         let subtitle = null
         if(!isFood) {
         const contributors = report.contributors[nutrient.name]?.contributors || []

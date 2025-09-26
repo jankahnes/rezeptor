@@ -34,7 +34,10 @@ const icons = {
 export default async function fillReportPercentiles(supabase: SupabaseClient, report: any, isFood: boolean) {
   report.percentiles = {}
     for (const field of isFood ? percentileFieldsFood : percentileFields) {
-        const percentile = await getPercentile(supabase, isFood ? 'foods' : 'recipes', field, report.overall[field])
+        let percentile = await getPercentile(supabase, isFood ? 'foods' : 'recipes', field, report.overall[field])
+        if(field == "nova") {
+          percentile = 100 - percentile;
+        }
         const item = getHighestThreshold(percentile, icons)
         const description = "Better than " + percentile + "% of " + (isFood ? "foods" : "recipes")
         report.percentiles[field] = { percentile: percentile,

@@ -34,7 +34,8 @@ export const useRecipeStore = defineStore('recipe', () => {
     if (!recipe.value) {
       return {};
     }
-    recipe.value.ingredients_editable = { servingSize: 1, ingredients: [] };
+    const servingSize = recipe.value.batch_size || 2;
+    recipe.value.ingredients_editable = { servingSize: servingSize, ingredients: [] };
     const ingredientIds = recipe.value.ingredients.map(
       (ingredient) => ingredient.id
     );
@@ -46,7 +47,7 @@ export const useRecipeStore = defineStore('recipe', () => {
       const mergedIngredient = {
         ...matchingFood?.food,
         ...ingredient,
-        amount: ingredient.amountInfo[0][0],
+        amount: ingredient.amountInfo[0][0] * servingSize,
         unit: ingredient.amountInfo[0][1],
       };
       let unitName = mergedIngredient.unit.toLowerCase();

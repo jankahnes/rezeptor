@@ -26,15 +26,10 @@
                 v-else-if="isCurrentStep(stepIndex)"
                 class="w-8 h-8 transition-all duration-500 flex items-center justify-center"
               >
-                <ClientOnly>
-                  <Vue3Lottie
-                    class="flex items-center justify-center"
-                    animationLink="/loading-alt.json"
-                    :width="32"
-                    :height="32"
-                    :scale="2"
-                  />
-                </ClientOnly>
+                <img
+                  class="h-8 w-8"
+                  src="/loading.png"
+                />
               </div>
 
               <!-- Empty circle for pending steps -->

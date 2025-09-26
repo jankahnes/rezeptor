@@ -262,6 +262,7 @@ if (id.startsWith('barcode-')) {
       refencingName.value = data.value?.food?.primary_name ?? '';
     }
     food.value = data.value?.food as Food;
+    food.value.id = data.value?.id;
     food.value.processing_level_score = 100 - 17 * food.value.processing_level;
   }
 }

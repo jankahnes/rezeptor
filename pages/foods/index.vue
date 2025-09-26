@@ -67,6 +67,16 @@ if (urlSearch) {
 }
 
 async function search() {
+  //const foods = await getFoodNames(supabase, {limit: 15, orderBy: {column: 'name', ascending: true}})
+  //console.log(foods.map((food) => {
+  //  return {
+  //    name: food.name,
+  //    id: food.id,
+  //    hidx: food.food.hidx,
+  //    kcal: food.food.kcal,
+  //  }
+  //}))
+  //return
   if (!foodResultsStore.searchQuery) {
     foodResultsStore.reset();
     navigateTo('/foods', { replace: true });

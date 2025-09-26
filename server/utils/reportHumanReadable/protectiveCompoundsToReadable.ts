@@ -1,3 +1,6 @@
+import { getHighestThreshold } from "~/utils/format/genericDescriptors";
+import capitalize from "~/utils/format/capitalize";
+
 const thresholds = {
     0: {
         description: "No",

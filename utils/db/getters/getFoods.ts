@@ -64,6 +64,11 @@ export async function getFoodNames(client: SupabaseClient, opts: GetterOpts = {}
   `);
   query = buildQuery(query, opts);
   const { data, error } = await query;
+  for (const foodName of data) {
+    if (!foodName.food.satiety) {
+      foodName.food.satiety = 0.5 * getED(foodName.food.kcal ?? 0) + 0.5 * (foodName.food.sidx ?? 0);
+    }
+  }
   if (error) throw error;
   return data;
 }

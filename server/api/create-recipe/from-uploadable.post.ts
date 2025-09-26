@@ -1,9 +1,8 @@
 import { serverSupabaseClient } from '#supabase/server'
-import RecipeCalculator from '~/utils/calculation/RecipeCalculator';
 import stripKeys from '~/utils/format/stripKeys';
 import { recipeKeys } from '~/types/keys';
 import type { UploadableRecipeInformation } from '~/types/exports';
-import convertUploadableToEditable from '~/utils/convertUploadableToEditable';
+import convertUploadableToEditable from '~/server/utils/convertUploadableToEditable';
 
 // Helper function to check if recipe exists in database
 async function recipeExists(client: any, recipeId: number): Promise<boolean> {
@@ -181,16 +180,28 @@ export default defineEventHandler(async (event) => {
     recipe = body;
   }
   console.log("🔍 Recipe converted to editable.");
-  const recipeCalc = new RecipeCalculator(recipe);
+  const calculatorArgs = {
+    recipe: recipe,
+    useGpt: false,
+    logToReport: true,
+    isFood: false,
+    considerProcessing: false,
+  }
   if(body.uploading_protocol === "accurate") {
-    recipeCalc.useGpt = true;
+    calculatorArgs.useGpt = true;
   } else if((body.uploading_protocol === "full" || body.publish )&& !body.processing_requirements?.full_nutri_processing) {
-    recipeCalc.useGpt = true;
-    recipeCalc.considerProcessing = true;
+    calculatorArgs.useGpt = true;
+    calculatorArgs.considerProcessing = true;
     body.processing_requirements!.full_nutri_processing = true;
   }
 
-  await recipeCalc.computeRecipe();
+  const response = await $fetch('/api/calculate/recipe', {
+    method: 'POST',
+    body: {
+      calculatorArgs: calculatorArgs,
+    },
+  });
+
   console.log("🔍 Recipe computed.");
   if(body.jobId) {
     await (client.from('jobs') as any).update({
@@ -199,9 +210,9 @@ export default defineEventHandler(async (event) => {
     }).eq('id', body.jobId);
   }
 
-  const recipeRow = stripKeys(recipeCalc.recipeComputed, recipeKeys);
-  const recipeFoodsRows = recipeCalc.getRecipeFoodRows();
-  const recipeTagsRows = recipeCalc.getRecipeTagRows();
+  const recipeRow = stripKeys(response.recipeComputed, recipeKeys);
+  const recipeFoodsRows = response.recipeFoodRows;
+  const recipeTagsRows = response.recipeTagRows;
 
   // Determine if we should update existing recipe or insert new one
   const shouldUpdate = (recipeRow as any).id && await recipeExists(client, (recipeRow as any).id);

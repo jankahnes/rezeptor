@@ -1,3 +1,15 @@
+import gradesToReadable from "~/utils/format/gradesToReadable";
+import processingLevelToReadable from "~/server/utils/reportHumanReadable/processingLevelToReadable";
+import proteinToReadable from "~/server/utils/reportHumanReadable/proteinToReadable";
+import saltToReadable from "~/server/utils/reportHumanReadable/saltToReadable";
+import fiberToReadable from "~/server/utils/reportHumanReadable/fiberToReadable";
+import satietyToReadable from "~/server/utils/reportHumanReadable/satietyToReadable";
+import sugarToReadable from "~/server/utils/reportHumanReadable/sugarToReadable";
+import micronutrientsToReadable from "~/server/utils/reportHumanReadable/micronutrientsToReadable";
+import fatProfileToReadable from "~/server/utils/reportHumanReadable/fatProfileToReadable";
+import protectiveCompoundsToReadable from "~/server/utils/reportHumanReadable/protectiveCompoundsToReadable";
+
+
 type ReportHumanReadableItem = {
     description: string;
     subtitle: string | null;

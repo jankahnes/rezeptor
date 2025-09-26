@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         base_recipe_information.image_base64 = processedImageBase64;
       }
     } catch (error) {
-      console.error('Failed toso  remove background:', error);
+      console.error('Failed to remove background:', error);
       // Continue with original image if background removal fails
     }
   } else {

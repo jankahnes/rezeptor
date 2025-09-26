@@ -1,20 +1,76 @@
-export const defaultFoods = [
-  { name: '00 Flour', id: 543, hidx: 49, kcal: 364 },
-  { name: 'Achiote Paste', id: 627, hidx: 42, kcal: 150 },
-  { name: 'Active Dry Yeast', id: 56, hidx: 100, kcal: 325 },
-  { name: 'Agave Liquid Sweetener', id: 987, hidx: 0, kcal: 310 },
-  { name: 'Agave Syrup', id: 996, hidx: 0, kcal: 310 },
-  { name: 'Aioli', id: 919, hidx: 7, kcal: 719 },
-  { name: 'Ajvar', id: 705, hidx: 36, kcal: 120 },
-  { name: 'Alfredo Sauce', id: 777, hidx: 27, kcal: 150 },
-  { name: 'All-purpose Flour', id: 597, hidx: 45, kcal: 364 },
-  { name: 'Almond Butter', id: 480, hidx: 54, kcal: 641 },
-  { name: 'Almond Extract', id: 811, hidx: 24, kcal: 327 },
-  { name: 'Almond Oil', id: 754, hidx: 30, kcal: 884 },
-  { name: 'Almond Protein', id: 230, hidx: 81, kcal: 450 },
-  { name: 'Almonds', id: 292, hidx: 74, kcal: 598 },
-  { name: 'Amaranth (Raw)', id: 135, hidx: 91, kcal: 371 },
-  { name: 'Ambrosia', id: 588, hidx: 46, kcal: 75 },
-  { name: 'American Cheese', id: 791, hidx: 25, kcal: 340 },
-  { name: 'Anchovy', id: 20, hidx: 106, kcal: 131 },
-];
+export const defaultFoods = 
+  [
+    {
+        "name": "00 Flour",
+        "id": 576,
+        "hidx": 55,
+        "kcal": 364
+    },
+    {
+        "name": "Acai Puree",
+        "id": 80,
+        "hidx": 86,
+        "kcal": 70
+    },
+    {
+        "name": "Achiote Paste",
+        "id": 625,
+        "hidx": 46,
+        "kcal": 150
+    },
+    {
+        "name": "Active Dry Yeast",
+        "id": 228,
+        "hidx": 84,
+        "kcal": 325
+    },
+    {
+        "name": "Adobo Sauce",
+        "id": 1177,
+        "hidx": 48,
+        "kcal": 120
+    },
+    {
+        "name": "Agave Syrup",
+        "id": 883,
+        "hidx": -17,
+        "kcal": 310
+    },
+    {
+        "name": "Aioli",
+        "id": 808,
+        "hidx": 14,
+        "kcal": 719
+    },
+    {
+        "name": "Ajvar",
+        "id": 973,
+        "hidx": 40,
+        "kcal": 120
+    },
+    {
+        "name": "Alcoholic Fruit Punch",
+        "id": 1034,
+        "hidx": 22,
+        "kcal": 90
+    },
+    {
+        "name": "Alfredo Sauce",
+        "id": 164,
+        "hidx": 25,
+        "kcal": 150
+    },
+    {
+        "name": "All-purpose Flour",
+        "id": 595,
+        "hidx": 53,
+        "kcal": 364
+    },
+    {
+        "name": "Allspice",
+        "id": 347,
+        "hidx": 93,
+        "kcal": 263
+    }
+]
+
