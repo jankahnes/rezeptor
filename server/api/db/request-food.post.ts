@@ -1,5 +1,4 @@
 import { serverSupabaseClient } from '#supabase/server'
-import RecipeCalculator from '~/utils/calculation/RecipeCalculator'
 import extractJson from '~/utils/format/extractJson'
 import pluralizeWord from '~/utils/format/pluralizeWord'
 import pluralize from 'pluralize'
@@ -216,12 +215,20 @@ export default defineEventHandler(async (event) => {
         }
         logCheckpoint('Food object created')
 
-        //step 4: make a RecipeCalculator object to calculate health metrics, apply to food object
-        const recipeCalculator = new RecipeCalculator(foodObject, false, false, true, false)
-        logCheckpoint('RecipeCalculator instantiated')
-        
-        const healthMetrics = await recipeCalculator.getScoring()
-        logCheckpoint('Health metrics calculated (RecipeCalculator.getScoring)')
+        const calculatorArgs = {
+            recipe: foodObject,
+            useGpt: false,
+            logToReport: false,
+            isFood: true,
+            considerProcessing: false,
+        }
+        const nutritionResponse = await $fetch('/api/calculate/nutrition', {
+            method: 'POST',
+            body: {
+                calculatorArgs: calculatorArgs,
+            },
+        });
+        const healthMetrics = nutritionResponse.nutrition;
         
         Object.assign(foodObject, healthMetrics)
         foodObject.primary_name = foodObject.name

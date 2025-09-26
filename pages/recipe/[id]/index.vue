@@ -466,7 +466,6 @@
 </template>
 
 <script setup lang="ts">
-import RecipeCalculator from '~/utils/calculation/RecipeCalculator';
 import stripKeys from '~/utils/format/stripKeys';
 import { recipeKeys } from '~/types/keys';
 
@@ -581,21 +580,24 @@ const recomputeRecipe = async () => {
   try {
     isRecomputing.value = true;
 
-    // Convert recipe to editable format
     const editableRecipe = await recipeStore.convertToEditable();
 
-    // Use RecipeCalculator to compute nutrition and health facts
-    const calc = new RecipeCalculator(
-      JSON.parse(JSON.stringify(editableRecipe)),
-      false,
-      false,
-      false,
-      false
-    );
-    await calc.computeRecipe();
+    const calculatorArgs = {
+      recipe: JSON.parse(JSON.stringify(editableRecipe)),
+      useGpt: false,
+      logToReport: false,
+      isFood: false,
+      considerProcessing: false,
+    }
+    const response = await $fetch('/api/calculate/recipe', {
+      method: 'POST',
+      body: {
+        calculatorArgs: calculatorArgs,
+      },
+    });
 
     // Get the computed values, filtered by valid recipe keys
-    const recomputedValues = stripKeys(calc.recipeComputed, recipeKeys);
+    const recomputedValues = stripKeys(response.recipeComputed, recipeKeys);
 
     const { error: updateError } = await (supabase as any)
       .from('recipes')

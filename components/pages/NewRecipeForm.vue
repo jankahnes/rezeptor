@@ -127,9 +127,15 @@ onMounted(async () => {
 
 async function compute() {
   console.log('Called compute');
-  const calc = new RecipeCalculator(JSON.parse(JSON.stringify(recipe.value)));
-  await calc.computeRecipe();
-  recipeComputed.value = calc.recipeComputed;
+  const response = await $fetch('/api/calculate/recipe', {
+    method: 'POST',
+    body: {
+      calculatorArgs: {
+        recipe: recipe.value,
+      },
+    },
+  });
+  recipeComputed.value = response.recipeComputed;
 }
 
 const computeDebounced = debounce(compute, 3000);
