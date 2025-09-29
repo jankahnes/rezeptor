@@ -1,4 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 import stripKeys from '~/utils/format/stripKeys';
 import { recipeKeys } from '~/types/keys';
 import type { UploadableRecipeInformation } from '~/types/exports';
@@ -53,13 +53,14 @@ async function handleImageUpload(client: any, recipeId: number, body: any): Prom
 }
 
 // Function to insert a new recipe
-async function insertNewRecipe(client: any, recipeRow: any, recipeFoodsRows: any[], recipeTagsRows: any[], body: any): Promise<number> {
+async function insertNewRecipe(client: any, recipeRow: any, recipeFoodsRows: any[], recipeTagsRows: any[], body: any, userId: string | null): Promise<number> {
   const { data, error } = await client
     .from('recipes')
     .insert({
       ...recipeRow,
       picture: null,
       visibility: body.publish ? 'PUBLIC' : 'UNLISTED',
+      user_id: userId, // Set the owner
     } as any)
     .select('id')
     .single();
@@ -100,8 +101,25 @@ async function insertNewRecipe(client: any, recipeRow: any, recipeFoodsRows: any
 }
 
 // Function to update an existing recipe
-async function updateExistingRecipe(client: any, recipeRow: any, recipeFoodsRows: any[], recipeTagsRows: any[], body: any): Promise<number> {
+async function updateExistingRecipe(client: any, recipeRow: any, recipeFoodsRows: any[], recipeTagsRows: any[], body: any, userId: string | null): Promise<number> {
   const recipeId = (recipeRow as any).id;
+
+  // Check ownership before allowing update
+  const { data: existingRecipe, error: fetchError } = await client
+    .from('recipes')
+    .select('user_id')
+    .eq('id', recipeId)
+    .single();
+
+  if (fetchError || !existingRecipe) {
+    console.error("🔍 Recipe not found:", fetchError);
+    throw createError({ statusCode: 404, statusMessage: 'Recipe not found' });
+  }
+
+  if (existingRecipe.user_id !== userId) {
+    console.error(`🔍 Unauthorized update attempt: recipe ${recipeId} belongs to ${existingRecipe.user_id}, user is ${userId}`);
+    throw createError({ statusCode: 403, statusMessage: 'Not authorized to update this recipe' });
+  }
 
   const { error: updateError } = await client
     .from('recipes')
@@ -163,7 +181,19 @@ async function updateExistingRecipe(client: any, recipeRow: any, recipeFoodsRows
 
 //Uploads a recipe from UploadableRecipeInformation object
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event);
+  // Get authenticated user (works even when using service role for operations)
+  // Allow programmatic calls without auth context
+  let userId: string | null = null;
+  try {
+    const user = await serverSupabaseUser(event);
+    userId = user?.id || null;
+  } catch (error) {
+    // No auth session (programmatic call) - userId stays null
+    console.log('No auth session, proceeding with null userId');
+  }
+  
+  // Use service role for database operations (with manual auth checks)
+  const client = serverSupabaseServiceRole(event);
   const body = await readBody<UploadableRecipeInformation & {jobId: string, ingredients_editable: any|null|undefined}>(event);
   const isEditable = body.ingredients_editable && body.ingredients_editable.ingredients.length && !body.useNaturalLanguage;
   if(!isEditable) {
@@ -220,10 +250,10 @@ export default defineEventHandler(async (event) => {
   let recipeId: number;
   if (shouldUpdate) {
     console.log(`🔍 Updating existing recipe: ${(recipeRow as any).id}`);
-    recipeId = await updateExistingRecipe(client, recipeRow, recipeFoodsRows, recipeTagsRows, body);
+    recipeId = await updateExistingRecipe(client, recipeRow, recipeFoodsRows, recipeTagsRows, body, userId);
   } else {
     console.log("🔍 Creating new recipe");
-    recipeId = await insertNewRecipe(client, recipeRow, recipeFoodsRows, recipeTagsRows, body);
+    recipeId = await insertNewRecipe(client, recipeRow, recipeFoodsRows, recipeTagsRows, body, userId);
   }
 
   console.log(`✅ Recipe ${shouldUpdate ? 'updated' : 'uploaded'} successfully: ${recipeId}, ${body.title}`);

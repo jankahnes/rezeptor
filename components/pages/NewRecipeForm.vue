@@ -120,11 +120,9 @@ onMounted(async () => {
   } else {
     isEditing.value = false;
   }
-  compute();
 });
 
 async function compute() {
-  console.log('Called compute');
   const response = await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {
@@ -138,5 +136,5 @@ async function compute() {
 
 const computeDebounced = debounce(compute, 3000);
 
-watch(recipe, computeDebounced, { deep: true });
+watch(recipe, computeDebounced, { deep: true, immediate: true });
 </script>

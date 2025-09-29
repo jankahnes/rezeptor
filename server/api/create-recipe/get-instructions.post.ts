@@ -5,7 +5,8 @@ export default defineEventHandler(async (event) => {
     const assets = useStorage('assets:server')
     const base_recipe_information = await readBody(event)
 
-    const ingredientsString = base_recipe_information.ingredients.map((ingredient: {name_original: string, id: number}) => `${ingredient.name_original  }, ID ${ingredient.id}`).join(';\n')
+    const ingredientsString = base_recipe_information.ingredients.map((ingredient: {name_original?: string, id: number, name?: string, primary_name?: string}) => 
+        `${ingredient.name_original || ingredient.name || ingredient.primary_name}, ID ${ingredient.id}`).join(';\n')
     let response = null;
     if(!base_recipe_information?.instructions?.length || !base_recipe_information.processing_requirements?.has_instructions) {
     const descAndInstructionsPrompt = await assets.getItem('recipe-create/desc-and-instructions-from-ingredients.txt') as string

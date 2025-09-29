@@ -4,7 +4,7 @@ export const TAGS = [
   { id: 3, name: 'easy', value: 8, category: 'GENERAL' }, //auto, difficulty = EASY
   { id: 4, name: 'budget', value: 14, category: 'GENERAL' }, //auto, price < 1
   { id: 5, name: 'meal prep', value: 12, category: 'GENERAL' }, // ai
-  { id: 6, name: 'family friendly', value: 4, category: 'GENERAL' }, // ai
+  { id: 6, name: 'kid friendly', value: 4, category: 'GENERAL' }, // ai
   { id: 7, name: 'gourmet', value: 4, category: 'GENERAL' }, // ai
   { id: 8, name: 'date night', value: 4, category: 'GENERAL' }, // ai
   { id: 9, name: 'comfort food', value: 4, category: 'GENERAL' }, // ai
@@ -12,6 +12,8 @@ export const TAGS = [
   { id: 11, name: 'no cooking', value: 4, category: 'GENERAL' }, // ai
   { id: 12, name: 'clean eating', value: 4, category: 'GENERAL' }, // ai
   { id: 13, name: 'potluck', value: 4, category: 'GENERAL' }, // ai
+  { id: 14, name: 'holiday/special occasion', value: 4, category: 'GENERAL' }, // ai
+  { id: 15, name: 'grilling', value: 4, category: 'GENERAL' }, // ai
 
   { id: 100, name: 'healthy', value: 10, category: 'DIET' }, //auto, hidx > 70
   { id: 101, name: 'nutritious', value: 10, category: 'DIET' }, //auto, mnidx > 70
@@ -26,6 +28,11 @@ export const TAGS = [
   { id: 110, name: 'low fat', value: 6, category: 'DIET' }, //auto, per100.fat < 3
   { id: 111, name: 'high fiber', value: 6, category: 'DIET' }, //auto, per100.fiber > 6
   { id: 112, name: 'lactose free', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('lactose free'))
+  { id: 113, name: 'keto', value: 6, category: 'DIET' }, //auto, per100.carbs < 2 && per100.fat > 15
+  { id: 114, name: 'low sodium', value: 6, category: 'DIET' }, //auto, per100.sodium < 150
+  { id: 115, name: 'low sugar', value: 6, category: 'DIET' }, //auto, per100.sugar < 10
+  { id: 116, name: 'mediterranean diet', value: 2, category: 'DIET' }, //ai
+  { id: 117, name: 'dash diet', value: 2, category: 'DIET' }, //ai
 
   { id: 200, name: 'main/dinner', value: 0, category: 'TYPE' }, //ai
   { id: 201, name: 'breakfast', value: 0, category: 'TYPE' }, //ai
@@ -40,13 +47,22 @@ export const TAGS = [
   { id: 210, name: 'wrap', value: 0, category: 'TYPE' }, //ai
   { id: 211, name: 'bowl', value: 0, category: 'TYPE' }, //ai
   { id: 212, name: 'stir fry', value: 0, category: 'TYPE' }, //ai
-  { id: 213, name: 'pasta', value: 0, category: 'TYPE' }, //ai
+  { id: 213, name: 'pasta/noodles', value: 0, category: 'TYPE' }, //ai
   { id: 214, name: 'sandwich', value: 0, category: 'TYPE' }, //ai
   { id: 215, name: 'dip', value: 0, category: 'TYPE' }, //ai
   { id: 216, name: 'casserole', value: 0, category: 'TYPE' }, //ai
   { id: 217, name: 'cocktail', value: 0, category: 'TYPE' }, //ai
   { id: 218, name: 'savory baked good / bread', value: 0, category: 'TYPE' }, //ai
   { id: 219, name: 'sweet baked good', value: 0, category: 'TYPE' }, //ai
+  { id: 220, name: 'sauce', value: 0, category: 'TYPE' }, //ai
+  { id: 221, name: 'marinade', value: 0, category: 'TYPE' }, //ai
+  { id: 222, name: 'curry', value: 0, category: 'TYPE' }, //ai
+  { id: 223, name: 'pizza', value: 0, category: 'TYPE' }, //ai
+  { id: 224, name: 'smoothie', value: 0, category: 'TYPE' }, //ai
+  { id: 225, name: 'broth/stock', value: 0, category: 'TYPE' }, //ai
+  { id: 226, name: 'seasoning/spice blend', value: 0, category: 'TYPE' }, //ai
+  { id: 227, name: 'jam/preserve', value: 0, category: 'TYPE' }, //ai
+  { id: 228, name: 'burger', value: 0, category: 'TYPE' }, //ai
 
   { id: 300, name: 'global', value: 3, category: 'CUISINE' }, //ai
   { id: 301, name: 'fusion', value: 5, category: 'CUISINE' }, //ai
@@ -74,6 +90,7 @@ export const TAGS = [
   { id: 323, name: 'african', value: 3, category: 'CUISINE' }, //ai
   { id: 324, name: 'brazilian', value: 3, category: 'CUISINE' }, //ai
   { id: 325, name: 'russian', value: 3, category: 'CUISINE' }, //ai
+  { id: 326, name: 'mexican', value: 3, category: 'CUISINE' }, //ai
 
 ] as const;
 
@@ -85,7 +102,7 @@ export function getTagDescriptor(tag_id: number, recipe: RecipeProcessed) {
   if (tag.name === 'budget') {
     return {
       descriptor: `${formatMoney(recipe.price ?? 0)} per serving`,
-      background: 'golden-gradient-muted',
+      background: 'metallic-gradient-simple',
     };
   }
   else if (tag.name === 'few ingredients') {
@@ -97,7 +114,7 @@ export function getTagDescriptor(tag_id: number, recipe: RecipeProcessed) {
   else if (tag.name === 'high protein') {
     return {
       descriptor: `${recipe.protein.toFixed(0)}g protein per serving`,
-      background: 'golden-gradient-muted',
+      background: 'metallic-gradient-simple',
     };
   }
   else if (tag.name === 'low carb') {
@@ -115,13 +132,13 @@ export function getTagDescriptor(tag_id: number, recipe: RecipeProcessed) {
   else if (tag.name === 'high fiber') {
     return {
       descriptor: `${recipe.fiber.toFixed(0)}g fiber per serving`,
-      background: 'golden-gradient-muted',
+      background: 'metallic-gradient-simple',
     };
   }
   else if (tag.name === 'low calorie') {
     return {
       descriptor: `${recipe.kcal.toFixed(0)}kcal per serving`,
-      background: 'golden-gradient-muted',
+      background: 'metallic-gradient-simple',
     }
 }
 return {

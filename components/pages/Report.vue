@@ -14,8 +14,8 @@
 
     <div v-else class="mx-4 flex flex-col gap-10">
       <!-- Hero Card -->
-      <div class="p-6 card overview self-center">
-        <div class="flex flex-col md:flex-row gap-8 items-start">
+      <div class="p-6 card overview self-center sm:px-10 w-full md:w-auto">
+        <div class="flex gap-8 items-start">
           <div class="flex-1">
             <h1 class="text-2xl lg:text-4xl font-bold text-gray-800 mb-2">
               {{
@@ -46,7 +46,7 @@
             </div>
           </div>
 
-          <div class="flex flex-col items-start md:items-end gap-4">
+          <div class="hidden md:flex flex-col items-end gap-4">
             <GradeContainer
               :score="report.overall.hidx"
               :type="'hidx'"
@@ -54,6 +54,7 @@
             />
             <div
               class="percentile-badge !py-2"
+              v-if="report.percentiles.hidx"
               :class="report.percentiles.hidx.color"
             >
               <span class="material-symbols-outlined text-lg">{{
@@ -61,8 +62,34 @@
               }}</span>
               <span>{{ report.percentiles.hidx.description }}</span>
             </div>
+            <Skeleton v-else class="w-52 h-10 rounded-xl" />
           </div>
         </div>
+      </div>
+
+      <div
+        class="flex md:hidden gap-4 card overview items-center justify-between pl-4"
+      >
+        <div class="">
+          <h2 class="text-lg font-bold text-gray-800 flex-1">Overall Grade</h2>
+
+          <div
+            class="percentile-badge !py-1 px-1"
+            :class="report.percentiles.hidx.color"
+            v-if="report.percentiles.hidx"
+          >
+            <span class="material-symbols-outlined text-lg">{{
+              report.percentiles.hidx.icon
+            }}</span>
+            <span>{{ report.percentiles.hidx.description }}</span>
+          </div>
+          <Skeleton v-else class="w-52 h-8 rounded-xl" />
+        </div>
+        <GradeContainer
+          :score="report.overall.hidx"
+          :type="'hidx'"
+          class="font-bold text-3xl p-4 rounded-xl shadow-sm"
+        />
       </div>
 
       <!-- Readable Summary Cards -->
@@ -78,12 +105,17 @@
               <h3 class="text-xl font-bold text-gray-800 mb-2">
                 {{ card.title }}
               </h3>
-              <div class="percentile-badge" :class="card.percentile.color">
+              <div
+                class="percentile-badge"
+                :class="card.percentile.color"
+                v-if="card.percentile"
+              >
                 <span class="material-symbols-outlined !text-lg">
                   {{ card.percentile.icon }}
                 </span>
                 <span>{{ card.percentile.description }}</span>
               </div>
+              <Skeleton v-else class="w-52 h-8 rounded-xl" />
             </div>
             <GradeContainer
               :score="card.score"
@@ -136,8 +168,8 @@
             </div>
             <button
               class="text-sm text-blue-600 hover:text-blue-800 underline mt-2"
-              v-show="!micronutrientsExpanded"
-              @click="micronutrientsExpanded = true"
+              v-show="!vitaminsExpanded"
+              @click="vitaminsExpanded = true"
             >
               Show {{ vitaminsRest.length }} more vitamins
             </button>
@@ -145,7 +177,7 @@
               v-for="nutrient in vitaminsRest"
               :key="nutrient.displayName"
               class="flex justify-between items-center py-1 text-gray-600"
-              v-show="micronutrientsExpanded"
+              v-show="vitaminsExpanded"
             >
               <span class="text-sm">{{ nutrient.displayName }}</span>
               <span class="font-medium text-sm bg-gray-50 px-2 py-1 rounded"
@@ -154,8 +186,8 @@
             </div>
             <button
               class="text-sm text-blue-600 hover:text-blue-800 underline mt-2"
-              v-show="micronutrientsExpanded"
-              @click="micronutrientsExpanded = false"
+              v-show="vitaminsExpanded"
+              @click="vitaminsExpanded = false"
             >
               Show fewer vitamins
             </button>
@@ -179,8 +211,8 @@
             </div>
             <button
               class="text-sm text-blue-600 hover:text-blue-800 underline mt-2"
-              v-show="!micronutrientsExpanded"
-              @click="micronutrientsExpanded = true"
+              v-show="!mineralsExpanded"
+              @click="mineralsExpanded = true"
             >
               Show {{ mineralsRest.length }} more minerals
             </button>
@@ -188,7 +220,7 @@
               v-for="nutrient in mineralsRest"
               :key="nutrient.displayName"
               class="flex justify-between items-center py-1 text-gray-600"
-              v-show="micronutrientsExpanded"
+              v-show="mineralsExpanded"
             >
               <span class="text-sm">{{ nutrient.displayName }}</span>
               <span class="font-medium text-sm bg-gray-50 px-2 py-1 rounded"
@@ -197,21 +229,14 @@
             </div>
             <button
               class="text-sm text-blue-600 hover:text-blue-800 underline mt-2"
-              v-show="micronutrientsExpanded"
-              @click="micronutrientsExpanded = false"
+              v-show="mineralsExpanded"
+              @click="mineralsExpanded = false"
             >
               Show fewer minerals
             </button>
           </div>
         </div>
       </div>
-      <!--
-          <div class="flex">
-            <div class="card p-5 space-y-2 w-full">
-              <pre>{{ JSON.stringify(report, null, 2) }}</pre>
-            </div>
-          </div>
-          -->
     </div>
   </div>
 </template>
@@ -226,7 +251,8 @@ const props = defineProps<{
 
 const recipeStore = useRecipeStore();
 const editableRecipe = ref<RecipeProcessed | null>(null);
-const micronutrientsExpanded = ref(false);
+const vitaminsExpanded = ref(false);
+const mineralsExpanded = ref(false);
 const loading = ref(true);
 const recipeComputed = ref<any>(null);
 const supabase = useSupabaseClient();
@@ -310,27 +336,25 @@ function toggleMicronutrientOverview() {
 
 function fillReadableSummaryCards() {
   for (const card of readableSummaryCards.value) {
-    const percentile = report.value?.percentiles[card.col];
+    const percentile = report.value?.percentiles?.[card.col];
     const humanReadable = report.value?.humanReadable[card.name];
     const score = report.value?.overall[card.col];
     const roundedGrade = getGrade(score, 'score')[0];
     const relevancy =
       card.baseRelevancy +
       gradeValues[roundedGrade as keyof typeof gradeValues] * 2;
-    if (percentile) {
-      card.percentile = percentile;
-      card.humanReadable = humanReadable;
-      card.score = score;
-      card.relevancy = relevancy;
-      card.class = '';
-    }
-    readableSummaryCards.value.sort((a, b) => b.relevancy - a.relevancy);
+    card.percentile = percentile;
+    card.humanReadable = humanReadable;
+    card.score = score;
+    card.relevancy = relevancy;
+    card.class = '';
   }
   if (props.isFood) {
     readableSummaryCards.value.find(
       (card) => card.name == 'processingLevel'
-    ).score = report.value?.processingLevel.final_score;
+    ).score = report.value?.overall.processing_level_score;
   }
+  readableSummaryCards.value.sort((a, b) => b.relevancy - a.relevancy);
   micronutrientOverviewExpanded.value = true;
   toggleMicronutrientOverview();
   // Set the first three cards to have the "highlight" class
@@ -339,6 +363,12 @@ function fillReadableSummaryCards() {
   }
   for (let i = 3; i < 6 && i < readableSummaryCards.value.length; i++) {
     readableSummaryCards.value[i].class = 'highlight-light';
+  }
+}
+
+function addPercentilesToSummaryCards() {
+  for (const card of readableSummaryCards.value) {
+    card.percentile = report.value?.percentiles[card.col];
   }
 }
 
@@ -361,7 +391,6 @@ onMounted(async () => {
           },
         },
       });
-      report.value = response.report;
       recipeComputed.value = response.nutritionComputed;
       recipeComputed.value.title = data.name;
       useHead({
@@ -384,7 +413,6 @@ onMounted(async () => {
             ' | Rezeptor',
         });
         if (recipeStore.recipe.report) {
-          report.value = recipeStore.recipe.report;
           recipeComputed.value = recipeStore.recipe;
           console.log('Report found in recipe store');
         } else {
@@ -409,9 +437,10 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error loading recipe report:', error);
   } finally {
-    await fillReportPercentiles(supabase, report.value, props.isFood);
     fillReadableSummaryCards();
     loading.value = false;
+    await fillReportPercentiles(supabase, report.value, props.isFood);
+    addPercentilesToSummaryCards();
   }
 });
 

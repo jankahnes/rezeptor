@@ -36,6 +36,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     gptKey: process.env.NUXT_PRIVATE_GPT_KEY,
+    adminUuid: process.env.NUXT_PUBLIC_ADMIN_ID,
   },
   imports: {
     dirs: [
@@ -68,6 +69,7 @@ export default defineNuxtConfig({
   supabase: {
     url: process.env.NUXT_PUBLIC_SUPABASE_URL,
     key: process.env.NUXT_PUBLIC_SUPABASE_KEY,
+    serviceKey: process.env.NUXT_PRIVATE_SERVICE_ROLE_KEY,
     redirect: false,
   },
 });

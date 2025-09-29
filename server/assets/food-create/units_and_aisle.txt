@@ -27,6 +27,8 @@ Instructions:
 "Bakery"
 "Dairy"
 "Meat"
+"Seafood"
+"Deli / Prepared Foods & Cheeses"
 "Other Refrigerated"
 "Condiments & Sauces"
 "Canned Goods"

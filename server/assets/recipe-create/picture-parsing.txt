@@ -29,9 +29,10 @@ Look carefully at the image and extract the following information:
 - Use common sense when translating ingredient names and units
 - Use your thinking to do the translation and sanity-check if everything looks correct
 
+
 - If instead of a document, you get a picture of a final dish, also return the non-null required fields, but estimate each based on what you see.
 - You have a high degree of freedom in that case. Follow these instructions instead Note the ingredient amounts and "serves" based on the amounts you see.
-- Leave out instructions and description
+- Leave out instructions and description, and focus on the ingredients. Be descriptive with the ingredient names, and avoid ambiguity, such as "100g Spaghetti" (Could mean dry or cooked)
 - If the picture additionaly also seems to fulfill these standards:
       - High-Quality
       - Top-down, plate forming a circle

@@ -4,12 +4,31 @@
       <div class="px-4 py-1 bg-primary text-white rounded-lg inline-flex w-fit">
         <h2 class="text-lg font-bold">PUBLISH</h2>
       </div>
-      <div
-        v-if="recipe.visibility === 'PUBLIC'"
-        class="flex gap-2 items-center opacity-60"
-      >
-        <span class="material-symbols-outlined !text-2xl"> check </span>
-        <span class="text-lg flex-1">Your recipe is public!</span>
+      <div v-if="recipe.visibility === 'PUBLIC'">
+        <div class="flex gap-2 items-center opacity-60">
+          <span class="material-symbols-outlined !text-2xl"> check </span>
+          <span class="text-lg flex-1">Your recipe is public!</span>
+        </div>
+        <button
+          class="button px-2 py-1 flex gap-2 items-center text-primary outline-1 outline-primary mt-4"
+          @click="replaceImage"
+          v-if="auth.user?.username === 'administrator'"
+          :disabled="replaceImageLoading"
+        >
+          <span class="material-symbols-outlined">
+            {{ replaceImageLoading ? 'timer' : 'replace_image' }}
+          </span>
+          <span>{{
+            replaceImageLoading ? 'Uploading...' : 'Replace image'
+          }}</span>
+        </button>
+        <input
+          type="file"
+          ref="fileInput"
+          @change="handleFileSelected"
+          accept="image/*"
+          class="hidden"
+        />
       </div>
       <div class="flex flex-col gap-3" v-else>
         <div class="max-w-md">
@@ -152,6 +171,9 @@ const supabase = useSupabaseClient();
 const generatePictureLoading = ref(false);
 const generateInstructionsLoading = ref(false);
 const publishLoading = ref(false);
+const replaceImageLoading = ref(false);
+const auth = useAuthStore();
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const generatePicture = async () => {
   generatePictureLoading.value = true;
@@ -274,6 +296,47 @@ const triggerFileUpload = () => {
 
 const triggerPhotoEnv = () => {
   console.log('triggerPhotoEnv');
+};
+
+const replaceImage = () => {
+  fileInput.value?.click();
+};
+
+const handleFileSelected = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  replaceImageLoading.value = true;
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('bucket', 'recipe');
+    formData.append('id', props.recipe.id.toString());
+    formData.append('shouldUpsert', 'true');
+
+    const imageData = await $fetch('/api/db/upload-image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    props.recipe.picture = imageData.publicUrl;
+    await supabase
+      .from('recipes')
+      .update({
+        picture: imageData.publicUrl,
+      })
+      .eq('id', props.recipe.id);
+
+    // Reset the file input so the same file can be selected again
+    if (fileInput.value) {
+      fileInput.value.value = '';
+    }
+  } catch (error) {
+    console.error('Failed to upload image:', error);
+  } finally {
+    replaceImageLoading.value = false;
+  }
 };
 </script>
 

@@ -1,5 +1,5 @@
 import type { BaseRecipeInformation } from '~/types/exports';
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 import formidable from 'formidable';
 import fs from 'fs/promises';
 
@@ -10,7 +10,7 @@ export const config = {
 };
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient(event);
+    const supabase = serverSupabaseServiceRole(event);
 
     try {
         // Parse multipart form data using formidable
@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
             instructions: pictureAnalysisResponse.instructions,
             description: pictureAnalysisResponse.description,
             serves: pictureAnalysisResponse.serves,
-            batch_size: pictureAnalysisResponse.serves,
+            batch_size: pictureAnalysisResponse.serves > 1 ? pictureAnalysisResponse.serves : null,
             ...args // Merge the args (publish, source_type, user_id, etc.)
         };
 

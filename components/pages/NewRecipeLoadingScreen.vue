@@ -27,7 +27,7 @@
                 class="w-8 h-8 transition-all duration-500 flex items-center justify-center"
               >
                 <img
-                  class="h-8 w-8"
+                  class="h-6 w-6"
                   src="/loading.png"
                 />
               </div>

@@ -1,4 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 import extractJson from '~/utils/format/extractJson'
 
 /**
@@ -13,7 +13,7 @@ import extractJson from '~/utils/format/extractJson'
  */
 
 export default defineEventHandler(async (event) => {
-    const supabase = await serverSupabaseClient(event)
+    const supabase = serverSupabaseServiceRole(event)
     const assets = useStorage('assets:server')
     const { food_name_id, unit } = await readBody(event)
 
@@ -94,6 +94,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body: {
             message: prompt
+                .replace('{food_name}', foodName?.name || foodName?.food?.primary_name || 'undefined')
                 .replace('{unit}', processedUnit)
                 .replace('{available_units}', availableUnitsText),
             type: 'quick'

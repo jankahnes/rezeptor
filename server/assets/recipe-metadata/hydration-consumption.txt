@@ -1,41 +1,36 @@
 You will be given information about a recipe.
 Your task is to predict weight changes during cooking and how much of each ingredient actually gets consumed.
 
-Return this JSON format:
-{
-"ingredients": [
-    {
-    "ingredient_name": "ingredient name from recipe",
-    "ingredient_id": "ingredient ID from recipe",
-    "hydration_factor": number,
-    "consumption_factor": number
-    }
-]
-}
 
-HYDRATION FACTOR (weight multiplier during cooking):
-- How much weight an ingredient gains/loses from raw state to final dish
-- Examples:
-* Raw pasta → cooked: ~2.2 (absorbs water)
-* Raw rice → cooked: ~2.5-3.0 (absorbs water)  
-* Fresh vegetables (sautéed): ~0.8-0.9 (loses water)
-* Meat (cooked): ~0.7-0.8 (loses fat/water)
-* Reducing sauces: ~0.3-0.6 (water evaporates)
-* Bread dough → baked: ~0.8-0.9 (water loss)
-- If ingredient name suggests it's pre-cooked (e.g., "cooked pasta"), use 1.0
-- Default for stable ingredients (oils, spices, canned goods): 1.0
+
+YIELD (hydration) FACTOR (weight multiplier during cooking):
+- How much weight the overall dish gains/loses from raw to cooked state, in percent
+- Use common knowledge from food science - recall yield factors from USDA, FAO, etc
+- When thinking, focus on outliers and ingredients with high weight. Consult the cooking instructions for processing info if present.
+- If ingredient name suggests it's pre-cooked (e.g., "cooked pasta"), assume no hydration
+- If ingredient name is ambiguous to its processing (like "Spaghetti"), assume it refers to the raw/unprocessed version.
+- No hydration for stable ingredients (oils, spices, canned goods)
 
 CONSUMPTION FACTOR (how much actually gets eaten):
-- What fraction of the ingredient ends up consumed vs discarded
+- There might be ingredients listed that are not consumed fully; or at all.
+- You already account for those in the yield factor, but here, specify ingredients where  *nutrient mass* is lost.
 - Examples:
-* Regular ingredients: 1.0 (fully consumed)
-* Marinades: 0.05-0.15 (mostly discarded, some absorbed)
-* Wine in sauces: 0.3-0.7 (alcohol evaporates, flavor remains)
-* Deep Frying oil, if actually listed: 0.0 (reused/discarded, except absorbed portion)
-* Herb sprigs for flavor: 0.0-0.1 (removed before serving)
-* Bones in stock: 0.0 (removed)
-- Default: 1.0 unless ingredient is clearly not fully consumed
+* Marinades (mostly discarded, some absorbed)
+* Wine in sauces (alcohol evaporates. water in sauces -> not relevant, as no nutrients/kcal is lost.)
+* Deep Frying oil, if actually listed
+* Salt in pasta cooking water (some absorbed)
+* Bones in stock
+- Ingredients where this factor is above 0.9, you can fully skip. Only focus on outliers.
+- If an ingredient is mentioned multiple times in the list (same id) and is not fully consumed, calculate/use the average factor for the total amount.
 
-Consider the cooking method and ingredient type carefully for each prediction.
-In your JSON response, you can leave out any ingredients that you have both factors within 0.9-1.1. Values in this range you can also individually skip.
-Only include values and lines that are meaningful for calculations to make your response shorter.
+
+Return this JSON format:
+{
+    "overall_yield_multiplier": float, 
+    "ingredients_not_fully_consumed": [
+        {
+        "ingredient_id": "ingredient ID from recipe",
+        "consumption_factor": number
+        }
+    ]
+}

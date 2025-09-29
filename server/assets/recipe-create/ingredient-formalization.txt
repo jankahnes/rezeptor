@@ -7,12 +7,18 @@ Seperate each ingredient line into fields.
 for unit, please match the specified unit to one of these strings:
 ["g", "ml", "tsp", "tbsp", "free", "kg", "oz", "lb", "cup", "l"]
 , where "free" represents "pinch of", or "some of this" / "to taste". Only use this for ingredients with small nutritional impact and with actually small quantities.
-If the unit instead is either food-specific, just use the name of that unit instead. If it instead is just the food itself, use "whole". Examples:
+If the unit instead is either food-specific, just use the name of that unit instead. If it instead is just the food itself, use "whole" or "". Examples:
 "1 slice of cheese" -> unit="slice"
 "1 Banana" -> unit="whole"
+Do *not* double the unit and the food name. Examples:
+"1 egg yolk" -> description: "egg yolk", unit="", NOT "yolk"
+"1 salmon fillet" -> description: "salmon fillet", unit="", NOT "fillet"
 
 category is for if any subsection of ingredients is categorized like "Sauce:", "Filling:", denote the category for each ingredient in there as "Sauce", etc.
 If a ingredient is not in a specific category, leave null.
+
+Then, an important adjustment to the ingredient amounts. If you see ingredients that have a big, inedible part about them (like bone-in meat, seafood with shells, etc)
+and a weight-based amount like g and kg that clearly includes that inedible weight; adjust it down to match the edible portion only. 
 
 If an ingredient line is describing more than one ingredient at once, decide whether they mean:
 - To put both in the recipe -> seperate it into multiple ingredient objects.

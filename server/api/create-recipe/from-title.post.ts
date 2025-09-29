@@ -1,21 +1,24 @@
 import type { BaseRecipeInformation } from '~/types/exports';
 
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 import extractJson from '~/utils/format/extractJson';
 
 //Uploads a recipe from a link
 export default defineEventHandler(async (event) => {
     const input = await readBody(event)
     const {title, args, jobId} = input
-    const supabase = await serverSupabaseClient(event);
+    const supabase = serverSupabaseServiceRole(event);
     const assets = useStorage('assets:server')
     const ingredientsPrompt = await assets.getItem('recipe-create/ingredients-from-title.txt') as string;
-
+    let titleString = title;
+    if (args.collection) {
+        titleString = `${title} from the ${args.collection} collection`;
+    }
     const ingredientsResponse = await $fetch('/api/gpt/response', {
         method: 'POST',
         body: {
-            message: ingredientsPrompt.replace('{title}', title),
-            type: 'default'
+            message: ingredientsPrompt.replace('{title}', titleString),
+            type: 'accurate'
         }
     })
     if (!ingredientsResponse) throw new Error('No valid content returned from ingredients response');

@@ -1,17 +1,10 @@
 <template>
   <div class="p-2 md:p-6 h-full flex flex-col flex-[1_1_23rem] items-start">
-    <div class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex">
+    <div class="px-4 py-1 bg-primary text-white rounded-lg flex">
       <h2 class="text-lg font-bold">INGREDIENTS</h2>
     </div>
-    <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
-    <FormsSlidingSelector
-      v-model="modelValue.ingredients_editable.servingSize"
-      :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
-      :expanded="false"
-      class="max-w-[150px]"
-    />
     <button
-      class="md:ml-1 button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform mt-2"
+      class="button flex items-center gap-2 px-2 font-medium !bg-primary/10 text-primary text-xs will-change-transform mt-2"
       @click="modelValue.useNaturalLanguage = !modelValue.useNaturalLanguage"
     >
       <span class="material-symbols-outlined !text-sm">autorenew</span>
@@ -21,6 +14,14 @@
           : 'Use Natural Language'
       }}</span>
     </button>
+    <p class="text-sm text-gray-600 ml-1 font-light mt-2">Servings:</p>
+    <FormsSlidingSelector
+      v-model="modelValue.ingredients_editable.servingSize"
+      :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+      :expanded="false"
+      class="max-w-[150px]"
+    />
+
     <textarea
       v-if="modelValue.useNaturalLanguage"
       v-model="modelValue.ingredients_string"

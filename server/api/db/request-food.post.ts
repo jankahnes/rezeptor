@@ -1,4 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 import extractJson from '~/utils/format/extractJson'
 import pluralizeWord from '~/utils/format/pluralizeWord'
 import pluralize from 'pluralize'
@@ -27,8 +27,7 @@ export default defineEventHandler(async (event) => {
         checkpointTime = now
     }
 
-    const client = await serverSupabaseClient(event)
-    logCheckpoint('Supabase client created')
+    const client = await serverSupabaseServiceRole(event)
     
     const assets = useStorage('assets:server')
 
@@ -37,7 +36,6 @@ export default defineEventHandler(async (event) => {
     const searchPrompt = await assets.getItem('food-match/search_related.txt') as string
     const judgePrompt = await assets.getItem('food-match/judge_results.txt') as string
     
-    logCheckpoint('Prompt files loaded')
 
     const input = await readBody(event)
     let {query, from_user} = input
@@ -204,7 +202,6 @@ export default defineEventHandler(async (event) => {
         const context = JSON.parse(extractJson(contextResponse))
         const micronutrients = JSON.parse(extractJson(micronutrientsResponse))
         const units = JSON.parse(extractJson(unitsResponse))
-        logCheckpoint('GPT responses parsed')
 
         const foodObject = {
             name: primaryName,
@@ -213,12 +210,11 @@ export default defineEventHandler(async (event) => {
             ...micronutrients,
             ...units,
         }
-        logCheckpoint('Food object created')
 
         const calculatorArgs = {
             recipe: foodObject,
             useGpt: false,
-            logToReport: false,
+            logToReport: true,
             isFood: true,
             considerProcessing: false,
         }
@@ -232,10 +228,10 @@ export default defineEventHandler(async (event) => {
         
         Object.assign(foodObject, healthMetrics)
         foodObject.primary_name = foodObject.name
+        foodObject.report = nutritionResponse.nutritionComputed.report
         delete foodObject.name
         delete foodObject.processing_level_score
         delete foodObject.water
-        logCheckpoint('Food object finalized')
         
         //step 5: insert food object into foods table
         let newFoodNameId = null;

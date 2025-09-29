@@ -14,42 +14,7 @@
         What would you like to cook today?
       </h1>
     </div>
-    <!-- Your Recipes -->
-    <div v-if="userRecipes && userRecipes.length > 0" class="pt-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-xl sm:text-2xl font-bold tracking-tight">
-          Your Recipes
-        </h2>
-        <NuxtLink
-          :to="auth.isUser() ? `/profile/${auth.user?.id}` : '/onboarding'"
-          class="text-sm text-gray-500"
-        >
-          See all
-        </NuxtLink>
-      </div>
-      <Carousel :flex-class="'items-start'">
-        <RecipeCard
-          v-for="(recipe, index) in userRecipes"
-          :key="recipe.id"
-          :recipe="recipe"
-          :horizontal="true"
-          class="h-36 text-xl my-4 pr-4 max-w-100"
-        />
-      </Carousel>
-    </div>
 
-    <div
-      class="flex items-center gap-2 rounded-md p-2 shadow-sm max-w-lg focus-within:shadow-md transition-all duration-100"
-    >
-      <span class="material-symbols-outlined text-gray-400 !text-lg"
-        >search</span
-      >
-      <input
-        type="text"
-        placeholder="Search for a recipe"
-        class="flex-1 focus:outline-none"
-      />
-    </div>
 
     <!-- Categories -->
     <div>
@@ -70,15 +35,41 @@
       </div>
     </div>
 
+
+    <!-- Your Recipes -->
+    <div v-if="userRecipes && userRecipes.length > 0" class="pt-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight">
+          Your Recipes
+        </h2>
+        <NuxtLink
+          :to="auth.isUser() ? `/profile/${auth.user?.id}` : '/onboarding'"
+          class="text-sm text-gray-500"
+        >
+          See all
+        </NuxtLink>
+      </div>
+      <Carousel :flex-class="'items-center'">
+        <RecipeCardHorizontal
+          v-for="(recipe, index) in userRecipes"
+          :key="recipe.id"
+          :recipe="recipe"
+          class="text-xl my-4 pr-6"
+        />
+      </Carousel>
+    </div>
+
+    
+
     <!-- Recommendations -->
     <div>
-      <div class="mt-4 flex justify-between items-center">
+      <div class="mt-2 flex justify-between items-center">
         <h2 class="text-xl sm:text-2xl font-bold">Recommendations</h2>
         <NuxtLink to="/recipes" class="text-sm text-gray-500">See all</NuxtLink>
       </div>
       <div class="mt-2">
         <Carousel class="" :flexClass="'!items-stretch'">
-          <RecipeCardNew
+          <RecipeCard
             v-for="(recipe, index) in recipeStore.indexRecipes"
             :key="recipe.id"
             :recipe="recipe"

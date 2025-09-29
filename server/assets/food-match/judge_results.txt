@@ -17,6 +17,10 @@ When to judge as alias / Case 1:
     - The same or only minimally different metadata, such as processing level, density, price, and ways to measure
     - Keep in mind that unless specified otherwise, the foods in the database refer to the raw/unprocessed versions of the foods.
 - In that case, mark the ID of that food (if multiple match, just do the best one) in your response as matching_id
+- According to the rules above, low-sodium/low-fat/high-protein etc. versions of foods are *not* aliases,
+as the whole point of using them is that they differ substantially in at least one nutritional aspect. 
+-Another hard case: is "Marrow Bone" an alias to "Bone Marrow"? No, since the Marrow Bone is the whole bone, and has per 100g only a small edible portion of Bone Marrow.
+So per 100g, something like kcal would be different.
 
 When not to judge as alias / Case 2:
 - There does not exist a food that fulfills Case 1 in the search results

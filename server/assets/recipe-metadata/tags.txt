@@ -4,9 +4,9 @@ Effort is an enum of LIGHT, MODERATE, HEAVY. Light is <30minutes, Moderate is up
 Difficulty is an enum of EASY, MEDIUM, HARD. Self explanatory. If in doubt, put MEDIUM.
 General Tags, you can choose from:
 
-GENERAL CATEGORY: Choose 0-2
+GENERAL CATEGORY: Choose 0-5
 meal prep:5
-family friendly:6
+kid friendly:6
 gourmet:7
 date night:8
 comfort food:9
@@ -14,9 +14,13 @@ one pot:10
 no cooking:11
 clean eating:12
 potluck:13
+holiday/special occasion:14
+grilling:15
 paleo:106
+mediterranean diet:116
+dash diet:117
 
-COURSE/FORMAT CATEGORY: Choose 1-3 (Use one course max, then specify if theres format(s) below that fit)
+COURSE/FORMAT CATEGORY: Choose 1-5 (Use one course max, then specify if theres format(s) below that fit)
 main/dinner:200
 breakfast:201
 side:202
@@ -36,11 +40,19 @@ sandwich:214
 dip:215
 casserole:216
 cocktail:217
-bread:218
-cake:219
-other baked good:220
+savory baked good / bread:218
+sweet baked good:219
+sauce:220
+marinade:221
+curry:222
+pizza:223
+smoothie:224
+broth/stock:225
+seasoning/spice blend:226
+jam/preserve:227
+burger:228
 
-CUISINE CATEGORY: Choose 1-2    
+CUISINE CATEGORY: Choose 1-3
 global:300
 fusion:301
 italian:302
@@ -67,6 +79,7 @@ malaysian:322
 african:323
 brazilian:324
 russian:325
+mexican:326
 
 Output format as json:
 {

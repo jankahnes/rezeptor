@@ -1,12 +1,12 @@
 import type { BaseRecipeInformation } from '~/types/exports';
 
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 //Uploads a recipe from a link
 export default defineEventHandler(async (event) => {
     const input = await readBody(event)
     const {link, args, jobId} = input
-    const supabase = await serverSupabaseClient(event);
+    const supabase = serverSupabaseServiceRole(event);
     
     const responseBase = await $fetch('https://jk-api.onrender.com/scrape-recipe-page', {
         method: 'POST',

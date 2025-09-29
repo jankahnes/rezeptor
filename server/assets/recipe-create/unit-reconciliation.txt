@@ -1,3 +1,6 @@
+For this food, we have a problem matching its unit:
+{food_name}
+
 Recipe unit: {unit}
 
 Available countable units for this food:
@@ -5,11 +8,11 @@ Available countable units for this food:
 
 Your task: Match the recipe unit to an available unit, or create a new one.
 
-If the recipe unit matches or is very similar to any available unit (accounting for plurals, abbreviations, synonyms), pick that existing unit.
+If the recipe unit matches (refers to the same thing) or is very similar to any available unit (accounting for plurals, abbreviations, synonyms), pick that existing unit.
 
 If no available unit matches, create a new unit with an estimated weight in grams.
 
-Note: "whole" represents the food item itself (like "1 banana", "1 apple") - the default unit when counting the food directly.
+Note: "whole" represents the food item itself (like "1 banana", "1 apple") - the default unit when counting the food directly. Basically means "no unit"/"".
 
 Examples:
 - Recipe unit "cloves" matches available "clove"
