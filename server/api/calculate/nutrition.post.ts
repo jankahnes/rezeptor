@@ -10,7 +10,7 @@ type CalculatorArgs = {
 
 type Response = {
     nutritionComputed: any;
-    report?: any;
+    nutrition: any;
 }
 
 export default defineEventHandler(async (event) => {
@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
   const response: Response = {
     nutritionComputed: recipeCalculator.recipeComputed,
     nutrition: scores,
-    report: calculatorArgs.logToReport ? recipeCalculator.report : undefined,
   };
   return response;
 });

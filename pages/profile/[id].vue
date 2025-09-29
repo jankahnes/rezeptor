@@ -7,7 +7,7 @@
     </div>
 
     <Skeleton
-      v-else-if="loading || !user"
+      v-else-if="pending || !user"
       class="max-w-200 shadow-xl rounded-[40px] z-0 min-h-200 mt-5 mx-auto"
     />
 
@@ -20,7 +20,7 @@
       class="max-w-200 sm:shadow-xl bg-main sm:rounded-[40px] z-0 min-h-200 mt-5 mx-auto"
     >
       <div
-        class="h-28 sm:h-40 w-full p-6 bg-primary text-white rounded-[38px] rounded-b-none relative"
+        class="h-20 sm:h-40 w-full sm:p-6 p-4 sm:bg-primary sm:text-white rounded-[38px] rounded-b-none relative"
       >
         <Avatar :user="user" class="absolute top-6 left-6 z-10 h-[120%]" />
         <div class="ml-38 sm:ml-52 mt-5 text-wrap">
@@ -37,7 +37,7 @@
           class="flex justify-end"
         >
           <button
-            class="button !bg-secondary flex items-center justify-center p-1"
+            class="button flex items-center justify-center p-1 text-primary"
           >
             <span class="material-symbols-outlined"> settings </span>
           </button>
@@ -54,14 +54,13 @@
         </div>
         <div
           v-if="selectedView == 'recipes'"
-          class="flex flex-col gap-6 justify-center mt-12"
+          class="flex flex-col gap-6 mt-12 items-stretch"
         >
-          <RecipeCard
+          <RecipeCardHorizontal
             :recipe="recipe"
             :hide-tags="true"
-            :horizontal="true"
             v-for="recipe in user?.recipes"
-            class="flex-1 text-2xl"
+            class="flex-1 text-xl sm:text-2xl w-full"
           />
         </div>
         <div v-if="selectedView == 'activity'" class="w-full space-y-4">
@@ -84,9 +83,6 @@ const route = useRoute();
 const userID = route.params.id;
 const auth = useAuthStore();
 const supabase = useSupabaseClient();
-const user = ref(null);
-const loading = ref(true);
-const error = ref(null);
 
 onMounted(() => {
   useHead({
@@ -94,20 +90,11 @@ onMounted(() => {
   });
 });
 
-if (auth.user?.id == userID) {
-  user.value = auth.user;
-  loading.value = false;
-} else {
-  const { data, pending, error } = useAsyncData('user', () =>
-    getUserPartial(supabase, { eq: { id: userID } })
-  );
-  watchEffect(() => {
-    if (data.value) {
-      user.value = data.value;
-    }
-    loading.value = false;
-  });
-}
+const {
+  data: user,
+  pending,
+  error,
+} = useLazyAsyncData('user', () => getUser(supabase, { eq: { id: userID } }));
 </script>
 
 <style scoped></style>

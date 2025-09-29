@@ -20,6 +20,10 @@ export default function buildQuery(
     query = query.limit(opts.limit);
   }
 
+  if (opts.range) {
+    query = query.range(opts.range.from, opts.range.to);
+  }
+
   if (opts.orderBy) {
     query = query.order(opts.orderBy.column, {
       ascending: opts.orderBy.ascending ?? true,

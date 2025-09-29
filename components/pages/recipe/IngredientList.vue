@@ -30,7 +30,7 @@
       </div>
       <div class="mb-4" v-if="batchSize && !servingMode">
         <p class="text-gray-600 ml-1 font-light">
-          For {{ batchSize }} servings
+          For {{ batchSize }} {{ batchSize === 1 ? 'serving' : 'servings' }}
         </p>
         <p
           @click="servingMode = !servingMode"
@@ -49,7 +49,10 @@
         />
         <p
           v-if="batchSize"
-          @click="servingMode = !servingMode; servingSize = batchSize"
+          @click="
+            servingMode = !servingMode;
+            servingSize = batchSize;
+          "
           class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer mb-4 italic"
         >
           Show ingredients for one batch
@@ -136,7 +139,18 @@
             </li>
           </ul>
         </template>
-
+        <transition name="fade-slide" mode="out-in">
+          <button
+            v-if="showAddToShoppingList"
+            class="button flex items-center gap-2 px-4 py-1 font-medium !bg-primary !text-white will-change-transform mt-6"
+            @click="addToShoppingList"
+          >
+            <span class="material-symbols-outlined !text-lg"
+              >add_shopping_cart</span
+            >
+            Add rest to Shopping List
+          </button>
+        </transition>
         <div
           v-if="!props.ingredients || props.ingredients.length === 0"
           class="text-center py-12"
@@ -178,6 +192,10 @@ const servingSize = computed({
 
 const servingMode = ref(!props.batchSize);
 const checkedIngredients = ref<Set<string>>(new Set());
+
+const showAddToShoppingList = computed(() => {
+  return checkedIngredients.value.size > 0 && checkedIngredients.value.size < props.ingredients?.length;
+});
 
 const notOnDefaultUnits = computed(() => {
   return props.ingredients?.some(

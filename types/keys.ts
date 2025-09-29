@@ -44,4 +44,5 @@ export const recipeKeys = [
   'user_id',
   'visibility',
   'processing_requirements',
+  'yield_factor',
 ] as const;

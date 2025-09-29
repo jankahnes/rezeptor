@@ -5,7 +5,6 @@ export default defineEventHandler(async (event): Promise<string> => {
   const config = useRuntimeConfig();
   const body = await readBody(event);
   const openai = new OpenAI({ apiKey: config.gptKey });
-  console.log('🔍 Getting GPT resonse using config:', getModelConfig(body.type));
   try {
     const response = await openai.responses.create({
       ...getModelConfig(body.type),

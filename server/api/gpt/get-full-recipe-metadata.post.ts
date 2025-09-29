@@ -16,16 +16,6 @@ export default defineEventHandler(async (event) => {
      Recipe Title: ${recipe.title}
      `;
 
-     if (recipe.instructions) {
-        message += `
-        Instructions:
-        `;
-        for (let i = 0; i < recipe.instructions.length; i++) {
-            message += `
-            ${i + 1}. ${recipe.instructions[i]}
-            `;
-        }
-     }
      message += `
      Ingredients:
      `;
@@ -38,6 +28,21 @@ export default defineEventHandler(async (event) => {
         ID: ${ingredient.id} - ${ingredient.name} - ${ingredient.amount} ${ingredient.unit}
         `;
      }}
+
+
+     const messageWithoutInstructions = message;
+
+     if (recipe.instructions && recipe.instructions.length) {
+        message += `
+        Instructions:
+        `;
+        for (let i = 0; i < recipe.instructions.length; i++) {
+            message += `
+            ${i + 1}. ${recipe.instructions[i]}
+            `;
+        }
+     }
+     
      let parsed = {
       general: null,
       processing: null,
@@ -68,7 +73,7 @@ export default defineEventHandler(async (event) => {
             method: 'POST',
             body: {
                 systemPrompt: tagsPrompt,
-                message: message,
+                message: messageWithoutInstructions,
                 type: 'default'
             },
         }));

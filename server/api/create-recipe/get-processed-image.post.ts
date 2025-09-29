@@ -53,9 +53,7 @@ export default defineEventHandler(async (event) => {
           body: JSON.stringify(imageGenerationData),
         }
       );
-      console.log('response', response);
       if (response.ok) {
-        console.log('response');
         const generatedImageBuffer = await response.arrayBuffer();
         const generatedImageBase64 = `data:image/png;base64,${Buffer.from(
           generatedImageBuffer

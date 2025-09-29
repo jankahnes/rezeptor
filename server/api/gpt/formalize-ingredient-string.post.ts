@@ -1,5 +1,5 @@
 import extractJson from '~/utils/format/extractJson'
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 /**
  * Input: {
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
     const input = await readBody(event)
     const {ingredients_string, recipe_context_string, jobId} = input
-    const supabase = await serverSupabaseClient(event);
+    const supabase = serverSupabaseServiceRole(event);
     console.log('🔍 Formalizing ingredients string')
     const formalizeResponse = await $fetch('/api/gpt/response', {
         method: 'POST',

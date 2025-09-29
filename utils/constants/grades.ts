@@ -47,9 +47,9 @@ export const gradeColors: Record<string, string> = {
   'S+': 'bg-blue-100 text-blue-800',
   'S-': 'bg-blue-100 text-blue-800',
 
-  'A+': 'bg-emerald-100 text-emerald-800',
-  A: 'bg-emerald-100 text-emerald-800',
-  'A-': 'bg-emerald-100 text-emerald-800',
+  'A+': 'bg-emerald-200 text-emerald-800',
+  A: 'bg-emerald-200 text-emerald-800',
+  'A-': 'bg-emerald-200 text-emerald-800',
 
   'B+': 'bg-green-100 text-green-800',
   B: 'bg-green-100 text-green-800',

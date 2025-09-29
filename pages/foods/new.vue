@@ -43,7 +43,7 @@
         <img
           v-if="requestsStore.requestsLoading"
           src="/loading.png"
-          class="h-8 w-8"
+          class="h-6 w-6"
         />
       </ClientOnly>
       See recent requests
@@ -65,7 +65,7 @@
           <ClientOnly v-if="request.status === 'PROCESSING'">
             <img
               src="/loading.png"
-              class="h-8 w-8"
+              class="h-6 w-6"
             />
           </ClientOnly>
           <NuxtLink

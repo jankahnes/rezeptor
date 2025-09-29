@@ -30,6 +30,7 @@ export type GetterOpts = {
   in?: Record<string, any[]>;
   not?: Record<string, any>;
   limit?: number;
+  range?: { from: number; to: number };
   orderBy?: { column: string; ascending?: boolean };
   filtering?: Filtering;
   search?: { column: string; query: string };

@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 interface Props {
-  instructions: string[] | null;
+  instructions: string[] | null | undefined;
   hideHeader: Boolean;
   ingredients?: any[];
   servingSize?: number;

@@ -1,7 +1,11 @@
 <template>
   <div>
+    <div class="w-full p-30 text-center" v-if="!recipeStore.recipe">
+      <p class="text-xl font-bold text-primary">Recipe not found</p>
+    </div>
     <div
       class="mx-auto max-w-screen-xl justify-center relative px-3 hidden md:block"
+      v-if="recipeStore.recipe"
     >
       <div
         v-if="recipeStore.recipe?.picture"
@@ -48,6 +52,26 @@
             >
               <span class="material-symbols-outlined !text-xl">
                 {{ isRecomputing ? 'hourglass_empty' : 'refresh' }}
+              </span>
+            </button>
+            <a
+              v-if="(auth?.user as any)?.username === 'administrator' && recipeStore.recipe?.generated_image_url"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              :href="recipeStore.recipe?.generated_image_url"
+              target="_blank"
+            >
+              <span class="material-symbols-outlined !text-xl"> camera </span>
+            </a>
+            <button
+              v-if="(auth?.user as any)?.username === 'administrator'"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              @click="regeneratePicture"
+              :disabled="regeneratePictureLoading"
+            >
+              <span class="material-symbols-outlined !text-xl">
+                {{
+                  regeneratePictureLoading ? 'hourglass_empty' : 'replace_image'
+                }}
               </span>
             </button>
             <button
@@ -148,7 +172,7 @@
           </div>
           <div class="flex flex-shrink-0 flex-col gap-2 items-end justify-end">
             <button
-              @click="scrollIntoView(commentSection as HTMLElement)"
+              @click="scrollIntoView(commentSection, 100)"
               class="text-sm px-2 py-1 rounded-lg bg-slate-700/40 text-slate-100 flex items-center gap-1"
             >
               Reviews
@@ -157,7 +181,7 @@
               </span>
             </button>
             <button
-              @click="scrollIntoView(nutritionSection as HTMLElement)"
+              @click="scrollIntoView(nutritionSection, 100)"
               class="text-sm px-2 py-1 rounded-lg bg-slate-700/40 text-slate-100 flex items-center gap-1"
             >
               Nutrition
@@ -224,19 +248,19 @@
           <div class="py-1 px-4 bg-primary text-white rounded-lg">
             <h2 class="text-lg font-bold">SIMILAR RECIPES</h2>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 mt-6 -ml-4">
             <RecipeCard
               v-for="recipe in similarRecipes"
               :key="recipe.id"
               :recipe="recipe"
-              class="w-50 h-80 text-[20px] sm:w-70 sm:h-100 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-4"
+              class="w-60 min-h-80 text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
             />
           </div>
         </div>
       </div>
     </div>
 
-    <div class="md:hidden">
+    <div class="md:hidden" v-if="recipeStore.recipe">
       <div
         class="w-full h-100 bg-cover bg-center bg-no-repeat p-4 relative z-0 !bg-[length:90%] !bg-[position:center_60px]"
         :class="{
@@ -297,7 +321,6 @@
           'border-t-1 border-primary-100': recipeStore.recipe?.picture,
         }"
         :style="{ marginTop: `${overlayMarginTop}px` }"
-        @touchstart="handleTouchStart"
       >
         <div
           class="w-full h-14 flex items-center justify-center cursor-pointer"
@@ -395,12 +418,21 @@
               {{ tag.name }}
             </div>
           </div>
+          <NuxtLink
+            :to="`/recipe/${id}/report`"
+            class="text-sm text-right px-2 py-1 rounded-lg button metallic-gradient-simple inline-flex self-start items-center gap-1 mt-4"
+          >
+            Full Health Report
+            <span class="material-symbols-outlined !text-sm">
+              open_in_new
+            </span>
+          </NuxtLink>
           <div ref="scrollTarget" class="mt-8 h-0"></div>
           <div class="sticky top-0 bg-white z-99 py-4">
             <FormsChoiceSlider
               v-model="mobileChosen"
               :choices="mobileChoices"
-              @click.capture="scrollIntoView(scrollTarget as HTMLElement)"
+              @click.capture="scrollIntoView(scrollTarget)"
             />
           </div>
           <div>
@@ -450,11 +482,10 @@
               <h2 class="text-lg font-bold">SIMILAR RECIPES</h2>
             </div>
             <div class="flex gap-2 flex-col mt-4">
-              <RecipeCard
+              <RecipeCardHorizontal
                 v-for="(recipe, index) in similarRecipes"
                 :key="recipe.id"
                 :recipe="recipe"
-                horizontal
                 class="text-lg flex-shrink-0 transition-all duration-300"
               />
             </div>
@@ -486,10 +517,10 @@ const mobileChoices = ref<{ value: string; displayName: string }[]>([
 // Serving size state - managed at page level for both IngredientList and InstructionContainer
 const servingSize = ref(2); // Default to 2 servings
 
-const scrollTarget = ref<HTMLElement>();
-const commentSection = ref<HTMLElement>();
-const nutritionSection = ref<HTMLElement>();
-const mobileOverlay = ref<HTMLElement>();
+const scrollTarget = ref();
+const commentSection = ref();
+const nutritionSection = ref();
+const mobileOverlay = ref();
 
 const showFullDescriptionDesktop = ref(false);
 const showFullDescriptionMobile = ref(false);
@@ -543,9 +574,28 @@ useHead({
   title: recipeStore.recipe?.title + ' | Rezeptor',
 });
 
-const scrollIntoView = async (target: HTMLElement | undefined) => {
+const scrollIntoView = async (target: any, offset: number = 0) => {
   if (!target) return;
-  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Handle Vue component refs by accessing $el
+  let domElement: HTMLElement;
+  if (target.$el) {
+    domElement = target.$el;
+  } else {
+    domElement = target;
+  }
+
+  if (!domElement || !domElement.getBoundingClientRect) return;
+
+  // Get the target's position
+  const targetRect = domElement.getBoundingClientRect();
+  const targetTop = targetRect.top + window.pageYOffset;
+
+  // Scroll to the target position minus the offset
+  window.scrollTo({
+    top: targetTop - offset,
+    behavior: 'smooth',
+  });
 };
 
 onMounted(async () => {
@@ -563,10 +613,15 @@ onMounted(async () => {
 });
 
 const deleteRecipe = async () => {
-  if ((auth?.user as any)?.username !== 'administrator') {
-    return;
+  const { error } = await $fetch('/api/db/delete-recipe', {
+    method: 'POST',
+    body: {
+      recipeId: id,
+    },
+  });
+  if (error) {
+    throw error;
   }
-  await supabase.from('recipes').delete().eq('id', id);
   recipeStore.deleteRecipe(id);
   recipeStore.setRecipe({} as RecipeProcessed);
   router.push('/');
@@ -588,7 +643,7 @@ const recomputeRecipe = async () => {
       logToReport: false,
       isFood: false,
       considerProcessing: false,
-    }
+    };
     const response = await $fetch('/api/calculate/recipe', {
       method: 'POST',
       body: {
@@ -614,5 +669,48 @@ const recomputeRecipe = async () => {
   } finally {
     isRecomputing.value = false;
   }
+};
+
+const regeneratePictureLoading = ref(false);
+const regeneratePicture = async () => {
+  regeneratePictureLoading.value = true;
+  const payload = {
+    title: recipeStore.recipe?.title,
+    instructions: recipeStore.recipe?.instructions,
+    processing_requirements: recipeStore.recipe?.processing_requirements,
+  };
+  const response = await $fetch('/api/create-recipe/get-processed-image', {
+    method: 'POST',
+    body: payload,
+  });
+  if (!response.image_base64) {
+    regeneratePictureLoading.value = false;
+    throw new Error('Failed to generate picture');
+  }
+  const imageData = await $fetch('/api/db/upload-image', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: {
+      image: response.image_base64,
+      bucket: 'recipe',
+      id: recipeStore.recipe?.id,
+      shouldUpsert: true,
+    },
+  });
+  recipeStore.recipe.picture = imageData.publicUrl;
+  await supabase
+    .from('recipes')
+    .update({
+      picture: imageData.publicUrl,
+      generated_image_url: response.generated_image_url,
+      processing_requirements: {
+        ...recipeStore.recipe?.processing_requirements,
+        has_picture: true,
+      },
+    })
+    .eq('id', recipeStore.recipe.id);
+  regeneratePictureLoading.value = false;
 };
 </script>

@@ -122,28 +122,47 @@
       </div>
     </div>
     <div class="my-6 mx-2 sm:mx-6 z-2">
-      <div
-        class="flex-wrap gap-4 sm:gap-6 hidden md:flex justify-center"
-        v-if="!pending"
-      >
-        <RecipeCardNew
+      <div class="flex-wrap gap-4 sm:gap-6 hidden md:flex justify-center">
+        <RecipeCard
           :recipe="recipe"
-          class="max-w-85 min-w-75 basis-75 min-h-110 text-[32px] flex-1"
+          class="min-w-75 max-w-85 basis-75 min-h-110 text-[32px] flex-1"
           v-for="recipe in results"
+          :key="recipe.id"
+        />
+        <div
+          ref="sentinelElement"
+          v-if="isLoading || hasMoreRecipes"
+          class="min-w-75 max-w-85 basis-75 h-120 text-[32px] flex-1 rounded-xl"
+        >
+          <Skeleton
+            class="min-w-75 max-w-85 basis-75 h-120 text-[32px] flex-1 rounded-xl"
+          />
+        </div>
+        <Skeleton
+          v-if="isLoading || hasMoreRecipes"
+          v-for="i in 10"
+          :key="i"
+          class="min-w-75 max-w-85 basis-75 h-120 text-[32px] flex-1 rounded-xl"
         />
       </div>
-      <div class="flex flex-wrap gap-4 md:hidden" v-if="!pending">
-        <RecipeCard
+      <div class="flex flex-col gap-4 md:hidden justify-items-stretch">
+        <RecipeCardHorizontal
           :recipe="recipe"
           class=""
           v-for="recipe in results"
-          horizontal
+          :key="recipe.id"
         />
-      </div>
-      <div class="flex flex-wrap gap-6 md:justify-start justify-center" v-else>
+        <div
+          ref="sentinelElementMobile"
+          class="w-full"
+          v-if="isLoading || hasMoreRecipes"
+        >
+          <Skeleton class="w-full h-28 xs:h-34 rounded-xl" />
+        </div>
         <Skeleton
-          class="flex-1 max-w-100 min-w-80 basis-80 text-[26px] h-120 sm:max-w-90 sm:min-w-80 sm:h-120 sm:text-[34px] sm:basis-80 rounded-xl"
-          v-for="i in 10"
+          v-if="isLoading || hasMoreRecipes"
+          class="w-full h-28 xs:h-34 rounded-xl"
+          v-for="i in 5"
           :key="i"
         />
       </div>
@@ -173,6 +192,13 @@ const sorts = ref([
   'Alphabetical',
 ]);
 
+const RECIPES_PER_PAGE = 15;
+const currentOffset = ref(0);
+const isLoading = ref(false);
+const hasMoreRecipes = ref(true);
+const sentinelElement = ref<HTMLElement | null>(null);
+const sentinelElementMobile = ref<HTMLElement | null>(null);
+
 const filtering = computed(() => {
   const returnFiltering: Filtering = {
     difficulties: ['EASY', 'MEDIUM', 'HARD'],
@@ -201,19 +227,73 @@ const filtering = computed(() => {
   return returnFiltering;
 });
 
-const { data, pending, refresh } = await useLazyAsyncData('recipes', () =>
-  getRecipesPartial(supabase, {
-    orderBy: { column: 'created_at', ascending: false },
-    not: { picture: null },
-    eq: { visibility: 'PUBLIC' },
-    filtering: filtering.value,
-  })
-);
+async function loadMoreRecipes() {
+  if (isLoading.value || !hasMoreRecipes.value) return;
 
-watchEffect(() => {
-  if (data.value) {
-    results.value = data.value as RecipeProcessed[];
+  isLoading.value = true;
+  try {
+    const newRecipes = await getRecipesPartial(supabase, {
+      orderBy: { column: 'created_at', ascending: false },
+      not: { picture: null },
+      eq: { visibility: 'PUBLIC' },
+      filtering: filtering.value,
+      range: {
+        from: currentOffset.value,
+        to: currentOffset.value + RECIPES_PER_PAGE - 1,
+      },
+    });
+
+    if (newRecipes.length < RECIPES_PER_PAGE) {
+      hasMoreRecipes.value = false;
+    }
+
+    results.value.push(...newRecipes);
+    currentOffset.value += RECIPES_PER_PAGE;
+  } catch (error) {
+    console.error('Error loading recipes:', error);
+  } finally {
+    isLoading.value = false;
   }
+}
+
+async function refresh() {
+  currentOffset.value = 0;
+  results.value = [];
+  hasMoreRecipes.value = true;
+  await loadMoreRecipes();
+}
+
+// Intersection Observer for lazy loading
+onMounted(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !isLoading.value && hasMoreRecipes.value) {
+          loadMoreRecipes();
+        }
+      });
+    },
+    {
+      rootMargin: '100px',
+    }
+  );
+
+  if (sentinelElement.value) {
+    observer.observe(sentinelElement.value);
+  }
+
+  if (sentinelElementMobile.value) {
+    observer.observe(sentinelElementMobile.value);
+  }
+
+  onBeforeUnmount(() => {
+    observer.disconnect();
+  });
+});
+
+// Initial load
+onMounted(() => {
+  loadMoreRecipes();
 });
 
 function getEuroFormat(num: number): string {
