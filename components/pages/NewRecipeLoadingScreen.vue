@@ -70,17 +70,8 @@ const props = defineProps<{
   jobId: number;
 }>();
 
-interface Job {
-  id: string;
-  step_index?: number;
-  updated_at: string;
-  type: string;
-  [key: string]: any;
-  message: string | null;
-}
-
 const job = ref<Job | null>(null);
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const pollingRate = ref(1000);
 let pollingInterval: NodeJS.Timeout | null = null;
 const steps = ref<{ [key: number]: string }>({});

@@ -1,19 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { expectSingle } from '~/utils/db/getters/expectSingle';
-import { getRatings } from '~/utils/db/getters/getRatings';
-import { getUserPartial } from '~/utils/db/getters/getUser';
-import buildQuery from '~/utils/db/getters/buildQuery';
-import buildQueryFromRecipeFiltering from '~/utils/db/getters/buildQueryFromRecipeFiltering';
-import type { GetterOpts } from '~/types/exports';
-import fillForUnits from '~/utils/format/fillForUnits';
+import type { Comment } from '~/types/types';
 
 export async function getRecipes(
-  client: SupabaseClient,
+  client: SupabaseClient<Database>,
   opts: GetterOpts = {}
-): Promise<RecipeProcessed[]> {
+): Promise<Recipe[]> {
   let query = client.from('recipes').select(`
         *,
-        tag_objs:recipe_tags(tag_id),
+        tags:recipe_tags(tag_id),
         ingredients:recipe_foods(
           amount,
           unit,
@@ -21,35 +15,32 @@ export async function getRecipes(
             id,
             name,
             food:foods(
-              id, price, density, countable_units
+              id, density, countable_units
             )
           ),
           category,
-          thermal_intensity,
-          mechanical_disruption,
-          heat_medium,
-          thermal_description,
-          mechanical_description,
-          hydration_factor,
-          preparation_description,
-          consumption_factor
+          preparation_description
         ),
-        comments:comments(*),
+        comments:comments(*,
+          user:profiles(id, username, picture)
+        ),
         user:profiles(id, username, picture)
       `);
 
   query = buildQuery(query, opts);
 
   const { data, error } = await query;
+  const recipes = data as any;
   if (error) throw error;
-  const recipes = data.map((recipe) => ({
-    ...recipe,
-    tags: recipe.tag_objs.map((t) => t.tag_id),
-  })) as RecipeProcessed[];
+  for (const recipe of recipes) {
+    recipe.tags = recipe.tags.map((t: { tag_id: number }) => t.tag_id);
+  }
   if (recipes.length === 0) return [];
 
-  const userIds = recipes.flatMap((r) => r.comments.map((c) => c.user_id));
-  const recipeIds = recipes.map((r) => r.id);
+  const userIds = recipes.flatMap((r: Recipe) =>
+    r.comments.map((c: { user_id: string }) => c.user_id)
+  );
+  const recipeIds = recipes.map((r: Recipe) => r.id);
   const ratings = await getRatings(client, {
     in: { user_id: userIds, recipe_id: recipeIds },
   });
@@ -60,16 +51,15 @@ export async function getRecipes(
         (r) => r.user_id === c.user_id && r.recipe_id === recipe.id
       );
       c.rating = match?.rating ?? null;
-      c.user = await getUserPartial(client, { eq: { id: c.user_id } });
     }
 
-    const map: Record<number, CommentProcessed> = {};
-    recipe.comments.forEach((c) => {
+    const map: Record<number, Comment> = {};
+    recipe.comments.forEach((c: Comment) => {
       c.replies = [];
-      map[c.id] = c;
+      map[c.id!] = c;
     });
-    const roots: CommentProcessed[] = [];
-    recipe.comments.forEach((c) => {
+    const roots: Comment[] = [];
+    recipe.comments.forEach((c: Comment) => {
       if (c.replying_to && map[c.replying_to]) {
         map[c.replying_to].replies!.push(c);
       } else {
@@ -77,46 +67,67 @@ export async function getRecipes(
       }
     });
     recipe.comments = roots;
+    recipe.processing_requirements =
+      recipe.processing_requirements as ProcessingRequirement;
 
-    recipe.ingredients = recipe.ingredients.map((ingredient) => {
+    recipe.ingredients = recipe.ingredients.map((ingredient: any) => {
       return {
         id: ingredient.food_name.id,
         name: ingredient.food_name.name,
-        price: ingredient.food_name.food.price,
-        density: ingredient.food_name.food.density,
         category: ingredient.category,
-        amountInfo: [[ingredient.amount, ingredient.unit]],
         amount: ingredient.amount,
         unit: ingredient.unit,
-        currentUnit: 0,
-        thermal_intensity: ingredient.thermal_intensity,
-        mechanical_disruption: ingredient.mechanical_disruption,
-        heat_medium: ingredient.heat_medium,
-        thermal_description: ingredient.thermal_description,
-        mechanical_description: ingredient.mechanical_description,
-        hydration_factor: ingredient.hydration_factor,
-        preparation_description: ingredient.preparation_description,
         countable_units: ingredient.food_name.food.countable_units,
-        consumption_factor: ingredient.consumption_factor,
-      };
+        amountInfo: [[ingredient.amount, ingredient.unit]],
+        currentUnit: 0,
+        density: ingredient.food_name.food.density,
+        preparation_description: ingredient.preparation_description,
+      } as Ingredient;
     });
     recipe.ingredients.forEach(fillForUnits);
   }
-  return recipes;
+  return recipes as Recipe[];
 }
 
-export async function getRecipe(client: SupabaseClient, opts: GetterOpts = {}) {
+export async function getRecipe(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+): Promise<Recipe> {
   return expectSingle(await getRecipes(client, opts));
 }
 
-export async function getRecipesPartial(
+export async function getRecipeOverviews(
   client: SupabaseClient,
   opts: GetterOpts = {}
-) {
+): Promise<RecipeOverview[]> {
   let query = client.from('recipes').select(`
         *,
         tags:recipe_tags(tag_id)
       `);
+  if (
+    opts.trigram_search &&
+    opts.trigram_search.query &&
+    opts.trigram_search.query.trim() !== ''
+  ) {
+    const { data: trigramResults, error: trigramError } = await client.rpc(
+      'search_recipes',
+      {
+        query: opts.trigram_search.query,
+        max: opts.limit || 50,
+      }
+    );
+
+    if (trigramError) throw trigramError;
+
+    if (!trigramResults || trigramResults.length === 0) {
+      return [];
+    }
+
+    const recipeIds = trigramResults.map((result: any) => result.id);
+
+    query = query.in('id', recipeIds);
+  }
+
   if (opts.filtering) {
     query = buildQueryFromRecipeFiltering(query, opts.filtering);
   }
@@ -125,5 +136,16 @@ export async function getRecipesPartial(
   const { data, error } = await query;
   if (error) throw error;
 
-  return data as RecipeProcessed[];
+  for (const recipe of data) {
+    recipe.tags = recipe.tags.map((t: { tag_id: number }) => t.tag_id);
+  }
+
+  return data as RecipeOverview[];
+}
+
+export async function getRecipeOverview(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+): Promise<RecipeOverview> {
+  return expectSingle(await getRecipeOverviews(client, opts));
 }

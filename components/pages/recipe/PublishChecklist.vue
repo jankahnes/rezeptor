@@ -163,11 +163,11 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  recipe: RecipeProcessed;
+  recipe: Recipe;
   refresh: (recipeId: number, force: boolean) => Promise<void>;
 }>();
 
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const generatePictureLoading = ref(false);
 const generateInstructionsLoading = ref(false);
 const publishLoading = ref(false);
@@ -190,7 +190,6 @@ const generatePicture = async () => {
     generatePictureLoading.value = false;
     throw new Error('Failed to generate picture');
   }
-  props.recipe.generated_image_url = response.generated_image_url;
   const imageData = await $fetch('/api/db/upload-image', {
     method: 'POST',
     headers: {
@@ -202,15 +201,14 @@ const generatePicture = async () => {
       id: props.recipe.id,
     },
   });
-  props.recipe.processing_requirements.has_picture = true;
+  props.recipe.processing_requirements!.has_picture = true;
   props.recipe.picture = imageData.publicUrl;
   await supabase
     .from('recipes')
     .update({
       picture: imageData.publicUrl,
-      generated_image_url: response.generated_image_url,
       processing_requirements: {
-        ...props.recipe.processing_requirements,
+        ...(props.recipe.processing_requirements as ProcessingRequirement),
         has_picture: true,
       },
     })
@@ -231,15 +229,15 @@ const generateInstructions = async () => {
     body: payload,
   });
   Object.assign(props.recipe, response);
-  props.recipe.processing_requirements.has_instructions = true;
-  props.recipe.processing_requirements.instructions_matched_to_ingredients =
+  props.recipe.processing_requirements!.has_instructions = true;
+  props.recipe.processing_requirements!.instructions_matched_to_ingredients =
     true;
   await supabase
     .from('recipes')
     .update({
       ...response,
       processing_requirements: {
-        ...props.recipe.processing_requirements,
+        ...(props.recipe.processing_requirements as ProcessingRequirement),
         has_instructions: true,
         instructions_matched_to_ingredients: true,
       },
@@ -304,6 +302,7 @@ const replaceImage = () => {
 
 const handleFileSelected = async (event: Event) => {
   const target = event.target as HTMLInputElement;
+  const shouldUpsert = Boolean(props.recipe.picture);
   const file = target.files?.[0];
   if (!file) return;
 
@@ -313,7 +312,7 @@ const handleFileSelected = async (event: Event) => {
     formData.append('image', file);
     formData.append('bucket', 'recipe');
     formData.append('id', props.recipe.id.toString());
-    formData.append('shouldUpsert', 'true');
+    formData.append('shouldUpsert', shouldUpsert ? 'true' : 'false');
 
     const imageData = await $fetch('/api/db/upload-image', {
       method: 'POST',

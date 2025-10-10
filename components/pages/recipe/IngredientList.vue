@@ -42,6 +42,7 @@
       <div v-else>
         <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
         <FormsSlidingSelector
+          v-if="servingSize"
           v-model="servingSize"
           :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
           :expanded="false"
@@ -106,7 +107,7 @@
                   {{
                     getStringFromAmountInfo(
                       ingredient?.amountInfo?.[ingredient?.currentUnit],
-                      servingSize
+                      servingSize ?? 1
                     )
                   }}
                   <span
@@ -143,7 +144,7 @@
           <button
             v-if="showAddToShoppingList"
             class="button flex items-center gap-2 px-4 py-1 font-medium !bg-primary !text-white will-change-transform mt-6"
-            @click="addToShoppingList"
+            @click="() => {}"
           >
             <span class="material-symbols-outlined !text-lg"
               >add_shopping_cart</span
@@ -190,11 +191,33 @@ const servingSize = computed({
   set: (value) => emit('update:servingSize', value),
 });
 
+const groupedIngredients = computed(() => {
+  const uncategorized: any[] = [];
+  const categorized: Record<string, any[]> = {};
+
+  for (const ingredient of props.ingredients || []) {
+    const category = ingredient.category;
+    if (!category) {
+      uncategorized.push(ingredient);
+    } else {
+      if (!categorized[category]) {
+        categorized[category] = [];
+      }
+      categorized[category].push(ingredient);
+    }
+  }
+
+  return { uncategorized, categorized };
+});
+
 const servingMode = ref(!props.batchSize);
 const checkedIngredients = ref<Set<string>>(new Set());
 
 const showAddToShoppingList = computed(() => {
-  return checkedIngredients.value.size > 0 && checkedIngredients.value.size < props.ingredients?.length;
+  return (
+    checkedIngredients.value.size > 0 &&
+    checkedIngredients.value.size < (props.ingredients?.length ?? 1)
+  );
 });
 
 const notOnDefaultUnits = computed(() => {
@@ -210,8 +233,8 @@ function getIngredientName(ingredient: any) {
   const amountInfo = ingredient?.amountInfo?.[ingredient?.currentUnit];
   if (
     isCountable(amountInfo[1]) &&
-    amountInfo[0] * servingSize.value > 1 &&
-    !amountInfo[1]
+    amountInfo[0] * (servingSize.value ?? 1) > 1 &&
+    !unitIsNoun(amountInfo[1])
   ) {
     return pluralizeWord(ingredient.name);
   }
@@ -236,15 +259,7 @@ function onClickIngredient(ingredient: any) {
 
 function copyIngredients() {
   navigator.clipboard.writeText(
-    props.ingredients
-      ?.map(
-        (ingredient) =>
-          `${ingredient.name}: ${getStringFromAmountInfo(
-            ingredient.amountInfo[ingredient.currentUnit],
-            servingSize.value
-          )}`
-      )
-      .join('\n') ?? ''
+    getStringFromIngredients(props.ingredients, servingSize.value ?? 1)
   );
 }
 
@@ -253,25 +268,6 @@ function resetUnits() {
     ingredient.currentUnit = 0;
   }
 }
-
-const groupedIngredients = computed(() => {
-  const uncategorized: any[] = [];
-  const categorized: Record<string, any[]> = {};
-
-  for (const ingredient of props.ingredients || []) {
-    const category = ingredient.category;
-    if (!category) {
-      uncategorized.push(ingredient);
-    } else {
-      if (!categorized[category]) {
-        categorized[category] = [];
-      }
-      categorized[category].push(ingredient);
-    }
-  }
-
-  return { uncategorized, categorized };
-});
 </script>
 
 <style scoped>

@@ -48,10 +48,11 @@
   </svg>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
   modelValue: {
     type: Number,
+    required: true,
     default: 0,
   },
   select: {
@@ -70,13 +71,16 @@ const props = defineProps({
     type: Number,
     default: -2,
   },
-  id: Number | String,
+  id: {
+    type: [Number, String],
+    required: true,
+  },
 });
 
 const maskId = computed(() => `star-mask-${props.id}`);
 const emit = defineEmits(['update:modelValue']);
 
-const hoverRating = ref(null);
+const hoverRating = ref<number | null>(null);
 
 const starPath =
   'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z';
@@ -89,9 +93,9 @@ const displayRating = computed(() =>
 
 const fillWidth = computed(() => (displayRating.value / 5) * totalWidth.value);
 
-const onMouseMove = (event) => {
+const onMouseMove = (event: MouseEvent) => {
   if (!props.select) return;
-  const rect = event.currentTarget.getBoundingClientRect();
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
   const x = event.clientX - rect.left;
   let rating = (x / totalWidth.value) * 5;
   rating = Math.max(0, Math.min(5, rating));
@@ -103,9 +107,9 @@ const onMouseLeave = () => {
   hoverRating.value = null;
 };
 
-const onClick = (event) => {
+const onClick = (event: MouseEvent) => {
   if (!props.select) return;
-  const rect = event.currentTarget.getBoundingClientRect();
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
   const x = event.clientX - rect.left;
   let rating = (x / totalWidth.value) * 5;
   rating = Math.max(0, Math.min(5, rating));

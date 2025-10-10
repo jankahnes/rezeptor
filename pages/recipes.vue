@@ -1,9 +1,20 @@
 <template>
   <div>
     <div class="h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10">
-      <h1 class="hidden md:block text-2xl font-bold text-center sm:text-start">
-        All Recipes
-      </h1>
+      <div
+        class="mt-8 sm:mt-0 inline-flex min-w-100 items-center outline outline-gray-300 rounded-lg px-2 gap-2"
+      >
+        <span class="material-symbols-outlined">search</span>
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Search for a recipe"
+          class="flex-grow focus:outline-none py-2"
+          @keyup.enter="refresh"
+          @blur="refresh"
+        />
+      </div>
+
       <div
         class="flex justify-center sm:justify-between items-center flex-wrap gap-2"
       >
@@ -52,13 +63,16 @@
             @click="refresh()"
             class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
           >
-            <span class="">Apply</span>
+            <span class="material-symbols-outlined">search</span>
           </button>
         </div>
         <div class="flex items-center gap-4">
           <span class="hidden xl:block">Sort by:</span>
-          <div class="relative inline-block min-w-45 z-10">
-            <FormsDropdown v-model="selectedSorting" :choices="sorts" />
+          <div class="relative inline-block min-w-45 z-20">
+            <FormsDropdown
+              v-model="selectedSorting"
+              :choices="sorts.map((sort) => sort.displayName)"
+            />
           </div>
         </div>
       </div>
@@ -171,28 +185,35 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const visibleTags = ref<string[]>([]);
 const filteringTags = ref<number[]>([]);
-
+const searchQuery = ref('');
 const selectedFilter = ref('');
-const results = ref<RecipeProcessed[]>([]);
+const results = ref<RecipeOverview[]>([]);
 
-const healthScoreRange = ref<[number, number]>([0, 100]);
+const healthScoreRange = ref<[number, number]>([0, 110]);
 const kcalRange = ref<[number, number]>([0, 2500]);
 const costRange = ref<[number, number]>([0, 200]);
 const selectedSorting = ref('Popularity');
 const sorts = ref([
-  'Popularity',
-  'Rating',
-  'Cost',
-  'Kcal',
-  'Ingredients (#)',
-  'Newest',
-  'Alphabetical',
+  {
+    displayName: 'Popularity',
+    value: { column: 'created_at', ascending: false },
+  },
+  { displayName: 'Rating', value: { column: 'rating', ascending: false } },
+  { displayName: 'Cost', value: { column: 'price', ascending: true } },
+  { displayName: 'Kcal', value: { column: 'kcal', ascending: true } },
+  { displayName: 'Health Score', value: { column: 'hidx', ascending: false } },
+  {
+    displayName: 'Ingredients (#)',
+    value: { column: 'title', ascending: true },
+  },
+  { displayName: 'Newest', value: { column: 'created_at', ascending: false } },
+  { displayName: 'Alphabetical', value: { column: 'title', ascending: true } },
 ]);
 
-const RECIPES_PER_PAGE = 15;
+const RECIPES_PER_PAGE = 12;
 const currentOffset = ref(0);
 const isLoading = ref(false);
 const hasMoreRecipes = ref(true);
@@ -201,42 +222,27 @@ const sentinelElementMobile = ref<HTMLElement | null>(null);
 
 const filtering = computed(() => {
   const returnFiltering: Filtering = {
-    difficulties: ['EASY', 'MEDIUM', 'HARD'],
-    efforts: ['LIGHT', 'MODERATE', 'HEAVY'],
     visibility: 'PUBLIC',
     tags: filteringTags.value,
     hidx: healthScoreRange.value,
     kcal: kcalRange.value,
     price: [costRange.value[0] / 10, costRange.value[1] / 10],
-    title: '',
   };
-  for (const tag of visibleTags.value) {
-    if (tag.startsWith('Difficulty')) {
-      if (returnFiltering.difficulties?.length == 3) {
-        returnFiltering.difficulties = [];
-      }
-      returnFiltering.difficulties?.push(tag.split(' ')[1].toUpperCase());
-    }
-    if (tag.startsWith('Effort')) {
-      if (returnFiltering.efforts?.length == 3) {
-        returnFiltering.efforts = [];
-      }
-      returnFiltering.efforts?.push(tag.split(' ')[1].toUpperCase());
-    }
-  }
   return returnFiltering;
 });
 
 async function loadMoreRecipes() {
   if (isLoading.value || !hasMoreRecipes.value) return;
-
   isLoading.value = true;
   try {
-    const newRecipes = await getRecipesPartial(supabase, {
-      orderBy: { column: 'created_at', ascending: false },
+    const newRecipes = await getRecipeOverviews(supabase, {
+      orderBy: sorts.value.find(
+        (sort) => sort.displayName === selectedSorting.value
+      )?.value as { column: string; ascending: boolean },
       not: { picture: null },
       eq: { visibility: 'PUBLIC' },
       filtering: filtering.value,
+      trigram_search: { column: 'title', query: searchQuery.value },
       range: {
         from: currentOffset.value,
         to: currentOffset.value + RECIPES_PER_PAGE - 1,
@@ -247,7 +253,7 @@ async function loadMoreRecipes() {
       hasMoreRecipes.value = false;
     }
 
-    results.value.push(...newRecipes);
+    results.value = [...results.value, ...newRecipes];
     currentOffset.value += RECIPES_PER_PAGE;
   } catch (error) {
     console.error('Error loading recipes:', error);
@@ -263,8 +269,15 @@ async function refresh() {
   await loadMoreRecipes();
 }
 
-// Intersection Observer for lazy loading
-onMounted(() => {
+const debouncedRefresh = debounce(refresh, 1000);
+
+watch(filtering, debouncedRefresh, { deep: true });
+watch(selectedSorting, refresh);
+
+onMounted(async () => {
+  await loadMoreRecipes();
+  await nextTick();
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -289,11 +302,6 @@ onMounted(() => {
   onBeforeUnmount(() => {
     observer.disconnect();
   });
-});
-
-// Initial load
-onMounted(() => {
-  loadMoreRecipes();
 });
 
 function getEuroFormat(num: number): string {

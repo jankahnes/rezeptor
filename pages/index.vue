@@ -97,16 +97,16 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const recipeStore = useRecipeStore();
 const auth = useAuthStore();
 
-const userRecipes = ref(null);
-const recentActivity = ref(null);
+const userRecipes = ref<RecipeOverview[] | null>(null);
+const recentActivity = ref<Activity[] | null>(null);
 
 if (!recipeStore.indexRecipes.length) {
   const { data } = await useAsyncData('index', () =>
-    getRecipesPartial(supabase, {
+    getRecipeOverviews(supabase, {
       eq: { visibility: 'PUBLIC' },
       not: { picture: null },
       orderBy: { column: 'created_at', ascending: false },
@@ -121,7 +121,7 @@ if (!recipeStore.indexRecipes.length) {
 const loadUserData = async () => {
   if (auth.user?.id) {
     // Fetch user's recipes
-    userRecipes.value = await getRecipesPartial(supabase, {
+    userRecipes.value = await getRecipeOverviews(supabase, {
       eq: { user_id: auth.user?.id },
       orderBy: { column: 'created_at', ascending: false },
       limit: 10,

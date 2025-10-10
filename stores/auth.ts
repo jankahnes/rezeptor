@@ -1,5 +1,5 @@
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref<null | Object>(null);
+  const user = ref<FullUser | null>(null);
   const authListenerSet = ref(false);
   const userFetched = ref(false);
   const supabase = useSupabaseClient();
@@ -7,7 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchProfile() {
     if (!user.value || !user.value.id) return;
     const profile = expectSingleOrNull(await getUsers(supabase, { eq: { id: user.value.id } }));
-    if(profile) user.value = profile;
+    if(profile) Object.assign(user.value, profile);
   }
 
   async function fetchUser() {
@@ -18,15 +18,14 @@ export const useAuthStore = defineStore('auth', () => {
     const { data } = await supabase.auth.getUser();
     
     if (data.user) {
-      // User is authenticated (either regular or anonymous)
       user.value = data.user;
     } else {
-      // No user session - sign in anonymously
       const { data: anonData, error } = await supabase.auth.signInAnonymously();
+      if (error) {
+        console.error('Failed to sign in anonymously:', error);
+      }
       if (anonData.user) {
         user.value = anonData.user;
-      } else {
-        console.error('Failed to sign in anonymously:', error);
       }
     }
     
@@ -42,8 +41,10 @@ export const useAuthStore = defineStore('auth', () => {
           user.value = newUser;
           fetchProfile();
         } else {
-          // No session - sign in anonymously
           const { data: anonData, error } = await supabase.auth.signInAnonymously();
+          if (error) {
+            console.error('Failed to sign in anonymously:', error);
+          }
           if (anonData.user) {
             user.value = anonData.user;
           }
@@ -74,7 +75,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function signOut() {
     await supabase.auth.signOut();
-    // After sign out, Supabase will trigger onAuthStateChange which will sign in anonymously
   }
 
   function isUser() {

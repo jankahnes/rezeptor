@@ -52,7 +52,7 @@ function measureSegments() {
       segmentOffsets.value = btnRefs.value.map((btn) => btn?.offsetTop || 0);
     } else {
       segmentSizes.value = btnRefs.value.map(
-        (btn) => btn?.offsetWidth + 1 || 0
+        (btn) => (btn?.offsetWidth ?? 0) + 1 || 0
       );
       segmentOffsets.value = btnRefs.value.map((btn) => btn?.offsetLeft || 0);
     }

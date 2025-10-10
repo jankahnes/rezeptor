@@ -32,6 +32,6 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  user: UserProcessed;
+  user: User | FullUser;
 }>();
 </script>

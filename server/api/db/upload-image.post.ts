@@ -1,6 +1,7 @@
 import formidable from 'formidable';
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
 import fs from 'fs/promises';
+import type { Database } from '~/types/supabase';
 
 export const config = {
   api: {
@@ -99,7 +100,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Use service role for storage operations (with manual auth checks)
-  const client = serverSupabaseServiceRole(event);
+  const client = serverSupabaseServiceRole<Database>(event);
 
   if (shouldUpsert) {
     // Check ownership before allowing upsert (only for recipe bucket)

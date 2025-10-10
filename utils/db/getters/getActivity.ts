@@ -1,15 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import buildQuery from '~/utils/db/getters/buildQuery';
-import type { GetterOpts } from '~/types/exports';
 
 export async function getActivity(
   client: SupabaseClient,
   opts: GetterOpts = {}
-) {
+): Promise<Activity[]> {
   let query = client.from('activity').select(
     `
       *,
-      user: user_id ( username, picture ),
+      user: user_id ( username, picture, id ),
       comment: comment_id (
         content,
         recipe: recipe_id (
@@ -19,7 +17,8 @@ export async function getActivity(
       ),
       recipe: recipe_id (
         title,
-        id
+        id,
+        picture
       ),
       rating: rating_id (
         rating,
@@ -35,5 +34,5 @@ export async function getActivity(
   query = buildQuery(query, opts);
   const { data, error } = await query;
   if (error) throw error;
-  return data as ActivityProcessed[];
+  return data as Activity[];
 }

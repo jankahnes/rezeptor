@@ -1,25 +1,26 @@
 import isCountable from './isCountable';
 
-
-type Unit = 'G' | 'KG' | 'OZ' | 'LB' | 'ML' | 'L' | 'TSP' | 'TBSP' | 'CUP' | 'FREE';
-
-interface Ingredient {
-  amountInfo?: [string | number, Unit][];
-  density?: number;
-  unit_weight?: number;
-  name?: string;
-}
-
+type Unit =
+  | 'G'
+  | 'KG'
+  | 'OZ'
+  | 'LB'
+  | 'ML'
+  | 'L'
+  | 'TSP'
+  | 'TBSP'
+  | 'CUP'
+  | 'FREE';
 type AmountInfo = [number, Unit];
 
-const excludeList = ['OZ', 'LB', 'L', 'KG', 'CUP']
+const excludeList = ['OZ', 'LB', 'L', 'KG', 'CUP'];
 
 // Conversion factors to grams (for weight units) or to ml (for volume units)
 const WEIGHT_TO_GRAMS: Record<string, number> = {
   G: 1,
   KG: 1000,
   OZ: 28.3495,
-  LB: 453.592
+  LB: 453.592,
 };
 
 const VOLUME_TO_ML: Record<string, number> = {
@@ -27,30 +28,31 @@ const VOLUME_TO_ML: Record<string, number> = {
   L: 1000,
   TSP: 5,
   TBSP: 15,
-  CUP: 236.588
+  CUP: 236.588,
 };
 
 // Priority order for unit display (higher index = higher priority)
 const UNIT_PRIORITY: Record<Unit, number> = {
-  'KG': 0,
-  'L': 0,
-  'OZ': 2,
-  'LB': 2,
-  'TSP': 4,
-  'TBSP': 4,
-  'CUP': 4,
-  'ML': 4,
-  'FREE': 9,
-  'G': 10,
+  KG: 0,
+  L: 0,
+  OZ: 2,
+  LB: 2,
+  TSP: 4,
+  TBSP: 4,
+  CUP: 4,
+  ML: 4,
+  FREE: 9,
+  G: 10,
 };
 
 const zeroThreshold = 0.05;
 
 export default function fillForUnits(ingredient: Ingredient): void {
   const base = ingredient.amountInfo?.[0];
-  if (!base || !ingredient.amountInfo || ingredient.amountInfo.length > 1) return; // only fill if not already filled
+  if (!base || !ingredient.amountInfo || ingredient.amountInfo.length > 1)
+    return; // only fill if not already filled
 
-  const [amountStr, originalUnit] = base;
+  const [amountStr, originalUnit] = base as [number, Unit];
   const amount = Number(amountStr);
   const conversions = new Map<Unit, number>(); // Use Map to avoid duplicates. initialize with base
   conversions.set(originalUnit, amount);
@@ -81,14 +83,14 @@ export default function fillForUnits(ingredient: Ingredient): void {
 
   // Convert grams to volume units using density
   const addVolumeFromWeight = (): void => {
-    const grams = conversions.get("G");
+    const grams = conversions.get('G')!;
     if (density) {
       const ml = grams / density;
       addVolumeConversions(ml);
     }
   };
 
-  // Convert ml to weight units using density  
+  // Convert ml to weight units using density
   const addWeightFromVolume = (ml: number): void => {
     const grams = ml * density;
     addWeightConversions(grams);
@@ -104,11 +106,13 @@ export default function fillForUnits(ingredient: Ingredient): void {
   };
 
   const addCountableUnitsFromWeight = (): void => {
-    const grams = conversions.get("G");
+    const grams = conversions.get('G')!;
     if (countable_units && grams) {
-    Object.entries(countable_units).forEach(([unit, weight]: [string, number]) => {
-      addConversion(grams / weight, unit as Unit);
-    });
+      Object.entries(countable_units).forEach(
+        ([unit, weight]: [string, number]) => {
+          addConversion(grams / weight, unit as Unit);
+        }
+      );
     }
   };
 
@@ -125,15 +129,18 @@ export default function fillForUnits(ingredient: Ingredient): void {
     addVolumeConversions(ml);
     addWeightFromVolume(ml);
     addCountableUnitsFromWeight();
-
   } else if (isCountable(originalUnit)) {
     if (!countable_units || !countable_units[originalUnit]) {
-      console.error('Countable unit ' + originalUnit + ' not found for ingredient: ' + ingredient.name);
-    }
-    else {
-    addWeightFromUnits(amount);
-    addVolumeFromWeight();
-    addCountableUnitsFromWeight();
+      console.error(
+        'Countable unit ' +
+          originalUnit +
+          ' not found for ingredient: ' +
+          ingredient.name
+      );
+    } else {
+      addWeightFromUnits(amount);
+      addVolumeFromWeight();
+      addCountableUnitsFromWeight();
     }
   } else if (originalUnit === 'FREE') {
     addConversion(0, 'FREE');
@@ -144,20 +151,21 @@ export default function fillForUnits(ingredient: Ingredient): void {
   // 2. Grams comes second (if different from original and available)
   // 3. Rest sorted by priority
   const prioritizedUnits: AmountInfo[] = [];
-  
+
   // 1. Add original unit first
   if (conversions.has(originalUnit)) {
     prioritizedUnits.push([conversions.get(originalUnit)!, originalUnit]);
     conversions.delete(originalUnit); // Remove to avoid duplicates
   }
-  
-  const remainingUnits = Array.from(conversions.entries())
-    .sort(([unitA], [unitB]) => {
+
+  const remainingUnits = Array.from(conversions.entries()).sort(
+    ([unitA], [unitB]) => {
       const priorityA = UNIT_PRIORITY[unitA] ?? -1;
       const priorityB = UNIT_PRIORITY[unitB] ?? -1;
       return priorityB - priorityA; // Descending order (highest priority first)
-    });
-  
+    }
+  );
+
   remainingUnits.forEach(([unit, value]) => {
     prioritizedUnits.push([value, unit]);
   });

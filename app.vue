@@ -5,7 +5,6 @@
       class="xm:pt-22 pb-18 xm:pb-0 w-[clamp(70vw,1550px,100%)] mx-auto min-h-screen xm:min-h-[calc(100svh_-_88px)]"
     >
       <NuxtPage />
-      <SpeedInsights />
       <GlobalLoadingIndicator />
     </div>
     <NavbarsBottom class="block xm:hidden" />
@@ -31,10 +30,6 @@
 </template>
 
 <script setup>
-import { SpeedInsights } from "@vercel/speed-insights/nuxt"
-
-
-
 const auth = useAuthStore();
 
 useHead({

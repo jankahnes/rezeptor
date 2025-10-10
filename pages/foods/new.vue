@@ -98,21 +98,6 @@
 </template>
 
 <script setup lang="ts">
-// Define interface for food request
-interface FoodRequest {
-  id: string | number;
-  food_name: string;
-  status:
-    | 'OPEN'
-    | 'PROCESSING'
-    | 'CLOSED_INSERTED'
-    | 'CLOSED_NOT_INSERTED'
-    | 'ALIAS_INSERTED';
-  food_name_id?: number;
-  status_info?: string;
-  created_at?: string;
-}
-
 // Define API response interface
 interface APIResponse {
   status: 'ok';
@@ -125,10 +110,10 @@ interface APIResponse {
 }
 
 const foodName = ref('');
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const requestsStore = useRequestsStore();
 
-const getStatusString = (status: string, status_info?: string) => {
+const getStatusString = (status: string, status_info?: string | null) => {
   if (status === 'CLOSED_INSERTED') return 'Accepted';
   if (status === 'CLOSED_NOT_INSERTED') return status_info;
   if (status === 'ALIAS_INSERTED') return status_info;
@@ -139,9 +124,12 @@ const getStatusString = (status: string, status_info?: string) => {
 
 const requestFood = async () => {
   const newRequest: FoodRequest = {
-    id: 'new',
+    id: 0,
     food_name: foodName.value,
     status: 'PROCESSING',
+    created_at: new Date().toISOString(),
+    food_name_id: null,
+    status_info: null,
   };
   requestsStore.requests.unshift(newRequest);
 
@@ -187,7 +175,7 @@ const seeActiveRequests = async () => {
     if (error) {
       console.error(error);
     } else {
-      requestsStore.requests = data;
+      requestsStore.requests = data as FoodRequest[];
       requestsStore.requestsOpen = true;
     }
     requestsStore.requestsLoading = false;

@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="py-4 rounded-md relative h-max text-sm flex-[0_1_250px]"
-  >
+  <div class="py-4 rounded-md relative h-max text-sm flex-[0_1_250px]">
     <div class="flex gap-4 w-full">
       <NuxtLink
         class="flex items-start min-w-10"
@@ -33,7 +31,8 @@
         </div>
         <div class="mt-1 w-full" v-else>
           <textarea
-            v-model="edits.find((edit) => edit.id === comment.id).content"
+            :value="edits.find((edit) => edit.id === comment.id)?.content"
+            @input="(e) => { const edit = edits.find((edit) => edit.id === comment.id); if (edit) edit.content = (e.target as HTMLTextAreaElement).value; }"
             v-auto-resize
             class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none bg-white overflow-hidden h-auto break-words scrollbar-hide"
             rows="1"
@@ -41,7 +40,12 @@
           <div class="flex justify-between mt-1">
             <button
               class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
-              @click="edits.splice(edits.indexOf(comment.id), 1)"
+              @click="
+                edits.splice(
+                  edits.findIndex((edit) => edit.id === comment.id),
+                  1
+                )
+              "
             >
               Cancel
             </button>
@@ -83,6 +87,7 @@
           <div
             class="flex gap-4 p-2 pl-4 border-l-2 border-gray-300 border-dashed"
             v-for="reply in paginatedReplies"
+            :key="reply.id"
           >
             <span class="flex items-start min-w-10">
               <NuxtImg
@@ -112,7 +117,8 @@
               </div>
               <div class="text-[14px] mt-1" v-if="isEditing(reply.id)">
                 <textarea
-                  v-model="edits.find((edit) => edit.id === reply.id).content"
+                  :value="edits.find((edit) => edit.id === reply.id)?.content"
+                  @input="(e) => { const edit = edits.find((edit) => edit.id === reply.id); if (edit) edit.content = (e.target as HTMLTextAreaElement).value; }"
                   v-auto-resize
                   class="w-full p-2 rounded-md border-2 border-gray-300 border-dashed resize-none scrollbar-hide bg-white overflow-hidden h-auto break-words"
                   rows="1"
@@ -120,7 +126,12 @@
                 <div class="flex justify-between mt-1">
                   <button
                     class="py-1 px-2 bg-white text-[#FF6900] border-2 border-[#FF6900] rounded-md hover:bg-[#faf4f0] transform transition-all duration-100 focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 shadow-lg shadow-orange-200/30"
-                    @click="edits.splice(edits.indexOf(reply.id), 1)"
+                    @click="
+                      edits.splice(
+                        edits.findIndex((edit) => edit.id === reply.id),
+                        1
+                      )
+                    "
                   >
                     Cancel
                   </button>
@@ -208,10 +219,18 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { Comment } from '~/types/types';
+
 const props = defineProps({
-  comment: Object,
-  id: Number,
+  comment: {
+    type: Object as PropType<Comment>,
+    required: true,
+  },
+  id: {
+    type: Number,
+    required: true,
+  },
 });
 const auth = useAuthStore();
 const recipe = useRecipeStore();
@@ -220,7 +239,7 @@ const replyContent = ref('');
 const replying = ref(false);
 const currentPage = ref(1);
 const repliesPerPage = 3;
-const edits = ref([]);
+const edits = ref<{ id: number; content: string }[]>([]);
 
 const totalPages = computed(() => {
   if (!props.comment.replies?.length) return 0;
@@ -247,26 +266,29 @@ function submitReply() {
   replying.value = false;
 }
 
-function confirmEdit(id) {
+function confirmEdit(id: number) {
   recipe.editCommentById(
     id,
-    edits.value.find((edit) => edit.id === id).content
+    edits.value.find((edit) => edit.id === id)?.content || ''
   );
-  edits.value.splice(edits.value.indexOf(id), 1);
+  edits.value.splice(
+    edits.value.findIndex((edit) => edit.id === id),
+    1
+  );
 }
 
-function deleteComment(id) {
+function deleteComment(id: number) {
   recipe.deleteCommentById(id);
 }
 
-function startEdit(id, content) {
+function startEdit(id: number, content: string) {
   edits.value.push({
     id: id,
     content: content,
   });
 }
 
-function isEditing(id) {
+function isEditing(id: number) {
   return edits.value.some((edit) => edit.id === id);
 }
 </script>

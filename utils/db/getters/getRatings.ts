@@ -1,11 +1,9 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import buildQuery from '~/utils/db/getters/buildQuery';
-import type { GetterOpts } from '~/types/exports';
 
 export async function getRatings(
   client: SupabaseClient,
   opts: GetterOpts = {}
-) {
+): Promise<Rating[]> {
   let query = client.from('ratings').select('*');
   query = buildQuery(query, opts);
   const { data, error } = await query;
@@ -16,6 +14,6 @@ export async function getRatings(
 export async function getRating(
   client: SupabaseClient,
   opts: GetterOpts = {}
-) {
+): Promise<Rating> {
   return expectSingle(await getRatings(client, opts));
 }

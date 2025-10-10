@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import extractJson from '~/utils/format/extractJson'
-
+import type { Database } from '~/types/supabase'
 /**
  * Input: {
  *   food_name_id: number  // from request-food (food_names.id)
@@ -12,8 +12,8 @@ import extractJson from '~/utils/format/extractJson'
  * }
  */
 
-export default defineEventHandler(async (event) => {
-    const supabase = serverSupabaseServiceRole(event)
+export default defineEventHandler(async (event): Promise<{ unit_name: string }> => {
+    const supabase = serverSupabaseServiceRole<Database>(event)
     const assets = useStorage('assets:server')
     const { food_name_id, unit } = await readBody(event)
 
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     // Step 3: Get the actual food record via food_names table
     const { data: foodName, error: foodNameError } = await supabase
         .from('food_names')
-        .select('food_id, food:foods(countable_units)')
+        .select('food_id, name, food:foods(countable_units, primary_name)')
         .eq('id', food_name_id)
         .single()
 
@@ -36,12 +36,12 @@ export default defineEventHandler(async (event) => {
         throw new Error(`Error fetching food name: ${foodNameError.message}`)
     }
 
-    const food = (foodName as any).food
+    const food = foodName.food
     if (!food) {
         throw new Error('Food not found')
     }
 
-    const countableUnits = food.countable_units || {}
+    const countableUnits = (food.countable_units || {}) as Record<string, number>
     
     // Step 4: Check if unit matches any key
     const unitKeys = Object.keys(countableUnits)
@@ -94,7 +94,7 @@ export default defineEventHandler(async (event) => {
         method: 'POST',
         body: {
             message: prompt
-                .replace('{food_name}', foodName?.name || foodName?.food?.primary_name || 'undefined')
+                .replace('{food_name}', foodName?.name || foodName?.food?.primary_name)
                 .replace('{unit}', processedUnit)
                 .replace('{available_units}', availableUnitsText),
             type: 'quick'
@@ -126,7 +126,7 @@ export default defineEventHandler(async (event) => {
 
         const { error: updateError } = await supabase
             .from('foods')
-            .update({ countable_units: newCountableUnits } as any)
+            .update({ countable_units: newCountableUnits })
             .eq('id', (foodName as any).food_id)
 
         if (updateError) {

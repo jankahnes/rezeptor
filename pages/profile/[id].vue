@@ -28,7 +28,7 @@
             {{ user.username }}
           </h1>
           <p class="font-light text-sm">
-            Joined {{ dateToString(user.created_at) }}
+            Joined {{ dateToString(user.created_at ?? '') }}
           </p>
         </div>
         <NuxtLink
@@ -82,7 +82,7 @@ const selectedView = ref('recipes');
 const route = useRoute();
 const userID = route.params.id;
 const auth = useAuthStore();
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 
 onMounted(() => {
   useHead({

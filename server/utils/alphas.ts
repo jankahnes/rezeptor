@@ -1,4 +1,69 @@
-export function alpha_vitaminA(row, T, M, D) {
+import type {
+  HeatMedium,
+  MechanicalDisruption,
+  ThermalIntensity,
+  cumulativeKeys,
+  ComputedRecipe,
+} from '~/types/types';
+
+enum ThermalIntensityNumbers {
+  NONE = 0,
+  LOW = 1,
+  MEDIUM = 2,
+  HIGH = 3,
+}
+
+enum MechanicalDisruptionNumbers {
+  NONE = 0,
+  LOW = 1,
+  HIGH = 2,
+}
+
+enum HeatMediumStrings {
+  NONE = 'None',
+  WET = 'Wet',
+  DRY = 'Dry',
+  FAT = 'Fat',
+  RADIATION = 'Radiation',
+}
+
+export type alphaFunction = (
+  nutrientsPer100: Record<cumulativeKeys, number>,
+  T: ThermalIntensityNumbers,
+  M: HeatMediumStrings,
+  D: MechanicalDisruptionNumbers
+) => number;
+
+const thermalIntensityMap: Record<
+  ThermalIntensity | 'NONE',
+  ThermalIntensityNumbers
+> = {
+  NONE: ThermalIntensityNumbers.NONE,
+  LOW: ThermalIntensityNumbers.LOW,
+  MEDIUM: ThermalIntensityNumbers.MEDIUM,
+  HIGH: ThermalIntensityNumbers.HIGH,
+};
+
+const heatMediumMap: Record<HeatMedium | 'NONE', HeatMediumStrings> = {
+  NONE: HeatMediumStrings.NONE,
+  WET: HeatMediumStrings.WET,
+  DRY: HeatMediumStrings.DRY,
+  FAT: HeatMediumStrings.FAT,
+  RADIATION: HeatMediumStrings.RADIATION,
+};
+
+const mechanicalDisruptionMap: Record<
+  MechanicalDisruption,
+  MechanicalDisruptionNumbers
+> = {
+  '0': MechanicalDisruptionNumbers.NONE,
+  '1': MechanicalDisruptionNumbers.LOW,
+  '2': MechanicalDisruptionNumbers.HIGH,
+};
+
+export const noAlpha: alphaFunction = (row, T, M, D) => 1;
+
+export const alpha_vitaminA: alphaFunction = (row, T, M, D) => {
   // 1) Fat‐mediated synergy (half‐max at ~3 g fat) :contentReference[oaicite:1]{index=1}
   const K_fat = 3.0;
   const f_fat = row.fat / (row.fat + K_fat);
@@ -25,9 +90,9 @@ export function alpha_vitaminA(row, T, M, D) {
   const alpha = Math.min(2.0, P / 0.29);
 
   return alpha;
-}
+};
 
-export function alpha_vitaminB1(row, T, M, D) {
+export const alpha_vitaminB1: alphaFunction = (row, T, M, D) => {
   // 1) Synergy/antagonism factors
   const fiber = row.fiber;
   const S = 1 / (1 + 0.005 * fiber);
@@ -51,9 +116,9 @@ export function alpha_vitaminB1(row, T, M, D) {
   // Combine and clamp between 0 and 2 (but realistically <1.2)
   const alpha = S * f_T * f_M * f_D;
   return Math.min(2.0, Math.max(0.0, alpha));
-}
+};
 
-export function alpha_vitaminB2(row, T, M, D) {
+export const alpha_vitaminB2: alphaFunction = (row, T, M, D) => {
   // Thermal factor: linear loss ~10% per intensity level
   const f_T = Math.max(0.0, 1 - 0.1 * T);
 
@@ -72,10 +137,10 @@ export function alpha_vitaminB2(row, T, M, D) {
   const f_D = f_D_values[D] || 1.0;
 
   return f_T * f_M * f_D;
-}
+};
 
-export function alpha_vitaminB3(row, T, M, D) {
-  function saturate(x, max_val) {
+export const alpha_vitaminB3: alphaFunction = (row, T, M, D) => {
+  function saturate(x: number, max_val: number) {
     return (max_val * x) / (x + 1e-6 + max_val);
   }
 
@@ -115,9 +180,9 @@ export function alpha_vitaminB3(row, T, M, D) {
 
   // Clamp final alpha to [0, 2]
   return Math.max(0.0, Math.min(2.0, alpha));
-}
+};
 
-export function alpha_vitaminB6(row, T, M, D) {
+export const alpha_vitaminB6: alphaFunction = (row, T, M, D) => {
   // 1. Base bioavailability β
   const p = 0.75; // assumed plant‐fraction
   const beta = p * 0.75 + (1 - p) * 1.0; // 75% vs 100% bioavail
@@ -147,9 +212,9 @@ export function alpha_vitaminB6(row, T, M, D) {
   // Composite alpha, clamped to [0,2]
   const alpha = beta * S * f_T * f_M * f_D;
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_vitaminB9(row, T, M, D) {
+export const alpha_vitaminB9: alphaFunction = (row, T, M, D) => {
   // Thermal intensity factor
   const f_T = { 0: 1.0, 1: 0.9, 2: 0.8, 3: 0.6 }[T];
 
@@ -167,9 +232,9 @@ export function alpha_vitaminB9(row, T, M, D) {
 
   // Combined alpha
   return f_T * f_M * f_D;
-}
+};
 
-export function alpha_vitaminB12(row, T, M, D) {
+export const alpha_vitaminB12: alphaFunction = (row, T, M, D) => {
   // 1. Baseline
   let alpha = 1.0;
 
@@ -197,9 +262,9 @@ export function alpha_vitaminB12(row, T, M, D) {
   alpha *= disruption_factors[D] || 1.0;
 
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_vitaminC(row, T, M, D) {
+export const alpha_vitaminC: alphaFunction = (row, T, M, D) => {
   const Fe = row.iron_mg;
   const Cu = row.copper_mg;
   const f_met = Math.exp(-0.02 * Fe - 0.02 * Cu);
@@ -211,15 +276,15 @@ export function alpha_vitaminC(row, T, M, D) {
     Fat: [1.0, 0.98, 0.96, 0.9],
     Radiation: [1.0, 0.97, 0.95, 0.93],
   };
-  const f_heat = heat_table[M][T] || heat_table[None][T];
+  const f_heat = heat_table[M][T] || heat_table[HeatMediumStrings.NONE][T];
 
   const f_mech = { 0: 1.0, 1: 0.95, 2: 0.9 }[D] || 1.0;
 
   const alpha = f_met * f_heat * f_mech;
   return Math.max(0, Math.min(alpha, 2));
-}
+};
 
-export function alpha_vitaminD(row, T, M, D) {
+export const alpha_vitaminD: alphaFunction = (row, T, M, D) => {
   // Fat-dependent absorption enhancement (saturating)
   const fat = row.fat;
   const f_fat = 1 + (0.5 * fat) / (fat + 10);
@@ -242,9 +307,9 @@ export function alpha_vitaminD(row, T, M, D) {
   const alpha = f_fat * f_fiber * f_T * f_M * f_D;
   // Clamp to [0,2]
   return Math.min(Math.max(alpha, 0), 2);
-}
+};
 
-export function alpha_vitaminE(row, T, M, D) {
+export const alpha_vitaminE: alphaFunction = (row, T, M, D) => {
   // Base
   let alpha = 1.0;
 
@@ -274,9 +339,9 @@ export function alpha_vitaminE(row, T, M, D) {
 
   // Cap into [0, 2] just in case of edge cases
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_vitaminK(row, T, M, D) {
+export const alpha_vitaminK: alphaFunction = (row, T, M, D) => {
   // 1. Saturating fat & fiber effects
   const fat = row.fat;
   const fib = row.fiber;
@@ -312,11 +377,11 @@ export function alpha_vitaminK(row, T, M, D) {
   }
 
   return alpha;
-}
+};
 
-export function alpha_iron(row, T, M, D) {
+export const alpha_iron: alphaFunction = (row, T, M, D) => {
   // 1. Heme vs non‑heme
-  const h = row.heme_frac || 0.1;
+  const h = 0.1;
   const f_h_raw = h * 5 + (1 - h) * 1;
   const f_h = f_h_raw / 1.4; // normalize to avg. 10% heme
 
@@ -352,9 +417,9 @@ export function alpha_iron(row, T, M, D) {
   // Total alpha
   const alpha = f_h * f_C * f_P * f_T * f_M * f_D;
   return alpha;
-}
+};
 
-export function alpha_magnesium(row, T, M, D) {
+export const alpha_magnesium: alphaFunction = (row, T, M, D) => {
   // Mg bioavailability modifier alpha (≈0–2).
   // row: dict with 'Fiber', 'Calcium', 'Vitamin D' (mg/g).
   const fiber = row.fiber;
@@ -388,9 +453,9 @@ export function alpha_magnesium(row, T, M, D) {
 
   const alpha = alpha_synergy * alpha_D;
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_zinc(row, T, M, D) {
+export const alpha_zinc: alphaFunction = (row, T, M, D) => {
   // 1. Synergy/Antagonism: protein
   const k_p = 0.01;
   const prot = row.protein;
@@ -422,9 +487,9 @@ export function alpha_zinc(row, T, M, D) {
   // Combine and clamp
   const alpha = S * R * D_mech;
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_calcium(row, T, M, D) {
+export const alpha_calcium: alphaFunction = (row, T, M, D) => {
   // 1. Synergy/antagonism
   const vitd = row.vitamin_d_ug;
   const prot = row.protein;
@@ -448,9 +513,9 @@ export function alpha_calcium(row, T, M, D) {
   // final alpha, clipped to [0,2]
   const alpha = f_syn * f_M * f_D;
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_potassium(row, T, M, D) {
+export const alpha_potassium: alphaFunction = (row, T, M, D) => {
   // Thermal intensity factor
   const fT_map = { 0: 1.0, 1: 0.98, 2: 0.9, 3: 0.8 };
   const f_T = fT_map[T] || 1.0;
@@ -471,9 +536,9 @@ export function alpha_potassium(row, T, M, D) {
 
   // Overall modifier
   return f_T * f_M * f_D;
-}
+};
 
-export function alpha_selenium(row, T, M, D) {
+export const alpha_selenium: alphaFunction = (row, T, M, D) => {
   // 1) Fiber antagonism (~0.5% loss per g fiber)
   const S = 1 - 0.005 * row.fiber;
 
@@ -497,9 +562,9 @@ export function alpha_selenium(row, T, M, D) {
 
   // ensure within [0,2]
   return Math.min(Math.max(alpha, 0.0), 2.0);
-}
+};
 
-export function alpha_iodine(row, T, M, D) {
+export const alpha_iodine: alphaFunction = (row, T, M, D) => {
   // 1. Thermal factor
   const T_eff = { 0: 1.0, 1: 0.95, 2: 0.9, 3: 0.8 }[T] || 1.0;
 
@@ -526,9 +591,9 @@ export function alpha_iodine(row, T, M, D) {
   // 4. Composite alpha, clamped [0,2]
   const alpha = T_eff * M_eff * S;
   return Math.max(0, Math.min(alpha, 2));
-}
+};
 
-export function alpha_copper(row, T, M, D) {
+export const alpha_copper: alphaFunction = (row, T, M, D) => {
   // 1. Protein enhancement (max +20% at high protein; Kp≈10 g)
   const P = row.protein;
   const Kp = 10.0;
@@ -557,9 +622,9 @@ export function alpha_copper(row, T, M, D) {
 
   // Clamp to [0, 2]
   return Math.max(0.0, Math.min(2.0, alpha));
-}
+};
 
-export function alpha_manganese(row, T, M, D) {
+export const alpha_manganese: alphaFunction = (row, T, M, D) => {
   // Compute manganese bioavailability modifier alpha for a food (per 100g).
   // row: dict with at least 'Fe' (mg) and 'Fiber' (g)
   // T: thermal intensity (0–3)
@@ -593,9 +658,9 @@ export function alpha_manganese(row, T, M, D) {
   // Final alpha
   const alpha = 1.0 * S * f_T * f_M * f_D;
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_omega3(row, T, M, D) {
+export const alpha_omega3: alphaFunction = (row, T, M, D) => {
   // 1. Synergy: fat matrix
   const fat = row.fat;
   const alpha_fat = 1 + 0.2 * (fat / 30 / (1 + Math.abs(fat / 30))); // tanh ≈ x/(1+|x|)
@@ -621,9 +686,9 @@ export function alpha_omega3(row, T, M, D) {
 
   // Bound between 0 and 2
   return Math.max(0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_omega6(row, T, M, D) {
+export const alpha_omega6: alphaFunction = (row, T, M, D) => {
   // 1) Synergy with total fat (baseline: 10 g → α₁=1)
   const ft = row.fat;
   const alpha1 = (ft / 10) ** 0.5;
@@ -650,9 +715,9 @@ export function alpha_omega6(row, T, M, D) {
 
   // Clamp to [0, 2]
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_MUFA(row, T, M, D) {
+export const alpha_MUFA: alphaFunction = (row, T, M, D) => {
   // 1. Fat synergy
   const Fat = row.fat;
   const a = 0.5;
@@ -680,18 +745,11 @@ export function alpha_MUFA(row, T, M, D) {
   const alpha = 1.0 * f_fat * f_fiber * f_T * f_M * f_D;
   // ensure between 0 and 2
   return Math.max(0.0, Math.min(2.0, alpha));
-}
+};
 
-export function alpha_EAAs_except_Lysine(row, T, M, D) {
+export const alpha_EAAs_except_Lysine: alphaFunction = (row, T, M, D) => {
   // Estimate bioavailability (absorption) modifier α for all EAAs except Lysine.
   // Includes digestibility, cooking losses, matrix effects.
-  // 1. Digestibility baseline by food type
-  let digestibility = 1.0;
-  if (row.vegan) {
-    digestibility = 0.75;
-  } else if (row.vegetarian) {
-    digestibility = 0.85;
-  }
   // 2. Antagonism by phytic acid (proxied by fiber content)
   const fiber = row.fiber;
   const S = 1 - 0.1 * (fiber / 10); // max drop ~10%
@@ -715,11 +773,11 @@ export function alpha_EAAs_except_Lysine(row, T, M, D) {
   const fD = fD_map[D] || 1.0;
 
   // Final α calculation (absorption-based availability)
-  const alpha = digestibility * S * fT * fM * fD;
+  const alpha = S * fT * fM * fD;
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_lysine(row, T, M, D) {
+export const alpha_lysine: alphaFunction = (row, T, M, D) => {
   const F_therm = Math.exp(-0.05 * T);
   const F_med_map = {
     None: 1.0,
@@ -733,9 +791,9 @@ export function alpha_lysine(row, T, M, D) {
   const F_mech = 1 + 0.05 * D;
   const alpha = F_therm * F_med * F_mech;
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
 
-export function alpha_choline(row, T, M, D) {
+export const alpha_choline: alphaFunction = (row, T, M, D) => {
   // 1. Synergy/antagonism: fiber
   const fiber = row.fiber;
   const S = Math.exp(-fiber / 50);
@@ -756,9 +814,9 @@ export function alpha_choline(row, T, M, D) {
 
   // Clamp into [0,2]
   return Math.max(0, Math.min(2, alpha));
-}
+};
 
-export function alpha_polyphenols(row, T, M, D) {
+export const alpha_polyphenols: alphaFunction = (row, T, M, D) => {
   // 1. Synergy terms
   const a1 = 0.5,
     a2 = 0.2; // sugar, fiber coefficients
@@ -789,9 +847,9 @@ export function alpha_polyphenols(row, T, M, D) {
 
   // Clip to [0.0, 2.0]
   return Math.max(0.0, Math.min(2.0, alpha));
-}
+};
 
-export function alpha_glucosinolates(row, T, M, D) {
+export const alpha_glucosinolates: alphaFunction = (row, T, M, D) => {
   // retention lookup for (T,M)
   const f = {
     None: [1.0, 1.0, 1.0, 1.0],
@@ -806,9 +864,9 @@ export function alpha_glucosinolates(row, T, M, D) {
   const f_tm = f[M][T];
   // combine
   return f_tm * mech[D] || 1.0;
-}
+};
 
-export function alpha_carotenoids(row, T, M, D) {
+export const alpha_carotenoids: alphaFunction = (row, T, M, D) => {
   // 1. Synergy: fat saturation
   const fat = row.fat;
   const F_half = 5.0;
@@ -844,4 +902,77 @@ export function alpha_carotenoids(row, T, M, D) {
 
   // Clamp to [0, 2]
   return Math.max(0.0, Math.min(alpha, 2.0));
-}
+};
+
+export const alphaFunctions: Partial<
+  Record<keyof ComputedRecipe, alphaFunction>
+> = {
+  kcal: noAlpha,
+  protein: noAlpha,
+  carbohydrates: noAlpha,
+  fat: noAlpha,
+  saturated_fat: noAlpha,
+  sugar: noAlpha,
+  fiber: noAlpha,
+  price: noAlpha,
+  iron_mg: alpha_iron,
+  magnesium_mg: alpha_magnesium,
+  zinc_mg: alpha_zinc,
+  calcium_mg: alpha_calcium,
+  potassium_mg: alpha_potassium,
+  selenium_ug: alpha_selenium,
+  iodine_ug: alpha_iodine,
+  copper_mg: alpha_copper,
+  manganese_mg: alpha_manganese,
+  vitamin_a_ug_rae: alpha_vitaminA,
+  vitamin_c_mg: alpha_vitaminC,
+  vitamin_d_ug: alpha_vitaminD,
+  vitamin_e_mg_alpha_te: alpha_vitaminE,
+  vitamin_k_ug: alpha_vitaminK,
+  thiamine_b1_mg: alpha_vitaminB1,
+  riboflavin_b2_mg: alpha_vitaminB2,
+  niacin_b3_mg: alpha_vitaminB3,
+  vitamin_b6_mg: alpha_vitaminB6,
+  folate_ug_dfe: alpha_vitaminB9,
+  vitamin_b12_ug: alpha_vitaminB12,
+  trans_fats_mg: noAlpha,
+  mufas_total_mg: alpha_MUFA,
+  choline_mg: alpha_choline,
+  omega6_total_mg: alpha_omega6,
+  omega3_total_mg: alpha_omega3,
+  glucosinolates: alpha_glucosinolates,
+  polyphenols: alpha_polyphenols,
+  carotenoids: alpha_carotenoids,
+  histidine_mg: alpha_EAAs_except_Lysine,
+  isoleucine_mg: alpha_EAAs_except_Lysine,
+  leucine_mg: alpha_EAAs_except_Lysine,
+  lysine_mg: alpha_lysine,
+  methionine_mg: alpha_EAAs_except_Lysine,
+  cysteine_mg: alpha_EAAs_except_Lysine,
+  phenylalanine_mg: alpha_EAAs_except_Lysine,
+  tyrosine_mg: alpha_EAAs_except_Lysine,
+  threonine_mg: alpha_EAAs_except_Lysine,
+  tryptophan_mg: alpha_EAAs_except_Lysine,
+  valine_mg: alpha_EAAs_except_Lysine,
+  nova: noAlpha,
+  sidx: noAlpha,
+  mnidx: noAlpha,
+  fat_profile_score: noAlpha,
+  protective_score: noAlpha,
+  salt: noAlpha,
+};
+
+export const callAlphaFunction = (
+  alphaFunction: alphaFunction,
+  nutrientsPer100: Record<cumulativeKeys, number>,
+  T: ThermalIntensity | null | undefined,
+  M: HeatMedium | null | undefined,
+  D: MechanicalDisruption | null | undefined
+) => {
+  return alphaFunction(
+    nutrientsPer100,
+    thermalIntensityMap[T ?? 'NONE'] satisfies ThermalIntensityNumbers,
+    heatMediumMap[M ?? 'NONE'] satisfies HeatMediumStrings,
+    mechanicalDisruptionMap[D ?? 0] satisfies MechanicalDisruptionNumbers
+  );
+};

@@ -49,7 +49,7 @@
           <div class="hidden md:flex flex-col items-end gap-4">
             <GradeContainer
               :score="report.overall.hidx"
-              :type="'hidx'"
+              :type="'ovr'"
               class="font-bold text-5xl p-4 rounded-xl shadow-sm"
             />
             <div
@@ -87,7 +87,7 @@
         </div>
         <GradeContainer
           :score="report.overall.hidx"
-          :type="'hidx'"
+          :type="'ovr'"
           class="font-bold text-3xl p-4 rounded-xl shadow-sm"
         />
       </div>
@@ -119,7 +119,7 @@
             </div>
             <GradeContainer
               :score="card.score"
-              :type="'score'"
+              :type="'single'"
               class="rounded-lg text-2xl"
             />
           </div>
@@ -245,12 +245,12 @@
 import { VITAMINS, MINERALS } from '~/utils/constants/recipeFields';
 
 const props = defineProps<{
-  id: number;
+  id: number | string;
   isFood: boolean;
 }>();
 
 const recipeStore = useRecipeStore();
-const editableRecipe = ref<RecipeProcessed | null>(null);
+const editableRecipe = ref<ComputableRecipe | null>(null);
 const vitaminsExpanded = ref(false);
 const mineralsExpanded = ref(false);
 const loading = ref(true);
@@ -339,7 +339,7 @@ function fillReadableSummaryCards() {
     const percentile = report.value?.percentiles?.[card.col];
     const humanReadable = report.value?.humanReadable[card.name];
     const score = report.value?.overall[card.col];
-    const roundedGrade = getGrade(score, 'score')[0];
+    const roundedGrade = getGrade(score, 'single')[0];
     const relevancy =
       card.baseRelevancy +
       gradeValues[roundedGrade as keyof typeof gradeValues] * 2;
@@ -390,7 +390,7 @@ onMounted(async () => {
             considerProcessing: false,
           },
         },
-      });
+      }) as { nutritionComputed: Recipe, nutrition: any };
       recipeComputed.value = response.nutritionComputed;
       recipeComputed.value.title = data.name;
       useHead({
@@ -398,13 +398,13 @@ onMounted(async () => {
       });
     } else {
       if (props.id === 'new') {
-        editableRecipe.value = recipeStore.recipe;
+        editableRecipe.value = recipeStore.editingRecipe;
       } else {
         if (!recipeStore.recipe || recipeStore.recipe.id != props.id) {
           const data = await getRecipe(supabase, {
             eq: { id: Number(props.id) },
           });
-          recipeStore.setRecipe(data as RecipeProcessed);
+          recipeStore.setRecipe(data as Recipe);
         }
         useHead({
           title:
@@ -412,11 +412,11 @@ onMounted(async () => {
             recipeStore.recipe?.title +
             ' | Rezeptor',
         });
-        if (recipeStore.recipe.report) {
+        if (recipeStore.recipe?.report) {
           recipeComputed.value = recipeStore.recipe;
           console.log('Report found in recipe store');
-        } else {
-          editableRecipe.value = await recipeStore.convertToEditable();
+        } else if (recipeStore.recipe) {
+          editableRecipe.value = await convertUploadableToComputable(recipeStore.recipe, supabase, false);
           const response = await $fetch('/api/calculate/recipe', {
             method: 'POST',
             body: {
@@ -428,8 +428,8 @@ onMounted(async () => {
                 considerProcessing: false,
               },
             },
-          });
-          recipeComputed.value = response.recipeComputed;
+          }) as { recipeRow: InsertableRecipe };
+          recipeComputed.value = response.recipeRow;
           console.log('Report computed');
         }
       }

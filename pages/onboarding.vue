@@ -282,13 +282,13 @@ const selectedDiet = ref(null as any);
 const selectedSorting = ref(null as any);
 const selectedCuisines = ref([] as any[]);
 const selectedFoods = ref([] as any[]);
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 
 const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirm_password = ref('');
-const error = ref(null as any);
+const error = ref<string | null>(null);
 
 const dietOptions = [
   { label: 'Vegan', id: 62 },
@@ -419,7 +419,7 @@ async function uploadProfilePicture(e: any) {
   const file = e.target.files[0];
   const id = auth.user?.id;
   if (!id || !file) navigateTo('/');
-  const { data: imageData } = await useImageUpload(file, 'profile', id, false);
+  const { data: imageData } = await useImageUpload(file, 'profile', id!, false);
   const url = imageData.value?.publicUrl;
   if (!url) return;
   await updateProfile(supabase, { picture: url, id });
@@ -458,8 +458,8 @@ const nextStep = async () => {
   if (currentStep.value === 'registerForm') {
     try {
       await register();
-    } catch (error) {
-      error.value = error;
+    } catch (err) {
+      error.value = err as string;
       setTimeout(() => {
         navigateTo('/');
       }, 3000);

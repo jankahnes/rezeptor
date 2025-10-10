@@ -1,6 +1,6 @@
 import extractJson from '~/utils/format/extractJson'
 import { serverSupabaseServiceRole } from '#supabase/server'
-
+import type { Database } from '~/types/supabase';
 /**
  * Input: {
  * ingredients_string: string
@@ -15,12 +15,11 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 export default defineEventHandler(async (event) => {
     const assets = useStorage('assets:server')
     const formalizePrompt = await assets.getItem('recipe-create/ingredient-formalization.txt') as string
-    const parsePrompt = await assets.getItem('recipe-create/ingredient-desc-parsing.txt') as string
 
     const input = await readBody(event)
     const {ingredients_string, recipe_context_string, jobId} = input
-    const supabase = serverSupabaseServiceRole(event);
-    console.log('🔍 Formalizing ingredients string')
+    const supabase = serverSupabaseServiceRole<Database>(event);
+    
     const formalizeResponse = await $fetch('/api/gpt/response', {
         method: 'POST',
         body: {
@@ -35,70 +34,22 @@ export default defineEventHandler(async (event) => {
 
     if(jobId) {
         await supabase.from('jobs').update({
-            step_index: 2,
-            updated_at: new Date()
-        }).eq('id', jobId);
-    }
-
-    console.log('🔍 Parsing ingredient descriptions')
-    const ingredients = formalizeResult.ingredients;
-    for (let i = 0; i < ingredients.length; i++) {
-        ingredients[i]['id'] = i + 1;
-    }
-    const relevant_recipe_data_for_prompt = ingredients.map((ingredient: any) => `ID: ${ingredient['id']}, Description: ${ingredient['description']}`).join('\n');
-
-    const parseResponse = await $fetch('/api/gpt/response', {
-        method: 'POST',
-        body: {
-            message: parsePrompt.replace('{ingredients}', relevant_recipe_data_for_prompt).replace('{recipe_string}', recipe_context_string),
-            type: 'default'
-        },
-    })
-    if (!parseResponse) throw new Error('No content returned from parse response');
-    const extractedJsonParse = extractJson(parseResponse)
-    if (!extractedJsonParse) throw new Error('No JSON found in parse response');
-    const parseResult = JSON.parse(extractedJsonParse)
-
-    if(jobId) {
-        await supabase.from('jobs').update({
             step_index: 3,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
         }).eq('id', jobId);
     }
 
-    // Update ingredients with extracted names
-    const nameMapping: Record<number, {name: string, preparation_description: string | null}> = {}
-    const splitNamesData = parseResult
-    
-    if (splitNamesData.ingredients) {
-        for (const item of splitNamesData.ingredients) {
-            nameMapping[item.id] = {
-                name: item.name,
-                preparation_description: item.extra || null
-            }
+    // Process ingredients from the combined prompt response
+    let processedIngredients = formalizeResult.ingredients.map((ingredient: any) => {
+        return {
+            name_original: ingredient.name,
+            preparation_description: ingredient.extra || null,
+            unit: ingredient.unit,
+            amount: ingredient.amount,
+            category: ingredient.category || null
         }
-    }
-    
-    // Remove ingredients that don't have a mapping and update the remaining ones
-    const processedIngredients = ingredients
-        .filter((ingredient: any) => ingredient.id in nameMapping)
-        .map((ingredient: any) => {
-            const mapping = nameMapping[ingredient.id]
-            const updatedIngredient = { ...ingredient }
-            
-            updatedIngredient.name_original = mapping.name
-            updatedIngredient.preparation_description = mapping.preparation_description
-            
-            // Remove unwanted properties
-            delete updatedIngredient.id
-            if ('name' in updatedIngredient) {
-                delete updatedIngredient.name
-            }
-            
-            return updatedIngredient
-        })
-
-
+    })
+    let notes = []
     // Process ingredients to get food IDs
     console.log('🔍 Processing ingredients to get food IDs')
     for (const ingredient of processedIngredients) {
@@ -115,9 +66,10 @@ export default defineEventHandler(async (event) => {
             })
             
             if (response?.data?.action_taken === "reject") {
-                ingredient.id = "Request was rejected."
+                ingredient.id = null
+                notes.push(`${ingredient.name_original} rejected by food request system.`)
             } else {
-                ingredient.id = response?.data?.id
+                ingredient.id = response?.data.id
                 
                 if (ingredient.id && (!["g", "ml", "tsp", "tbsp", "free", "kg", "oz", "lb", "cup", "l"].includes(ingredient.unit))) {
                     try {
@@ -131,15 +83,18 @@ export default defineEventHandler(async (event) => {
                         ingredient.unit = unitResponse.unit_name
                     } catch (unitError) {
                         console.error(`Error reconciling unit for ${ingredient.name_original}:`, unitError)
+                        ingredient.unit = "free"
+                        ingredient.amount = 0
+                        notes.push(`${ingredient.name_original} with unit ${ingredient.unit} caused an error in the unit reconciliation system.`)
                     }
                 }
             }
         } catch (error) {
             console.error(`Error processing ingredient ${ingredient.name_original}:`, error)
             ingredient.id = null
+            notes.push(`${ingredient.name_original} caused an error in the food request system.`)
         }
     }
-
-    console.log("Finished formalizing ingredients.")
-    return { ingredients: processedIngredients }
+    processedIngredients = processedIngredients.filter((ingredient: any) => ingredient.id !== null)
+    return { ingredients: processedIngredients, notes: notes }
 })

@@ -16,7 +16,7 @@
     </button>
     <p class="text-sm text-gray-600 ml-1 font-light mt-2">Servings:</p>
     <FormsSlidingSelector
-      v-model="modelValue.ingredients_editable.servingSize"
+      v-model="modelValue.serves"
       :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
       :expanded="false"
       class="max-w-[150px]"
@@ -36,17 +36,17 @@
     <div class="flex flex-col rounded-lg px-2 z-15" v-else>
       <div class="space-y-3 mt-4">
         <div
-          v-for="category in modelValue.ingredients_editable.ingredients"
-          :key="category.categoryName"
+          v-for="[category, ingredients] in Object.entries(groupedIngredients)"
+          :key="category"
           class="flex flex-col gap-2 relative min-h-12"
         >
           <div
             class="flex justify-between items-center mb-3"
-            v-if="category.categoryName !== 'uncategorized'"
+            v-if="category !== 'uncategorized'"
           >
             <h3 class="py-2 font-semibold flex items-center gap-2">
               <span class="material-symbols-outlined"> topic </span>
-              {{ category.categoryName }}
+              {{ category }}
             </h3>
             <button
               @click="removeCategory(category)"
@@ -58,7 +58,7 @@
 
           <div class="space-y-2">
             <div
-              v-for="(ingredient, index) in category.ingredients"
+              v-for="(ingredient, index) in ingredients"
               :key="`input-${index}`"
               class="ingredient-input-container"
             >
@@ -66,7 +66,7 @@
                 <div class="flex items-center gap-2">
                   <input
                     v-if="ingredient.isEditing"
-                    :ref="(el) => setInputRef(el, category.categoryName, index)"
+                    :ref="(el: any) => setInputRef(el, category, index)"
                     v-model="ingredient.rawText"
                     @input="handleInput(category, index)"
                     @blur="handleBlur(category, index)"
@@ -148,12 +148,9 @@
           </button>
           <button
             @click="
-              modelValue.ingredients_editable.ingredients.push({
-                categoryName: newCategoryName,
-                ingredients: [createEmptyIngredient()],
-                searchQuery: '',
-                searchResults: [],
-              });
+              modelValue.fullIngredients.push(
+                createEmptyIngredient(newCategoryName)
+              );
               addingCategory = false;
               newCategoryName = '';
             "
@@ -177,10 +174,17 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import type { EditableIngredient } from '~/types/types';
+
 const props = defineProps({
   modelValue: {
-    type: Object,
+    type: Object as PropType<{
+      serves: number;
+      fullIngredients: EditableIngredient[];
+      useNaturalLanguage: boolean;
+      ingredients_string: string;
+    }>,
     required: true,
   },
 });
@@ -189,7 +193,32 @@ const emit = defineEmits(['update:modelValue']);
 const supabase = useSupabaseClient();
 const addingCategory = ref(false);
 const newCategoryName = ref('');
-const inputRefs = ref({});
+const inputRefs = ref<Record<string, HTMLInputElement>>({});
+
+const groupedIngredients = computed(() => {
+  return groupIngredients(props.modelValue.fullIngredients);
+});
+
+// Helper function to find ingredient in flat array by category and local index
+function findIngredientInFlatArray(
+  categoryName: string,
+  localIndex: number
+): EditableIngredient | null {
+  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+    (ing) => (ing.category || 'uncategorized') === categoryName
+  );
+  return ingredientsInCategory[localIndex] || null;
+}
+
+// Helper function to find the flat array index of an ingredient
+function findFlatArrayIndex(categoryName: string, localIndex: number): number {
+  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+    (ing) => (ing.category || 'uncategorized') === categoryName
+  );
+  const targetIngredient = ingredientsInCategory[localIndex];
+  if (!targetIngredient) return -1;
+  return props.modelValue.fullIngredients.indexOf(targetIngredient);
+}
 
 // Initialize ingredients structure
 onMounted(() => {
@@ -197,13 +226,20 @@ onMounted(() => {
 });
 
 function ensureIngredientsStructure() {
-  props.modelValue.ingredients_editable.ingredients.forEach((category) => {
-    if (!category.ingredients) {
-      category.ingredients = [];
+  if(!groupedIngredients.value.length) {
+    ensureOneEmptyIngredient('uncategorized');
+    return;
+  }
+  for (const [categoryName, ingredients] of Object.entries(
+    groupedIngredients.value
+  )) {
+    if (!ingredients || ingredients.length === 0) {
+      props.modelValue.fullIngredients.push(
+        createEmptyIngredient(categoryName)
+      );
     }
 
-    // Ensure existing ingredients have the isEditing property
-    category.ingredients.forEach((ingredient) => {
+    ingredients.forEach((ingredient) => {
       if (ingredient.isEditing === undefined) {
         // Existing ingredients start in view mode if they have content, edit mode if empty
         ingredient.isEditing =
@@ -211,36 +247,42 @@ function ensureIngredientsStructure() {
       }
     });
 
-    // Ensure exactly one empty ingredient per category
-    ensureOneEmptyIngredient(category);
-  });
+    ensureOneEmptyIngredient(categoryName);
+  }
 }
 
-function createEmptyIngredient() {
+function createEmptyIngredient(
+  categoryName: string = 'uncategorized'
+): EditableIngredient {
   return {
+    category: categoryName,
     rawText: '',
     amount: null,
     unit: null,
-    food: null,
     preparation_description: null,
     parsed: [],
     isEditing: true, // New ingredients start in edit mode
   };
 }
 
-function setInputRef(el, categoryName, index) {
+function setInputRef(
+  el: HTMLInputElement | null,
+  categoryName: string,
+  index: number
+) {
   if (el) {
     const key = `${categoryName}-${index}`;
     inputRefs.value[key] = el;
   }
 }
 
-async function handleInput(category, index) {
-  const ingredient = category.ingredients[index];
+async function handleInput(categoryName: string, localIndex: number) {
+  const ingredient = findIngredientInFlatArray(categoryName, localIndex);
+  if (!ingredient) return;
 
   // Check if text ends with space for live preview (mobile-friendly)
   if (ingredient.rawText.endsWith(' ') && ingredient.rawText.trim()) {
-    await parseIngredient(category, index);
+    await parseIngredient(categoryName, localIndex);
   }
 
   if (!ingredient.rawText.trim()) {
@@ -251,50 +293,58 @@ async function handleInput(category, index) {
   }
 
   // Ensure exactly one empty ingredient exists
-  ensureOneEmptyIngredient(category);
+  ensureOneEmptyIngredient(categoryName);
 }
 
-async function handleBlur(category, index) {
-  const ingredient = category.ingredients[index];
+async function handleBlur(categoryName: string, localIndex: number) {
+  const ingredient = findIngredientInFlatArray(categoryName, localIndex);
+  if (!ingredient) return;
 
   if (ingredient.rawText.trim()) {
-    await parseIngredient(category, index);
+    await parseIngredient(categoryName, localIndex);
     ingredient.isEditing = false;
   }
 
-  ensureOneEmptyIngredient(category);
+  ensureOneEmptyIngredient(categoryName);
 }
 
-async function handleEnter(category, index) {
-  const ingredient = category.ingredients[index];
+async function handleEnter(categoryName: string, localIndex: number) {
+  const ingredient = findIngredientInFlatArray(categoryName, localIndex);
+  if (!ingredient) return;
 
   if (ingredient.rawText.trim()) {
-    await parseIngredient(category, index);
+    await parseIngredient(categoryName, localIndex);
     ingredient.isEditing = false;
   }
 
   // Focus next input or create new one
-  const nextIndex = index + 1;
-  if (nextIndex < category.ingredients.length) {
+  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+    (ing) => (ing.category || 'uncategorized') === categoryName
+  );
+  const nextIndex = localIndex + 1;
+  if (nextIndex < ingredientsInCategory.length) {
     await nextTick();
-    startEditing(category, nextIndex);
+    startEditing(categoryName, nextIndex);
   }
 }
 
-async function startEditing(category, index) {
-  const ingredient = category.ingredients[index];
+async function startEditing(categoryName: string, localIndex: number) {
+  const ingredient = findIngredientInFlatArray(categoryName, localIndex);
+  if (!ingredient) return;
+
   ingredient.isEditing = true;
 
   await nextTick();
-  const key = `${category.categoryName}-${index}`;
+  const key = `${categoryName}-${localIndex}`;
   const input = inputRefs.value[key];
   if (input) {
     input.focus();
   }
 }
 
-async function parseIngredient(category, index) {
-  const ingredient = category.ingredients[index];
+async function parseIngredient(categoryName: string, localIndex: number) {
+  const ingredient = findIngredientInFlatArray(categoryName, localIndex);
+  if (!ingredient) return;
 
   if (!ingredient.rawText.trim()) {
     ingredient.parsed = [];
@@ -306,8 +356,15 @@ async function parseIngredient(category, index) {
 
     ingredient.amount = result.amount;
     ingredient.unit = result.unit;
-    Object.assign(ingredient, result.ingredient);
-    ingredient.preparation_description = result.preparation_description;
+    if (result.ingredient) {
+      ingredient.id = result.ingredient.id;
+      ingredient.name = result.ingredient.name;
+      ingredient.density = result.ingredient.density;
+      ingredient.countable_units = result.ingredient.countable_units;
+      // Copy over any other relevant properties from result.ingredient
+      Object.assign(ingredient, result.ingredient);
+    }
+    ingredient.preparation_description = result.preparationDescription;
     ingredient.parsed = result.parsed;
   } catch (error) {
     console.error('Error parsing ingredient:', error);
@@ -317,14 +374,22 @@ async function parseIngredient(category, index) {
   }
 }
 
-function removeIngredient(category, index) {
-  category.ingredients.splice(index, 1);
-  ensureOneEmptyIngredient(category);
+function removeIngredient(categoryName: string, localIndex: number) {
+  const flatIndex = findFlatArrayIndex(categoryName, localIndex);
+  if (flatIndex !== -1) {
+    props.modelValue.fullIngredients.splice(flatIndex, 1);
+  }
+  ensureOneEmptyIngredient(categoryName);
 }
 
-function isLastEmptyIngredient(category, index) {
-  const ingredient = category.ingredients[index];
-  const emptyIngredients = category.ingredients.filter(
+function isLastEmptyIngredient(categoryName: string, localIndex: number) {
+  const ingredient = findIngredientInFlatArray(categoryName, localIndex);
+  if (!ingredient) return false;
+
+  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+    (ing) => (ing.category || 'uncategorized') === categoryName
+  );
+  const emptyIngredients = ingredientsInCategory.filter(
     (ing) => !ing.rawText || ing.rawText.trim() === ''
   );
 
@@ -334,46 +399,42 @@ function isLastEmptyIngredient(category, index) {
   );
 }
 
-function ensureOneEmptyIngredient(category) {
-  const emptyIngredients = category.ingredients.filter(
+function ensureOneEmptyIngredient(categoryName: string) {
+  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+    (ing) => (ing.category || 'uncategorized') === categoryName
+  );
+  const emptyIngredients = ingredientsInCategory.filter(
     (ing) => !ing.rawText || ing.rawText.trim() === ''
   );
 
   if (emptyIngredients.length === 0) {
-    category.ingredients.push(createEmptyIngredient());
+    props.modelValue.fullIngredients.push(createEmptyIngredient(categoryName));
   } else if (emptyIngredients.length > 1) {
+    // Remove extra empty ingredients
     let removedCount = 0;
     for (
-      let i = category.ingredients.length - 1;
+      let i = props.modelValue.fullIngredients.length - 1;
       i >= 0 && removedCount < emptyIngredients.length - 1;
       i--
     ) {
-      const ingredient = category.ingredients[i];
-      if (!ingredient.rawText || ingredient.rawText.trim() === '') {
-        category.ingredients.splice(i, 1);
+      const ingredient = props.modelValue.fullIngredients[i];
+      if (
+        (ingredient.category || 'uncategorized') === categoryName &&
+        (!ingredient.rawText || ingredient.rawText.trim() === '')
+      ) {
+        props.modelValue.fullIngredients.splice(i, 1);
         removedCount++;
       }
     }
   }
 }
 
-function removeCategory(category) {
-  const uncategorized = props.modelValue.ingredients_editable.ingredients.find(
-    (cat) => cat.categoryName === 'uncategorized'
-  );
-  if (uncategorized) {
-    if (category.finalizedIngredients) {
-      if (!uncategorized.finalizedIngredients) {
-        uncategorized.finalizedIngredients = [];
-      }
-      uncategorized.finalizedIngredients.push(...category.finalizedIngredients);
+function removeCategory(categoryName: string) {
+  // Set all ingredients in this category to 'uncategorized'
+  props.modelValue.fullIngredients.forEach((ingredient) => {
+    if (ingredient.category === categoryName) {
+      ingredient.category = 'uncategorized';
     }
-  }
-  const idx = props.modelValue.ingredients_editable.ingredients.findIndex(
-    (cat) => cat.categoryName === category.categoryName
-  );
-  if (idx !== -1) {
-    props.modelValue.ingredients_editable.ingredients.splice(idx, 1);
-  }
+  });
 }
 </script>
