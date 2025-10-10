@@ -9,6 +9,15 @@ We have searched our database for foods that might be relevant to this food item
 Your job is to judge what to do with the query. Simply, either the query will be added as an alias to an existing food in the database (with a reference to that foods nutrition and metadata) (Case 1),
 or the query will be used to generate a new base food (Case 2).
 
+Your Response should be formatted like this:
+{
+    "judgement": "add_as_alias" | "add_as_new" | "reject",
+    "matching_id": Int | null,
+    "query_name": String,
+    "primary_name": String | null,
+    "other_names": String[] | null
+}
+
 When to judge as alias / Case 1:
 - There exists one or multiple foods in the search results that refer to the same or a very similar food.
 - Also, you expect that matching food to have:
@@ -32,24 +41,37 @@ In both cases, check if the given query fulfills the format requirements for the
 - Title case / Headline case
 - Simple, intuitive. Not overly descriptive. No explanations or examples, just a short name/title.
 - "Canned Tomatoes", "Tomatoes, canned", "Tomatoes (Canned)" are all allowed, but prefer variants in that order if possible and natural.
-- If added as alias to X, should not include a 1:1 reference to X in the title.
-    -> "Ribeye Steak" as reference to "Ribeye" is allowed. However, if you want to point something like 
-    "Pimentón Dulce (Spanish sweet paprika spice)" to "Sweet paprika powder", you should reformat the query to "Pimentón Dulce".
-- The query should describe a singular food item, not a mixture of two that could be seperate entries, unless the mixture sold as one or used in recipes as one.
-- The query should especially not include an "or" or provide alternatives to other foods.
 - Of course, when reformatting, you cannot reformat the name to be EXACTLY any of the above results - the whole point is to add an alias for the query to match in the future.
+-> The formatted query goes into query_name.
+If the query fulfills these requirements already, you can just copy the query.
 
-The query is likely to fulfill these requirements already, in which case you can just copy the query to the field.
+Now, for the alternative names.
+1. primary_name
+This is only relevant if you add_as_new, and you feel like there is a better primary name for the new food. You should prefer clean, english names for this.
+2. other_names
+This is mainly relevant if the query_name is made up of two names meaning the same thing (Like a translation). In that case, put both names in other_names.
 
-Lastly, an edge case. If you land on Case 2, but dont think the query is suitable as primary food name in an english database (-> you can think of a better primary name), add that name to your response.
-In the above example, lets say the query is "Pimentón Dulce" and the results only include foods like "Paprika Powder", "Smoked Paprika", "Paprika (Spice)", etc. but not the exact "Sweet Paprika Powder" (matching to existing would be inaccurate / lose information)
-. Add "Sweet Paprika Powder" as primary_name. The food will then be added under that primary name, and an alias pointing to it from the original query.
+According to the above, a name can appear in multiple of the name fields, and your responses are handled accordingly.
+Examples for clarity: 
 
-Your Response should now be formatted like this:
-Response:
-{
-    "query_formatted": String,
-    "judgement": "add_as_alias" | "add_as_new" | "reject",
-    "matching_id": Int | null,
-    "primary_name": String | null
-}
+Query: Vietnamese mustard greens (Cải Bẹ Xanh)
+You find in results: Mustard Greens, ID: 41
+With add_as_alias judgement, the name fields should be:
+query_name: Vietnamese Mustard Greens (Cải Bẹ Xanh)
+primary_name: null
+other_names: "Vietnamese Mustard Greens", "Cải Bẹ Xanh"
+
+Query: Pimenton Dulce
+You find no Pimenton Dulce or sweet paprika powder in the results.
+query_name: Pimentón Dulce
+primary_name: Sweet Paprika Powder
+
+This matters for how your prompt is processed:
+- add_as_alias: query_name AND all other_names are added as aliases to matching_id
+- add_as_new: 
+  - Food created with (query_name ?? primary_name) in the main foods table. This name is therefore critical for further analysis for nutition and other metadata.
+  - All other names (including query_name if primary_name) are then inserted as aliases into a seperate table, referencing the main food
+
+Note that for the names you specify across the three fields, you should not specify minimally different names to query_name.
+The alternative names system is for meaningfully different names.
+Examples of food names that are not different enough include different spelling, capitalization, and plural/singular.

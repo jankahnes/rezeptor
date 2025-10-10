@@ -19,7 +19,7 @@
           </div>
           <GradeContainer
             :score="props.recipe?.hidx ?? 0"
-            :type="'hidx'"
+            :type="'ovr'"
             class="font-bold text-4xl p-4 rounded-xl shadow-sm"
           />
         </div>
@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  recipe: RecipeProcessed;
+  recipe: Recipe | FullFoodRow | InsertableRecipe;
   onReport?: () => void;
   isFood?: boolean;
 }>();

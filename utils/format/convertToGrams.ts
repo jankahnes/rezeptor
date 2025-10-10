@@ -1,6 +1,11 @@
-export default function convertToGrams(amount, unit, density, unit_weight): number {
+export default function convertToGrams(
+  amount: number,
+  unit: string,
+  density: number,
+  unit_weight: number
+): number {
   const num = Number(amount);
-  if(!density) {
+  if (!density) {
     density = 1;
   }
   if (isNaN(num) || num <= 0) return 0;

@@ -55,7 +55,7 @@
 <script setup lang="ts">
 const props = defineProps({
   modelValue: {
-    type: Array,
+    type: Object as PropType<string[]>,
     default: () => [],
   },
 });
@@ -64,7 +64,10 @@ const emit = defineEmits(['update:modelValue']);
 
 const pasteInstructions = async () => {
   const text = await navigator.clipboard.readText();
-  emit('update:modelValue', text.split('\n').filter((line) => line.trim() !== ''));
+  emit(
+    'update:modelValue',
+    text.split('\n').filter((line) => line.trim() !== '')
+  );
 };
 </script>
 

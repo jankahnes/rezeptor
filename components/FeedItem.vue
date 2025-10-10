@@ -5,9 +5,16 @@
   >
     <!-- Avatar -->
     <div class="flex-shrink-0 flex items-center justify-center min-w-10">
-      <Avatar v-if="feedItem.user && feedItem.user.username" :user="feedItem.user" class="w-10 h-10" />
+      <Avatar
+        v-if="feedItem.user && feedItem.user.username"
+        :user="feedItem.user"
+        class="w-10 h-10"
+      />
       <div
-        v-else-if="feedItem.type === 'FOOD_CREATION' || feedItem.type === 'RECIPE_CREATION'"
+        v-else-if="
+          feedItem.type === 'FOOD_CREATION' ||
+          feedItem.type === 'RECIPE_CREATION'
+        "
       >
         <span class="material-symbols-outlined">add</span>
       </div>
@@ -34,23 +41,27 @@
       <div class="mt-1 text-sm">
         <template v-if="feedItem.type === 'COMMENT_CREATION'">
           commented on
-          <span class="font-medium">{{ feedItem.comment.recipe.title }}</span>
-          <p class="mt-2 italic">"{{ feedItem.comment.content }}"</p>
+          <span class="font-medium">{{
+            feedItem!.comment!.recipe!.title
+          }}</span>
+          <p class="mt-2 italic">"{{ feedItem!.comment!.content }}"</p>
         </template>
 
         <template v-else-if="feedItem.type === 'RECIPE_CREATION'">
-          <span v-if="feedItem.user && feedItem.user.username">created a new recipe</span>
+          <span v-if="feedItem.user && feedItem.user.username"
+            >created a new recipe</span
+          >
           <h4 class="mt-2 font-bold">
-            {{ feedItem.recipe.title }}
+            {{ feedItem.recipe!.title }}
           </h4>
         </template>
 
         <template v-else-if="feedItem.type === 'RATING_CREATION'">
           rated
-          <span class="font-medium">{{ feedItem.rating.recipe.title }}</span>
+          <span class="font-medium">{{ feedItem.rating!.recipe!.title }}</span>
           <div class="mt-2">
             <FormsRatingField
-              v-model="feedItem.rating.rating"
+              v-model="feedItem.rating!.rating"
               :select="false"
               :id="800"
             />
@@ -62,8 +73,8 @@
         </template>
 
         <template v-else-if="feedItem.type === 'FOOD_CREATION'">
-          added <span class="font-medium">{{ feedItem.food.name }}</span> to the
-          database
+          added <span class="font-medium">{{ feedItem.food!.name }}</span> to
+          the database
         </template>
       </div>
     </div>
@@ -80,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ feedItem: ActivityProcessed }>();
+const props = defineProps<{ feedItem: Activity }>();
 
 function getLinkTarget() {
   if (props.feedItem?.type === 'COMMENT_CREATION') {

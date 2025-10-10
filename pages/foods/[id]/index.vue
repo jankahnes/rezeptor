@@ -1,7 +1,7 @@
 <template>
   <div class="mt-10 max-w-screen-lg mx-auto">
     <div class="flex justify-center px-2">
-      <div class="space-y-5">
+      <div class="space-y-5" v-if="food">
         <button
           @click="router.back()"
           class="button flex items-center justify-center p-2 text-2xl font-bold ml-2 md:ml-6 !bg-primary/10"
@@ -208,12 +208,6 @@
                   <span>{{ food.mufas_total_mg?.toFixed(1) ?? '0' }} mg</span>
                 </div>
                 <div class="flex justify-between">
-                  <span>Polyphenols</span>
-                  <span
-                    >{{ food.polyphenols_total_mg?.toFixed(1) ?? '0' }} mg</span
-                  >
-                </div>
-                <div class="flex justify-between">
                   <span>Choline</span>
                   <span>{{ food.choline_mg?.toFixed(1) ?? '0' }} mg</span>
                 </div>
@@ -238,30 +232,30 @@
 const router = useRouter();
 const route = useRoute();
 const id = route.params.id as string;
-const food = ref<Food>();
+const food = ref<FullFoodRow>();
 const expanded = ref(false);
 const foodName = ref('');
 const refencingName = ref<string | null>(null);
-const client = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 
 if (id.startsWith('barcode-')) {
   const barcode = id.split('-')[1];
   food.value = {
-    name: `TBI ${barcode}`,
+    primary_name: `TBI ${barcode}`,
     id: 0,
     created_at: new Date().toISOString(),
-  };
+  } as FullFoodRow;
   foodName.value = `TBI ${barcode}`;
 } else {
   const { data } = await useAsyncData('foodname', () => {
-    return getFoodName(client, { eq: { id: Number(id) } });
+    return getFoodName(supabase, { eq: { id: Number(id) } });
   });
   if (data.value) {
     foodName.value = data.value?.name ?? data.value?.food?.primary_name ?? '';
     if (!data.value?.is_primary) {
       refencingName.value = data.value?.food?.primary_name ?? '';
     }
-    food.value = data.value?.food as Food;
+    food.value = data.value.food;
     food.value.id = data.value?.id;
     food.value.processing_level_score = 100 - 17 * food.value.processing_level;
   }

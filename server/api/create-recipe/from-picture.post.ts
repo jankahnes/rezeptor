@@ -1,7 +1,8 @@
-import type { BaseRecipeInformation } from '~/types/exports';
+import type { BaseRecipe } from '~/types/types';
 import { serverSupabaseServiceRole } from '#supabase/server'
 import formidable from 'formidable';
 import fs from 'fs/promises';
+import type { Database } from '~/types/supabase'
 
 export const config = {
     api: {
@@ -10,7 +11,7 @@ export const config = {
 };
 
 export default defineEventHandler(async (event) => {
-    const supabase = serverSupabaseServiceRole(event);
+    const supabase = serverSupabaseServiceRole<Database>(event);
 
     try {
         // Parse multipart form data using formidable
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
 
         // Extract data from parsed form
         const imageFile = files.image?.[0];
-        const jobId = fields.jobId?.[0];
+        const jobId = parseInt(fields.jobId?.[0] ?? '0');
         const argsString = fields.args?.[0];
         
         if (!imageFile) {
@@ -60,7 +61,7 @@ export default defineEventHandler(async (event) => {
         }
 
         // Create BaseRecipeInformation object similar to from-link.post.ts
-        const responseBase: BaseRecipeInformation = {
+        const responseBase: BaseRecipe = {
             title: pictureAnalysisResponse.title,
             ingredients_string: pictureAnalysisResponse.ingredients_string,
             instructions: pictureAnalysisResponse.instructions,
@@ -76,9 +77,9 @@ export default defineEventHandler(async (event) => {
 
         // Update job progress
         if (jobId) {
-            await (supabase as any).from('jobs').update({
+            await supabase.from('jobs').update({
                 step_index: 1,
-                updated_at: new Date()
+                updated_at: new Date().toISOString()
             }).eq('id', jobId);
         }
 

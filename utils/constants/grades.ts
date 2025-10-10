@@ -1,5 +1,5 @@
-const grades = [
-  { min_score: -100, grade: 'F' },
+const singleCategoryGrades = [
+  { min_score: -300, grade: 'F' },
   { min_score: 4, grade: 'E-' },
   { min_score: 9, grade: 'E' },
   { min_score: 12, grade: 'E+' },
@@ -20,26 +20,26 @@ const grades = [
   { min_score: 96, grade: 'S+' },
 ];
 
-const recipeOvrGrades = [
-  { min_score: -100, grade: 'F' },
-  { min_score:  0, grade: 'E-' },
-  { min_score:  10, grade: 'E' },
-  { min_score:  20, grade: 'E+' },
-  { min_score:  25, grade: 'D-' },
-  { min_score:  32, grade: 'D' },
-  { min_score:  38, grade: 'D+' },
-  { min_score:  43, grade: 'C-' },
-  { min_score:  47, grade: 'C' },
-  { min_score:  51, grade: 'C+' },
-  { min_score:  55, grade: 'B-' },
-  { min_score:  59, grade: 'B' },
-  { min_score:  63, grade: 'B+' },
-  { min_score:  67, grade: 'A-' },
-  { min_score:  71, grade: 'A' },
-  { min_score:  75, grade: 'A+' },
-  { min_score:  78, grade: 'S-' },
-  { min_score:  83,  grade: 'S' },
-  { min_score:  88,  grade: 'S+' },
+const ovrGrades = [
+  { min_score: -300, grade: 'F' },
+  { min_score: 0, grade: 'E-' },
+  { min_score: 10, grade: 'E' },
+  { min_score: 20, grade: 'E+' },
+  { min_score: 25, grade: 'D-' },
+  { min_score: 32, grade: 'D' },
+  { min_score: 38, grade: 'D+' },
+  { min_score: 43, grade: 'C-' },
+  { min_score: 47, grade: 'C' },
+  { min_score: 51, grade: 'C+' },
+  { min_score: 55, grade: 'B-' },
+  { min_score: 59, grade: 'B' },
+  { min_score: 63, grade: 'B+' },
+  { min_score: 67, grade: 'A-' },
+  { min_score: 71, grade: 'A' },
+  { min_score: 75, grade: 'A+' },
+  { min_score: 78, grade: 'S-' },
+  { min_score: 83, grade: 'S' },
+  { min_score: 88, grade: 'S+' },
 ];
 
 export const gradeColors: Record<string, string> = {
@@ -96,7 +96,7 @@ export const gradeTextColors: Record<string, string> = {
   'E-': 'text-red-900',
 
   F: 'text-red-950',
-}
+};
 
 export const gradeBorderColors: Record<string, string> = {
   S: 'border-blue-100',
@@ -116,23 +116,33 @@ const gradeShadows: Record<string, string> = {
   D: 'shadow-gray-200 shadow-halo ',
   E: 'shadow-gray-200 shadow-halo ',
   F: 'shadow-gray-200 shadow-halo ',
-}
+};
 
-export function getGradeBorderColor(score: number, type: 'hidx' | 'score' = 'score') {
+export function getGradeBorderColor(
+  score: number,
+  type: 'single' | 'ovr' = 'single'
+) {
   const grade = getGrade(score, type);
   const roundedGrade = grade.replace('+', '').replace('-', '');
   return gradeBorderColors[roundedGrade];
 }
 
-export function getGradeShadow(score: number, type: 'hidx' | 'score' = 'score') {
+export function getGradeShadow(
+  score: number,
+  type: 'single' | 'ovr' = 'single'
+) {
   const grade = getGrade(score, type);
   const roundedGrade = grade.replace('+', '').replace('-', '');
   return gradeShadows[roundedGrade];
 }
 
-export function getGrade(score: number, type: 'hidx' | 'score' = 'score') {
+export function getGrade(
+  score: number | null | undefined,
+  type: 'single' | 'ovr' = 'single'
+) {
+  if (score == null) return '';
   let highest_grade = '';
-  for (const grade of type === 'hidx' ? recipeOvrGrades : grades) {
+  for (const grade of type === 'ovr' ? ovrGrades : singleCategoryGrades) {
     if (grade.min_score <= score) {
       highest_grade = grade.grade;
     }

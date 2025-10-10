@@ -29,14 +29,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
   modelValue: {
     type: [String, Number],
     required: true,
   },
   choices: {
-    type: Array,
+    type: Array<string | number>,
     required: true,
   },
   expanded: {
@@ -48,14 +48,15 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue']);
 
 const dragOffset = ref(0);
-const dragging = ref(false);
+const dragging = ref<boolean>(false);
 const lastSelectedIndex = ref(props.choices.indexOf(props.modelValue));
+const startX = ref(0);
 
 const centerIndex = ref(props.choices.indexOf(props.modelValue));
 
 watch(
   () => props.modelValue,
-  (newVal) => {
+  (newVal: string | number) => {
     centerIndex.value = props.choices.indexOf(newVal);
   }
 );
@@ -68,7 +69,7 @@ const translateX = computed(() => {
   return 100 / totalVisibleItems.value - centerIndex.value * itemWidth.value;
 });
 
-function itemStyle(index) {
+function itemStyle(index: number) {
   const distance = Math.abs(index - centerIndex.value);
   const isVisible = distance <= visibleRange.value;
 
@@ -80,17 +81,17 @@ function itemStyle(index) {
   };
 }
 
-function selectChoice(index) {
+function selectChoice(index: number) {
   emit('update:modelValue', props.choices[index]);
 }
 
-function onTouchStart(e) {
+function onTouchStart(e: TouchEvent) {
   dragging.value = true;
   lastSelectedIndex.value = centerIndex.value;
 }
 
-function onTouchMove(e) {
-  const dx = e.touches[0].clientX - startX;
+function onTouchMove(e: TouchEvent) {
+  const dx = e.touches[0].clientX - startX.value;
   dragOffset.value = dx;
 
   const itemPixelWidth = window.innerWidth / totalVisibleItems.value;
@@ -110,7 +111,7 @@ function onTouchMove(e) {
     if (clampedIndex !== centerIndex.value) {
       emit('update:modelValue', props.choices[clampedIndex]);
       // Reset the drag state to prevent cascading updates
-      startX = e.touches[0].clientX;
+      startX.value = e.touches[0].clientX;
       dragOffset.value = 0;
       lastSelectedIndex.value = clampedIndex;
     }

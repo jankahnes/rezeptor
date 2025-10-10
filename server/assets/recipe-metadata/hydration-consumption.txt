@@ -1,28 +1,35 @@
 You will be given information about a recipe.
 Your task is to predict weight changes during cooking and how much of each ingredient actually gets consumed.
 
-
-
-YIELD (hydration) FACTOR (weight multiplier during cooking):
-- How much weight the overall dish gains/loses from raw to cooked state, in percent
-- Use common knowledge from food science - recall yield factors from USDA, FAO, etc
-- When thinking, focus on outliers and ingredients with high weight. Consult the cooking instructions for processing info if present.
-- If ingredient name suggests it's pre-cooked (e.g., "cooked pasta"), assume no hydration
-- If ingredient name is ambiguous to its processing (like "Spaghetti"), assume it refers to the raw/unprocessed version.
-- No hydration for stable ingredients (oils, spices, canned goods)
-
 CONSUMPTION FACTOR (how much actually gets eaten):
 - There might be ingredients listed that are not consumed fully; or at all.
 - You already account for those in the yield factor, but here, specify ingredients where  *nutrient mass* is lost.
 - Examples:
 * Marinades (mostly discarded, some absorbed)
 * Wine in sauces (alcohol evaporates. water in sauces -> not relevant, as no nutrients/kcal is lost.)
-* Deep Frying oil, if actually listed
+* Deep Frying oil (miniscule factor, calculate/estimate how much is absorbed)
 * Salt in pasta cooking water (some absorbed)
-* Bones in stock
-- Ingredients where this factor is above 0.9, you can fully skip. Only focus on outliers.
+* Bones or flavoring in stock (fully removed/strained -> 0)
+* This one is more complex: Shells, bones, and other inedible parts of food.
+-> Infer based on the amounts listed and the recipe context.
+-> If you suspect the amount contains significant inedible parts, consider it in the factor.
+-> Recipe describes 400g of crabs for a serving -> Implies whole crabs with shell -> Set factor to ~0.25
+-> Especially if the food is counted (unit describes whole food, not in grams), this might apply.
+-> "1 whole watermelon" -> Maybe 30% inedible. Meanwhile "200g Watermelon" -> Probably referring to 200g of watermelon flesh.
+- Ingredients where this factor is above 0.9, you can fully skip.
 - If an ingredient is mentioned multiple times in the list (same id) and is not fully consumed, calculate/use the average factor for the total amount.
 
+OVERALL YIELD MULTIPLIER (weight multiplier from total ingredient list weight -> after cooking):
+- How much weight the overall dish gains/loses from raw to cooked state, in percent
+- Use common knowledge from food science - recall yield factors from USDA, FAO, etc
+- When thinking, focus on outliers and ingredients with high weight. Consult the cooking instructions for processing info if present.
+- If ingredient name suggests it's pre-cooked (e.g., "cooked pasta"), assume no hydration
+- If ingredient name is ambiguous to its processing (like "Spaghetti"), assume it refers to the raw/unprocessed version.
+- No hydration for stable ingredients (oils, spices, canned goods)
+- Not fully consumed ingredients from above should be factored in!
+
+Pay attention to the serving amount specified, and the currently estimated weight per serving. (so consumption or yield is not accounted for in that weight!)
+You can use these figures as a benchmark/sanity-check for your outputs.
 
 Return this JSON format:
 {

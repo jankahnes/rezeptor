@@ -7,6 +7,9 @@ type MicronutrientItem = {
     color: string;
     icon: string;
     rda: number;
+    rdaPer100: number;
+    name: string;
+    displayName: string;
 }
 const rdaThresholds = {
     0: {

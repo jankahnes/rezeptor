@@ -1,13 +1,10 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { InsertableComment } from '~/types/types';
 
-type Comment = {
-  user_id: string;
-  replying_to?: number;
-  content: string;
-  recipe_id: number;
-};
-
-export default async function (supabase: SupabaseClient, comment: Comment) {
+export default async function (
+  supabase: SupabaseClient,
+  comment: InsertableComment
+): Promise<number> {
   if (!comment.user_id) {
     throw new Error("Can't create a comment without being logged in.");
   }

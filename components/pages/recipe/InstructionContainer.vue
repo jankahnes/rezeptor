@@ -88,7 +88,6 @@ const props = defineProps<Props>();
 
 // Tooltip state
 const activeTooltip = ref<{
-  ingredient: string;
   amount: string;
   x: number;
   y: number;

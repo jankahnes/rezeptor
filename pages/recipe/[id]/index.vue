@@ -54,14 +54,6 @@
                 {{ isRecomputing ? 'hourglass_empty' : 'refresh' }}
               </span>
             </button>
-            <a
-              v-if="(auth?.user as any)?.username === 'administrator' && recipeStore.recipe?.generated_image_url"
-              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
-              :href="recipeStore.recipe?.generated_image_url"
-              target="_blank"
-            >
-              <span class="material-symbols-outlined !text-xl"> camera </span>
-            </a>
             <button
               v-if="(auth?.user as any)?.username === 'administrator'"
               class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
@@ -262,7 +254,7 @@
 
     <div class="md:hidden" v-if="recipeStore.recipe">
       <div
-        class="w-full h-100 bg-cover bg-center bg-no-repeat p-4 relative z-0 !bg-[length:90%] !bg-[position:center_60px]"
+        class="w-full h-100 bg-no-repeat p-4 relative z-0 bg-[length:105%] bg-[position:center_30px]"
         :class="{
           '!h-40': !recipeStore.recipe?.picture,
         }"
@@ -497,17 +489,15 @@
 </template>
 
 <script setup lang="ts">
-import stripKeys from '~/utils/format/stripKeys';
-import { recipeKeys } from '~/types/keys';
-
 const route = useRoute();
 const router = useRouter();
 const recipeStore = useRecipeStore();
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const auth = useAuthStore();
 const { useAsyncDataWithLoading } = useGlobalLoading();
 
 const id = Number(route.params.id);
+const mappedTags = ref<Tag[]>([]);
 const mobileChosen = ref('ingredients');
 const mobileChoices = ref<{ value: string; displayName: string }[]>([
   { value: 'ingredients', displayName: 'INGREDIENTS' },
@@ -529,7 +519,7 @@ const mobileCharLimit = 200;
 
 const overlayMarginTop = ref(-150);
 
-const similarRecipes = ref<RecipeProcessed[]>([]);
+const similarRecipes = ref<RecipeOverview[]>([]);
 const isRecomputing = ref(false);
 
 watch(
@@ -552,18 +542,18 @@ const loadRecipe = async (recipeId: number, force: boolean = false) => {
         eq: { id: recipeId },
       })
     );
-    const recipe = data.value as RecipeProcessed;
-    recipeStore.setRecipe(recipe as RecipeProcessed);
+    const recipe = data.value as Recipe;
+    recipeStore.setRecipe(recipe);
   }
 };
 
 await loadRecipe(id, false);
 
 if (recipeStore.recipe) {
-  recipeStore.recipe.mappedTags = recipeStore.recipe.tags.map((tag: any) =>
-    getTagByID(tag)
-  );
-  recipeStore.recipe.mappedTags.sort((a: any, b: any) => a.value - b.value);
+  mappedTags.value = recipeStore.recipe.tags
+    .map((tag: number) => getTagByID(tag))
+    .filter((tag) => tag !== undefined) satisfies Tag[];
+  mappedTags.value.sort((a: any, b: any) => a.value - b.value);
 }
 
 if (recipeStore.recipe?.batch_size) {
@@ -602,28 +592,25 @@ onMounted(async () => {
   if (!recipeStore.recipe?.picture) {
     overlayMarginTop.value = -80;
   }
-  const recipes = await getRecipesPartial(supabase, {
+  const recipes = await getRecipeOverviews(supabase, {
     eq: { visibility: 'PUBLIC' },
     neq: { id },
     not: { picture: null },
     orderBy: { column: 'created_at', ascending: false },
     limit: 3,
   });
-  similarRecipes.value = recipes as RecipeProcessed[];
+  similarRecipes.value = recipes as RecipeOverview[];
 });
 
 const deleteRecipe = async () => {
-  const { error } = await $fetch('/api/db/delete-recipe', {
+  await $fetch('/api/db/delete-recipe', {
     method: 'POST',
     body: {
       recipeId: id,
     },
   });
-  if (error) {
-    throw error;
-  }
   recipeStore.deleteRecipe(id);
-  recipeStore.setRecipe({} as RecipeProcessed);
+  recipeStore.setRecipe({} as Recipe);
   router.push('/');
 };
 
@@ -634,8 +621,14 @@ const recomputeRecipe = async () => {
 
   try {
     isRecomputing.value = true;
-
-    const editableRecipe = await recipeStore.convertToEditable();
+    if (!recipeStore.recipe) {
+      return;
+    }
+    const editableRecipe = await convertUploadableToComputable(
+      recipeStore.recipe,
+      supabase,
+      false
+    );
 
     const calculatorArgs = {
       recipe: JSON.parse(JSON.stringify(editableRecipe)),
@@ -652,11 +645,9 @@ const recomputeRecipe = async () => {
     });
 
     // Get the computed values, filtered by valid recipe keys
-    const recomputedValues = stripKeys(response.recipeComputed, recipeKeys);
-
     const { error: updateError } = await (supabase as any)
       .from('recipes')
-      .update(recomputedValues)
+      .update(response.recipeRow)
       .eq('id', id);
 
     if (updateError) throw updateError;
@@ -696,21 +687,21 @@ const regeneratePicture = async () => {
       image: response.image_base64,
       bucket: 'recipe',
       id: recipeStore.recipe?.id,
-      shouldUpsert: true,
+      shouldUpsert: recipeStore.recipe?.picture ? true : false,
     },
   });
-  recipeStore.recipe.picture = imageData.publicUrl;
+  recipeStore.recipe!.picture = imageData.publicUrl;
   await supabase
     .from('recipes')
     .update({
       picture: imageData.publicUrl,
-      generated_image_url: response.generated_image_url,
       processing_requirements: {
-        ...recipeStore.recipe?.processing_requirements,
+        ...(recipeStore.recipe
+          ?.processing_requirements as ProcessingRequirement),
         has_picture: true,
       },
     })
-    .eq('id', recipeStore.recipe.id);
+    .eq('id', recipeStore.recipe!.id);
   regeneratePictureLoading.value = false;
 };
 </script>

@@ -8,15 +8,16 @@ import sugarToReadable from "~/server/utils/reportHumanReadable/sugarToReadable"
 import micronutrientsToReadable from "~/server/utils/reportHumanReadable/micronutrientsToReadable";
 import fatProfileToReadable from "~/server/utils/reportHumanReadable/fatProfileToReadable";
 import protectiveCompoundsToReadable from "~/server/utils/reportHumanReadable/protectiveCompoundsToReadable";
+import type { Recipe, Food } from "~/types/types";
 
 
 type ReportHumanReadableItem = {
     description: string;
-    subtitle: string | null;
     value: number;
     color: string;
     icon: string | null;
-    tooltip: string | null;
+    subtitle?: string | null;
+    tooltip?: string | null;
 }
 
 type ReportHumanReadable = {
@@ -32,7 +33,7 @@ type ReportHumanReadable = {
     protectiveCompounds: ReportHumanReadableItem[];
 }
 
-export default function getReportHumanReadable(report: any, recipeComputed: any, isFood: boolean) {
+export default function getReportHumanReadable(report: any, recipeComputed: Recipe | Food, isFood: boolean) {
     const humanReadable: ReportHumanReadable = {
         overall: [],
         micronutrients: [],

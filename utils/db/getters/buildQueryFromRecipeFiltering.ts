@@ -12,16 +12,16 @@ export default function buildQueryFromRecipeFiltering(
       })
       .gt('similarity', 0.3);
   }
-  if (filtering.efforts.length > 0) {
+  if (filtering.efforts && filtering.efforts.length > 0) {
     query = query.in('effort', filtering.efforts);
   }
-  if (filtering.difficulties.length > 0) {
+  if (filtering.difficulties && filtering.difficulties.length > 0) {
     query = query.in('difficulty', filtering.difficulties);
   }
   if (filtering.visibility) {
     query = query.eq('visibility', filtering.visibility);
   }
-  if (filtering.tags.length > 0) {
+  if (filtering.tags && filtering.tags.length > 0) {
     query = query.in('recipe_tags.tag_id', filtering.tags);
   }
   const [[hmin, hmax], [kmin, kmax], [pmin, pmax]] = [

@@ -1,10 +1,11 @@
 import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server';
+import type { Database } from '~/types/supabase';
 
 
 export default defineEventHandler(async (event) => {
   const { recipeId } = await readBody(event);
   const config = useRuntimeConfig();
-  const client = serverSupabaseServiceRole(event);
+  const client = serverSupabaseServiceRole<Database>(event);
   let user: any = null;
   try {
     user = await serverSupabaseUser(event);

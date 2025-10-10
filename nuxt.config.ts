@@ -9,24 +9,24 @@ export default defineNuxtConfig({
       link: [
         {
           rel: 'preconnect',
-          href: 'https://fonts.googleapis.com'
+          href: 'https://fonts.googleapis.com',
         },
         {
           rel: 'preconnect',
           href: 'https://fonts.gstatic.com',
-          crossorigin: ''
+          crossorigin: '',
         },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&display=swap'
+          href: 'https://fonts.googleapis.com/css2?family=Libertinus+Sans:ital,wght@0,400;0,700;1,400&display=swap',
         },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap'
-        }
-      ]
+          href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap',
+        },
+      ],
     },
-    pageTransition: false
+    pageTransition: false,
   },
   vite: {
     plugins: [tailwindcss(), svgLoader()],
@@ -61,15 +61,12 @@ export default defineNuxtConfig({
       pathPrefix: true,
     },
   ],
-  modules: [
-    '@pinia/nuxt',
-    '@nuxtjs/supabase',
-    '@nuxt/image',
-  ],
+  modules: ['@pinia/nuxt', '@nuxtjs/supabase', '@nuxt/image'],
   supabase: {
     url: process.env.NUXT_PUBLIC_SUPABASE_URL,
     key: process.env.NUXT_PUBLIC_SUPABASE_KEY,
     serviceKey: process.env.NUXT_PRIVATE_SERVICE_ROLE_KEY,
     redirect: false,
+    types: 'types/supabase.ts',
   },
 });

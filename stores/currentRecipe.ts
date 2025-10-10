@@ -1,102 +1,34 @@
-import {amountStyling, unitStyling, ingredientStyling, preparationDescriptionStyling, ignoredStyling} from '~/utils/format/parseIngredientString';
-import pluralizeWord from '~/utils/format/pluralizeWord';
-
+import type { Comment } from '~/types/types';
 
 export const useRecipeStore = defineStore('recipe', () => {
-  const recipe = ref<RecipeProcessed | null>(null);
-  const currentRecipeId = ref<number | null>(null);
+  const recipe = ref<Recipe | null>(null);
+
+  const editingRecipe = ref<ComputableRecipe | null>(null);
   const isLoading = ref(true);
   const error = ref<string | null>(null);
   const supabase = useSupabaseClient();
-  const indexRecipes = ref<RecipeProcessed[]>([]);
+  const indexRecipes = ref<RecipeOverview[]>([]);
   const isEditingNew = ref(false);
 
-
-  async function setIndexRecipes(recipes: RecipeProcessed[]) {
+  async function setIndexRecipes(recipes: RecipeOverview[]) {
     indexRecipes.value = recipes;
   }
 
   async function deleteRecipe(id: number) {
-    indexRecipes.value = indexRecipes.value.filter((recipe) => recipe.id !== id);
+    const filtered: RecipeOverview[] = indexRecipes.value.filter(
+      (recipe) => recipe.id !== id
+    );
+    indexRecipes.value = filtered;
   }
 
-  async function setRecipe(newRecipe: RecipeProcessed) {
+  async function setRecipe(newRecipe: Recipe) {
     recipe.value = newRecipe;
     isEditingNew.value = false;
   }
 
-  async function setRecipeFromNew(newRecipe: RecipeProcessed) {
-    recipe.value = newRecipe;
+  async function setEditingRecipe(newRecipe: ComputableRecipe) {
+    editingRecipe.value = newRecipe;
     isEditingNew.value = true;
-  }
-
-  async function convertToEditable() {
-    if (!recipe.value) {
-      return {};
-    }
-    const servingSize = recipe.value.batch_size || 2;
-    recipe.value.ingredients_editable = { servingSize: servingSize, ingredients: [] };
-    const ingredientIds = recipe.value.ingredients.map(
-      (ingredient) => ingredient.id
-    );
-    const foodsFromDb = await getFoodNames(supabase, { in: { id: ingredientIds } });
-    for (const ingredient of recipe.value.ingredients) {
-      const matchingFood = foodsFromDb.find(
-        (food) => food.id === ingredient.id
-      );
-      const mergedIngredient = {
-        ...matchingFood?.food,
-        ...ingredient,
-        amount: ingredient.amountInfo[0][0] * servingSize,
-        unit: ingredient.amountInfo[0][1],
-      };
-      let unitName = mergedIngredient.unit.toLowerCase();
-      if(isCountable(mergedIngredient.unit) && mergedIngredient.amount != 1 && mergedIngredient.unit) {
-            unitName = pluralizeWord(unitName)
-        }
-      const parsed = [
-        {
-          text: mergedIngredient.amount,
-          styling: amountStyling
-        },
-        {
-          text: mergedIngredient.name,
-          styling: ingredientStyling
-        }
-      ];
-      if(unitName != '') {
-        parsed.splice(1, 0, {
-          text: unitName,
-          styling: unitStyling
-        })
-      }
-
-      mergedIngredient.parsed = parsed;
-      mergedIngredient.rawText = mergedIngredient.amount + " " + unitName + " " + mergedIngredient.name;
-
-      if(mergedIngredient.preparation_description) {
-        parsed.push({
-          text: mergedIngredient.preparation_description,
-          styling: preparationDescriptionStyling
-        })
-        mergedIngredient.rawText += ", " + mergedIngredient.preparation_description;
-      }
-
-      let foundCategory = recipe.value.ingredients_editable.ingredients.find(
-        (category) => category.categoryName == ingredient.category
-      );
-      if (!foundCategory) {
-        foundCategory = {
-          categoryName: ingredient.category,
-          searchQuery: null,
-          searchResults: [],
-          ingredients: [],
-        };
-        recipe.value.ingredients_editable.ingredients.push(foundCategory);
-      }
-      foundCategory.ingredients.push(mergedIngredient);
-    }
-    return recipe.value;
   }
 
   async function deleteCommentById(commentId: number) {
@@ -128,7 +60,6 @@ export const useRecipeStore = defineStore('recipe', () => {
         }
       }
     } catch (e) {
-      error.value = e.message;
       console.error('Failed to delete comment:', e);
     }
   }
@@ -160,7 +91,6 @@ export const useRecipeStore = defineStore('recipe', () => {
         recipe.value.comments.push(newComment);
       }
     } catch (e) {
-      error.value = e.message;
       console.error('Failed to add comment:', e);
     }
   }
@@ -199,25 +129,24 @@ export const useRecipeStore = defineStore('recipe', () => {
         }
       }
     } catch (e) {
-      error.value = e.message;
       console.error('Failed to update rating:', e);
     }
   }
 
   return {
+    recipe,
+    editingRecipe,
     isLoading,
     error,
+    indexRecipes,
+    isEditingNew,
     deleteCommentById,
     addNewComment,
     editCommentById,
-    recipe,
     updateRating,
-    convertToEditable,
     setRecipe,
     setIndexRecipes,
-    indexRecipes,
-    isEditingNew,
-    setRecipeFromNew,
+    setEditingRecipe,
     deleteRecipe,
   };
 });

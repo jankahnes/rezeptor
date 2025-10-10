@@ -34,12 +34,12 @@ export default function processingLevelToReadable(report: any, isFood: boolean) 
     if(!report.processingLevel) return []
     if(isFood) {
         return [
-            novaDescriptorsFood[report.processingLevel.nova]
+            novaDescriptorsFood[report.processingLevel.nova as keyof typeof novaDescriptorsFood]
         ]
     }
     const items = []
     const roundedGrade = getGrade(report.processingLevel.processing_level_score)[0]
-    const overallProcessingItem = generics.genericDescriptors[roundedGrade]
+    const overallProcessingItem = generics.genericDescriptors[roundedGrade as keyof typeof generics.genericDescriptors]
     const wholeFoodItem = generics.getHighestThreshold(report.processingLevel.whole_food_percentage, wholeFoodThresholds)
     const ultraProcessedItem = generics.getHighestThreshold(report.processingLevel.ultra_processed_count, ultraProcessedThresholds)
     items.push({

@@ -3,11 +3,11 @@
     <button
       ref="buttonRef"
       @click.stop="toggle"
-      :aria-expanded="isOpen.toString()"
+      :aria-expanded="isOpen"
       class="flex items-center justify-between z-10 relative w-full h-full gap-1 p-2 button"
       :class="style"
     >
-      <span class="pl-1">{{ formatList(modelValue) || placeholder }}</span>
+      <span class="pl-1">{{ formatList(modelValue || []) || placeholder }}</span>
       <span
         class="material-symbols-outlined transition-transform duration-300"
         :class="{ 'rotate-180': isOpen }"
@@ -32,7 +32,7 @@
             <button
               v-if="modelValue?.includes(choice)"
               class="flex w-full h-full items-center justify-between p-2"
-              @click="emit('update:modelValue', addToList(modelValue, choice))"
+              @click="emit('update:modelValue', addToList(modelValue || [], choice))"
             >
               <span class="font-bold">{{ choice }}</span>
               <span
@@ -44,7 +44,7 @@
             <button
               v-else
               class="flex items-center w-full h-full p-2"
-              @click="emit('update:modelValue', addToList(modelValue, choice))"
+              @click="emit('update:modelValue', addToList(modelValue || [], choice))"
             >
               <span>{{ choice }}</span>
             </button>
@@ -57,26 +57,26 @@
 
 <script setup lang="ts">
 const isOpen = ref(false);
-const buttonRef = ref(null);
-const panelRef = ref(null);
+const buttonRef = ref<HTMLElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
 
 const toggle = () => {
   isOpen.value = !isOpen.value;
 };
 
 const props = defineProps({
-  choices: Array<String>,
-  modelValue: Array<String>,
+  choices: Array<string>,
+  modelValue: Array<string>,
   style: String,
   placeholder: String,
 });
 const emit = defineEmits(['update:modelValue']);
 
-function formatList(list: Array<String>) {
+function formatList(list: Array<string>) {
   return list.join(', ');
 }
 
-function addToList(list: Array<String>, string: String) {
+function addToList(list: Array<string>, string: string) {
   if (list.includes(string)) {
     list = list.filter((item) => item !== string);
     return list;
@@ -86,28 +86,28 @@ function addToList(list: Array<String>, string: String) {
   }
 }
 
-const handleClickOutside = (e) => {
+const handleClickOutside = (e: MouseEvent) => {
   if (
-    !buttonRef.value.contains(e.target) &&
-    !panelRef.value?.contains(e.target)
+    !buttonRef.value?.contains(e.target as Node) &&
+    !panelRef.value?.contains(e.target as Node)
   ) {
     isOpen.value = false;
   }
 };
 
-function beforeEnter(el) {
-  el.style.height = '0px';
+function beforeEnter(el: Element) {
+  (el as HTMLElement).style.height = '0px';
 }
-function enter(el) {
+function enter(el: Element) {
   const height = el.scrollHeight;
-  el.style.transition = 'height 300ms ease';
+  (el as HTMLElement).style.transition = 'height 300ms ease';
   requestAnimationFrame(() => {
-    el.style.height = height + 'px';
+    (el as HTMLElement).style.height = height + 'px';
   });
 }
-function leave(el) {
-  el.style.transition = 'height 300ms ease';
-  el.style.height = '0px';
+function leave(el: Element) {
+  (el as HTMLElement).style.transition = 'height 300ms ease';
+  (el as HTMLElement).style.height = '0px';
 }
 
 onMounted(() => {

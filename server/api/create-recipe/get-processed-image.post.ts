@@ -1,3 +1,5 @@
+import removeInstructionFormatting from '~/utils/format/removeInstructionFormatting';
+
 export default defineEventHandler(async (event) => {
   const base_recipe_information = await readBody(event);
   if (base_recipe_information.original_image_base64) {
@@ -41,7 +43,7 @@ export default defineEventHandler(async (event) => {
     try {
       const imageGenerationData = {
         title: base_recipe_information.title,
-        instructions: base_recipe_information.instructions || [],
+        instructions: removeInstructionFormatting(base_recipe_information.instructions || []),
       };
       const response = await fetch(
         'https://jk-api.onrender.com/generate-image-from-recipe-data',
@@ -58,23 +60,13 @@ export default defineEventHandler(async (event) => {
         const generatedImageBase64 = `data:image/png;base64,${Buffer.from(
           generatedImageBuffer
         ).toString('base64')}`;
-
-        // Add generated image
         base_recipe_information.image_base64 = generatedImageBase64;
-
-        // Add original image URL from header if available
-        const originalImageUrl = response.headers.get('X-Original-Image-Url');
-        console.log('originalImageUrl', originalImageUrl);
-        if (originalImageUrl) {
-          base_recipe_information.generated_image_url = originalImageUrl;
-        }
       }
       else {
         console.error('Failed to generate image:', response.statusText);
       }
     } catch (error) {
       console.error('Failed to generate image:', error);
-      // Continue without image if generation fails
     }
   }
   base_recipe_information.processing_requirements!.has_picture = true;

@@ -131,19 +131,17 @@ async function fetchRating() {
 fetchRating();
 
 const hasComment = computed(() => {
-  const user = auth.user as any;
   return recipe.recipe?.comments?.some(
-    (comment) => !comment.replying_to && comment.user.id === user?.id
+    (comment) => !comment.replying_to && comment.user.id === auth.user?.id
   );
 });
 
 function updateRating(rating: number) {
-  const user = auth.user as any;
-  if (!user) {
+  if (!auth.user) {
     navigateTo('/login');
   } else if (recipe.recipe?.id) {
-    upsertRating(supabase, rating, user.id, recipe.recipe.id);
-    recipe.updateRating(rating, user.id);
+    upsertRating(supabase, rating, auth.user.id, recipe.recipe.id);
+    recipe.updateRating(rating, auth.user.id);
   }
 }
 

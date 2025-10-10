@@ -20,7 +20,7 @@ export default async function upsertRating(
       recipe_id: recipeId,
       rating: rating,
     },
-    { onConflict: ['user_id', 'recipe_id'] }
+    { onConflict: 'user_id,recipe_id' }
   );
 
   if (error) {

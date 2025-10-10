@@ -69,17 +69,31 @@
 </template>
 
 <script setup lang="ts">
+type NutritionalKeys =
+  | 'carbohydrates'
+  | 'protein'
+  | 'fat'
+  | 'sugar'
+  | 'saturated_fat'
+  | 'fiber'
+  | 'salt'
+  | 'connector'
+  | 'spacer';
+
 interface NutritionalItem {
-  key: string;
+  key: NutritionalKeys;
   label: string;
 }
 
-const props = defineProps<{ recipe?: any }>();
+const props = defineProps<{
+  recipe: Recipe | FullFoodRow | InsertableRecipe;
+}>();
 const root = ref<HTMLElement | null>(null);
 
-const isFood = computed(() => Boolean(props.recipe?.name));
+const isFood = computed(() => 'name' in props.recipe);
 const mode = ref(isFood.value ? '100g' : 'serving');
-const totalWeight = props.recipe?.total_weight || 100;
+const totalWeight =
+  'total_weight' in props.recipe ? props.recipe.total_weight : 100;
 
 const switchMode = () => {
   if (isFood.value || !totalWeight) {

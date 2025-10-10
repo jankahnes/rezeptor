@@ -43,15 +43,23 @@
           </span>
           <span class="text-base">Admin</span>
         </NuxtLink>
+        <button
+          v-if="auth.user?.username === 'administrator'"
+          @click="debug()"
+          class="button text-primary shadow font-bold flex items-center justify-center px-2 py-1 gap-1"
+        >
+          <span class="material-symbols-outlined !text-2xl"> bug_report </span>
+          <span class="text-base">Debug</span>
+        </button>
       </div>
 
       <!-- User Buttons -->
       <div v-if="auth.isUser()" class="flex gap-2">
         <NuxtLink
-          :to="'/profile/' + auth.user.id"
+          :to="'/profile/' + auth.user?.id"
           class="button text-primary shadow font-bold flex items-center justify-center gap-1"
         >
-          <Avatar :user="auth.user" class="w-10 h-10" />
+          <Avatar :user="auth.user!" class="w-10 h-10" />
         </NuxtLink>
         <button
           @click="auth.signOut"
@@ -60,7 +68,7 @@
           <span class="material-symbols-outlined !text-2xl"> logout </span>
         </button>
       </div>
-      <div v-else-if="!auth.isUser()" class="flex gap-2">
+      <div v-else class="flex gap-2">
         <NuxtLink
           to="/login"
           class="button text-primary shadow font-bold flex items-center justify-center px-3 py-2 gap-1"
@@ -80,4 +88,6 @@
 
 <script setup lang="ts">
 const auth = useAuthStore();
+
+function debug() {}
 </script>

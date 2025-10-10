@@ -10,7 +10,8 @@
       />
       <PagesNewRecipeForm
         v-if="currentView === 'form'"
-        :submit="submitFromForm"
+        :submitFromPreparsed="submitFromPreparsed"
+        :submitFromNaturalLanguage="submitFromNaturalLanguage"
         class="w-full"
       />
       <PagesNewRecipeImport
@@ -23,7 +24,7 @@
       />
       <PagesNewRecipeLoadingScreen
         v-if="currentView === 'loading'"
-        :job-id="job?.id"
+        :job-id="job!.id"
       />
     </div>
   </div>
@@ -31,8 +32,8 @@
 
 <script setup lang="ts">
 const auth = useAuthStore();
-const supabase = useSupabaseClient();
-const job = ref(null);
+const supabase = useSupabaseClient<Database>();
+const job = ref<{ id: number } | null>(null);
 const route = useRoute();
 const router = useRouter();
 
@@ -74,50 +75,30 @@ const createJob = async (type: string) => {
   job.value = jobData;
 };
 
-const submitFromFormWithNaturalLanguage = async (recipe: any) => {
+const submitFromNaturalLanguage = async (recipe: BaseRecipe) => {
   await createJob('natural-language');
   currentView.value = 'loading';
-  const baseRecipe: BaseRecipeInformation = {
-    ...recipe,
-    uploading_protocol: 'fast',
-    source_type: 'website',
-    user_id: auth.user?.id ?? null,
-    publish: false,
-    source: null,
-    based_on: null,
-    serves: recipe.ingredients_editable.servingSize,
-    batch_size: recipe.ingredients_editable.servingSize > 1 ? recipe.ingredients_editable.servingSize : null,
-  };
+  recipe.user_id = auth.user?.id ?? null;
+  recipe.batch_size = recipe.serves > 1 ? recipe.serves : null;
   const response = await $fetch('/api/create-recipe/from-base', {
     method: 'POST',
     body: {
-      base_recipe_information: baseRecipe,
+      base_recipe_information: recipe,
       jobId: job.value?.id,
     },
   });
   afterResponse(response);
 };
 
-const submitFromForm = async (recipe: RecipeProcessed) => {
-  if (recipe.useNaturalLanguage) {
-    submitFromFormWithNaturalLanguage(recipe);
-    return;
-  }
+const submitFromPreparsed = async (recipe: ComputableRecipe) => {
   await createJob('uploadable');
   currentView.value = 'loading';
-  const uploadableRecipe: UploadableRecipeInformation = {
-    ...recipe,
-    uploading_protocol: 'fast',
-    source_type: 'preparsed',
-    user_id: auth.user?.id ?? null,
-    publish: false,
-    serves: recipe.ingredients_editable.servingSize,
-    batch_size: recipe.ingredients_editable.servingSize > 1 ? recipe.ingredients_editable.servingSize : null,
-  };
+  recipe.user_id = auth.user?.id ?? null;
+  recipe.batch_size = recipe.serves > 1 ? recipe.serves : null;
   const response = await $fetch('/api/create-recipe/from-uploadable', {
     method: 'POST',
     body: {
-      ...uploadableRecipe,
+      ...recipe,
       jobId: job.value?.id,
     },
   });
@@ -140,12 +121,10 @@ const generateUrlVariations = (url: string) => {
 const submitFromLink = async (link: string) => {
   const urlVariations = generateUrlVariations(link);
 
-  const { data: recipe } = await supabase
-    .from('recipes')
-    .select('id')
-    .in('source', urlVariations)
-    .single();
-  if (recipe) {
+  const recipe = await getRecipeOverview(supabase, {
+    in: { source: urlVariations },
+  });
+  if (recipe.id) {
     navigateTo(`/recipe/${recipe.id}`);
     return;
   }
@@ -159,7 +138,7 @@ const submitFromLink = async (link: string) => {
       jobId: job.value?.id,
       args: {
         publish: false,
-        source_type: 'website',
+        source_type: 'WEBSITE',
         source: link,
         based_on: null,
         user_id: auth.user?.id ?? null,
@@ -177,12 +156,12 @@ const submitFromPicture = async (file: File) => {
 
   const formData = new FormData();
   formData.append('image', file);
-  formData.append('jobId', job.value?.id || '');
+  formData.append('jobId', String(job.value?.id || ''));
   formData.append(
     'args',
     JSON.stringify({
       publish: false,
-      source_type: 'image',
+      source_type: 'IMAGE',
       source: null,
       based_on: null,
       user_id: auth.user?.id ?? null,

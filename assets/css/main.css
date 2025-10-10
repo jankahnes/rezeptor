@@ -53,8 +53,8 @@
   --color-halo-emerald: rgb(208, 255, 196);
   --color-halo-blue: rgb(213, 212, 253);
 
-  --shadow-halo: drop-shadow(0 0 10px var(--tw-shadow-color))
-    drop-shadow(0 0 4px var(--tw-shadow-color));
+  --shadow-halo: drop-shadow(0 0 5px var(--tw-shadow-color))
+    drop-shadow(0 0 2px var(--tw-shadow-color));
 }
 @layer base {
   html {

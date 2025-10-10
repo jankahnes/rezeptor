@@ -35,8 +35,8 @@
           <h2>{{ food.name }}</h2>
         </div>
         <GradeContainer
-          :score="food.hidx ?? 0"
-          :type="'hidx'"
+          :score="food.food.hidx ?? 0"
+          :type="'ovr'"
           class="text-xl !h-14 !w-12 rounded-r-lg"
         />
       </NuxtLink>
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 const route = useRoute();
-const supabase = useSupabaseClient();
+const supabase = useSupabaseClient<Database>();
 const foodResultsStore = useFoodResultsStore();
 
 const urlSearch = route.query.search as string;
@@ -67,35 +67,20 @@ if (urlSearch) {
 }
 
 async function search() {
-  //const foods = await getFoodNames(supabase, {limit: 15, orderBy: {column: 'name', ascending: true}})
-  //console.log(foods.map((food) => {
-  //  return {
-  //    name: food.name,
-  //    id: food.id,
-  //    hidx: food.food.hidx,
-  //    kcal: food.food.kcal,
-  //  }
-  //}))
-  //return
   if (!foodResultsStore.searchQuery) {
     foodResultsStore.reset();
     navigateTo('/foods', { replace: true });
     return;
   }
-  const { data, error } = await supabase.rpc('search_foods_deduplicated', {
+  const { data, error } = (await supabase.rpc('search_foods_deduplicated', {
     query: foodResultsStore.searchQuery,
     max: 10,
-  });
+  })) as unknown as { data: Food[]; error: Error | null };
   //returned data: {food: food, matched_alias: string} -> map to {...food, name: matched_alias ?? food.name}
-  const foodResults =
-    data?.map((result: { food: Food; matched_alias: string }) => ({
-      ...result.food,
-      name: result.matched_alias ?? result.food.name,
-    })) ?? [];
   if (error) {
     console.error(error);
   } else {
-    foodResultsStore.setFoodResults(foodResults, foodResultsStore.searchQuery);
+    foodResultsStore.setFoodResults(data, foodResultsStore.searchQuery);
     navigateTo(
       `/foods?search=${encodeURIComponent(foodResultsStore.searchQuery)}`,
       {

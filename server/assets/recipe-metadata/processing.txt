@@ -12,8 +12,6 @@ Return this JSON format:
             "thermal_intensity": "LOW" | "MEDIUM" | "HIGH" | null,
             "heat_medium": "WET" | "DRY" | "FAT" | "RADIATION" | null,
             "mechanical_disruption": 0 | 1 | 2,
-            "thermal_description": "brief cooking method description",
-            "mechanical_description": "brief prep description"
         }
     ]
 }
@@ -34,9 +32,3 @@ MECHANICAL DISRUPTION:
 - 0: Intact/whole (whole vegetables, whole cuts of meat)
 - 1: Minimal prep (chopped, diced, sliced)
 - 2: Highly processed (blended, pureed, ground, mashed)
-
-DESCRIPTIONS: Keep brief and practical. Omit if obvious/irrelevant.
-Examples:
-- Cubed roasted potatoes → thermal: "Roasted", mechanical: "Cubed"
-- Raw salad greens → thermal: omit, mechanical: "Chopped" (if applicable)
-- Whole cherry tomatoes → thermal: omit, mechanical: omit

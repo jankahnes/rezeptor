@@ -1,9 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { expectSingle } from '~/utils/db/getters/expectSingle';
+import type { Food, FoodNameRow, FoodRow, FoodRowNullable } from '~/types/types';
 import buildQuery from '~/utils/db/getters/buildQuery';
-import type { GetterOpts } from '~/types/exports';
+import { expectSingle } from '~/utils/db/getters/expectSingle';
+import type { GetterOpts } from '~/types/types';
+import type { NonNullableProps } from '~/types/types';
 
-//TODO all of this can be removed once satiety is filled in DB 
+//TODO all of this can be removed once satiety is filled in DB
 function scale_by_points(value: number, points: [number, number][]) {
   if (value <= points[0][0]) {
     return points[0][1];
@@ -23,7 +25,6 @@ function scale_by_points(value: number, points: [number, number][]) {
   return 0;
 }
 
-
 function getED(kcal: number) {
   return scale_by_points(kcal, [
     [0, 100],
@@ -35,44 +36,77 @@ function getED(kcal: number) {
   ]);
 }
 
+function fillNullNumbers<T extends Record<string, any>>(
+  obj: T
+): NonNullableProps<T> {
+  const result = { ...obj } as NonNullableProps<T>;
+  for (const key in result) {
+    if (key === 'report') continue;
+    if (result[key] === null) {
+      result[key] = 0 as any;
+    }
+  }
+  return result;
+}
 
 export async function getFoods(
   client: SupabaseClient,
   opts: GetterOpts = {}
-) {
+): Promise<FoodRow[]> {
   let query = client.from('foods').select(`*`);
   query = buildQuery(query, opts);
   const { data, error } = await query;
   if (error) throw error;
-  const foods = data as Food[];
-  for (const food of foods) {
+
+  const foods = data as FoodRowNullable[];
+  const foodsNonNull: FoodRow[] = foods.map((food) => {
     if (!food.satiety) {
       food.satiety = 0.5 * getED(food.kcal ?? 0) + 0.5 * (food.sidx ?? 0);
     }
-  }
-  return foods;
+    food.countable_units = food.countable_units as Record<string, number>;
+    return fillNullNumbers(food) as FoodRow;
+  });
+
+  return foodsNonNull satisfies FoodRow[];
 }
 
-export async function getFood(client: SupabaseClient, opts: GetterOpts = {}) {
+export async function getFood(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+): Promise<FoodRow> {
   return expectSingle(await getFoods(client, opts));
 }
 
-export async function getFoodNames(client: SupabaseClient, opts: GetterOpts = {}) {
+export async function getFoodNames(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+): Promise<Food[]> {
   let query = client.from('food_names').select(`
     *,
     food:foods(*)
   `);
   query = buildQuery(query, opts);
   const { data, error } = await query;
-  for (const foodName of data) {
-    if (!foodName.food.satiety) {
-      foodName.food.satiety = 0.5 * getED(foodName.food.kcal ?? 0) + 0.5 * (foodName.food.sidx ?? 0);
-    }
-  }
   if (error) throw error;
-  return data;
+  if (!data) return [];
+  const foodNames = data as FoodNameRow & { food: FoodRowNullable }[];
+  const foodNamesNonNull: Food[] = foodNames.map((foodName) => {
+    if (!foodName.food.satiety) {
+      foodName.food.satiety =
+        0.5 * getED(foodName.food.kcal ?? 0) + 0.5 * (foodName.food.sidx ?? 0);
+    }
+    foodName.food.countable_units = foodName.food.countable_units as Record<
+      string,
+      number
+    >;
+    return fillNullNumbers(foodName) as Food;
+  });
+  return foodNamesNonNull satisfies Food[];
 }
 
-export async function getFoodName(client: SupabaseClient, opts: GetterOpts = {}) {
+export async function getFoodName(
+  client: SupabaseClient,
+  opts: GetterOpts = {}
+): Promise<Food> {
   return expectSingle(await getFoodNames(client, opts));
 }

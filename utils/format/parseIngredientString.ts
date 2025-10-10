@@ -1,5 +1,6 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { ParsedPart } from '~/types/types';
 
 export const amountStyling = "font-semibold py-1 px-2 rounded-md bg-gray-100 text-gray-600";
 export const unitStyling = "font-normal italic text-gray-600 py-1 px-2 rounded-md bg-gray-100";
@@ -113,10 +114,7 @@ function parseNumberUnit(word: string): { number: number; unit: string; original
     return null;
 }
 
-type ParsedPart = {
-    text: string;
-    styling: string;
-}
+
 
 export async function parseIngredientString(client: SupabaseClient, ingredientString: string, hasIngredient: boolean = true) {
     let amount = null;
@@ -215,8 +213,7 @@ export async function parseIngredientString(client: SupabaseClient, ingredientSt
                         const excludedParsed = await parseIngredientString(client, excludedWords, false);
                         parsed.push(...excludedParsed.parsed);
                     }
-                    ingredient = bestResult.food;
-                    ingredient.name = bestResult.matched_alias ?? ingredient.name;
+                    ingredient = bestResult;
                     
                     if(unit == "" && amount && amount > 1 && !parsed.some(p => p.text.toLowerCase() == 'of')) {
                         ingredient.name = pluralizeWord(ingredient.name);

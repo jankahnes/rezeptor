@@ -10,7 +10,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   score: number;
-  type: 'hidx' | 'score';
+  type: 'single' | 'ovr';
 }>();
 </script>
 

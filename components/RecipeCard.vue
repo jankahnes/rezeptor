@@ -8,7 +8,7 @@
       v-if="recipe?.picture"
       class="w-full aspect-square object-contain [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10"
       :src="recipe?.picture || ''"
-      :class="[getGradeShadow(recipe?.hidx || 0, 'hidx')]"
+      :class="[getGradeShadow(recipe?.hidx || 0, 'ovr')]"
     />
     <div class="w-full relative -mt-10 z-0 h-full">
       <div
@@ -55,7 +55,7 @@
             <GradeContainer
               v-if="recipe?.hidx && recipe?.hidx >= 55"
               :score="recipe?.hidx || 0"
-              type="hidx"
+              type="ovr"
               class="hidden sm:flex text-sm sm:text-lg flex-shrink-0 self-end mb-1"
             />
           </div>
@@ -67,11 +67,11 @@
 
 <script setup lang="ts">
 const props = defineProps<{
-  recipe: RecipeProcessed;
+  recipe: RecipeOverview;
 }>();
 
-const getTop3Tags = (recipe: RecipeProcessed) => {
-  const tags = recipe.tags.map((tag) => getTagByID(tag.tag_id));
+const getTop3Tags = (recipe: RecipeOverview) => {
+  const tags = recipe.tags.map((tag) => getTagByID(tag));
   const tagsWithDescriptors = tags.map((tag) => {
     if (tag) {
       return { ...tag, ...getTagDescriptor(tag.id, recipe) };

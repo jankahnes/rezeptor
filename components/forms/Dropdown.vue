@@ -3,7 +3,7 @@
     <button
       ref="buttonRef"
       @click.stop="toggle"
-      :aria-expanded="isOpen.toString()"
+      :aria-expanded="isOpen"
       :class="style"
       class="flex items-center justify-between z-10 relative w-full h-full gap-1 p-2 button"
     >
@@ -27,7 +27,10 @@
           <li v-for="choice in choices" class="rounded-xl cursor-pointer">
             <button
               class="flex w-full h-full items-center justify-between p-2"
-              @click="emit('update:modelValue', choice); isOpen = false;"
+              @click="
+                emit('update:modelValue', choice);
+                isOpen = false;
+              "
             >
               <span class="font-bold">{{ choice }}</span>
               <span
@@ -46,42 +49,42 @@
 
 <script setup lang="ts">
 const isOpen = ref(false);
-const buttonRef = ref(null);
-const panelRef = ref(null);
+const buttonRef = ref<HTMLElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
 
 const toggle = () => {
   isOpen.value = !isOpen.value;
 };
 
 const props = defineProps({
-  choices: Array,
+  choices: Array<string>,
   modelValue: String,
   style: String,
 });
 const emit = defineEmits(['update:modelValue']);
 
-const handleClickOutside = (e) => {
+const handleClickOutside = (e: MouseEvent) => {
   if (
-    !buttonRef.value.contains(e.target) &&
-    !panelRef.value?.contains(e.target)
+    !buttonRef.value?.contains(e.target as Node) &&
+    !panelRef.value?.contains(e.target as Node)
   ) {
     isOpen.value = false;
   }
 };
 
-function beforeEnter(el) {
-  el.style.height = '0px';
+function beforeEnter(el: Element) {
+  (el as HTMLElement).style.height = '0px';
 }
-function enter(el) {
+function enter(el: Element) {
   const height = el.scrollHeight;
-  el.style.transition = 'height 150ms ease';
+  (el as HTMLElement).style.transition = 'height 150ms ease';
   requestAnimationFrame(() => {
-    el.style.height = height + 'px';
+    (el as HTMLElement).style.height = height + 'px';
   });
 }
-function leave(el) {
-  el.style.transition = 'height 150ms ease';
-  el.style.height = '0px';
+function leave(el: Element) {
+  (el as HTMLElement).style.transition = 'height 150ms ease';
+  (el as HTMLElement).style.height = '0px';
 }
 
 onMounted(() => {

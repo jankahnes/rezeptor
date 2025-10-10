@@ -1,8 +1,10 @@
-import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
-import stripKeys from '~/utils/format/stripKeys';
-import { recipeKeys } from '~/types/keys';
-import type { UploadableRecipeInformation } from '~/types/exports';
-import convertUploadableToEditable from '~/server/utils/convertUploadableToEditable';
+import {
+  serverSupabaseServiceRole,
+  serverSupabaseUser,
+} from '#supabase/server';
+import type { UploadableRecipe, FullIngredient } from '~/types/types';
+import convertUploadableToComputable from '~/server/utils/convertUploadableToComputable';
+import type { Database } from '~/types/supabase';
 
 // Helper function to check if recipe exists in database
 async function recipeExists(client: any, recipeId: number): Promise<boolean> {
@@ -11,12 +13,16 @@ async function recipeExists(client: any, recipeId: number): Promise<boolean> {
     .select('id')
     .eq('id', recipeId)
     .single();
-  
+
   return !error && !!data;
 }
 
 // Helper function to handle image upload
-async function handleImageUpload(client: any, recipeId: number, body: any): Promise<void> {
+async function handleImageUpload(
+  client: any,
+  recipeId: number,
+  body: any
+): Promise<void> {
   if (body.image_base64) {
     const imageData = await $fetch('/api/db/upload-image', {
       method: 'POST',
@@ -27,16 +33,22 @@ async function handleImageUpload(client: any, recipeId: number, body: any): Prom
     });
     const pictureUrl = imageData.publicUrl;
     if (!pictureUrl) {
-      console.error("🔍 Failed to get picture URL");
-      throw createError({ statusCode: 500, statusMessage: 'Failed to get picture URL' });
+      console.error('🔍 Failed to get picture URL');
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to get picture URL',
+      });
     }
     const { error: updateError } = await client
       .from('recipes')
       .update({ picture: pictureUrl } as never)
       .eq('id', recipeId);
     if (updateError) {
-      console.error("🔍 Error updating recipe picture:", updateError);
-      throw createError({ statusCode: 500, statusMessage: 'Failed to update recipe picture' });
+      console.error('🔍 Error updating recipe picture:', updateError);
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Failed to update recipe picture',
+      });
     }
   }
 
@@ -49,11 +61,18 @@ async function handleImageUpload(client: any, recipeId: number, body: any): Prom
       body: { image: body.original_base64, bucket: 'backups', id: recipeId },
     });
   }
-  console.log("🔍 Recipe picture converted and uploaded.");
+  console.log('🔍 Recipe picture converted and uploaded.');
 }
 
 // Function to insert a new recipe
-async function insertNewRecipe(client: any, recipeRow: any, recipeFoodsRows: any[], recipeTagsRows: any[], body: any, userId: string | null): Promise<number> {
+async function insertNewRecipe(
+  client: any,
+  recipeRow: any,
+  recipeFoodsRows: any[],
+  recipeTagsRows: any[],
+  body: any,
+  userId: string | null
+): Promise<number> {
   const { data, error } = await client
     .from('recipes')
     .insert({
@@ -64,44 +83,67 @@ async function insertNewRecipe(client: any, recipeRow: any, recipeFoodsRows: any
     } as any)
     .select('id')
     .single();
-  
+
   if (error) {
-    console.error("🔍 Error inserting recipe:", error);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe' });
+    console.error('🔍 Error inserting recipe:', error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to insert recipe',
+    });
   }
-  console.log("🔍 Recipe inserted.");
+  console.log('🔍 Recipe inserted.');
 
   const recipeId = (data as { id: number })?.id;
   if (!recipeId) {
-    console.error("🔍 Failed to get recipe ID");
-    throw createError({ statusCode: 500, statusMessage: 'Failed to get recipe ID' });
+    console.error('🔍 Failed to get recipe ID');
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to get recipe ID',
+    });
   }
 
   await handleImageUpload(client, recipeId, body);
 
   const { error: recipeFoodsError } = await client
     .from('recipe_foods')
-    .insert(recipeFoodsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any);
+    .insert(
+      recipeFoodsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any
+    );
 
   const { error: recipeTagsError } = await client
     .from('recipe_tags')
-    .insert(recipeTagsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any);
+    .insert(
+      recipeTagsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any
+    );
 
   if (recipeFoodsError) {
-    console.error("🔍 Error inserting recipe foods:", recipeFoodsError);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe foods' });
+    console.error('🔍 Error inserting recipe foods:', recipeFoodsError);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to insert recipe foods',
+    });
   }
   if (recipeTagsError) {
-    console.error("🔍 Error inserting recipe tags:", recipeTagsError);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe tags' });
+    console.error('🔍 Error inserting recipe tags:', recipeTagsError);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to insert recipe tags',
+    });
   }
-  console.log("🔍 Recipe foods and tags inserted.");
+  console.log('🔍 Recipe foods and tags inserted.');
 
   return recipeId;
 }
 
 // Function to update an existing recipe
-async function updateExistingRecipe(client: any, recipeRow: any, recipeFoodsRows: any[], recipeTagsRows: any[], body: any, userId: string | null): Promise<number> {
+async function updateExistingRecipe(
+  client: any,
+  recipeRow: any,
+  recipeFoodsRows: any[],
+  recipeTagsRows: any[],
+  body: any,
+  userId: string | null
+): Promise<number> {
   const recipeId = (recipeRow as any).id;
 
   // Check ownership before allowing update
@@ -112,13 +154,18 @@ async function updateExistingRecipe(client: any, recipeRow: any, recipeFoodsRows
     .single();
 
   if (fetchError || !existingRecipe) {
-    console.error("🔍 Recipe not found:", fetchError);
+    console.error('🔍 Recipe not found:', fetchError);
     throw createError({ statusCode: 404, statusMessage: 'Recipe not found' });
   }
 
   if (existingRecipe.user_id !== userId) {
-    console.error(`🔍 Unauthorized update attempt: recipe ${recipeId} belongs to ${existingRecipe.user_id}, user is ${userId}`);
-    throw createError({ statusCode: 403, statusMessage: 'Not authorized to update this recipe' });
+    console.error(
+      `🔍 Unauthorized update attempt: recipe ${recipeId} belongs to ${existingRecipe.user_id}, user is ${userId}`
+    );
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Not authorized to update this recipe',
+    });
   }
 
   const { error: updateError } = await client
@@ -130,10 +177,13 @@ async function updateExistingRecipe(client: any, recipeRow: any, recipeFoodsRows
     .eq('id', recipeId);
 
   if (updateError) {
-    console.error("🔍 Error updating recipe:", updateError);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to update recipe' });
+    console.error('🔍 Error updating recipe:', updateError);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to update recipe',
+    });
   }
-  console.log("🔍 Recipe updated.");
+  console.log('🔍 Recipe updated.');
 
   await handleImageUpload(client, recipeId, body);
 
@@ -149,113 +199,160 @@ async function updateExistingRecipe(client: any, recipeRow: any, recipeFoodsRows
     .eq('recipe_id', recipeId);
 
   if (deleteFoodsError) {
-    console.error("🔍 Error deleting existing recipe foods:", deleteFoodsError);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to delete existing recipe foods' });
+    console.error('🔍 Error deleting existing recipe foods:', deleteFoodsError);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to delete existing recipe foods',
+    });
   }
   if (deleteTagsError) {
-    console.error("🔍 Error deleting existing recipe tags:", deleteTagsError);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to delete existing recipe tags' });
+    console.error('🔍 Error deleting existing recipe tags:', deleteTagsError);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to delete existing recipe tags',
+    });
   }
 
   // Insert new recipe_foods and recipe_tags
   const { error: recipeFoodsError } = await client
     .from('recipe_foods')
-    .insert(recipeFoodsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any);
+    .insert(
+      recipeFoodsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any
+    );
 
   const { error: recipeTagsError } = await client
     .from('recipe_tags')
-    .insert(recipeTagsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any);
+    .insert(
+      recipeTagsRows.map((obj) => ({ ...obj, recipe_id: recipeId })) as any
+    );
 
   if (recipeFoodsError) {
-    console.error("🔍 Error inserting recipe foods:", recipeFoodsError);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe foods' });
+    console.error('🔍 Error inserting recipe foods:', recipeFoodsError);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to insert recipe foods',
+    });
   }
   if (recipeTagsError) {
-    console.error("🔍 Error inserting recipe tags:", recipeTagsError);
-    throw createError({ statusCode: 500, statusMessage: 'Failed to insert recipe tags' });
+    console.error('🔍 Error inserting recipe tags:', recipeTagsError);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to insert recipe tags',
+    });
   }
-  console.log("🔍 Recipe foods and tags updated.");
+  console.log('🔍 Recipe foods and tags updated.');
 
   return recipeId;
 }
 
 //Uploads a recipe from UploadableRecipeInformation object
 export default defineEventHandler(async (event) => {
-  // Get authenticated user (works even when using service role for operations)
-  // Allow programmatic calls without auth context
   let userId: string | null = null;
   try {
     const user = await serverSupabaseUser(event);
     userId = user?.id || null;
   } catch (error) {
-    // No auth session (programmatic call) - userId stays null
     console.log('No auth session, proceeding with null userId');
   }
-  
-  // Use service role for database operations (with manual auth checks)
-  const client = serverSupabaseServiceRole(event);
-  const body = await readBody<UploadableRecipeInformation & {jobId: string, ingredients_editable: any|null|undefined}>(event);
-  const isEditable = body.ingredients_editable && body.ingredients_editable.ingredients.length && !body.useNaturalLanguage;
-  if(!isEditable) {
-  for (const ingredient of body.ingredients) {
-    if (ingredient.id === null) {
-      throw createError({ statusCode: 400, statusMessage: 'All ingredients must have an id' });
+
+  const client = serverSupabaseServiceRole<Database>(event);
+  const body = await readBody<
+    UploadableRecipe & {
+      jobId: number;
+      fullIngredients: FullIngredient[] | null | undefined;
+    }
+  >(event);
+  const isEditable =
+    body.fullIngredients &&
+    body.fullIngredients.length &&
+    !body.useNaturalLanguage;
+  if (!isEditable && body.fullIngredients) {
+    for (const ingredient of body.fullIngredients) {
+      if (ingredient.id === null) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'All ingredients must have an id',
+        });
+      }
     }
   }
-  }
   let recipe;
-  if(!isEditable) {
-    recipe = await convertUploadableToEditable(body, client);
+  if (!isEditable) {
+    recipe = await convertUploadableToComputable(body, client);
   } else {
     recipe = body;
   }
-  console.log("🔍 Recipe converted to editable.");
+  console.log('🔍 Recipe converted to editable.');
   const calculatorArgs = {
     recipe: recipe,
     useGpt: false,
     logToReport: true,
     isFood: false,
     considerProcessing: false,
-  }
-  if(body.uploading_protocol === "accurate") {
+  };
+  if (body.uploading_protocol === 'accurate') {
     calculatorArgs.useGpt = true;
-  } else if((body.uploading_protocol === "full" || body.publish )&& !body.processing_requirements?.full_nutri_processing) {
+  } else if (
+    (body.uploading_protocol === 'full' || body.publish) &&
+    !body.processing_requirements?.full_nutri_processing
+  ) {
     calculatorArgs.useGpt = true;
     calculatorArgs.considerProcessing = true;
     body.processing_requirements!.full_nutri_processing = true;
   }
 
-  const response = await $fetch('/api/calculate/recipe', {
+  const response = (await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {
       calculatorArgs: calculatorArgs,
     },
-  });
+  })) satisfies { recipeRow: any; recipeFoodRows: any[]; recipeTagRows: any[] };
 
-  console.log("🔍 Recipe computed.");
-  if(body.jobId) {
-    await (client.from('jobs') as any).update({
-      step_index: 6,
-      updated_at: new Date()
-    }).eq('id', body.jobId);
+  console.log('🔍 Recipe computed.');
+  if (body.jobId) {
+    await client
+      .from('jobs')
+      .update({
+        step_index: 6,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', body.jobId);
   }
-
-  const recipeRow = stripKeys(response.recipeComputed, recipeKeys);
-  const recipeFoodsRows = response.recipeFoodRows;
-  const recipeTagsRows = response.recipeTagRows;
 
   // Determine if we should update existing recipe or insert new one
-  const shouldUpdate = (recipeRow as any).id && await recipeExists(client, (recipeRow as any).id);
-  
+  const shouldUpdate =
+    (response.recipeRow as any).id &&
+    (await recipeExists(client, (response.recipeRow as any).id));
+
   let recipeId: number;
   if (shouldUpdate) {
-    console.log(`🔍 Updating existing recipe: ${(recipeRow as any).id}`);
-    recipeId = await updateExistingRecipe(client, recipeRow, recipeFoodsRows, recipeTagsRows, body, userId);
+    console.log(
+      `🔍 Updating existing recipe: ${(response.recipeRow as any).id}`
+    );
+    recipeId = await updateExistingRecipe(
+      client,
+      response.recipeRow,
+      response.recipeFoodRows,
+      response.recipeTagRows,
+      body,
+      userId
+    );
   } else {
-    console.log("🔍 Creating new recipe");
-    recipeId = await insertNewRecipe(client, recipeRow, recipeFoodsRows, recipeTagsRows, body, userId);
+    console.log('🔍 Creating new recipe');
+    recipeId = await insertNewRecipe(
+      client,
+      response.recipeRow,
+      response.recipeFoodRows,
+      response.recipeTagRows,
+      body,
+      userId
+    );
   }
 
-  console.log(`✅ Recipe ${shouldUpdate ? 'updated' : 'uploaded'} successfully: ${recipeId}, ${body.title}`);
-  return {status: 'ok', id: recipeId};
+  console.log(
+    `✅ Recipe ${
+      shouldUpdate ? 'updated' : 'uploaded'
+    } successfully: ${recipeId}, ${body.title}`
+  );
+  return { status: 'ok', id: recipeId };
 });

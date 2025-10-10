@@ -1,34 +1,43 @@
-import RecipeCalculator from "~/server/utils/RecipeCalculator";
+import RecipeCalculator from '~/server/utils/RecipeCalculator';
+import type {
+  ComputableRecipe,
+  InsertableRecipe,
+  InsertableRecipeFood,
+  InsertableRecipeTag,
+} from '~/types/types';
 
 type CalculatorArgs = {
-  recipe: any;
+  recipe: ComputableRecipe;
   useGpt: boolean;
   logToReport: boolean;
-  isFood: boolean;
   considerProcessing: boolean;
-}
+};
 
 type Response = {
-    recipeComputed: any;
-    recipeFoodRows: any;
-    recipeTagRows: any;
-}
+  recipeRow: InsertableRecipe | null;
+  recipeFoodRows: Omit<InsertableRecipeFood, 'recipe_id'>[] | null;
+  recipeTagRows: Omit<InsertableRecipeTag, 'recipe_id'>[] | null;
+};
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<Response> => {
   const body = await readBody(event);
   const { calculatorArgs } = body as { calculatorArgs: CalculatorArgs };
-  
-  const recipeCalculator = new RecipeCalculator(calculatorArgs.recipe, calculatorArgs.useGpt, calculatorArgs.logToReport, calculatorArgs.isFood, calculatorArgs.considerProcessing);
-  await recipeCalculator.computeRecipe();
-  if(!calculatorArgs.recipe || recipeCalculator.ingredientsFlat.length === 0) {
+
+  const recipeCalculator = new RecipeCalculator(
+    calculatorArgs.useGpt,
+    calculatorArgs.logToReport,
+    calculatorArgs.considerProcessing
+  );
+  await recipeCalculator.computeRecipe(calculatorArgs.recipe);
+  if (!recipeCalculator?.recipe?.scores?.hidx) {
     return {
-      recipeComputed: {},
-      recipeFoodRows: [],
-      recipeTagRows: [],
-    }
+      recipeRow: null,
+      recipeFoodRows: null,
+      recipeTagRows: null,
+    };
   }
   const response: Response = {
-    recipeComputed: recipeCalculator.recipeComputed,
+    recipeRow: recipeCalculator.getRecipeRow(),
     recipeFoodRows: recipeCalculator.getRecipeFoodRows(),
     recipeTagRows: recipeCalculator.getRecipeTagRows(),
   };
