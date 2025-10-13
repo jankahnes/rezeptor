@@ -1,12 +1,19 @@
 <template>
   <NuxtLink
     :to="getLinkTarget()"
-    class="flex items-center p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 space-x-4"
+    class="flex items-center p-4 rounded-2xl shadow-sm space-x-4"
   >
     <!-- Avatar -->
     <div class="flex-shrink-0 flex items-center justify-center min-w-10">
+      <div v-if="feedItem.recipe?.picture" class="flex-shrink-0">
+        <NuxtImg
+          :src="feedItem.recipe.picture"
+          alt="Recipe Thumbnail"
+          class="w-16 h-16 object-cover rounded-lg"
+        />
+      </div>
       <Avatar
-        v-if="feedItem.user && feedItem.user.username"
+        v-else-if="feedItem.user && feedItem.user.username"
         :user="feedItem.user"
         class="w-10 h-10"
       />
@@ -80,13 +87,6 @@
     </div>
 
     <!-- Optional Thumbnail -->
-    <div v-if="feedItem.recipe?.picture" class="flex-shrink-0">
-      <NuxtImg
-        :src="feedItem.recipe.picture"
-        alt="Recipe Thumbnail"
-        class="w-16 h-16 object-cover rounded-lg"
-      />
-    </div>
   </NuxtLink>
 </template>
 

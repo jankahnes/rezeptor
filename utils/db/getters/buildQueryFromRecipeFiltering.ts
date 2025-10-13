@@ -21,21 +21,17 @@ export default function buildQueryFromRecipeFiltering(
   if (filtering.visibility) {
     query = query.eq('visibility', filtering.visibility);
   }
-  if (filtering.tags && filtering.tags.length > 0) {
-    query = query.in('recipe_tags.tag_id', filtering.tags);
-  }
-  const [[hmin, hmax], [kmin, kmax], [pmin, pmax]] = [
-    filtering.hidx,
-    filtering.kcal,
-    filtering.price,
-  ];
 
-  query = query
-    .gte('hidx', hmin)
-    .lte('hidx', hmax)
-    .gte('kcal', kmin)
-    .lte('kcal', kmax)
-    .gte('price', pmin)
-    .lte('price', pmax);
+  if (filtering.hidx) {
+    query = query.gte('hidx', filtering.hidx[0]).lte('hidx', filtering.hidx[1]);
+  }
+  if (filtering.kcal) {
+    query = query.gte('kcal', filtering.kcal[0]).lte('kcal', filtering.kcal[1]);
+  }
+  if (filtering.price) {
+    query = query
+      .gte('price', filtering.price[0])
+      .lte('price', filtering.price[1]);
+  }
   return query;
 }

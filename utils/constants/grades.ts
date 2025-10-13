@@ -108,16 +108,6 @@ export const gradeBorderColors: Record<string, string> = {
   F: 'border-red-300',
 };
 
-const gradeShadows: Record<string, string> = {
-  S: 'shadow-halo-blue shadow-halo ',
-  A: 'shadow-halo-emerald shadow-halo ',
-  B: 'shadow-halo-green shadow-halo ',
-  C: 'shadow-gray-200 shadow-halo ',
-  D: 'shadow-gray-200 shadow-halo ',
-  E: 'shadow-gray-200 shadow-halo ',
-  F: 'shadow-gray-200 shadow-halo ',
-};
-
 export function getGradeBorderColor(
   score: number,
   type: 'single' | 'ovr' = 'single'
@@ -125,15 +115,6 @@ export function getGradeBorderColor(
   const grade = getGrade(score, type);
   const roundedGrade = grade.replace('+', '').replace('-', '');
   return gradeBorderColors[roundedGrade];
-}
-
-export function getGradeShadow(
-  score: number,
-  type: 'single' | 'ovr' = 'single'
-) {
-  const grade = getGrade(score, type);
-  const roundedGrade = grade.replace('+', '').replace('-', '');
-  return gradeShadows[roundedGrade];
 }
 
 export function getGrade(

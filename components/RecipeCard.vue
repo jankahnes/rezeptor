@@ -2,15 +2,16 @@
   <NuxtLink
     v-if="recipe.id"
     :to="'/recipe/' + recipe?.id"
-    class="flex flex-col items-center transition-all duration-300 hover:translate-y-[-2px] relative max-w-sm"
+    class="flex flex-col items-center group relative max-w-sm"
   >
     <NuxtImg
       v-if="recipe?.picture"
-      class="w-full aspect-square object-contain [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10"
+      class="w-full aspect-square object-contain shadow-gray-200 [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10 transition-all duration-300 group-hover:translate-y-[-1px]"
       :src="recipe?.picture || ''"
-      :class="[getGradeShadow(recipe?.hidx || 0, 'ovr')]"
     />
-    <div class="w-full relative -mt-10 z-0 h-full">
+    <div
+      class="w-full relative -mt-10 z-0 h-full transition-all duration-300 group-hover:translate-y-[1px]"
+    >
       <div
         class="bg-white px-6 pt-10 pb-[5%] w-full shadow-md rounded-xl min-h-40 h-full"
       >
@@ -22,14 +23,21 @@
           </h2>
           <div class="flex items-start gap-4 justify-between h-[3.2rem]">
             <div
-              class="flex gap-1.5 flex-wrap text-[0.6em] md:text-[0.4em] max-h-[3.2rem] overflow-y-hidden"
+              class="flex gap-1.5 flex-wrap text-[0.6em] md:text-[0.4em] max-h-[3.2rem] overflow-y-hidden items-start py-0.5"
             >
+              <div
+                v-if="recipe?.hidx && recipe?.hidx >= 55"
+                class="tag !text-black shadow-sm w-[2em] text-center"
+                :class="gradeColors[getGrade(recipe?.hidx, 'ovr')]"
+              >
+                {{ getGrade(recipe?.hidx, 'ovr') }}
+              </div>
               <div
                 class="tag flex items-center gap-1"
                 :class="
                   recipe?.rating && recipe?.rating >= 4.5
                     ? 'golden-gradient-muted'
-                    : 'metallic-gradient-simple'
+                    : 'shadow-sm'
                 "
                 v-if="recipe?.rating && recipe?.rating >= 4"
               >
@@ -44,20 +52,13 @@
               </div>
 
               <div
-                class="tag flex items-center justify-center text-nowrap"
-                :class="tag?.background"
+                class="tag flex items-center justify-center text-nowrap shadow-sm"
                 v-for="(tag, index) in top3Tags"
                 :key="index"
               >
-                {{ tag?.descriptor }}
+                {{ tag?.name }}
               </div>
             </div>
-            <GradeContainer
-              v-if="recipe?.hidx && recipe?.hidx >= 55"
-              :score="recipe?.hidx || 0"
-              type="ovr"
-              class="hidden sm:flex text-sm sm:text-lg flex-shrink-0 self-end mb-1"
-            />
           </div>
         </div>
       </div>
@@ -72,14 +73,8 @@ const props = defineProps<{
 
 const getTop3Tags = (recipe: RecipeOverview) => {
   const tags = recipe.tags.map((tag) => getTagByID(tag));
-  const tagsWithDescriptors = tags.map((tag) => {
-    if (tag) {
-      return { ...tag, ...getTagDescriptor(tag.id, recipe) };
-    }
-    return null;
-  });
-  tagsWithDescriptors.sort((a, b) => (b?.value ?? 0) - (a?.value ?? 0));
-  const cropped = tagsWithDescriptors.slice(0, 3);
+  tags.sort((a, b) => (b?.value ?? 0) - (a?.value ?? 0));
+  const cropped = tags.slice(0, 3);
   return cropped;
 };
 

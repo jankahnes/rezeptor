@@ -1,5 +1,5 @@
 <template>
-  <PagesReport :id="Number(route.params.id)" :isFood="true" />
+  <PagesReport :id="route.params.id as string" :isFood="true" />
 </template>
 
 <script setup lang="ts">

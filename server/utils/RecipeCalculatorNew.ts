@@ -58,7 +58,7 @@ const micronutrient_weights = [
   { name: 'vitamin_b12_ug', weight: 1.4, rda: 2.4 },
 ];
 
-export default class RecipeCalculator {
+export default class RecipeCalculatorNew {
   recipe!: ComputedRecipe;
   food!: Food;
 
@@ -75,6 +75,7 @@ export default class RecipeCalculator {
   targetSalt = 0;
   isFood = false;
   report: any = {};
+  serving_kcal = 0;
 
   cumulativeFields = Object.keys(alphaFunctions) as cumulativeKeys[];
 
@@ -210,6 +211,8 @@ export default class RecipeCalculator {
       this.recipe.batch_size = this.recipe.serves;
     }
 
+    this.serving_kcal = this.recipe.kcal.total;
+
     console.log('🔍 Starting scoring');
     const scores = await this.getScoring();
     this.recipe.scores = scores;
@@ -233,6 +236,12 @@ export default class RecipeCalculator {
 
   async computeFood(food: Food) {
     this.isFood = true;
+    this.serving_kcal =
+      ((food.food.countable_units?.serving ||
+        food.food.countable_units?.servings ||
+        100) *
+        food.food.kcal) /
+      100;
     const foodAsRecipe: any = {
       title: food.name,
       user_id: null,
@@ -755,19 +764,22 @@ export default class RecipeCalculator {
     }
   }
 
+  saturate(nutrientValuePer2000Kcal: number, nutrientRDA: number): number {
+    const nutrient_per_serving =
+      nutrientValuePer2000Kcal * (this.serving_kcal / 2000);
+    const rda_ratio = nutrient_per_serving / nutrientRDA;
+    return (nutrientValuePer2000Kcal * 1.5) / (0.5 + rda_ratio);
+  }
+
   getMNIDX() {
-    let perGramScore = 0;
     let perKcalScore = 0;
-    let perServingScore = 0;
     const micronutrientDetails: {
       name: string;
       displayName: string;
       value: number;
       rdaPerServing: number;
       rdaPer100: number;
-      perGramContribution: number;
       perKcalContribution: number;
-      perServingContribution: number;
     }[] = [];
 
     for (const nutrient of micronutrient_weights) {
@@ -777,21 +789,16 @@ export default class RecipeCalculator {
 
       const rawValue = this.recipe[name].per100 || 0;
 
-      const perGramContribution =
-        weight * Math.min(2, Math.log(rawValue / rda + 1));
-      perGramScore += perGramContribution;
-
-      // perKcalContribution: nutrients per 200kcal of food
-      const perKcalContribution =
-        perGramContribution * (200 / this.recipe.kcal.per100);
+      // Linear per-kcal: extrapolate to 2000kcal, calculate %RDA, apply weight
+      // Anchors: 0%=0, 100%=100, 200%=200 (linear)
+      const nutrientPer2000kcal = (rawValue * 2000) / this.recipe.kcal.per100;
+      const rdaPercent = (nutrientPer2000kcal / rda) * 100;
+      const perKcalContribution = weight * rdaPercent;
       perKcalScore += perKcalContribution;
 
       // perServingContribution: nutrients per 500g of food
-      const perServingContribution =
-        perGramContribution * (this.recipe.total_weight / 300);
-      perServingScore += perServingContribution;
 
-      if (this.logToReport && perGramContribution > 0) {
+      if (this.logToReport && perKcalContribution > 0) {
         micronutrientDetails.push({
           name,
           displayName:
@@ -803,46 +810,24 @@ export default class RecipeCalculator {
             (rawValue * this.recipe.total_weight) / rda
           ),
           rdaPer100: Math.round((rawValue * 100) / rda),
-          perGramContribution: perGramContribution,
           perKcalContribution: perKcalContribution,
-          perServingContribution: perServingContribution,
         });
       }
     }
-    const scaledPerKcalScore = this.scaleWithPoints(perKcalScore * 20, [
-      [0, 0],
-      [75, 100],
-      [100, 150],
-    ]);
-    const scaledPerGramScore = this.scaleWithPoints(perGramScore * 20, [
-      [0, 0],
-      [75, 100],
-      [100, 150],
-    ]);
-    const scaledPerServingScore = this.scaleWithPoints(perServingScore * 20, [
-      [0, 0],
-      [75, 100],
-      [100, 150],
-    ]);
-    const weightedTotalScore =
-      0.6 * scaledPerKcalScore +
-      0.3 * scaledPerGramScore +
-      0.1 * scaledPerServingScore;
+    const scaledPerKcalScore = perKcalScore / micronutrient_weights.length;
+
     if (this.logToReport) {
       micronutrientDetails.sort(
-        (a, b) => b.perGramContribution - a.perGramContribution
+        (a, b) => b.perKcalContribution - a.perKcalContribution
       );
       this.report.micronutrients = {
-        total_score: weightedTotalScore,
-        perGramScore: scaledPerGramScore,
-        perKcalScore: scaledPerKcalScore,
-        perServingScore: scaledPerServingScore,
-        grade: getGrade(weightedTotalScore, 'single'),
+        total_score: scaledPerKcalScore,
+        grade: getGrade(scaledPerKcalScore, 'single'),
         details: micronutrientDetails,
       };
     }
 
-    return weightedTotalScore;
+    return scaledPerKcalScore;
   }
 
   async getSIDX(water: number) {
@@ -952,12 +937,10 @@ export default class RecipeCalculator {
   }
 
   getFiberScore() {
+    const fiberPerDay =
+      (this.recipe.fiber.per100 * 2000) / this.recipe.kcal.per100;
     const fiberRDA = 25;
-    const fiberScore = this.scaleWithPoints(this.recipe.fiber.per100, [
-      [0, 0],
-      [1.5, 50],
-      [10, 150],
-    ]);
+    const fiberScore = (fiberPerDay / 30) * 100;
     if (this.logToReport) {
       this.report.fiber = {
         fiberPer100g: this.recipe.fiber.per100,
@@ -971,24 +954,30 @@ export default class RecipeCalculator {
     const saltRDA = 5;
 
     // na in mg = nacl * 0.4 * 1000
+    const saltPerDay =
+      (this.recipe.salt.per100 * 2000) / this.recipe.kcal.per100;
+    const naPerDay =
+      ((this.recipe.salt.per100 * 0.4 * 2000) / this.recipe.kcal.per100) * 1000; // in mg
     const na_k =
       (this.recipe.salt.per100 * 1000 * 0.4) /
       (this.recipe.potassium_mg.per100 + 1e-6);
 
-    const na_k_score =
-      100 -
-      this.scaleWithPoints(na_k, [
-        [0.2, -20],
-        [0.5, 0],
-        [2, 55],
-        [3, 100],
-        [5, 150],
-      ]);
+    // Na/K ratio: 0.5=100, 1.0=70, 1.5=40, 2.5=0, 4.0=-50
+    const na_k_score = this.scaleWithPoints(na_k, [
+      [0.5, 100],
+      [1.0, 70],
+      [1.5, 40],
+      [2.5, 0],
+      [4.0, -50],
+    ]);
 
-    const total_salt_score = this.scaleWithPoints(this.recipe.salt.per100, [
+    // Total Na (mg per 2000kcal): 0mg=100, 1500mg=80, 2300mg=50, 4000mg=0, 6000mg=-50
+    const total_salt_score = this.scaleWithPoints(naPerDay, [
       [0, 100],
-      [2, 0],
-      [20, -100],
+      [1500, 80],
+      [2300, 50],
+      [4000, 0],
+      [6000, -50],
     ]);
 
     if (this.logToReport) {
@@ -1003,13 +992,9 @@ export default class RecipeCalculator {
   }
 
   getSugarScore() {
-    const points = [
-      [0, 100],
-      [5, 50],
-      [20, 0],
-      [100, -200],
-    ] satisfies [number, number][];
-    const score = this.scaleWithPoints(this.recipe.sugar.per100, points);
+    const sugarPerDay =
+      (this.recipe.sugar.per100 * 2000) / this.recipe.kcal.per100;
+    const score = 100 - (sugarPerDay * 5) / 6;
 
     if (this.logToReport) {
       let percentContributedFromNaturalScources = 0;
@@ -1047,74 +1032,111 @@ export default class RecipeCalculator {
       }
       return 50;
     }
-    const fat_mg = this.recipe.fat.per100 * 1000;
 
-    const sfat_score =
-      100 -
-      this.scaleWithPoints(
-        this.recipe.saturated_fat.per100 / this.recipe.fat.per100,
-        [
-          [0.05, 0],
-          [1, 200],
-        ]
-      );
+    // Calculate fat per 2000kcal for weighting
+    const fatPer2000kcal =
+      (this.recipe.fat.per100 * 2000) / this.recipe.kcal.per100;
 
-    const o3_score = this.scaleWithPoints(
-      this.recipe.omega3_total_mg.per100 / fat_mg,
-      [
-        [0.0, 0],
-        [0.25, 150],
-      ]
-    );
+    // Calculate omega-3 per 2000kcal (in grams)
+    const o3Per2000kcal =
+      (this.recipe.omega3_total_mg.per100 * 2000) /
+      this.recipe.kcal.per100 /
+      1000;
+    // Linear: 0g=30, 1.6g=70, 3.2g=100, 6.4g=170 (uncapped)
+    // Slope from 1.6 onwards: (170-70)/(6.4-1.6) = 100/4.8 ≈ 20.83 per gram
+    let o3_score;
+    if (o3Per2000kcal <= 1.6) {
+      o3_score = 30 + (o3Per2000kcal / 1.6) * 40; // 0→30, 1.6→70
+    } else {
+      o3_score = 70 + (o3Per2000kcal - 1.6) * (100 / 1.6); // Linear from 1.6g onwards
+    }
 
-    const o6_score = this.scaleWithPoints(
-      this.recipe.omega6_total_mg.per100 / fat_mg,
-      [
-        [0.0, 0],
-        [0.5, 100],
-      ]
-    );
+    // Calculate omega-6 per 2000kcal (in grams)
+    const o6Per2000kcal =
+      (this.recipe.omega6_total_mg.per100 * 2000) /
+      this.recipe.kcal.per100 /
+      1000;
+    // Anchors: 0g=40, 12g=100, 20g=80, 35g=40
+    const o6_score = this.scaleWithPoints(o6Per2000kcal, [
+      [0, 40],
+      [12, 100],
+      [20, 80],
+      [35, 40],
+    ]);
 
-    const mufa_score = this.scaleWithPoints(
-      this.recipe.mufas_total_mg.per100 / fat_mg,
-      [
-        [0.0, 0],
-        [1, 150],
-      ]
-    );
-
-    const o_ratio_score = this.scaleWithPoints(
-      this.recipe.omega3_total_mg.per100 /
-        (this.recipe.omega6_total_mg.per100 + 1e-10),
-      [
-        [0, 0],
-        [0.25, 80],
-        [2, 200],
-      ]
-    );
-
-    const trans_score =
-      100 -
-      this.scaleWithPoints(this.recipe.trans_fats_mg.per100, [
-        [0, 0],
-        [3000, 100],
+    // O3/O6 ratio: 1:1=100, 1:2=90, 1:4=70, 1:8=40, 1:15=10 (uncapped upward)
+    const o3_o6_ratio = o3Per2000kcal / (o6Per2000kcal + 1e-10);
+    let o_ratio_score;
+    if (o3_o6_ratio >= 1.0) {
+      // Linear beyond 1:1, uncapped
+      o_ratio_score = 100 + (o3_o6_ratio - 1.0) * 100; // 1:1=100, 2:1=200, etc.
+    } else {
+      // Below 1:1, use points
+      o_ratio_score = this.scaleWithPoints(o3_o6_ratio, [
+        [1 / 15, 10],
+        [1 / 8, 40],
+        [1 / 4, 70],
+        [1 / 2, 90],
+        [1 / 1, 100],
       ]);
+    }
 
-    let total =
-      0.5 * sfat_score +
-      0.5 * o_ratio_score +
-      0.3 * o3_score +
-      0.3 * mufa_score +
-      0.1 * o6_score +
-      trans_score -
+    // Sat fat as %E: 0%=70, 5%=80, 10%=50, 15%=20, 20%=0 (uncapped downward)
+    const sfat_pct_e =
+      ((this.recipe.saturated_fat.per100 * 9) /
+        (this.recipe.kcal.per100 + 1e-6)) *
       100;
+    let sfat_score;
+    if (sfat_pct_e <= 20) {
+      sfat_score = this.scaleWithPoints(sfat_pct_e, [
+        [0, 70],
+        [5, 80],
+        [10, 50],
+        [15, 20],
+        [20, 0],
+      ]);
+    } else {
+      // Linear decline beyond 20%: slope = -20/5 = -4 per %
+      sfat_score = 0 - (sfat_pct_e - 20) * 4; // uncapped downward
+    }
+
+    // Trans fat as %E: 0%=100, 0.5%=60, 1%=0, 2%=-100 (linear, uncapped)
+    const trans_pct_e =
+      (((this.recipe.trans_fats_mg.per100 / 1000) * 9) /
+        (this.recipe.kcal.per100 + 1e-6)) *
+      100;
+    // Linear: slope = (0-100)/(1-0) = -100 per %E
+    const trans_score = 100 - trans_pct_e * 100;
+
+    // MUFA as %E: 5%=60, 15%=100, 25%=95, 35%=80
+    const mufa_pct_e =
+      (((this.recipe.mufas_total_mg.per100 / 1000) * 9) /
+        (this.recipe.kcal.per100 + 1e-6)) *
+      100;
+    const mufa_score = this.scaleWithPoints(mufa_pct_e, [
+      [5, 60],
+      [15, 100],
+      [25, 95],
+      [35, 80],
+    ]);
+
+    // Composite score - adjust weights as needed
+    let total =
+      0.3 * o3_score +
+      0.2 * o6_score +
+      0.3 * o_ratio_score +
+      0.3 * sfat_score +
+      0.2 * mufa_score +
+      0.5 * trans_score -
+      50; // Adjusted baseline
 
     const totalScore = total;
-    const weight =
-      (1 - Math.exp(-0.2 * this.recipe.fat.per100)) /
-      (1 + Math.exp(-this.recipe.fat.per100 + 3));
-    const counterWeight = 1 - weight;
-    const compoundScore = counterWeight * 50 + weight * totalScore;
+
+    // Weight by total fat amount per 2000kcal: 0g→minimal, 65g→full, 130g→1.5x
+    const fatWeight = Math.min(1.5, fatPer2000kcal / 65);
+    const counterWeight = 1 - Math.min(1, fatWeight);
+    const compoundScore =
+      counterWeight * 50 + Math.min(1, fatWeight) * totalScore;
 
     if (this.logToReport) {
       this.report.fatProfile = {
@@ -1123,16 +1145,19 @@ export default class RecipeCalculator {
         omega6_score: Math.round(o6_score),
         mufa_score: Math.round(mufa_score),
         ratio_score: Math.round(o_ratio_score),
-        trans_score: Math.round(trans_score) / 2,
+        trans_score: Math.round(trans_score),
         final_score: Math.round(compoundScore),
         saturated_fat_per_fat:
           this.recipe.saturated_fat.per100 / this.recipe.fat.per100,
-        omega3_per_fat: this.recipe.omega3_total_mg.per100 / fat_mg,
-        omega6_per_fat: this.recipe.omega6_total_mg.per100 / fat_mg,
-        mufa_per_fat: this.recipe.mufas_total_mg.per100 / fat_mg,
+        omega3_per_fat:
+          this.recipe.omega3_total_mg.per100 / (this.recipe.fat.per100 * 1000),
+        omega6_per_fat:
+          this.recipe.omega6_total_mg.per100 / (this.recipe.fat.per100 * 1000),
+        mufa_per_fat:
+          this.recipe.mufas_total_mg.per100 / (this.recipe.fat.per100 * 1000),
         omega_ratio:
           this.recipe.omega3_total_mg.per100 /
-          this.recipe.omega6_total_mg.per100,
+          (this.recipe.omega6_total_mg.per100 + 1e-10),
         trans: this.recipe.trans_fats_mg.per100,
       };
     }
@@ -1141,9 +1166,15 @@ export default class RecipeCalculator {
   }
 
   getED() {
+    // Satiety/Energy Density score
+    // Anchors (kcal per 100g): 0kcal=120, 100kcal=100, 200kcal=70, 400kcal=30, 600kcal=0, 800kcal=-30
     return this.scaleWithPoints(this.recipe.kcal.per100, [
-      [0, 100],
-      [800, -50],
+      [0, 120],
+      [100, 100],
+      [200, 70],
+      [400, 30],
+      [600, 0],
+      [800, -30],
     ]);
   }
 
@@ -1152,8 +1183,23 @@ export default class RecipeCalculator {
     const carotenoids = this.recipe.carotenoids.per100;
     const glucosinolates = this.recipe.glucosinolates.per100;
 
-    const score =
-      (0.5 * polyphenols + 0.3 * carotenoids + 0.2 * glucosinolates) * 15;
+    // Composite score (0-10 scale), weighted
+    const compositeScore =
+      0.5 * polyphenols + 0.3 * carotenoids + 0.2 * glucosinolates;
+
+    // Per-kcal weighting: scale up for low-calorie foods
+    const kcalFactor = 100 / (this.recipe.kcal.per100 + 1e-6);
+    const weightedComposite = compositeScore * Math.sqrt(kcalFactor); // sqrt to moderate the effect
+
+    // Anchors: 0=0, 3=50, 5=80, 7=100, 9=130, 10=150
+    const score = this.scaleWithPoints(weightedComposite, [
+      [0, 0],
+      [3, 50],
+      [5, 80],
+      [7, 100],
+      [9, 130],
+      [10, 150],
+    ]);
 
     if (this.logToReport) {
       this.report.protectiveCompounds = {
@@ -1168,27 +1214,16 @@ export default class RecipeCalculator {
   }
 
   getProteinQuantityScore() {
-    const ratio_score = this.scaleWithPoints(
-      (this.recipe.protein.per100 * 4) / (this.recipe.kcal.per100 + 1e-6),
+    // Anchors: 0g=0, 50g=60, 140g=100, 300g=200
+    return this.scaleWithPoints(
+      (this.recipe.protein.per100 * 2000) / this.recipe.kcal.per100,
       [
         [0, 0],
-        [0.05, 20],
-        [0.2, 60],
-        [0.4, 80],
-        [0.7, 110],
-        [1, 180],
+        [50, 60],
+        [140, 100],
+        [300, 200],
       ]
     );
-
-    const total_score = this.scaleWithPoints(this.recipe.protein.per100, [
-      [0, 0],
-      [1, 10],
-      [6, 50],
-      [10, 70],
-      [25, 90],
-      [100, 200],
-    ]);
-    return 0.6 * ratio_score + 0.5 * total_score;
   }
 
   getProteinQualityScore() {
@@ -1324,21 +1359,15 @@ export default class RecipeCalculator {
     protective_compound_score: number
   ) {
     const hidx =
-      (1 / 6) * satiety + //satiety ; proxy for overeating/obesity risk
-      (1 / 8) * fiber + //direct positive impact
-      (1 / 9) * pl + //processing level, proxy for additives or unwanted processing side effects.
-      // https://link.springer.com/article/10.1186/s13643-025-02800-8
-      // 10% increase in UPF -> 10% risk of all-cause mortality
-      (1 / 9) * fat_profile + //direct impact, mixed based on fatty acid profile
-      (1 / 9) * mnidx + //direct positive impact
-      (1 / 9) * protein + //direct positive impact
-      (1 / 9) * sugar + //direct negative impact
-      // https://www.mdpi.com/2072-6643/13/8/2636
-      // 1 extra soda -> 10% risk of all-cause mortality
-      (1 / 9) * salt + //direct negative impact
-      //https://www.nejm.org/doi/full/10.1056/NEJMoa1311889
-      // J-shaped curve, >7g / day -> +25% all-cause mortality
-      (1 / 13) * protective_compound_score; //direct positive impact
+      0.18 * pl +
+      0.15 * fiber +
+      0.12 * fat_profile +
+      0.12 * mnidx +
+      0.12 * sugar +
+      0.12 * salt +
+      0.1 * satiety +
+      0.08 * protein +
+      0.05 * protective_compound_score;
 
     const MIN = 25;
     const MAX = 83;

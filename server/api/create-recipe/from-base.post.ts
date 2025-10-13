@@ -5,7 +5,10 @@ import type { BaseRecipe } from '~/types/types';
 //Uploads a recipe from BaseRecipeInformation object
 export default defineEventHandler(async (event) => {
   const input = await readBody(event);
-  const { base_recipe_information, jobId }: { base_recipe_information: BaseRecipe, jobId: number }  = input;
+  const {
+    base_recipe_information,
+    jobId,
+  }: { base_recipe_information: BaseRecipe; jobId: number } = input;
   const supabase = serverSupabaseServiceRole<Database>(event);
 
   if (!base_recipe_information.processing_requirements) {

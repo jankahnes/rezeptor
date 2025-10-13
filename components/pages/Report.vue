@@ -243,12 +243,14 @@
 
 <script setup lang="ts">
 import { VITAMINS, MINERALS } from '~/utils/constants/recipeFields';
+import convertUploadableToComputable from '~/server/utils/convertUploadableToComputable';
 
 const props = defineProps<{
-  id: number | string;
+  id: string;
   isFood: boolean;
 }>();
 
+const id = isNaN(Number(props.id)) ? props.id : Number(props.id);
 const recipeStore = useRecipeStore();
 const editableRecipe = ref<ComputableRecipe | null>(null);
 const vitaminsExpanded = ref(false);
@@ -376,63 +378,96 @@ function addPercentilesToSummaryCards() {
 onMounted(async () => {
   try {
     if (props.isFood) {
-      const data = await getFoodName(supabase, {
-        eq: { id: Number(props.id) },
+      // Case 1: Food
+      const food = await getFoodName(supabase, {
+        eq: { id: id },
       });
-      const response = await $fetch('/api/calculate/nutrition', {
+
+      // Check if report is preloaded in DB
+      if (food.food.report) {
+        recipeComputed.value = food.food;
+      } else {
+        // Calculate nutrition using endpoint
+        const response = (await $fetch('/api/calculate/nutrition', {
+          method: 'POST',
+          body: {
+            calculatorArgs: {
+              food: food,
+              useGpt: false,
+              logToReport: true,
+              considerProcessing: false,
+            },
+          },
+        })) as { nutritionComputed: InsertableRecipe; nutrition: any };
+        recipeComputed.value = response.nutritionComputed;
+        console.log(recipeComputed.value);
+      }
+
+      useHead({
+        title: 'Nutritional Report for ' + food.name + ' | Rezeptor',
+      });
+    } else if (props.id === 'new') {
+      // Case 3: User is editing a new recipe - use calculate without convert
+      console.log(recipeStore.editingRecipe);
+      const response = (await $fetch('/api/calculate/recipe', {
         method: 'POST',
         body: {
           calculatorArgs: {
-            recipe: data.food,
+            recipe: recipeStore.editingRecipe,
             useGpt: false,
             logToReport: true,
-            isFood: true,
+            isFood: false,
             considerProcessing: false,
           },
         },
-      }) as { nutritionComputed: Recipe, nutrition: any };
-      recipeComputed.value = response.nutritionComputed;
-      recipeComputed.value.title = data.name;
+      })) as { recipeRow: InsertableRecipe };
+      recipeComputed.value = response.recipeRow;
+
       useHead({
-        title: 'Nutritional Report for ' + data.name + ' | Rezeptor',
+        title:
+          'Nutritional Report for ' +
+          recipeStore.editingRecipe?.title +
+          ' | Rezeptor',
       });
     } else {
-      if (props.id === 'new') {
-        editableRecipe.value = recipeStore.editingRecipe;
-      } else {
-        if (!recipeStore.recipe || recipeStore.recipe.id != props.id) {
-          const data = await getRecipe(supabase, {
-            eq: { id: Number(props.id) },
-          });
-          recipeStore.setRecipe(data as Recipe);
-        }
-        useHead({
-          title:
-            'Nutritional Report for ' +
-            recipeStore.recipe?.title +
-            ' | Rezeptor',
+      // Case 2: Recipe with ID
+      // Fetch recipe if not already in store
+      if (!recipeStore.recipe || recipeStore.recipe.id != id) {
+        const data = await getRecipe(supabase, {
+          eq: { id: id },
         });
-        if (recipeStore.recipe?.report) {
-          recipeComputed.value = recipeStore.recipe;
-          console.log('Report found in recipe store');
-        } else if (recipeStore.recipe) {
-          editableRecipe.value = await convertUploadableToComputable(recipeStore.recipe, supabase, false);
-          const response = await $fetch('/api/calculate/recipe', {
-            method: 'POST',
-            body: {
-              calculatorArgs: {
-                recipe: editableRecipe.value,
-                useGpt: false,
-                logToReport: true,
-                isFood: props.isFood,
-                considerProcessing: false,
-              },
-            },
-          }) as { recipeRow: InsertableRecipe };
-          recipeComputed.value = response.recipeRow;
-          console.log('Report computed');
-        }
+        recipeStore.setRecipe(data as Recipe);
       }
+
+      // Check if report is preloaded in DB
+      if (false && recipeStore.recipe?.report) {
+        recipeComputed.value = recipeStore.recipe;
+      } else {
+        // Convert and calculate using endpoint
+        const convertedRecipe = await convertUploadableToComputable(
+          recipeStore.recipe!,
+          supabase,
+          false
+        );
+        const response = (await $fetch('/api/calculate/recipe', {
+          method: 'POST',
+          body: {
+            calculatorArgs: {
+              recipe: convertedRecipe,
+              useGpt: false,
+              logToReport: true,
+              isFood: false,
+              considerProcessing: false,
+            },
+          },
+        })) as { recipeRow: InsertableRecipe };
+        recipeComputed.value = response.recipeRow;
+      }
+
+      useHead({
+        title:
+          'Nutritional Report for ' + recipeStore.recipe?.title + ' | Rezeptor',
+      });
     }
   } catch (error) {
     console.error('Error loading recipe report:', error);
