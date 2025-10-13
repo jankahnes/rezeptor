@@ -1,23 +1,26 @@
 <template>
   <div>
     <div class="h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10">
-      <div
-        class="mt-8 sm:mt-0 inline-flex min-w-100 items-center outline outline-gray-300 rounded-lg px-2 gap-2"
-      >
-        <span class="material-symbols-outlined">search</span>
-        <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Search for a recipe"
-          class="flex-grow focus:outline-none py-2"
-          @keyup.enter="refresh"
-          @blur="refresh"
-        />
+      <div class="flex justify-between items-end gap-6">
+        <div
+          class="mt-8 sm:mt-0 inline-flex min-w-0 w-100 items-center outline outline-gray-300 rounded-lg px-2 gap-2 justify-between"
+        >
+          <span class="material-symbols-outlined">search</span>
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search for a recipe"
+            class="flex-grow focus:outline-none py-2"
+            @keyup.enter="() => refresh(true)"
+            @blur="handleSearchBlur"
+          />
+        </div>
+        <span class="text-gray-500 text-sm text-nowrap"
+          >{{ totalCount }} Results</span
+        >
       </div>
 
-      <div
-        class="flex justify-center sm:justify-between items-center flex-wrap gap-2"
-      >
+      <div class="flex justify-between items-center flex-wrap gap-2">
         <div class="filters flex items-center gap-2">
           <button
             @click="onSelect('tags')"
@@ -59,15 +62,8 @@
             <span class="material-symbols-outlined"> euro </span>
             <span class="hidden lg:block">Cost</span>
           </button>
-          <button
-            @click="refresh()"
-            class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
-          >
-            <span class="material-symbols-outlined">search</span>
-          </button>
         </div>
         <div class="flex items-center gap-4">
-          <span class="hidden xl:block">Sort by:</span>
           <div class="relative inline-block min-w-45 z-20">
             <FormsDropdown
               v-model="selectedSorting"
@@ -78,7 +74,51 @@
       </div>
       <div v-if="selectedFilter" class="my-2">
         <div class="" v-if="selectedFilter == 'tags'">
-          <!-- TODO: Add tag row -->
+          <!-- Categories -->
+          <div class="py-1">
+            <Carousel>
+              <div
+                v-for="category in categories"
+                :key="category.tag"
+                @click="toggleTag(category)"
+                :class="{
+                  '!bg-primary !text-white': filteringTags.includes(
+                    category.tag
+                  ),
+                }"
+                class="flex flex-col sm:flex-row items-center gap-x-1 px-2 py-1 transition-all duration-300 flex-shrink-0 button m-1"
+              >
+                <span class="text-2xl">{{ category.icon }}</span>
+                <span
+                  class="text-sm sm:text-base sm:tracking-wider text-nowrap"
+                  >{{ category.name }}</span
+                >
+              </div>
+            </Carousel>
+          </div>
+
+          <!-- Cuisines -->
+          <div class="py-1">
+            <Carousel>
+              <div
+                v-for="cuisine in cuisines"
+                :key="cuisine.tag"
+                @click="toggleTag(cuisine)"
+                :class="{
+                  '!bg-primary !text-white': filteringTags.includes(
+                    cuisine.tag
+                  ),
+                }"
+                class="flex flex-col sm:flex-row items-center gap-x-1 px-2 py-1 transition-all duration-300 flex-shrink-0 button m-1"
+              >
+                <span class="text-xl">{{ cuisine.icon }}</span>
+                <span
+                  class="text-sm sm:text-base sm:tracking-wider text-nowrap"
+                  >{{ cuisine.name }}</span
+                >
+              </div>
+            </Carousel>
+          </div>
         </div>
         <div
           class="relative py-3 select-none ml-4 mr-6 lg:mx-3"
@@ -189,12 +229,58 @@ const supabase = useSupabaseClient<Database>();
 const visibleTags = ref<string[]>([]);
 const filteringTags = ref<number[]>([]);
 const searchQuery = ref('');
+const lastSearchedQuery = ref('');
 const selectedFilter = ref('');
 const results = ref<RecipeOverview[]>([]);
 
 const healthScoreRange = ref<[number, number]>([0, 110]);
 const kcalRange = ref<[number, number]>([0, 2500]);
 const costRange = ref<[number, number]>([0, 200]);
+
+const healthScoreIsAtDefault = computed(() => {
+  return healthScoreRange.value[0] == 0 && healthScoreRange.value[1] == 110;
+});
+
+const kcalIsAtDefault = computed(() => {
+  return kcalRange.value[0] == 0 && kcalRange.value[1] == 2500;
+});
+
+const costIsAtDefault = computed(() => {
+  return costRange.value[0] == 0 && costRange.value[1] == 200;
+});
+
+const categories = ref([
+  { name: 'Breakfast', icon: '🥐', tag: 201 },
+  { name: 'Lunch', icon: '🍔', tag: 205 },
+  { name: 'Dinner', icon: '🍝', tag: 200 },
+  { name: 'Snacks', icon: '🍟', tag: 203 },
+  { name: 'Dessert', icon: '🍰', tag: 204 },
+  { name: 'Quick and Easy', icon: '⚡', tag: 3 },
+  { name: 'Healthy', icon: '🏵️', tag: 100 },
+  { name: 'Budget', icon: '💰', tag: 4 },
+  { name: 'Meal Prep', icon: '🍱', tag: 5 },
+]);
+
+const cuisines = ref([
+  { name: 'Italian', icon: '🇮🇹', tag: 302 },
+  { name: 'German', icon: '🇩🇪', tag: 303 },
+  { name: 'American', icon: '🇺🇸', tag: 304 },
+  { name: 'Vietnamese', icon: '🇻🇳', tag: 305 },
+  { name: 'Chinese', icon: '🇨🇳', tag: 306 },
+  { name: 'Japanese', icon: '🇯🇵', tag: 307 },
+  { name: 'French', icon: '🇫🇷', tag: 308 },
+  { name: 'British', icon: '🇬🇧', tag: 309 },
+  { name: 'Indian', icon: '🇮🇳', tag: 310 },
+  { name: 'Spanish', icon: '🇪🇸', tag: 311 },
+  { name: 'Middle Eastern', icon: '🌍', tag: 312 },
+  { name: 'Thai', icon: '🇹🇭', tag: 313 },
+  { name: 'Mediterranean', icon: '🌊', tag: 314 },
+  { name: 'Greek', icon: '🇬🇷', tag: 315 },
+  { name: 'Turkish', icon: '🇹🇷', tag: 316 },
+  { name: 'Korean', icon: '🇰🇷', tag: 321 },
+  { name: 'Mexican', icon: '🇲🇽', tag: 326 },
+]);
+
 const selectedSorting = ref('Popularity');
 const sorts = ref([
   {
@@ -217,6 +303,7 @@ const RECIPES_PER_PAGE = 12;
 const currentOffset = ref(0);
 const isLoading = ref(false);
 const hasMoreRecipes = ref(true);
+const totalCount = ref<number | null>(null);
 const sentinelElement = ref<HTMLElement | null>(null);
 const sentinelElementMobile = ref<HTMLElement | null>(null);
 
@@ -224,9 +311,11 @@ const filtering = computed(() => {
   const returnFiltering: Filtering = {
     visibility: 'PUBLIC',
     tags: filteringTags.value,
-    hidx: healthScoreRange.value,
-    kcal: kcalRange.value,
-    price: [costRange.value[0] / 10, costRange.value[1] / 10],
+    hidx: healthScoreIsAtDefault.value ? null : healthScoreRange.value,
+    kcal: kcalIsAtDefault.value ? null : kcalRange.value,
+    price: costIsAtDefault.value
+      ? null
+      : [costRange.value[0] / 10, costRange.value[1] / 10],
   };
   return returnFiltering;
 });
@@ -240,7 +329,6 @@ async function loadMoreRecipes() {
         (sort) => sort.displayName === selectedSorting.value
       )?.value as { column: string; ascending: boolean },
       not: { picture: null },
-      eq: { visibility: 'PUBLIC' },
       filtering: filtering.value,
       trigram_search: { column: 'title', query: searchQuery.value },
       range: {
@@ -253,6 +341,7 @@ async function loadMoreRecipes() {
       hasMoreRecipes.value = false;
     }
 
+    // @ts-ignore - TypeScript inference issue with deeply nested types
     results.value = [...results.value, ...newRecipes];
     currentOffset.value += RECIPES_PER_PAGE;
   } catch (error) {
@@ -262,23 +351,50 @@ async function loadMoreRecipes() {
   }
 }
 
-async function refresh() {
+async function refresh(shouldRecount = true) {
   currentOffset.value = 0;
   results.value = [];
   hasMoreRecipes.value = true;
+  lastSearchedQuery.value = searchQuery.value;
+
+  if (shouldRecount) {
+    console.log('shouldRecount');
+    getCount(supabase, {
+      not: { picture: null },
+      eq: { visibility: 'PUBLIC' },
+      filtering: filtering.value,
+    }).then((count) => {
+      console.log('count', count);
+      totalCount.value = count;
+    });
+  }
   await loadMoreRecipes();
 }
 
-const debouncedRefresh = debounce(refresh, 1000);
+function handleSearchBlur() {
+  if (searchQuery.value !== lastSearchedQuery.value) {
+    refresh(true);
+  }
+}
+
+const debouncedRefresh = debounce(() => refresh(true), 1000);
 
 watch(filtering, debouncedRefresh, { deep: true });
-watch(selectedSorting, refresh);
+watch(selectedSorting, () => refresh(false));
+
+let observer: IntersectionObserver | null = null;
+
+onBeforeUnmount(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
 
 onMounted(async () => {
-  await loadMoreRecipes();
+  await refresh(true);
   await nextTick();
 
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting && !isLoading.value && hasMoreRecipes.value) {
@@ -298,10 +414,6 @@ onMounted(async () => {
   if (sentinelElementMobile.value) {
     observer.observe(sentinelElementMobile.value);
   }
-
-  onBeforeUnmount(() => {
-    observer.disconnect();
-  });
 });
 
 function getEuroFormat(num: number): string {
@@ -323,10 +435,19 @@ function removeTag(index: number) {
     kcalRange.value = [0, 2500];
   } else if (tagName.startsWith('Cost')) {
     costRange.value = [0, 200];
+  } else {
+    // Find the tag ID from categories or cuisines
+    const category = categories.value.find((c) => c.name === tagName);
+    const cuisine = cuisines.value.find((c) => c.name === tagName);
+    const tagId = category?.tag || cuisine?.tag;
+
+    if (tagId) {
+      const tagIndex = filteringTags.value.indexOf(tagId);
+      if (tagIndex > -1) {
+        filteringTags.value.splice(tagIndex, 1);
+      }
+    }
   }
-  filteringTags.value = filteringTags.value.filter(
-    (tag) => getTagByID(tag)?.name !== tagName
-  );
   visibleTags.value.splice(index, 1);
 }
 
@@ -372,6 +493,24 @@ async function onSelect(button: string) {
     selectedFilter.value = '';
   } else {
     selectedFilter.value = button;
+  }
+}
+
+function toggleTag(item: { name: string; icon: string; tag: number }) {
+  const index = filteringTags.value.indexOf(item.tag);
+  if (index > -1) {
+    // Remove tag
+    filteringTags.value.splice(index, 1);
+    const visibleIndex = visibleTags.value.indexOf(item.name);
+    if (visibleIndex > -1) {
+      visibleTags.value.splice(visibleIndex, 1);
+    }
+  } else {
+    // Add tag
+    filteringTags.value.push(item.tag);
+    if (!visibleTags.value.includes(item.name)) {
+      visibleTags.value.push(item.name);
+    }
   }
 }
 </script>

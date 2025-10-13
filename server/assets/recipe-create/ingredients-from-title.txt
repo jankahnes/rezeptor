@@ -14,7 +14,7 @@ Note that the recipe title given might be in a language other than english. If t
 Only for truly region-specific / traditional ingredients that are separate from their english counterpart, keep the original name. 
 
 You can use "preperation descriptors" such as "Garlic, sliced"
-If theres a lot of ingredients and the recipe is clearly divisible into sections, use categories such as "For the sauce" etc.
+If theres a lot of ingredients and the recipe is divisible into sections, use categories such as "For the sauce", "Garnish" etc.
 
 For the units, prioritize intuitive, readable units. 
 Try using countable units (such as "1 Tomato", "3 slices of cheese").

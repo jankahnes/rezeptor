@@ -327,12 +327,15 @@ export default class RecipeCalculator {
   }
 
   getRecipeRow(): InsertableRecipe {
-    const recipeRow = {...this.recipe};
+    const recipeRow = { ...this.recipe };
     for (const field of this.cumulativeFields) {
       recipeRow[field] = this.recipe[field].total;
     }
     Object.assign(recipeRow, this.recipe.scores);
-    return stripKeys(recipeRow, recipeKeys) as InsertableRecipe;
+    if (!this.isFood) {
+      return stripKeys(recipeRow, recipeKeys) as InsertableRecipe;
+    }
+    return recipeRow as unknown as InsertableRecipe;
   }
 
   getRecipeFoodRows(): Omit<InsertableRecipeFood, 'recipe_id'>[] {
@@ -1517,7 +1520,7 @@ export default class RecipeCalculator {
     // Overall grade and details
     this.report.overall = {
       ...this.recipe.scores,
-      nova: this.recipe.nova,
+      nova: this.recipe.nova.total,
       grade: getGrade(this.recipe.scores.hidx, 'ovr'),
       total_weight: Math.round(this.recipe.total_weight),
       kcal_per_100g: Math.round(this.recipe.kcal.per100),

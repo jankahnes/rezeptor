@@ -164,9 +164,9 @@ export type Filtering = {
   efforts?: string[];
   visibility?: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
   tags?: number[];
-  hidx: [number, number];
-  kcal: [number, number];
-  price: [number, number];
+  hidx: [number, number] | null;
+  kcal: [number, number] | null;
+  price: [number, number] | null;
 };
 
 //Types related to recipe creation / computation

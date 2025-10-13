@@ -161,7 +161,7 @@ const submitFromPicture = async (file: File) => {
     'args',
     JSON.stringify({
       publish: false,
-      source_type: 'IMAGE',
+      source_type: 'PICTURE',
       source: null,
       based_on: null,
       user_id: auth.user?.id ?? null,

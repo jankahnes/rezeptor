@@ -155,9 +155,9 @@
           >
             <div
               class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100"
-              v-if="(recipeStore.recipe as any)?.mappedTags"
-              v-for="tag in (recipeStore.recipe as any)?.mappedTags"
-              :key="tag.tag_id"
+              v-if="mappedTags"
+              v-for="tag in mappedTags"
+              :key="tag.id"
             >
               {{ tag.name }}
             </div>
@@ -403,9 +403,9 @@
           <div class="flex flex-wrap gap-2 mt-4">
             <div
               class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium metallic-gradient-simple"
-              v-if="(recipeStore.recipe as any)?.mappedTags"
-              v-for="tag in (recipeStore.recipe as any)?.mappedTags"
-              :key="tag.tag_id"
+              v-if="mappedTags"
+              v-for="tag in mappedTags"
+              :key="tag.id"
             >
               {{ tag.name }}
             </div>
