@@ -22,12 +22,11 @@ export default defineEventHandler(async (event) => {
     calculatorArgs.considerProcessing
   );
   const scores = await recipeCalculator.computeFood(calculatorArgs.food);
-  Object.assign(recipeCalculator.recipe, scores);
   if (calculatorArgs.logToReport) {
     recipeCalculator.generateReport();
   }
   const response: Response = {
-    nutritionComputed: recipeCalculator.recipe,
+    nutritionComputed: recipeCalculator.getRecipeRow(),
     nutrition: scores,
   };
   return response;

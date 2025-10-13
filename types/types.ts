@@ -94,10 +94,16 @@ export type Ingredient = {
   amount: number;
   unit: string;
   countable_units: Record<string, number>;
+  consumption_factor: number;
   amountInfo: [number, string][];
   currentUnit: number;
   density: number;
   preparation_description: string | null;
+  thermal_intensity: ThermalIntensity | null;
+  heat_medium: HeatMedium | null;
+  mechanical_disruption: MechanicalDisruption | null;
+  thermal_description: string | null;
+  mechanical_description: string | null;
 };
 
 export type User = {
@@ -164,9 +170,9 @@ export type Filtering = {
   efforts?: string[];
   visibility?: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
   tags?: number[];
-  hidx: [number, number];
-  kcal: [number, number];
-  price: [number, number];
+  hidx: [number, number] | null;
+  kcal: [number, number] | null;
+  price: [number, number] | null;
 };
 
 //Types related to recipe creation / computation

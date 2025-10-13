@@ -8,8 +8,7 @@
     <!-- circular -->
     <NuxtImg
       v-if="recipe?.picture"
-      class="h-28 xs:h-34 aspect-square object-cover bg-transparent [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10"
-      :class="[getGradeShadow(recipe?.hidx || 0, 'ovr')]"
+      class="h-28 xs:h-34 aspect-square object-cover bg-transparent shadow-gray-200 [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10"
       :src="recipe?.picture || ''"
     />
 
@@ -24,24 +23,25 @@
           >
             {{ recipe?.title }}
           </h2>
-          <GradeContainer
-            v-if="recipe?.hidx && recipe?.hidx >= 55"
-            :score="recipe?.hidx || 0"
-            type="ovr"
-            class="text-base sm:text-lg flex-shrink-0"
-          />
         </div>
         <div
-          class="flex gap-1.5 flex-wrap text-[0.6em] md:text-[0.4em] max-h-[3.2rem] overflow-hidden items-start"
+          class="flex gap-1.5 flex-wrap text-[0.6em] md:text-[0.4em] max-h-[3.4rem] overflow-hidden items-start py-0.5"
         >
           <div
+            v-if="recipe?.hidx && recipe?.hidx >= 55"
+            class="flex tag items-center !text-black shadow-sm w-[2em] text-center"
+            :class="gradeColors[getGrade(recipe?.hidx, 'ovr')]"
+          >
+            {{ getGrade(recipe?.hidx, 'ovr') }}
+          </div>
+          <div
+            v-if="recipe?.rating && recipe?.rating >= 4"
             class="tag flex items-center gap-1"
             :class="
               recipe?.rating && recipe?.rating >= 4.5
                 ? 'golden-gradient-muted'
-                : 'metallic-gradient-simple'
+                : 'shadow-sm'
             "
-            v-if="recipe?.rating && recipe?.rating >= 4"
           >
             <FormsRatingField
               :model-value="recipe?.rating"
@@ -54,12 +54,11 @@
           </div>
 
           <div
-            class="tag flex items-center justify-center text-nowrap"
-            :class="tag?.background"
+            class="tag flex items-center justify-center text-nowrap shadow-sm"
             v-for="(tag, index) in top3Tags"
             :key="index"
           >
-            {{ tag?.descriptor }}
+            {{ tag?.name }}
           </div>
         </div>
       </div>
@@ -74,14 +73,8 @@ const props = defineProps<{
 
 const getTop3Tags = (recipe: RecipeOverview) => {
   const tags = recipe.tags.map((tag) => getTagByID(tag));
-  const tagsWithDescriptors = tags.map((tag) => {
-    if (tag) {
-      return { ...tag, ...getTagDescriptor(tag.id, recipe) };
-    }
-    return null;
-  });
-  tagsWithDescriptors.sort((a, b) => (b?.value ?? 0) - (a?.value ?? 0));
-  const cropped = tagsWithDescriptors.slice(0, 3);
+  tags.sort((a, b) => (b?.value ?? 0) - (a?.value ?? 0));
+  const cropped = tags.slice(0, 3);
   return cropped;
 };
 

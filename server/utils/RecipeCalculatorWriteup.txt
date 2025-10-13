@@ -1,0 +1,115 @@
+Health Index Scientific Reasoning
+
+Correlation types:
+    - Linear Capped
+    - Linear Uncapped
+    - Saturating/Diminishing
+    - Custom Curves if more precise science is available
+
+
+Goal and notes:
+    - Holisitic health scoring system
+    - Should work at food level, recipe level, and day/week of eating level -> "Zoom" agnostic
+    - Idea: Use "realistic daily portion upper caps" for diminishing/saturating RDA functions (only)  
+        - Use countable_units.serving || .servings || 100 for single Foods
+        - Use total weight per serving for recipes
+        - Not needed if scale > 1 day
+        -> Example of what this does:
+            - Assume fish has 300% RDA o3 / 2000kcal and food X has 100% RDA o3 / 2000kcal
+            - If naive extrapolation to 2000kcal, then capping RDA -> both foods are equal on that front -> looking at serving size instead fixes this
+
+Goal for improvement from RecipeCalculator -> RecipeCalculatorNew:
+    - Main issue of old: Many of the categories are scored per gram vs. per kcal
+    - Advantage of per gram: Scores make sense to people and somewhat reflect science
+    - But: Scoring per kcal is better because it reflects much more accurately how much 100g of the recipe/food takes up of peoples daily energy
+    - This is why %E is widely used in studies
+    - Example: Food A has 5g fiber / 100g and 100kcal. Food B has 5g fiber / 100g and 500kcal. The system rates both equally, when food A is much more advantageous when wanting to hit daily fiber RDA target.
+    - Problem with just switching to %E: User friendliness, maybe also accuracy?
+    - Example: Cucumber has 1.7g sugar and 16kcal / 100g. So sugar makes up 50% of energy. Cucumber would recieve an "F" sugar score, which seems silly.
+    - What to do?
+    - Possibly a hybrid model that looks at some combination of kcal, weight, or even usual serving size (see above)?
+    - Examples from existing models: Nutri-Score uses /weight. UK-FSA uses /weight. NRF9.3 uses /kcal, but only for micronutrients. SAIN,LIM uses /kcal for beneficials, /weight for negatives.
+    - Possibly: Not a one-fits-all, decide case-by-case per category.
+    - Requirement: Still has to be scientifically accurate in reflecting health outcomes
+
+
+def saturate(nutrientValuePer2000Kcal, nutrientRDA):
+    nutrient_per_serving = nutrientValuePer2000Kcal * (this.serving.kcal / 2000)
+    rda_ratio = nutrient_per_serving / nutrientRDA
+    return nutrientValuePer2000Kcal * 1.5 / (0.5 + rda_ratio);
+    
+
+    
+
+18%: Processing Level
+- Indirect Negative Health Correlation
+- Studies show that even after accounting for the above categories, PL still is a significant independent factor 
+- Regressively fitting Nutrient Quality (=all of above) to health outcomes puts PLs regression factor somewhere at 10-25%
+- Proxy for contaminants, additives, matrix alteration, palatability, etc.
+- Proposed: 
+    - NOVA Map: 1->100, 2->90, 3->75, 4->15. -> Captures much higher risk jump towards UPF
+    - Foods use above map. For recipes:
+        - Use 50:50 hybrid of weight:kcal averaging to find average NOVA score based on ingredients = avgNOVA
+        - Find %kcal and %weight from NOVA 4 and weigh 50:50 = pctUPF
+        - To account for small-weight + small-kcal UPFs: Find maxNOVA = ingredient with highest NOVA and
+        - find pctUPFCt = percentage of UPF ingredients by count
+        - novaScore = 0.7 * scale(avgNOVA) + 0.3 * scale(maxNOVA) - 0.5 * pctUPF - 0.5 * pctUPFCt
+- Anchors: NOVA 1=100, NOVA 2=90, NOVA 3=75, NOVA 4=15 (already built into formula)
+
+15%: Fiber
+- Direct Positive Linear Correlation
+- Per kcal, extrapolated to 2000kcal = f
+- score = 3f
+- ##Anchors (per 2000kcal): 0g=0, 15g=50, 30g=100, 60g=200
+
+12%: Sugar
+- Direct Linear Uncapped Negative Correlation
+- Per kcal, extrapolated to 2000kcal = s
+- score = 100-(5/6)s
+- Anchors (per 2000kcal): 0g=100, 50g=60, 110g=0
+
+12%?: Sodium
+- Direct curved uncapped negative Correlation 
+- Per kcal, extrapolated to 2000kcal
+- Composite: 30% total sodium, 70% Na/K ratio
+- Anchors for Na (per 2000kcal): 0mg=100, 1500mg=80, 2300mg=50 (RDA), 4000mg=0, 6000mg=-50
+- Anchors for Na/K ratio: 0.5=100 (ideal), 1.0=70, 1.5=40, 2.5=0, 4.0=-50
+
+11%?: Fat Profile
+- Mixed correlations (linear for O3, curved for others with optimal ranges)
+- Composite score: omega-3, omega-6, omega-3/6 ratio, MUFA, sat fat, trans fat
+- All fatty acids as % of total fat, weighted by total fat amount (low-fat foods default to neutral ~50)
+- Per kcal for total fat amount, extrapolated to 2000kcal
+- Anchors for total fat (per 2000kcal): scales scoring weight (0g→minimal weight, 65g→full weight, 130g→1.5x weight)
+- O3 anchors (g per 2000kcal): 0g=30, 1.6g=70 (RDA), 3.2g=100, 6.4g=170 (linear, uncapped)
+- O6 anchors (g per 2000kcal): 0g=40, 12g=100, 20g=80, 35g=40 (too much also bad)
+- O3/O6 ratio: 1:1=100, 1:2=90, 1:4=70 (target), 1:8=40, 1:15=10
+- Sat fat anchors (%E): 0%=70, 5%=80, 10%=50, 15%=20, 20%=0
+- Trans fat anchors (%E): 0%=100, 0.5%=60, 1%=0, 2%=-100
+- MUFA anchors (%E): 5%=60, 15%=100, 25%=95, 35%=80
+
+10%: Micronutrients
+- Direct Positive Linear Correlation for each nutrient
+- Per kcal, extrapolated to 2000kcal
+- Weigh single nutrients on health importance and deficiency prevalence
+- Anchors (per nutrient, as %RDA per 2000kcal): 0%=0, 50%=50, 100%=100, 200%=200 (linear, uncapped)
+
+10%?: Satiety (inc. Energy Density)
+- Indirect linear health correlation
+- Proxy for overeating -> obesity
+- Lower energy density = higher satiety = better score
+- Anchors (kcal per 100g): 0kcal=120, 100kcal=100, 200kcal=70, 400kcal=30, 600kcal=0, 800kcal=-30
+
+8%: Protein
+- Direct Positive Linear Correlation
+- Multiply by protein quality score (DIAAS/PDCAAS-based)
+- Per kcal, extrapolated to 2000kcal = p
+- Anchors (g per 2000kcal): 0g=0, 50g=60 (RDA), 140g=100, 300g=200
+- score=scale to anchors
+
+
+4%: Protective Compounds
+- Direct Positive Uncapped Health Correlation
+- Based on database scores (0-10 scale) for: Polyphenols, Glucosinolates, Carotenoids
+- Per kcal weighting (denser compounds in low-cal foods should score higher)
+- Anchors (composite score, 0-10 scale): 0=0, 3=50, 5=80, 7=100, 9=130, 10=150 (uncapped, no diminishing)

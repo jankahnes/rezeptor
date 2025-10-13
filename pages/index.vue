@@ -15,7 +15,6 @@
       </h1>
     </div>
 
-
     <!-- Categories -->
     <div>
       <div class="py-1">
@@ -23,18 +22,17 @@
           <div
             v-for="category in categories"
             :key="category.tag"
-            class="flex flex-col sm:flex-row items-center gap-x-1 px-2 py-1 transition-all duration-300 flex-shrink-0 button category-button m-1"
+            class="flex flex-col sm:flex-row items-center gap-x-1 px-2 py-1 transition-all duration-300 flex-shrink-0 button m-1"
+            @click="onClickCategory(category.tag)"
           >
             <span class="text-2xl">{{ category.icon }}</span>
-            <span
-              class="font-bold text-sm tracking-normal sm:text-base sm:font-normal sm:tracking-wider text-nowrap"
-              >{{ category.name }}</span
-            >
+            <span class="text-sm sm:text-base sm:tracking-wider text-nowrap">{{
+              category.name
+            }}</span>
           </div>
         </Carousel>
       </div>
     </div>
-
 
     <!-- Your Recipes -->
     <div v-if="userRecipes && userRecipes.length > 0" class="pt-4">
@@ -59,8 +57,6 @@
       </Carousel>
     </div>
 
-    
-
     <!-- Recommendations -->
     <div>
       <div class="mt-2 flex justify-between items-center">
@@ -73,7 +69,7 @@
             v-for="(recipe, index) in recipeStore.indexRecipes"
             :key="recipe.id"
             :recipe="recipe"
-            class="w-50 min-h-70 text-[20px] sm:w-70 sm:min-h-95 sm:text-[28px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-6 mb-2 mr-4"
+            class="w-50 min-h-70 text-[20px] sm:w-70 sm:min-h-95 sm:text-[30px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-6 mb-2 mr-4"
           />
         </Carousel>
       </div>
@@ -109,7 +105,7 @@ if (!recipeStore.indexRecipes.length) {
     getRecipeOverviews(supabase, {
       eq: { visibility: 'PUBLIC' },
       not: { picture: null },
-      orderBy: { column: 'created_at', ascending: false },
+      orderBy: { column: 'relevancy', ascending: false },
       limit: 14,
     })
   );
@@ -218,12 +214,10 @@ const categories = ref([
 onMounted(async () => {
   loadUserData();
 });
+
+const onClickCategory = (category: number) => {
+  navigateTo(`/recipes?tags=${category}`);
+};
 </script>
 
-<style scoped>
-.category-button {
-  @media (max-width: 768px) {
-    box-shadow: none !important;
-  }
-}
-</style>
+<style scoped></style>
