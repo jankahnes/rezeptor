@@ -1,0 +1,67 @@
+--- Recommendation System
+
+
+Base Relevancy Score
+5% Recipe Source (Official > User-Generated)
+10% Rating Amt
+10% Health Index
+15% Recency
+20% Rating Quality
+40% Engagement
+20% base_relevancy
+
+User Relevancy Score
+[
+? User-Liked Foods
+? User-Disliked Foods
+? User-Chosen Field (Exoticness, Quickness, Easiness, Cheapness, Healthiness)
+? User-Liked Tags (Cuisines, Flavors, ...)
+]
+	-> Sourced from onboarding
+	-> Sourced from "Tailor your recommendations" section on homepage
+	-> Maybe auto-sourced from liking, rating or creating recipes
+
+Cumul Relevancy:
+100% Base Relavancy +- 50% User Relevancy
+
+
+--- Details
+Normalize each category from 0-100?
+
+
+Engagement:
+daily_engagement_score column in recipes table
+- Int[14] for last 14 days. Newest entry at [0], oldest at [14]
+- Internal pg_cron job to remove [14], shift by 1, and add [0] = 0 each midnight
+- Engagements increment [0] by designated number:
+    Click-through: 10 points
+    Time on page >30s: 10 points
+    Copy ingredient/instruction: 25 points
+    Add to shopping list: 50 points
+    Share: 80 points
+    Rate: 80 points
+    Comment: 100 points
+- For ranking, a recipes engagement score is:
+    - Cumul score for the 14 days, maybe decay to give recent engagement more weight
+    - Maybe use percentiles?
+
+Recency:
+Some decaying formula dependent on days_since_post (calculate from created_at)
+
+Rating Quality:
+Rating * 20
+
+Health index:
+Already normalized to 0-100 so just use recipe.hidx
+
+Rating Amt:
+rating_count (by itself or percentiles)
+
+Recipe Source:
+- Official: 100
+- Semi-official: 50
+- User-generated: 0
+
+Computation:
+- On-the-fly possible? But surely too expensive
+- Use cron job to update "relevancy" col every X hours? 

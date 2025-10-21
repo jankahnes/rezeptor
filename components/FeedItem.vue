@@ -55,7 +55,7 @@
         </template>
 
         <template v-else-if="feedItem.type === 'RECIPE_CREATION'">
-          <span v-if="feedItem.user && feedItem.user.username"
+          <span v-if="feedItem.user"
             >created a new recipe</span
           >
           <h4 class="mt-2 font-bold">

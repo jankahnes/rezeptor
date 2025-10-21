@@ -1,24 +1,33 @@
 <template>
-  <div ref="root" class="p-2 md:p-6 bg-white rounded-2xl flex-[1_1_20rem]">
+  <div
+    ref="root"
+    class="bg-white rounded-2xl flex-[1_1_20rem]"
+    :class="headless ? 'p-0' : 'p-2 md:p-6'"
+  >
     <div class="flex flex-col items-start">
-      <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
-        <h2 class="text-lg font-bold">NUTRITION INFO</h2>
+      <div v-if="!headless">
+        <div class="py-1 px-4 bg-primary text-white rounded-lg flex">
+          <h2 class="text-lg font-bold">NUTRITION INFO</h2>
+        </div>
+        <p
+          class="text-sm font-light mt-2 text-gray-600 ml-1 cursor-pointer hover:underline select-none"
+          v-if="mode === '100g'"
+          @click="switchMode"
+        >
+          Per 100g
+        </p>
+        <p
+          class="text-sm font-light mt-2 text-gray-600 ml-1 cursor-pointer hover:underline select-none"
+          v-else-if="mode === 'serving'"
+          @click="switchMode"
+        >
+          Per Serving
+        </p>
       </div>
-      <p
-        class="text-sm font-light mt-2 text-gray-600 ml-1 cursor-pointer hover:underline select-none"
-        v-if="mode === '100g'"
-        @click="switchMode"
+      <div
+        class="px-4 py-2 bg-primary-50 rounded-lg text-xl font-bold"
+        :class="headless ? 'mt-0' : 'mt-4'"
       >
-        Per 100g
-      </p>
-      <p
-        class="text-sm font-light mt-2 text-gray-600 ml-1 cursor-pointer hover:underline select-none"
-        v-else-if="mode === 'serving'"
-        @click="switchMode"
-      >
-        Per Serving
-      </p>
-      <div class="px-4 py-2 bg-primary-50 rounded-lg text-xl font-bold mt-4">
         {{
           (mode === 'serving'
             ? recipe?.kcal
@@ -87,6 +96,7 @@ interface NutritionalItem {
 
 const props = defineProps<{
   recipe: Recipe | FullFoodRow | InsertableRecipe;
+  headless?: boolean;
 }>();
 const root = ref<HTMLElement | null>(null);
 

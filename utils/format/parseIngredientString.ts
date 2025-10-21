@@ -61,17 +61,15 @@ export const unitToDBMap: Record<string, string> = {
   ounce: 'OZ',
   ounces: 'OZ',
   lb: 'LB',
+  lbs: 'LB',
   pound: 'LB',
   pounds: 'LB',
-  lbs: 'LB',
   l: 'L',
   liter: 'L',
   liters: 'L',
   kg: 'KG',
   kilogram: 'KG',
   kilograms: 'KG',
-  pinch: 'FREE',
-  pinches: 'FREE',
   free: 'FREE',
 };
 

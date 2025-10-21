@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
       const imageGenerationData = {
         title: base_recipe_information.title,
         instructions: removeInstructionFormatting(base_recipe_information.instructions || []),
-        collection: base_recipe_information?.collection
+        collection: base_recipe_information?.collection || "user-generated"
       };
       const response = await fetch(
         'https://jk-api.onrender.com/generate-image-from-recipe-data',

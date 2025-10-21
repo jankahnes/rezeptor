@@ -2,7 +2,7 @@
   <NuxtLink
     v-if="recipe.id"
     :to="'/recipe/' + recipe?.id"
-    class="flex flex-col items-center group relative max-w-sm"
+    class="flex flex-col items-center group relative"
   >
     <NuxtImg
       v-if="recipe?.picture"
@@ -46,7 +46,7 @@
                   :star-width="13"
                   :star-height="13"
                   :select="false"
-                  :id="'card-new-' + recipe?.id"
+                  :id="'card-new-' + recipe?.id + id"
                 />
                 <span>{{ recipe?.rating.toFixed(1) }}</span>
               </div>
@@ -69,6 +69,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   recipe: RecipeOverview;
+  id?: string;
 }>();
 
 const getTop3Tags = (recipe: RecipeOverview) => {

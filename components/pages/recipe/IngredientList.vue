@@ -86,9 +86,6 @@
               v-for="ingredient in group"
               :key="ingredient.name"
               class="col-span-3 grid grid-cols-subgrid items-center group space-x-2 relative"
-              :class="{
-                'ingredient-checked': checkedIngredients.has(ingredient.name),
-              }"
             >
               <div class="flex items-center justify-center">
                 <input
@@ -98,11 +95,15 @@
                   class="w-4 h-4 !accent-primary rounded"
                 />
               </div>
-              <transition name="fade-slide" mode="out-in">
+              <Transition name="fade-slide" mode="out-in">
                 <span
                   :key="`${servingSize}-${ingredient?.currentUnit}`"
                   class="tabular-nums whitespace-nowrap font-semibold cursor-pointer"
                   @click="onClickIngredient(ingredient)"
+                  :class="{
+                    '!font-normal italic':
+                      ingredient?.amount === 0 || ingredient?.unit === 'FREE',
+                  }"
                 >
                   {{
                     getStringFromAmountInfo(
@@ -124,7 +125,7 @@
                     of</span
                   >
                 </span>
-              </transition>
+              </Transition>
 
               <NuxtLink :to="`/foods/${ingredient.id}`" class="cursor-pointer">
                 <span class="ml-2 text-nowrap whitespace-nowrap">{{
@@ -140,30 +141,18 @@
             </li>
           </ul>
         </template>
-        <transition name="fade-slide" mode="out-in">
-          <div class="flex gap-2 mt-6 flex-wrap">
-            <button
-              v-if="showAddToShoppingList"
-              class="button flex items-center gap-2 px-4 py-1 font-medium !bg-primary !text-white will-change-transform"
-              @click="addToShoppingList"
+        <Transition name="fade-slide" mode="out-in">
+          <button
+            v-if="checkedIngredients.size > 0"
+            class="button flex items-center gap-2 px-4 py-1 font-medium !bg-primary !text-white will-change-transform mt-6"
+            @click="addToShoppingList"
+          >
+            <span class="material-symbols-outlined !text-lg"
+              >add_shopping_cart</span
             >
-              <span class="material-symbols-outlined !text-lg"
-                >add_shopping_cart</span
-              >
-              Add rest to Shopping List
-            </button>
-            <button
-              v-if="showAddToShoppingList"
-              class="button flex items-center gap-2 px-4 py-1 font-medium text-primary will-change-transform"
-              @click="addCheckedToShoppingList"
-            >
-              <span class="material-symbols-outlined !text-lg"
-                >shopping_cart</span
-              >
-              Add checked
-            </button>
-          </div>
-        </transition>
+            Add to Shopping List
+          </button>
+        </Transition>
         <div
           v-if="!props.ingredients || props.ingredients.length === 0"
           class="text-center py-12"
@@ -200,6 +189,8 @@ const emit = defineEmits(['update:servingSize']);
 
 const authStore = useAuthStore();
 
+const { track } = useEngagement();
+
 // Use computed for two-way binding with parent component
 const servingSize = computed({
   get: () => props.servingSize,
@@ -227,14 +218,6 @@ const groupedIngredients = computed(() => {
 
 const servingMode = ref(!props.batchSize);
 const checkedIngredients = ref<Set<string>>(new Set());
-
-const showAddToShoppingList = computed(() => {
-  return (
-    checkedIngredients.value.size > 0 &&
-    checkedIngredients.value.size < (props.ingredients?.length ?? 1)
-  );
-});
-
 const notOnDefaultUnits = computed(() => {
   return props.ingredients?.some(
     (ingredient: any) => ingredient.currentUnit !== 0
@@ -273,6 +256,7 @@ function onClickIngredient(ingredient: any) {
 }
 
 function copyIngredients() {
+  track(props.recipeId, 'copy');
   navigator.clipboard.writeText(
     getStringFromIngredients(props.ingredients, servingSize.value ?? 1)
   );
@@ -287,21 +271,17 @@ function resetUnits() {
 async function addToShoppingList() {
   if (!props.recipeId) return;
 
-  const uncheckedIngredients = props.ingredients?.filter(
-    (ingredient: any) => !checkedIngredients.value.has(ingredient.name)
-  );
-
-  if (uncheckedIngredients && uncheckedIngredients.length > 0) {
+  if (checkedIngredients.value.size > 0 && props.ingredients) {
+    const ingredients = props.ingredients.filter((ingredient: any) =>
+      checkedIngredients.value.has(ingredient.name)
+    );
+    checkedIngredients.value.clear();
     await authStore.addToShoppingList(
-      uncheckedIngredients,
+      ingredients,
       props.recipeId,
       props.servingSize ?? 1
     );
-
-    // Mark all as checked after adding
-    uncheckedIngredients.forEach((ingredient: any) => {
-      checkedIngredients.value.add(ingredient.name);
-    });
+    track(props.recipeId, 'shopping_list');
   }
 }
 </script>
@@ -320,18 +300,5 @@ async function addToShoppingList() {
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateX(5px);
-}
-
-.ingredient-checked::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 30px;
-  right: 20px;
-  height: 1px;
-  background-color: var(--color-primary-600);
-  opacity: 0.2;
-  transform: translateY(-50%);
-  pointer-events: none;
 }
 </style>
