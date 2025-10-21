@@ -440,7 +440,7 @@ onMounted(async () => {
       }
 
       // Check if report is preloaded in DB
-      if (false && recipeStore.recipe?.report) {
+      if (recipeStore.recipe?.report) {
         recipeComputed.value = recipeStore.recipe;
       } else {
         // Convert and calculate using endpoint

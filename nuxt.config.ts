@@ -30,6 +30,9 @@ export default defineNuxtConfig({
   },
   vite: {
     plugins: [tailwindcss(), svgLoader()],
+    server: {
+      allowedHosts: ['rezeptor.loca.lt'],
+    },
   },
   devtools: {
     enabled: false,

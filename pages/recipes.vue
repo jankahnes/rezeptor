@@ -291,15 +291,8 @@ const sorts = ref([
     value: { column: 'relevancy', ascending: false },
   },
   { displayName: 'Rating', value: { column: 'rating', ascending: false } },
-  { displayName: 'Cost', value: { column: 'price', ascending: true } },
-  { displayName: 'Kcal', value: { column: 'kcal', ascending: true } },
   { displayName: 'Health Score', value: { column: 'hidx', ascending: false } },
-  {
-    displayName: 'Ingredients (#)',
-    value: { column: 'title', ascending: true },
-  },
   { displayName: 'Newest', value: { column: 'created_at', ascending: false } },
-  { displayName: 'Alphabetical', value: { column: 'title', ascending: true } },
 ]);
 
 const RECIPES_PER_PAGE = 12;
@@ -362,13 +355,11 @@ async function refresh(shouldRecount = true) {
   lastSearchedQuery.value = searchQuery.value;
 
   if (shouldRecount) {
-    console.log('shouldRecount');
     getCount(supabase, {
       not: { picture: null },
       eq: { visibility: 'PUBLIC' },
       filtering: filtering.value,
     }).then((count) => {
-      console.log('count', count);
       totalCount.value = count;
     });
   }

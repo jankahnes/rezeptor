@@ -141,16 +141,28 @@
           </ul>
         </template>
         <transition name="fade-slide" mode="out-in">
-          <button
-            v-if="showAddToShoppingList"
-            class="button flex items-center gap-2 px-4 py-1 font-medium !bg-primary !text-white will-change-transform mt-6"
-            @click="() => {}"
-          >
-            <span class="material-symbols-outlined !text-lg"
-              >add_shopping_cart</span
+          <div class="flex gap-2 mt-6 flex-wrap">
+            <button
+              v-if="showAddToShoppingList"
+              class="button flex items-center gap-2 px-4 py-1 font-medium !bg-primary !text-white will-change-transform"
+              @click="addToShoppingList"
             >
-            Add rest to Shopping List
-          </button>
+              <span class="material-symbols-outlined !text-lg"
+                >add_shopping_cart</span
+              >
+              Add rest to Shopping List
+            </button>
+            <button
+              v-if="showAddToShoppingList"
+              class="button flex items-center gap-2 px-4 py-1 font-medium text-primary will-change-transform"
+              @click="addCheckedToShoppingList"
+            >
+              <span class="material-symbols-outlined !text-lg"
+                >shopping_cart</span
+              >
+              Add checked
+            </button>
+          </div>
         </transition>
         <div
           v-if="!props.ingredients || props.ingredients.length === 0"
@@ -181,9 +193,12 @@ const props = defineProps({
   hideHeader: Boolean,
   batchSize: Number,
   servingSize: Number,
+  recipeId: Number,
 });
 
 const emit = defineEmits(['update:servingSize']);
+
+const authStore = useAuthStore();
 
 // Use computed for two-way binding with parent component
 const servingSize = computed({
@@ -266,6 +281,27 @@ function copyIngredients() {
 function resetUnits() {
   for (const ingredient of props.ingredients || []) {
     ingredient.currentUnit = 0;
+  }
+}
+
+async function addToShoppingList() {
+  if (!props.recipeId) return;
+
+  const uncheckedIngredients = props.ingredients?.filter(
+    (ingredient: any) => !checkedIngredients.value.has(ingredient.name)
+  );
+
+  if (uncheckedIngredients && uncheckedIngredients.length > 0) {
+    await authStore.addToShoppingList(
+      uncheckedIngredients,
+      props.recipeId,
+      props.servingSize ?? 1
+    );
+
+    // Mark all as checked after adding
+    uncheckedIngredients.forEach((ingredient: any) => {
+      checkedIngredients.value.add(ingredient.name);
+    });
   }
 }
 </script>

@@ -44,6 +44,19 @@ export type Food = Omit<FoodNameRow, 'created_at'> & {
   food: FullFoodRow;
 };
 
+export type ShoppingListItem = {
+  ingredientId: number;
+  name: string;
+  amount: number;
+  unit: string;
+  aisle: string | null;
+  price: number | null;
+  recipeIds: number[];
+  addedAt: number;
+  unit_weight: number | null;
+  density: number;
+};
+
 export type Activity = ActivityRow & {
   user?: {
     username: string;
@@ -104,6 +117,8 @@ export type Ingredient = {
   mechanical_disruption: MechanicalDisruption | null;
   thermal_description: string | null;
   mechanical_description: string | null;
+  aisle: string | null;
+  price: number | null;
 };
 
 export type User = {

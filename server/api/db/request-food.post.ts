@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server';
 import extractJson from '~/utils/format/extractJson';
 import pluralizeWord from '~/utils/format/pluralizeWord';
-import pluralize from 'pluralize';
+import singularizeWord from '~/utils/format/singularizeWord';
 import type { Database } from '~/types/supabase';
 
 /**
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
 
     //step 1: use search rpc to find if there is an exact match
     //first try singular form (either original query singularized, or original if already singular)
-    const singularQuery = pluralize.singular(query);
+    const singularQuery = singularizeWord(query);
     const exactMatchSingular = (await client.rpc('search_foods', {
       query: singularQuery,
       max: 1,

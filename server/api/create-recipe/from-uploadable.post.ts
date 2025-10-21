@@ -21,13 +21,17 @@ async function recipeExists(client: any, recipeId: number): Promise<boolean> {
 async function handleImageUpload(
   client: any,
   recipeId: number,
-  body: any
+  body: any,
+  event: any
 ): Promise<void> {
   if (body.image_base64) {
+    const headers = getRequestHeaders(event);
     const imageData = await $fetch('/api/db/upload-image', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        cookie: headers.cookie || '',
+        authorization: headers.authorization || '',
       },
       body: { image: body.image_base64, bucket: 'recipe', id: recipeId },
     });
@@ -53,10 +57,13 @@ async function handleImageUpload(
   }
 
   if (body.original_base64) {
+    const headers = getRequestHeaders(event);
     $fetch('/api/db/upload-image', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        cookie: headers.cookie || '',
+        authorization: headers.authorization || '',
       },
       body: { image: body.original_base64, bucket: 'backups', id: recipeId },
     });
@@ -71,7 +78,8 @@ async function insertNewRecipe(
   recipeFoodsRows: any[],
   recipeTagsRows: any[],
   body: any,
-  userId: string | null
+  userId: string | null,
+  event: any
 ): Promise<number> {
   const { data, error } = await client
     .from('recipes')
@@ -102,7 +110,7 @@ async function insertNewRecipe(
     });
   }
 
-  await handleImageUpload(client, recipeId, body);
+  await handleImageUpload(client, recipeId, body, event);
 
   const { error: recipeFoodsError } = await client
     .from('recipe_foods')
@@ -142,7 +150,8 @@ async function updateExistingRecipe(
   recipeFoodsRows: any[],
   recipeTagsRows: any[],
   body: any,
-  userId: string | null
+  userId: string | null,
+  event: any
 ): Promise<number> {
   const recipeId = (recipeRow as any).id;
 
@@ -159,13 +168,23 @@ async function updateExistingRecipe(
   }
 
   if (existingRecipe.user_id !== userId) {
-    console.error(
-      `🔍 Unauthorized update attempt: recipe ${recipeId} belongs to ${existingRecipe.user_id}, user is ${userId}`
+    console.log(
+      `🔍 User is not recipe owner. Creating new version of recipe ${recipeId} with based_on field.`
     );
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Not authorized to update this recipe',
-    });
+    // Create a new recipe version instead of updating
+    const newRecipeRow = { ...recipeRow };
+    delete (newRecipeRow as any).id; // Remove the id so a new one is generated
+    (newRecipeRow as any).based_on = recipeId; // Set based_on to the original recipe ID
+
+    return await insertNewRecipe(
+      client,
+      newRecipeRow,
+      recipeFoodsRows,
+      recipeTagsRows,
+      body,
+      userId,
+      event
+    );
   }
 
   const { error: updateError } = await client
@@ -185,7 +204,7 @@ async function updateExistingRecipe(
   }
   console.log('🔍 Recipe updated.');
 
-  await handleImageUpload(client, recipeId, body);
+  await handleImageUpload(client, recipeId, body, event);
 
   // Delete existing recipe_foods and recipe_tags
   const { error: deleteFoodsError } = await client
@@ -335,7 +354,8 @@ export default defineEventHandler(async (event) => {
       response.recipeFoodRows,
       response.recipeTagRows,
       body,
-      userId
+      userId,
+      event
     );
   } else {
     console.log('🔍 Creating new recipe');
@@ -345,7 +365,8 @@ export default defineEventHandler(async (event) => {
       response.recipeFoodRows,
       response.recipeTagRows,
       body,
-      userId
+      userId,
+      event
     );
   }
 

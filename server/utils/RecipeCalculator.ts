@@ -999,7 +999,7 @@ export default class RecipeCalculator {
       };
     }
 
-    return 0.7 * na_k_score + 0.3 * total_salt_score;
+    return Math.max(-20, 0.7 * na_k_score + 0.3 * total_salt_score);
   }
 
   getSugarScore() {

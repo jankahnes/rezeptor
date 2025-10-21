@@ -84,8 +84,13 @@ export default defineEventHandler(async (event) => {
     Object.assign(base_recipe_information, response);
   }
 
+  const headers = getRequestHeaders(event);
   return await $fetch('/api/create-recipe/from-uploadable', {
     method: 'POST',
+    headers: {
+      cookie: headers.cookie || '',
+      authorization: headers.authorization || '',
+    },
     body: {
       ...base_recipe_information,
       jobId: jobId,

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full mt-10 md:px-10">
+  <div class="w-full mt-10 md:px-10 max-w-screen-md">
     <h1 class="text-3xl font-bold text-gray-900">
       Import your recipe from a link
     </h1>

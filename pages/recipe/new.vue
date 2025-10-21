@@ -1,6 +1,6 @@
 <template>
   <div class="w-full px-4">
-    <div class="flex flex-col gap-4 items-center mt-12 max-w-screen-md mx-auto">
+    <div class="flex flex-col gap-4 items-center mt-12 max-w-screen-lg mx-auto">
       <FormsChoiceSlider
         v-if="currentView !== 'loading'"
         v-model="currentView"
@@ -121,10 +121,11 @@ const generateUrlVariations = (url: string) => {
 const submitFromLink = async (link: string) => {
   const urlVariations = generateUrlVariations(link);
 
-  const recipe = await getRecipeOverview(supabase, {
+  const recipes = await getRecipeOverviews(supabase, {
     in: { source: urlVariations },
   });
-  if (recipe.id) {
+  if (recipes.length > 0) {
+    const recipe = recipes[0];
     navigateTo(`/recipe/${recipe.id}`);
     return;
   }

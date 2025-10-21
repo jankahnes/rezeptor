@@ -2,21 +2,31 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<FullUser | null>(null);
   const authListenerSet = ref(false);
   const userFetched = ref(false);
-  const supabase = useSupabaseClient();
+  const supabase = useSupabaseClient<Database>();
+  const shoppingList = ref<ShoppingListItem[]>([]);
+  const shoppingListOpen = ref(false);
 
   async function fetchProfile() {
     if (!user.value || !user.value.id) return;
-    const profile = expectSingleOrNull(await getUsers(supabase, { eq: { id: user.value.id } }));
-    if(profile) Object.assign(user.value, profile);
+    const profile = expectSingleOrNull(
+      await getUsers(supabase, { eq: { id: user.value.id } })
+    );
+    if (profile) {
+      Object.assign(user.value, profile);
+      // Load shopping list from profile
+      if (profile.shopping_list) {
+        shoppingList.value = profile.shopping_list as ShoppingListItem[];
+      }
+    }
   }
 
   async function fetchUser() {
     if (userFetched.value) {
       return;
     }
-    
+
     const { data } = await supabase.auth.getUser();
-    
+
     if (data.user) {
       user.value = data.user;
     } else {
@@ -28,7 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = anonData.user;
       }
     }
-    
+
     userFetched.value = true;
   }
 
@@ -41,7 +51,8 @@ export const useAuthStore = defineStore('auth', () => {
           user.value = newUser;
           fetchProfile();
         } else {
-          const { data: anonData, error } = await supabase.auth.signInAnonymously();
+          const { data: anonData, error } =
+            await supabase.auth.signInAnonymously();
           if (error) {
             console.error('Failed to sign in anonymously:', error);
           }
@@ -81,10 +92,87 @@ export const useAuthStore = defineStore('auth', () => {
     return user.value && !user.value.is_anonymous && user.value.username;
   }
 
+  async function syncShoppingList() {
+    if (!user.value?.id) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ shopping_list: shoppingList.value })
+      .eq('id', user.value.id);
+
+    if (error) console.error('Failed to sync shopping list:', error);
+  }
+
+  async function addToShoppingList(ingredients: any[], recipeId: number, servingSize: number) {
+    if (!ingredients || ingredients.length === 0) return;
+    for (const ingredient of ingredients) {
+      const amount = ingredient.amount * servingSize;
+      const existingIndex = shoppingList.value.findIndex(
+        (item) => item.ingredientId === ingredient.id
+      );
+
+      if (existingIndex !== -1) {
+        // Aggregate: convert to grams if units differ
+        const existing = shoppingList.value[existingIndex];
+        const existingGrams = convertToGrams(
+          existing.amount,
+          existing.unit,
+          ingredient.density || 1,
+          ingredient.countable_units[existing.unit] || 0
+        );
+        const newGrams = convertToGrams(
+          amount || 0,
+          ingredient.unit || 'G',
+          ingredient.density || 1,
+          ingredient.countable_units[ingredient.unit] || 0
+        );
+
+        existing.amount = existingGrams + newGrams;
+        existing.unit = 'G';
+        if (!existing.recipeIds.includes(recipeId)) {
+          existing.recipeIds.push(recipeId);
+        }
+      } else {
+        // Add new item
+        shoppingList.value.push({
+          ingredientId: ingredient.id,
+          name: ingredient.name,
+          amount: amount || 0,
+          unit: ingredient.unit || 'G',
+          aisle: ingredient.aisle || null,
+          price: ingredient.price || null,
+          recipeIds: [recipeId],
+          addedAt: Date.now(),
+          unit_weight: ingredient.countable_units?.[ingredient.unit] || 0,
+          density: ingredient.density || 1,
+        });
+      }
+    }
+    shoppingListOpen.value = true;
+    await syncShoppingList();
+  }
+
+  async function removeFromShoppingList(ingredientId: number) {
+    shoppingList.value = shoppingList.value.filter(
+      (item) => item.ingredientId !== ingredientId
+    );
+    if (shoppingList.value.length === 0) {
+      shoppingListOpen.value = false;
+    }
+    await syncShoppingList();
+  }
+
+  async function clearShoppingList() {
+    shoppingListOpen.value = false;
+    shoppingList.value = [];
+    await syncShoppingList();
+  }
+
   return {
     user,
     authListenerSet,
     userFetched,
+    shoppingList,
     fetchProfile,
     fetchUser,
     signIn,
@@ -92,5 +180,10 @@ export const useAuthStore = defineStore('auth', () => {
     signOut,
     listenToAuthChanges,
     isUser,
+    addToShoppingList,
+    removeFromShoppingList,
+    clearShoppingList,
+    syncShoppingList,
+    shoppingListOpen,
   };
 });

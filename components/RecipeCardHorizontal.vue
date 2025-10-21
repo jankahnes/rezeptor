@@ -8,7 +8,7 @@
     <!-- circular -->
     <NuxtImg
       v-if="recipe?.picture"
-      class="h-28 xs:h-34 aspect-square object-cover bg-transparent shadow-gray-200 [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10"
+      class="h-28 xs:h-34 object-cover bg-transparent shadow-gray-200 [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10"
       :src="recipe?.picture || ''"
     />
 
