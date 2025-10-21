@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
           jobId: jobId,
         },
       })
-    );
+    );  
 
     if (jobId) {
       await supabase

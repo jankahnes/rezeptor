@@ -14,8 +14,8 @@
           >
             <h1 class="text-4xl font-bold">{{ foodName }}</h1>
           </div>
-          <p v-if="refencingName" class="text-sm text-gray-500 mx-2 md:ml-6">
-            ↪ Inherited from {{ refencingName }}
+          <p v-if="refencingName" class="text-sm text-gray-500 mx-2 md:ml-8">
+            ↪ From {{ refencingName }}
           </p>
         </div>
         <div class="flex justify-center gap-y-10 flex-col md:flex-row">

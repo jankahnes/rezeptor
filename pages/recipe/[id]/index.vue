@@ -593,6 +593,9 @@ const scrollIntoView = async (target: any, offset: number = 0) => {
 };
 
 onMounted(async () => {
+  const { track, trackTimeSpent } = useEngagement();
+  track(id, 'click');
+  trackTimeSpent(id);
   if (!recipeStore.recipe?.picture) {
     overlayMarginTop.value = -80;
   }

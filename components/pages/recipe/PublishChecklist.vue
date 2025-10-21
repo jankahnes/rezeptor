@@ -253,14 +253,30 @@ const publishRecipe = async () => {
     serves: 1,
     publish: true,
   };
-  const response = await $fetch('/api/create-recipe/from-uploadable', {
-    method: 'POST',
-    body: payload,
-  });
-  publishLoading.value = false;
-  if (response.status !== 'ok') {
-    throw new Error('Failed to publish recipe');
+  //if all processing_requirements are true, just publish the recipe
+  if (
+    props.recipe.processing_requirements &&
+    Object.values(props.recipe.processing_requirements).every(
+      (requirement: boolean) => requirement === true
+    )
+  ) {
+    await supabase
+      .from('recipes')
+      .update({
+        visibility: 'PUBLIC',
+      })
+      .eq('id', props.recipe.id);
+  } else {
+    const response = await $fetch('/api/create-recipe/from-uploadable', {
+      method: 'POST',
+      body: payload,
+    });
+    if (response.status !== 'ok') {
+      publishLoading.value = false;
+      throw new Error('Failed to publish recipe');
+    }
   }
+  publishLoading.value = false;
   props.refresh(props.recipe.id, true);
 };
 

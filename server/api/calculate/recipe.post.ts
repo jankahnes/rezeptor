@@ -11,6 +11,7 @@ type CalculatorArgs = {
   useGpt: boolean;
   logToReport: boolean;
   considerProcessing: boolean;
+  nutritionLabelOnly: boolean;
 };
 
 type Response = {
@@ -26,9 +27,19 @@ export default defineEventHandler(async (event): Promise<Response> => {
   const recipeCalculator = new RecipeCalculator(
     calculatorArgs.useGpt,
     calculatorArgs.logToReport,
-    calculatorArgs.considerProcessing
+    calculatorArgs.considerProcessing,
+    calculatorArgs.nutritionLabelOnly
   );
   await recipeCalculator.computeRecipe(calculatorArgs.recipe);
+
+  if (calculatorArgs.nutritionLabelOnly) {
+    return {
+      recipeRow: recipeCalculator.getRecipeRow(),
+      recipeFoodRows: null,
+      recipeTagRows: null,
+    };
+  }
+
   if (!recipeCalculator?.recipe?.scores?.hidx) {
     return {
       recipeRow: null,

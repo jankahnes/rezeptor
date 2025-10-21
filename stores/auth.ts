@@ -5,6 +5,8 @@ export const useAuthStore = defineStore('auth', () => {
   const supabase = useSupabaseClient<Database>();
   const shoppingList = ref<ShoppingListItem[]>([]);
   const shoppingListOpen = ref(false);
+  const lastSyncTimestamp = ref(0);
+  const SYNC_DEBOUNCE_MS = 2000;
 
   async function fetchProfile() {
     if (!user.value || !user.value.id) return;
@@ -42,6 +44,36 @@ export const useAuthStore = defineStore('auth', () => {
     userFetched.value = true;
   }
 
+  function listenToProfileChanges() {
+    if (!user.value?.id) return;
+
+    supabase
+      .channel('profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.value.id}`,
+        },
+        (payload) => {
+          // Ignore updates shortly after we synced (likely our own echo)
+          const timeSinceSync = Date.now() - lastSyncTimestamp.value;
+          if (timeSinceSync < SYNC_DEBOUNCE_MS) {
+            return; // Skip this update
+          }
+
+          // Apply external changes
+          Object.assign(user.value, payload.new);
+          if (payload.new.shopping_list) {
+            shoppingList.value = payload.new.shopping_list;
+          }
+        }
+      )
+      .subscribe();
+  }
+
   function listenToAuthChanges() {
     if (authListenerSet.value) return;
     supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -50,6 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
         if (newUser) {
           user.value = newUser;
           fetchProfile();
+          listenToProfileChanges();
         } else {
           const { data: anonData, error } =
             await supabase.auth.signInAnonymously();
@@ -58,6 +91,8 @@ export const useAuthStore = defineStore('auth', () => {
           }
           if (anonData.user) {
             user.value = anonData.user;
+            fetchProfile();
+            listenToProfileChanges();
           }
         }
       }
@@ -94,7 +129,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function syncShoppingList() {
     if (!user.value?.id) return;
-
+    lastSyncTimestamp.value = Date.now();
     const { error } = await supabase
       .from('profiles')
       .update({ shopping_list: shoppingList.value })
@@ -103,7 +138,11 @@ export const useAuthStore = defineStore('auth', () => {
     if (error) console.error('Failed to sync shopping list:', error);
   }
 
-  async function addToShoppingList(ingredients: any[], recipeId: number, servingSize: number) {
+  async function addToShoppingList(
+    ingredients: any[],
+    recipeId: number,
+    servingSize: number
+  ) {
     if (!ingredients || ingredients.length === 0) return;
     for (const ingredient of ingredients) {
       const amount = ingredient.amount * servingSize;
@@ -122,7 +161,7 @@ export const useAuthStore = defineStore('auth', () => {
         );
         const newGrams = convertToGrams(
           amount || 0,
-          ingredient.unit || 'G',
+          ingredient.unit ?? 'G',
           ingredient.density || 1,
           ingredient.countable_units[ingredient.unit] || 0
         );
@@ -138,7 +177,7 @@ export const useAuthStore = defineStore('auth', () => {
           ingredientId: ingredient.id,
           name: ingredient.name,
           amount: amount || 0,
-          unit: ingredient.unit || 'G',
+          unit: ingredient.unit ?? 'G',
           aisle: ingredient.aisle || null,
           price: ingredient.price || null,
           recipeIds: [recipeId],

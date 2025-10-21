@@ -103,7 +103,7 @@ function convertToFullIngredients(
     .filter((ing) => ing.id && ing.name && ing.rawText.trim() !== '')
     .map((ing) => {
       const { isEditing, parsed, rawText, ...rest } = ing;
-      return { ...rest, ...rest.food } as FullIngredient;
+      return { ...rest, ...rest.food, id: rest.id } as FullIngredient;
     });
 }
 

@@ -43,7 +43,7 @@
                 <span class="font-bold">{{
                   getStringFromAmountInfo([item.amount, item.unit], 1)
                 }}</span>
-                <span class="">{{ item.name }}</span>
+                <span class="">{{ getIngredientName(item) }}</span>
               </div>
             </li>
           </ul>
@@ -150,6 +150,15 @@ watchEffect(async () => {
     contributingRecipes.value = [];
   }
 });
+
+function getIngredientName(ingredient: any) {
+  if (
+    isCountable(ingredient.unit) &&
+    ingredient.amount > 1 &&
+    !unitIsNoun(ingredient.unit)
+  ) return pluralizeWord(ingredient.name);
+  return ingredient.name;
+}
 
 function getAisleEmoji(aisle: string): string {
   const aisleEmojis: Record<string, string> = {

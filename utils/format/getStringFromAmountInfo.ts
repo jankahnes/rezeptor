@@ -8,8 +8,8 @@ export function getStringFromAmountInfo(
   const [amount, unit] = amountInfo;
   const totalAmount = amount * servingSize;
 
-  if (unit === 'FREE') {
-    return `To taste`;
+  if (unit === 'FREE' || amount === 0) {
+    return `Some`;
   }
 
   if (unit === 'G' || unit === 'ML' || unit === 'OZ') {

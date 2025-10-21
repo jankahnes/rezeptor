@@ -175,7 +175,7 @@
         </button>
       </div>
     </div>
-    <div class="my-6 mx-2 sm:mx-6 z-2">
+    <div class="my-8 mx-2 sm:mx-6 z-2">
       <div class="flex-wrap gap-4 sm:gap-6 hidden md:flex justify-center">
         <RecipeCard
           :recipe="recipe"
@@ -284,10 +284,10 @@ const cuisines = ref([
   { name: 'Mexican', icon: '🇲🇽', tag: 326 },
 ]);
 
-const selectedSorting = ref('Popularity');
+const selectedSorting = ref('Relevancy');
 const sorts = ref([
   {
-    displayName: 'Popularity',
+    displayName: 'Relevancy',
     value: { column: 'relevancy', ascending: false },
   },
   { displayName: 'Rating', value: { column: 'rating', ascending: false } },

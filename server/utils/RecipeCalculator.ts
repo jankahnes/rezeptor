@@ -65,6 +65,7 @@ export default class RecipeCalculator {
   considerProcessing = false;
   useGpt = false;
   logToReport = false;
+  nutritionLabelOnly = false;
 
   gptInformation: GptInformation = {
     tags: [],
@@ -124,10 +125,16 @@ export default class RecipeCalculator {
     choline_mg: 'Choline',
   };
 
-  constructor(useGpt = false, logToReport = false, considerProcessing = false) {
+  constructor(
+    useGpt = false,
+    logToReport = false,
+    considerProcessing = false,
+    nutritionLabelOnly = false
+  ) {
     this.useGpt = useGpt;
     this.logToReport = logToReport;
     this.considerProcessing = considerProcessing;
+    this.nutritionLabelOnly = nutritionLabelOnly;
     if (this.logToReport) {
       this.initializeReport();
     }
@@ -196,7 +203,6 @@ export default class RecipeCalculator {
 
     // fill ingredients with GPT information
     this.processIngredients();
-
     // return if no ingredients with amount > 0
     if (this.recipe.fullIngredients.length === 0) {
       return;
@@ -204,19 +210,21 @@ export default class RecipeCalculator {
 
     // add up cumulative fields
     this.getCumulativeData(this.recipe.fullIngredients);
-
     // adjust batch size if it's smaller than serves
     if (this.recipe.batch_size && this.recipe.batch_size < this.recipe.serves) {
       this.recipe.batch_size = this.recipe.serves;
     }
 
-    console.log('🔍 Starting scoring');
-    const scores = await this.getScoring();
-    this.recipe.scores = scores;
-
     this.recipe.kcal.total = Math.round(this.recipe.kcal.total);
     this.recipe.total_weight = Math.round(this.recipe.total_weight);
 
+    if (this.nutritionLabelOnly) {
+      return;
+    }
+
+    console.log('🔍 Starting scoring');
+    const scores = await this.getScoring();
+    this.recipe.scores = scores;
     if (this.recipe.total_weight > 1200) {
       this.addNote(
         'Total weight is extremely high at ' + this.recipe.total_weight + 'g'
@@ -283,9 +291,11 @@ export default class RecipeCalculator {
     if (!this.recipe) {
       return;
     }
-    // filter ingredients with amount = 0
     const ingredients = this.recipe.fullIngredients.filter(
-      (ingredient) => ingredient.amount && ingredient.amount !== 0
+      (ingredient) =>
+        ingredient.amount !== null &&
+        ingredient.amount !== undefined &&
+        !isNaN(ingredient.amount)
     );
     for (const ingredient of ingredients) {
       if (this.useGpt) {
@@ -341,7 +351,7 @@ export default class RecipeCalculator {
   getRecipeFoodRows(): Omit<InsertableRecipeFood, 'recipe_id'>[] {
     const recipeFoods = [];
     for (const ingredient of this.recipe.fullIngredients) {
-      if (ingredient.amount && ingredient.amount !== 0 && !ingredient.utility) {
+      if (!ingredient.utility) {
         recipeFoods.push({
           food_name_id: ingredient.id,
           unit: ingredient.unit,
@@ -631,8 +641,9 @@ export default class RecipeCalculator {
     // sanity check for unusually high serving sizes
     // proposed: recursive approach to increase serving size until its reasonable
     if (
-      this.recipe.total_weight > 1500 ||
-      this.recipe.kcal.total > this.UNUSUAL_KCAL_THRESHOLD
+      !this.nutritionLabelOnly &&
+      (this.recipe.total_weight > 1500 ||
+        this.recipe.kcal.total > this.UNUSUAL_KCAL_THRESHOLD)
     ) {
       this.UNUSUAL_KCAL_THRESHOLD = 800;
       const probableYieldSizes = [2, 3, 4, 5, 6, 8, 10, 12, 15, 18, 24];

@@ -2,22 +2,16 @@
   <div
     class="w-[clamp(70vw,1550px,100%)] mx-auto mt-2 space-y-8 sm:space-y-10 px-4"
   >
-    <div class="flex flex-col items-start">
-      <Logo class="xm:hidden mt-2" />
-      <div class="flex items-center gap-2 mt-10">
-        <span class="material-symbols-outlined !text-2xl">{{
-          greeting.icon
-        }}</span>
-        <span class="text-base sm:text-lg font-light">{{ greeting.base }}</span>
-      </div>
-      <h1 class="text-2xl sm:text-4xl font-bold tracking-tight">
-        What would you like to cook today?
-      </h1>
-    </div>
-
-    <!-- Categories -->
     <div>
-      <div class="py-1">
+      <div class="flex flex-col items-start gap-4">
+        <Logo class="xm:hidden mt-2" />
+        <div class="flex items-center gap-2 mt-10">
+          <span class="text-base sm:text-2xl font-bold"
+            >{{ greeting.base }} What would you like to cook today?</span
+          >
+        </div>
+      </div>
+      <div class="py-1 mt-4">
         <Carousel>
           <div
             v-for="category in categories"
@@ -36,17 +30,11 @@
 
     <!-- Your Recipes -->
     <div v-if="userRecipes && userRecipes.length > 0" class="pt-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-xl sm:text-2xl font-bold tracking-tight">
-          Your Recipes
-        </h2>
-        <NuxtLink
-          :to="auth.isUser() ? `/profile/${auth.user?.id}` : '/onboarding'"
-          class="text-sm text-gray-500"
-        >
-          See all
-        </NuxtLink>
-      </div>
+      <h2
+        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+      >
+        FROM YOUR COOKBOOK
+      </h2>
       <Carousel :flex-class="'items-center'">
         <RecipeCardHorizontal
           v-for="(recipe, index) in userRecipes"
@@ -58,16 +46,18 @@
     </div>
 
     <!-- Recommendations -->
-    <div>
-      <div class="mt-2 flex justify-between items-center">
-        <h2 class="text-xl sm:text-2xl font-bold">Recommendations</h2>
-        <NuxtLink to="/recipes" class="text-sm text-gray-500">See all</NuxtLink>
-      </div>
+    <div class="sm:hidden">
+      <h2
+        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+      >
+        RECOMMENDATIONS
+      </h2>
       <div class="mt-2">
         <Carousel class="" :flexClass="'!items-stretch'">
           <RecipeCard
             v-for="(recipe, index) in recipeStore.indexRecipes"
-            :key="recipe.id"
+            :key="recipe.id + 'mobile'"
+            :id="'mobile'"
             :recipe="recipe"
             class="w-50 min-h-70 text-[20px] sm:w-70 sm:min-h-95 sm:text-[30px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-6 mb-2 mr-4"
           />
@@ -75,11 +65,70 @@
       </div>
     </div>
 
+    <div class="hidden sm:block">
+      <h2
+        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+      >
+        RECOMMENDATIONS
+      </h2>
+      <div class="mt-10 flex gap-10">
+        <div class="flex gap-10 flex-col justify-between">
+          <RecipeCard
+            :key="recipeStore.indexRecipes[0]?.id + 'desktop'"
+            :recipe="recipeStore.indexRecipes[0]"
+            :id="'desktop'"
+            class="w-110 text-[32px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
+          />
+          <div class="p-4 flex flex-col items-start gap-4">
+            <h2
+              class="px-4 py-0.5 text-primary outline-2 outline-primary rounded-lg text-lg font-bold"
+            >
+              TIRED OF SCATTERED RECIPES?
+            </h2>
+            <NuxtLink
+              to="/recipe/new/?view=import"
+              class="text-primary flex items-center gap-2 button px-2 py-1"
+            >
+              <span class="material-symbols-outlined"> more_up </span>
+              <span>Import your recipes from any source</span>
+            </NuxtLink>
+            <NuxtLink
+              to="/recipe/new/?view=picture"
+              class="text-primary flex items-center gap-2 button px-2 py-1"
+            >
+              <span class="material-symbols-outlined"> visibility </span>
+              <span>Scan your cookbooks</span>
+            </NuxtLink>
+            <span class="text-sm text-gray-500"
+              >...and get science-based nutrition and health insights!</span
+            >
+          </div>
+          <RecipeCard
+            :key="recipeStore.indexRecipes[1]?.id + 'desktop'"
+            :recipe="recipeStore.indexRecipes[1]"
+            :id="'desktop'"
+            class="w-110 text-[32px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
+          />
+        </div>
+        <div class="flex gap-10 flex-wrap">
+          <RecipeCard
+            v-for="(recipe, index) in recipeStore.indexRecipes.slice(2)"
+            :key="recipe.id + 'desktop'"
+            :recipe="recipe"
+            :id="'desktop'"
+            class="min-w-70 basis-70 max-w-90 flex-1 min-h-50 text-[28px] hover:translate-y-[-2px] transition-all duration-300"
+          />
+        </div>
+      </div>
+    </div>
+
     <!-- Recent Activity -->
     <div v-if="recentActivity && recentActivity.length > 0">
-      <div class="flex justify-between items-center">
-        <h2 class="text-xl sm:text-2xl font-bold">Recent Activity</h2>
-      </div>
+      <h2
+        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+      >
+        RECENT ACTIVITY
+      </h2>
       <Carousel class="mt-4" :flexClass="'!items-stretch'">
         <FeedItem
           v-for="item in recentActivity.slice(0, 8)"
@@ -88,6 +137,14 @@
           class="min-w-90 ml-2 mb-4"
         />
       </Carousel>
+    </div>
+    <div v-if="recentActivity && recentActivity.length > 0">
+      <h2
+        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+      >
+        NUTRITION ANALYSIS ENGINE
+      </h2>
+      <InstantNutritionDemo class="mt-4" />
     </div>
   </div>
 </template>
@@ -106,7 +163,7 @@ if (!recipeStore.indexRecipes.length) {
       eq: { visibility: 'PUBLIC' },
       not: { picture: null },
       orderBy: { column: 'relevancy', ascending: false },
-      limit: 5,
+      limit: 11,
     })
   );
   watchEffect(() => {
