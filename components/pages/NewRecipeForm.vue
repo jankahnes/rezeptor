@@ -1,6 +1,6 @@
 <template>
   <div class="flex justify-center w-full">
-    <div class="pt-18 space-y-4 w-full max-w-screen-md">
+    <div class="pt-18 space-y-4 w-full max-w-[900px]">
       <textarea
         v-model="baseRecipe.title"
         v-auto-resize
@@ -52,8 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import type { EditableIngredient } from '~/types/types';
-import getStringFromIngredients from '~/utils/format/getStringFromIngredients';
+import convertUploadableToComputable from '~/server/utils/convertUploadableToComputable';
 
 const props = defineProps<{
   submitFromPreparsed: (recipe: ComputableRecipe) => void;
@@ -104,7 +103,7 @@ function convertToFullIngredients(
     .filter((ing) => ing.id && ing.name && ing.rawText.trim() !== '')
     .map((ing) => {
       const { isEditing, parsed, rawText, ...rest } = ing;
-      return {...rest.food, ...rest} as FullIngredient;
+      return { ...rest, ...rest.food } as FullIngredient;
     });
 }
 
@@ -113,21 +112,21 @@ const parsingRecipe = computed<ComputableRecipe>(() => {
     ingredientListEditableInformation.value.fullIngredients
   );
   return {
+    ...baseRecipe.value,
     serves: ingredientListEditableInformation.value.serves,
     source_type: 'PREPARSED',
     fullIngredients,
     instructions: instructionsEditableInformation.value.instructions,
-    ...baseRecipe.value,
   } as ComputableRecipe;
 });
 
 const naturalLanguageBaseRecipe = computed<BaseRecipe>(() => ({
+  ...baseRecipe.value,
   ingredients_string:
     ingredientListEditableInformation.value.ingredients_string,
   serves: ingredientListEditableInformation.value.serves,
   instructions: instructionsEditableInformation.value.instructions,
   source_type: 'TEXT',
-  ...baseRecipe.value,
 }));
 
 function submit() {
@@ -145,10 +144,12 @@ function onClickReport() {
 
 // Convert FullIngredient to EditableIngredient for editing
 function convertToEditableIngredients(
-  fullIngredients: FullIngredient[]
+  fullIngredients: FullIngredient[],
+  serves: number
 ): EditableIngredient[] {
   return fullIngredients.map((ing) => ({
     ...ing,
+    amount: ing.amount * serves,
     category: ing.category || 'uncategorized',
     rawText: ing.rawText || '',
     parsed: ing.parsed || [],
@@ -161,7 +162,8 @@ function setEditableInformation(computableRecipe: ComputableRecipe | null) {
   ingredientListEditableInformation.value = {
     serves: computableRecipe.batch_size ?? 1,
     fullIngredients: convertToEditableIngredients(
-      computableRecipe.fullIngredients
+      computableRecipe.fullIngredients,
+      computableRecipe.batch_size ?? 1
     ),
     useNaturalLanguage: false,
     ingredients_string: getStringFromIngredients(
@@ -170,7 +172,7 @@ function setEditableInformation(computableRecipe: ComputableRecipe | null) {
     ),
   };
   instructionsEditableInformation.value.instructions =
-    computableRecipe.instructions;
+    removeInstructionFormatting(computableRecipe.instructions);
   Object.assign(baseRecipe.value, computableRecipe);
 }
 
@@ -191,10 +193,11 @@ onMounted(async () => {
   } else {
     isEditing.value = false;
   }
+  compute();
+  watch(parsingRecipe, computeDebounced, { deep: true });
 });
 
 async function compute() {
-  console.log(parsingRecipe.value);
   const response = (await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {
@@ -206,11 +209,8 @@ async function compute() {
       },
     },
   })) as { recipeRow: InsertableRecipe };
-  console.log(response.recipeRow);
   computedRecipe.value = response.recipeRow;
 }
 
 const computeDebounced = debounce(compute, 3000);
-
-watch(parsingRecipe, computeDebounced, { deep: true });
 </script>

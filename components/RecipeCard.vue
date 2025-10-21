@@ -13,7 +13,7 @@
       class="w-full relative -mt-10 z-0 h-full transition-all duration-300 group-hover:translate-y-[1px]"
     >
       <div
-        class="bg-white px-6 pt-10 pb-[5%] w-full shadow-md rounded-xl min-h-40 h-full"
+        class="bg-white px-6 pt-10 pb-[5%] w-full shadow-md rounded-3xl min-h-40 h-full"
       >
         <div class="pt-4 flex flex-col gap-3">
           <h2

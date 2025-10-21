@@ -34,8 +34,8 @@
     <div class="flex-1">
       <div class="flex items-center justify-between">
         <div class="text-sm font-semibold">
-          <template v-if="feedItem.user && feedItem.user.username">
-            {{ feedItem.user.username }}
+          <template v-if="feedItem.user">
+            {{ feedItem.user.username ?? "New User" }}
           </template>
           <template v-else-if="feedItem.food"> New Food Added </template>
           <template v-else-if="feedItem.recipe"> New Recipe Added </template>

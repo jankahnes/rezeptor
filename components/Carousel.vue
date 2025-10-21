@@ -9,7 +9,10 @@
         v-if="canScrollRight"
         class="absolute top-0 -right-[1px] h-full w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-20"
       ></div>
-      <div ref="desktopContainer" class="overflow-hidden">
+      <div
+        ref="desktopContainer"
+        :class="{ 'overflow-hidden': canScrollLeft || canScrollRight }"
+      >
         <div
           ref="desktopSlider"
           class="flex items-center select-none cursor-grab active:cursor-grabbing w-max"
@@ -36,7 +39,7 @@
     </div>
 
     <div v-if="showProgress" class="mt-3 flex justify-center">
-      <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
+      <div class="w-full h-1 bg-gray-100 rounded-full overflow-hidden relative">
         <div
           class="h-full bg-gray-500 rounded-full transition-all duration-300 ease-out"
           :style="{ width: `${progressPercentage}%` }"

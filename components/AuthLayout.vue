@@ -1,11 +1,9 @@
 <template>
-  <div
-    class="h-[calc(100svh_-_144px)] xm:h-[calc(100svh_-_88px)] flex items-center justify-center p-4 pb-8"
-  >
+  <div class="h-200 flex items-center justify-center p-4 pb-8">
     <div class="w-full max-w-md">
       <!-- Card Container -->
       <div
-        class="bg-main border-2 border-black rounded-xl shadow-[6px_6px_0_0_rgba(0,0,0,1)] p-8 space-y-6"
+        class="bg-main sm:border-2 border-black rounded-xl sm:shadow-[6px_6px_0_0_rgba(0,0,0,1)] p-8 space-y-6"
       >
         <!-- Header Section -->
         <div class="text-center space-y-2">

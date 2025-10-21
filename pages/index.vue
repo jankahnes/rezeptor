@@ -106,7 +106,7 @@ if (!recipeStore.indexRecipes.length) {
       eq: { visibility: 'PUBLIC' },
       not: { picture: null },
       orderBy: { column: 'relevancy', ascending: false },
-      limit: 14,
+      limit: 5,
     })
   );
   watchEffect(() => {

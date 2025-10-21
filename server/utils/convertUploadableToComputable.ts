@@ -25,7 +25,7 @@ function convertUnitToDB(unit: string) {
   }
 }
 
-function addParsed(ingredient: FullIngredient) {
+function addParsed(ingredient: FullIngredient, serves: number) {
   let unitName = ingredient.unit.toLowerCase();
   if (
     isCountable(ingredient.unit) &&
@@ -36,7 +36,7 @@ function addParsed(ingredient: FullIngredient) {
   }
   const parsed = [
     {
-      text: ingredient.amount.toString(),
+      text: Number((ingredient.amount * serves).toFixed(1)).toString(),
       styling: amountStyling,
     },
     {
@@ -97,7 +97,7 @@ export default async function convertUploadableToComputable(
       unit: convertUnitToDB(ingredient.unit),
     };
     if (parse) {
-      addParsed(mergedIngredient);
+      addParsed(mergedIngredient, recipe.batch_size ?? 1);
     }
     fullIngredients.push(mergedIngredient);
   }

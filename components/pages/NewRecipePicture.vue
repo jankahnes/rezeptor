@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full mt-10 md:px-10 space-y-2">
+  <div class="w-full mt-10 md:px-10 max-w-screen-md space-y-2">
     <h1 class="text-3xl font-bold text-gray-900">Scan a Recipe</h1>
     <div class="inline-flex flex-col">
       <p class="text-gray-800">

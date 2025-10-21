@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-2 md:p-6 h-full flex flex-col flex-[1_1_23rem] ml-1 items-start"
+    class="p-2 md:p-6 h-full flex flex-col flex-[1_1_22rem] ml-1 items-start"
   >
     <div class="flex justify-between items-center w-full mb-2">
       <div class="px-4 py-1 mb-2 bg-primary text-white rounded-lg flex">

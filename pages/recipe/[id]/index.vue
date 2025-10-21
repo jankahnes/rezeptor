@@ -197,6 +197,7 @@
         <PagesRecipeIngredientList
           :ingredients="recipeStore.recipe?.ingredients"
           :batchSize="recipeStore.recipe?.batch_size ?? undefined"
+          :recipeId="recipeStore.recipe?.id"
           v-model:servingSize="servingSize"
           class="flex-1"
         ></PagesRecipeIngredientList>
@@ -434,6 +435,7 @@
               v-if="mobileChosen === 'ingredients'"
               :hideHeader="true"
               :batchSize="recipeStore.recipe?.batch_size ?? undefined"
+              :recipeId="recipeStore.recipe?.id"
               v-model:servingSize="servingSize"
             ></PagesRecipeIngredientList>
             <PagesRecipeInstructionContainer
@@ -489,6 +491,8 @@
 </template>
 
 <script setup lang="ts">
+import convertUploadableToComputable from '~/server/utils/convertUploadableToComputable';
+
 const route = useRoute();
 const router = useRouter();
 const recipeStore = useRecipeStore();

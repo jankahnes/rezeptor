@@ -1,30 +1,32 @@
 <template>
-  <div class="p-2 md:p-6 h-full flex flex-col flex-[1_1_23rem] items-start">
-    <div class="px-4 py-1 bg-primary text-white rounded-lg flex">
-      <h2 class="text-lg font-bold">INGREDIENTS</h2>
+  <div class="p-2 md:p-6 h-full flex flex-col flex-[1_1_22rem] items-start">
+    <div class="flex justify-between items-center w-full gap-2 mb-2">
+      <div class="px-4 py-1 bg-primary text-white rounded-lg flex mb-2">
+        <h2 class="text-lg font-bold ">INGREDIENTS</h2>
+      </div>
+      <button
+        class="button flex items-center gap-1 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform leading-none"
+        @click="model.useNaturalLanguage = !model.useNaturalLanguage"
+      >
+        <span class="material-symbols-outlined !text-sm">autorenew</span>
+        <span>{{
+          model.useNaturalLanguage
+            ? 'Use Precise Parsing'
+            : 'Use Natural Language'
+        }}</span>
+      </button>
     </div>
-    <button
-      class="button flex items-center gap-2 px-2 font-medium !bg-primary/10 text-primary text-xs will-change-transform mt-2"
-      @click="modelValue.useNaturalLanguage = !modelValue.useNaturalLanguage"
-    >
-      <span class="material-symbols-outlined !text-sm">autorenew</span>
-      <span>{{
-        modelValue.useNaturalLanguage
-          ? 'Use Precise Parsing'
-          : 'Use Natural Language'
-      }}</span>
-    </button>
     <p class="text-sm text-gray-600 ml-1 font-light mt-2">Servings:</p>
     <FormsSlidingSelector
-      v-model="modelValue.serves"
+      v-model="model.serves"
       :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
       :expanded="false"
       class="max-w-[150px]"
     />
 
     <textarea
-      v-if="modelValue.useNaturalLanguage"
-      v-model="modelValue.ingredients_string"
+      v-if="model.useNaturalLanguage"
+      v-model="model.ingredients_string"
       v-auto-resize
       rows="4"
       placeholder="For the dough:
@@ -148,7 +150,7 @@
           </button>
           <button
             @click="
-              modelValue.fullIngredients.push(
+              model.fullIngredients.push(
                 createEmptyIngredient(newCategoryName)
               );
               addingCategory = false;
@@ -175,20 +177,12 @@
 </template>
 
 <script setup lang="ts">
-import type { EditableIngredient } from '~/types/types';
-
-const props = defineProps({
-  modelValue: {
-    type: Object as PropType<{
-      serves: number;
-      fullIngredients: EditableIngredient[];
-      useNaturalLanguage: boolean;
-      ingredients_string: string;
-    }>,
-    required: true,
-  },
-});
-const emit = defineEmits(['update:modelValue']);
+const model = defineModel<{
+  serves: number;
+  fullIngredients: EditableIngredient[];
+  useNaturalLanguage: boolean;
+  ingredients_string: string;
+}>({ required: true });
 
 const supabase = useSupabaseClient();
 const addingCategory = ref(false);
@@ -196,7 +190,7 @@ const newCategoryName = ref('');
 const inputRefs = ref<Record<string, HTMLInputElement>>({});
 
 const groupedIngredients = computed(() => {
-  return groupIngredients(props.modelValue.fullIngredients);
+  return groupIngredients(model.value.fullIngredients);
 });
 
 // Helper function to find ingredient in flat array by category and local index
@@ -204,7 +198,7 @@ function findIngredientInFlatArray(
   categoryName: string,
   localIndex: number
 ): EditableIngredient | null {
-  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+  const ingredientsInCategory = model.value.fullIngredients.filter(
     (ing) => (ing.category || 'uncategorized') === categoryName
   );
   return ingredientsInCategory[localIndex] || null;
@@ -212,12 +206,12 @@ function findIngredientInFlatArray(
 
 // Helper function to find the flat array index of an ingredient
 function findFlatArrayIndex(categoryName: string, localIndex: number): number {
-  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+  const ingredientsInCategory = model.value.fullIngredients.filter(
     (ing) => (ing.category || 'uncategorized') === categoryName
   );
   const targetIngredient = ingredientsInCategory[localIndex];
   if (!targetIngredient) return -1;
-  return props.modelValue.fullIngredients.indexOf(targetIngredient);
+  return model.value.fullIngredients.indexOf(targetIngredient);
 }
 
 // Initialize ingredients structure
@@ -226,7 +220,7 @@ onMounted(() => {
 });
 
 function ensureIngredientsStructure() {
-  if(!groupedIngredients.value.length) {
+  if (!groupedIngredients.value.length) {
     ensureOneEmptyIngredient('uncategorized');
     return;
   }
@@ -234,9 +228,7 @@ function ensureIngredientsStructure() {
     groupedIngredients.value
   )) {
     if (!ingredients || ingredients.length === 0) {
-      props.modelValue.fullIngredients.push(
-        createEmptyIngredient(categoryName)
-      );
+      model.value.fullIngredients.push(createEmptyIngredient(categoryName));
     }
 
     ingredients.forEach((ingredient) => {
@@ -318,7 +310,7 @@ async function handleEnter(categoryName: string, localIndex: number) {
   }
 
   // Focus next input or create new one
-  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+  const ingredientsInCategory = model.value.fullIngredients.filter(
     (ing) => (ing.category || 'uncategorized') === categoryName
   );
   const nextIndex = localIndex + 1;
@@ -377,7 +369,7 @@ async function parseIngredient(categoryName: string, localIndex: number) {
 function removeIngredient(categoryName: string, localIndex: number) {
   const flatIndex = findFlatArrayIndex(categoryName, localIndex);
   if (flatIndex !== -1) {
-    props.modelValue.fullIngredients.splice(flatIndex, 1);
+    model.value.fullIngredients.splice(flatIndex, 1);
   }
   ensureOneEmptyIngredient(categoryName);
 }
@@ -386,7 +378,7 @@ function isLastEmptyIngredient(categoryName: string, localIndex: number) {
   const ingredient = findIngredientInFlatArray(categoryName, localIndex);
   if (!ingredient) return false;
 
-  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+  const ingredientsInCategory = model.value.fullIngredients.filter(
     (ing) => (ing.category || 'uncategorized') === categoryName
   );
   const emptyIngredients = ingredientsInCategory.filter(
@@ -400,7 +392,7 @@ function isLastEmptyIngredient(categoryName: string, localIndex: number) {
 }
 
 function ensureOneEmptyIngredient(categoryName: string) {
-  const ingredientsInCategory = props.modelValue.fullIngredients.filter(
+  const ingredientsInCategory = model.value.fullIngredients.filter(
     (ing) => (ing.category || 'uncategorized') === categoryName
   );
   const emptyIngredients = ingredientsInCategory.filter(
@@ -408,21 +400,21 @@ function ensureOneEmptyIngredient(categoryName: string) {
   );
 
   if (emptyIngredients.length === 0) {
-    props.modelValue.fullIngredients.push(createEmptyIngredient(categoryName));
+    model.value.fullIngredients.push(createEmptyIngredient(categoryName));
   } else if (emptyIngredients.length > 1) {
     // Remove extra empty ingredients
     let removedCount = 0;
     for (
-      let i = props.modelValue.fullIngredients.length - 1;
+      let i = model.value.fullIngredients.length - 1;
       i >= 0 && removedCount < emptyIngredients.length - 1;
       i--
     ) {
-      const ingredient = props.modelValue.fullIngredients[i];
+      const ingredient = model.value.fullIngredients[i];
       if (
         (ingredient.category || 'uncategorized') === categoryName &&
         (!ingredient.rawText || ingredient.rawText.trim() === '')
       ) {
-        props.modelValue.fullIngredients.splice(i, 1);
+        model.value.fullIngredients.splice(i, 1);
         removedCount++;
       }
     }
@@ -431,7 +423,7 @@ function ensureOneEmptyIngredient(categoryName: string) {
 
 function removeCategory(categoryName: string) {
   // Set all ingredients in this category to 'uncategorized'
-  props.modelValue.fullIngredients.forEach((ingredient) => {
+  model.value.fullIngredients.forEach((ingredient) => {
     if (ingredient.category === categoryName) {
       ingredient.category = 'uncategorized';
     }

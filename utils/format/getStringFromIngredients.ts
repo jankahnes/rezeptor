@@ -9,10 +9,10 @@ export default function getStringFromIngredients(
       ingredients
         ?.map(
           (ingredient) =>
-            `${ingredient.name}: ${getStringFromAmountInfo(
+            `${getStringFromAmountInfo(
               ingredient.amountInfo[ingredient.currentUnit],
               serves || 1
-            )}`
+            )} ${ingredient.name} `
         )
         .join('\n') ?? ''
     );
