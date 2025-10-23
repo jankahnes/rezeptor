@@ -20,6 +20,7 @@ export type FoodRow = NonNullableProps<FoodRowNullable> & {
 type RecipeRow = Database['public']['Tables']['recipes']['Row'];
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 type ActivityRow = Database['public']['Tables']['activity']['Row'];
+type BrandedFoodRow = Database['public']['Tables']['branded_foods']['Row'];
 
 export type InsertableRecipe =
   Database['public']['Tables']['recipes']['Insert'];
@@ -119,6 +120,12 @@ export type Ingredient = {
   mechanical_description: string | null;
   aisle: string | null;
   price: number | null;
+};
+
+export type BrandedFood = BrandedFoodRow & {
+  food_name?: FoodNameRow & {
+    food: FullFoodRow;
+  };
 };
 
 export type User = {

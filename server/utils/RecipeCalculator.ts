@@ -1052,7 +1052,7 @@ export default class RecipeCalculator {
           omega6_score: 50,
           mufa_score: 50,
           ratio_score: 50,
-          trans_score: 0,
+          trans_score: 50,
           final_score: 50,
         };
       }

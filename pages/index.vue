@@ -16,7 +16,7 @@
           <div
             v-for="category in categories"
             :key="category.tag"
-            class="flex flex-col sm:flex-row items-center gap-x-1 px-2 py-1 transition-all duration-300 flex-shrink-0 button m-1"
+            class="flex flex-col sm:flex-row items-center gap-x-1 px-3 py-1 transition-all duration-300 flex-shrink-0 button m-1"
             @click="onClickCategory(category.tag)"
           >
             <span class="text-2xl">{{ category.icon }}</span>

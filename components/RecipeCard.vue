@@ -33,12 +33,7 @@
                 {{ getGrade(recipe?.hidx, 'ovr') }}
               </div>
               <div
-                class="tag flex items-center gap-1"
-                :class="
-                  recipe?.rating && recipe?.rating >= 4.5
-                    ? 'golden-gradient-muted'
-                    : 'shadow-sm'
-                "
+                class="tag flex items-center gap-1 shadow-sm"
                 v-if="recipe?.rating && recipe?.rating >= 4"
               >
                 <FormsRatingField

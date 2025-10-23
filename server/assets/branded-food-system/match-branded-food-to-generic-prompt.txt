@@ -1,0 +1,19 @@
+Youre tasked with looking up this branded product in a database of generic foods.
+The product name might be german or in another language, the database is in english.
+The product name is: "{product_name}" from the brand "{brand}"
+{category_line}
+
+Since your matched food is primarily used for looking up nutritional data, the most important thing is that your generic food name matches closely to the product nutrition wise.
+Specifics about the product are only secondary and often can be left out.
+You should omit the brand name almost always, unless it defines the product itself. ("Oreos")
+Stick to simple, precise names without parentheses or specificites.
+*Your task is just to find the most generic food name that still matches closely to the product nutrition wise.*
+
+Return as a JSON {{"generic_name": "...", "confidence": ...}} object and include how confident you are that the foods match sufficiently.
+If you dont understand or are not confident about what generic food name to return at all, but additional information like ingredients or nutrition might help, use confidence = 0.
+Examples:
+- "Müller Reis Vanilla" → {{"generic_name": "rice pudding", "confidence": 0.9}} -> Flavor is not relevant to nutrition, so leave out
+- "Coca-Cola Zero" → {{"generic_name": "sugar free softdrink", "confidence": 0.98}} -> Softdrink variety is not relevant for nutrition, so leave out 
+- "Dr. Oetker Pizza Salami" → {{"generic_name": "frozen salami pizza", "confidence": 0.8}} -> Infer frozen from context
+- "Weihenstephan Vollmilch 3.5%" → {{"generic_name": "whole milk", "confidence": 0.95}} -> Leaving out 3.5% is arguable, but whole milk always has around that percentage of fat, so redundant.
+- "Gut & Günstig Sahnejoghurt" → {{"generic_name": "cream yogurt", "confidence": 0.85}}

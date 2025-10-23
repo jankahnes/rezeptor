@@ -18,6 +18,9 @@
       <NuxtLink :to="'/profile/' + auth.user?.id" class="flex" v-else>
         <span class="material-symbols-outlined !text-3xl"> person </span>
       </NuxtLink>
+      <NuxtLink to="/foods/scan" class="flex">
+        <span class="material-symbols-outlined !text-3xl"> flip </span>
+      </NuxtLink>
     </div>
   </nav>
 </template>

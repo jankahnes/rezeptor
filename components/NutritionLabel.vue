@@ -29,10 +29,12 @@
         :class="headless ? 'mt-0' : 'mt-4'"
       >
         {{
-          (mode === 'serving'
-            ? recipe?.kcal
-            : (recipe?.kcal * 100) / totalWeight
-          )?.toFixed(0)
+          nutritionData?.kcal !== null && nutritionData?.kcal !== undefined
+            ? (mode === 'serving'
+                ? nutritionData?.kcal
+                : (nutritionData?.kcal * 100) / totalWeight
+              )?.toFixed(0)
+            : '?'
         }}
         kcal
       </div>
@@ -64,10 +66,21 @@
             <template v-else>
               <p class="text-xs">{{ item.label.toUpperCase() }}</p>
               <p class="font-semibold" v-if="mode === 'serving'">
-                {{ recipe?.[item.key]?.toFixed(1) }}g
+                {{
+                  nutritionData?.[item.key] !== null && nutritionData?.[item.key] !== undefined
+                    ? Number(nutritionData?.[item.key]?.toFixed(1))
+                    : '?'
+                }}g
               </p>
               <p class="font-semibold" v-else>
-                {{ ((recipe?.[item.key] * 100) / totalWeight)?.toFixed(1) }}g
+                {{
+                  nutritionData?.[item.key] !== null && nutritionData?.[item.key] !== undefined
+                    ? Number((
+                        (nutritionData?.[item.key]! * 100) /
+                        totalWeight
+                      )?.toFixed(1))
+                    : '?'
+                }}g
               </p>
             </template>
           </div>
@@ -95,15 +108,17 @@ interface NutritionalItem {
 }
 
 const props = defineProps<{
-  recipe: Recipe | FullFoodRow | InsertableRecipe;
+  nutritionData: Recipe | FullFoodRow | InsertableRecipe | BrandedFood;
   headless?: boolean;
 }>();
 const root = ref<HTMLElement | null>(null);
 
-const isFood = computed(() => 'name' in props.recipe);
+const isFood = computed(() => 'nova' in props.nutritionData);
 const mode = ref(isFood.value ? '100g' : 'serving');
 const totalWeight =
-  'total_weight' in props.recipe ? props.recipe.total_weight : 100;
+  'total_weight' in props.nutritionData
+    ? props.nutritionData.total_weight
+    : 100;
 
 const switchMode = () => {
   if (isFood.value || !totalWeight) {

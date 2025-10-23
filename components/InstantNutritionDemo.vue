@@ -21,7 +21,7 @@
     </div>
     <NutritionLabel
       v-if="recipe"
-      :recipe="recipe"
+      :nutritionData="recipe"
       :headless="true"
       class="max-w-120"
     />
