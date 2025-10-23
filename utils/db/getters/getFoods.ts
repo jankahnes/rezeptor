@@ -1,5 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Food, FoodNameRow, FoodRow, FoodRowNullable } from '~/types/types';
+import type {
+  Food,
+  FoodNameRow,
+  FoodRow,
+  FoodRowNullable,
+} from '~/types/types';
 import buildQuery from '~/utils/db/getters/buildQuery';
 import { expectSingle } from '~/utils/db/getters/expectSingle';
 import type { GetterOpts } from '~/types/types';
@@ -109,4 +114,46 @@ export async function getFoodName(
   opts: GetterOpts = {}
 ): Promise<Food> {
   return expectSingle(await getFoodNames(client, opts));
+}
+
+export async function getBrandedFood(
+  client: SupabaseClient,
+  barcode: string
+): Promise<BrandedFood> {
+  const response = await client
+    .from('branded_foods')
+    .select(
+      `
+    *,
+    food_name:food_names(
+      id,
+      name,
+      food:foods(
+        *
+      )
+    )
+  `
+    )
+    .eq('barcode', barcode);
+  if (response.error || !response.data) throw response.error;
+  const brandedFood = response.data[0] as BrandedFood;
+  const brandedFoodNonNull: BrandedFood = {
+    ...brandedFood,
+    food_name: brandedFood.food_name
+      ? {
+          ...brandedFood.food_name,
+          food: {
+            ...brandedFood.food_name.food,
+            id: brandedFood.food_name.id,
+            satiety: brandedFood.food_name.food.satiety
+              ? brandedFood.food_name.food.satiety
+              : 0.5 * getED(brandedFood.food_name.food.kcal ?? 0) +
+                0.5 * (brandedFood.food_name.food.sidx ?? 0),
+            countable_units: brandedFood.food_name.food
+              .countable_units as Record<string, number>,
+          },
+        }
+      : undefined,
+  };
+  return brandedFoodNonNull as BrandedFood;
 }

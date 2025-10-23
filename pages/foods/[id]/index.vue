@@ -19,7 +19,7 @@
           </p>
         </div>
         <div class="flex justify-center gap-y-10 flex-col md:flex-row">
-          <NutritionLabel v-if="food" :recipe="food" class="flex-1" />
+          <NutritionLabel v-if="food" :nutritionData="food" class="flex-1" />
           <HealthFacts v-if="food" :recipe="food" isFood class="flex-1" />
         </div>
 
@@ -238,27 +238,17 @@ const foodName = ref('');
 const refencingName = ref<string | null>(null);
 const supabase = useSupabaseClient<Database>();
 
-if (id.startsWith('barcode-')) {
-  const barcode = id.split('-')[1];
-  food.value = {
-    primary_name: `TBI ${barcode}`,
-    id: 0,
-    created_at: new Date().toISOString(),
-  } as FullFoodRow;
-  foodName.value = `TBI ${barcode}`;
-} else {
-  const { data } = await useAsyncData('foodname', () => {
-    return getFoodName(supabase, { eq: { id: Number(id) } });
-  });
-  if (data.value) {
-    foodName.value = data.value?.name ?? data.value?.food?.primary_name ?? '';
-    if (!data.value?.is_primary) {
-      refencingName.value = data.value?.food?.primary_name ?? '';
-    }
-    food.value = data.value.food;
-    food.value.id = data.value?.id;
-    food.value.processing_level_score = 100 - 17 * food.value.processing_level;
+const { data } = await useAsyncData('foodname', () => {
+  return getFoodName(supabase, { eq: { id: Number(id) } });
+});
+if (data.value) {
+  foodName.value = data.value?.name ?? data.value?.food?.primary_name ?? '';
+  if (!data.value?.is_primary) {
+    refencingName.value = data.value?.food?.primary_name ?? '';
   }
+  food.value = data.value.food;
+  food.value.id = data.value?.id;
+  food.value.processing_level_score = 100 - 17 * food.value.processing_level;
 }
 
 useHead({

@@ -62,6 +62,7 @@ const scoreDescriptors = {
 
 export default function fatProfileToReadable(report: any) {
     const items = []
+    console.log(report.fatProfile)
     for(const [key, value] of Object.entries(scoreDescriptors)) {
         const score = report.fatProfile[key]
         const item = generics.getHighestThreshold(score, value.descriptor)

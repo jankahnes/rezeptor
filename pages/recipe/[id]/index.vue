@@ -185,9 +185,9 @@
               :to="`/recipe/${id}/report`"
               class="text-sm text-right px-2 py-1 rounded-lg bg-slate-700 text-slate-100 flex items-center gap-1"
             >
-              Full Health Report
+              Health Insights
               <span class="material-symbols-outlined !text-sm">
-                open_in_new
+                batch_prediction
               </span>
             </NuxtLink>
           </div>
@@ -212,7 +212,7 @@
         <NutritionLabel
           ref="nutritionSection"
           v-if="recipeStore.recipe"
-          :recipe="recipeStore.recipe"
+          :nutritionData="recipeStore.recipe"
           class="flex-1"
         ></NutritionLabel>
         <HealthFacts
@@ -415,9 +415,9 @@
             :to="`/recipe/${id}/report`"
             class="text-sm text-right px-2 py-1 rounded-lg button metallic-gradient-simple inline-flex self-start items-center gap-1 mt-4"
           >
-            Full Health Report
+            Health Insights
             <span class="material-symbols-outlined !text-sm">
-              open_in_new
+              batch_prediction
             </span>
           </NuxtLink>
           <div ref="scrollTarget" class="mt-8 h-0"></div>
@@ -452,7 +452,7 @@
           <NutritionLabel
             id="nutrition"
             v-if="recipeStore.recipe"
-            :recipe="recipeStore.recipe"
+            :nutritionData="recipeStore.recipe"
             class="flex-1 mt-8"
           ></NutritionLabel>
           <HealthFacts

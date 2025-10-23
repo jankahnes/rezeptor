@@ -9,12 +9,12 @@
             </div>
             <button
               @click="onReport"
-              class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs mt-3"
+              class="button flex items-center gap-2 px-2 font-medium !bg-primary/10 text-primary text-xs mt-3"
             >
-              <span class="material-symbols-outlined !text-sm"
-                >open_in_new</span
+              <span class="material-symbols-outlined !text-lg"
+                >batch_prediction</span
               >
-              <span>Full Health Report</span>
+              <span>Health Insights</span>
             </button>
           </div>
           <GradeContainer

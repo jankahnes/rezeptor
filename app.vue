@@ -8,17 +8,6 @@
       <GlobalLoadingIndicator />
     </div>
     <NavbarsBottom class="block xm:hidden" />
-    <footer class="hidden md:block w-full bg-transparent my-4">
-      <div
-        class="w-full h-full flex flex-col sm:flex-row items-center justify-between px-10 gap-10 text-center sm:text-left"
-      >
-        <p class="text-sm">
-          <a href="https://github.com/jankahnes/rezeptor" target="_blank"
-            >Jan Kahnes @GitHub</a
-          >
-        </p>
-      </div>
-    </footer>
 
     <!-- Shopping List Toggle Button -->
     <button

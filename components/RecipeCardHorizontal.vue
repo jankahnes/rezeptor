@@ -36,12 +36,7 @@
           </div>
           <div
             v-if="recipe?.rating && recipe?.rating >= 4"
-            class="tag flex items-center gap-1"
-            :class="
-              recipe?.rating && recipe?.rating >= 4.5
-                ? 'golden-gradient-muted'
-                : 'shadow-sm'
-            "
+            class="tag flex items-center gap-1 shadow-sm"
           >
             <FormsRatingField
               :model-value="recipe?.rating"

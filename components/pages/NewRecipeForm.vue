@@ -28,7 +28,7 @@
 
         <NutritionLabel
           v-if="computedRecipe?.hidx"
-          :recipe="computedRecipe"
+          :nutritionData="computedRecipe"
           class=""
         />
 
