@@ -19,6 +19,7 @@ export default defineEventHandler(async (event): Promise<any> => {
       throw new Error('No prompt found in request');
     }
     console.log('🔍 Starting vision call');
+    // @ts-ignore - openai library is incorrectly marking 'minimal' as invalid, however gpt-5 models do support it.
     const response = await openai.responses.create({
       ...getModelConfig('vision'),
       input: [

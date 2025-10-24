@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     :to="getLinkTarget()"
-    class="flex items-center p-4 rounded-2xl shadow-sm space-x-4"
+    class="flex items-center p-4 rounded-2xl shadow-sm space-x-4 max-w-100"
   >
     <!-- Avatar -->
     <div class="flex-shrink-0 flex items-center justify-center min-w-10">
@@ -51,14 +51,14 @@
           <span class="font-medium">{{
             feedItem!.comment!.recipe!.title
           }}</span>
-          <p class="mt-2 italic">"{{ feedItem!.comment!.content }}"</p>
+          <p class="mt-2 italic line-clamp-1">"{{ feedItem!.comment!.content }}"</p>
         </template>
 
         <template v-else-if="feedItem.type === 'RECIPE_CREATION'">
           <span v-if="feedItem.user"
             >created a new recipe</span
           >
-          <h4 class="mt-2 font-bold">
+          <h4 class="mt-2 font-bold line-clamp-2">
             {{ feedItem.recipe!.title }}
           </h4>
         </template>

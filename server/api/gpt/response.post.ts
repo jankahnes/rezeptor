@@ -6,6 +6,7 @@ export default defineEventHandler(async (event): Promise<string> => {
   const body = await readBody(event);
   const openai = new OpenAI({ apiKey: config.gptKey });
   try {
+    // @ts-ignore - openai library is incorrectly marking 'minimal' as invalid, however gpt-5 models do support it.
     const response = await openai.responses.create({
       ...getModelConfig(body.type),
       instructions: body.systemPrompt,

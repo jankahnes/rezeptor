@@ -26,10 +26,7 @@
                 v-else-if="isCurrentStep(stepIndex)"
                 class="w-8 h-8 transition-all duration-500 flex items-center justify-center"
               >
-                <img
-                  class="h-6 w-6"
-                  src="/loading.png"
-                />
+                <img class="h-6 w-6" src="/loading.png" />
               </div>
 
               <!-- Empty circle for pending steps -->
@@ -160,7 +157,6 @@ async function fetchAndStartPolling() {
     steps.value = {
       0: '🌐 Scraping recipe from website',
       1: '📝 Parsing ingredients',
-      2: '🔍 Extracting names',
       3: '🍎 Matching foods to our database',
       4: '📊 Adding up Nutrition Facts',
       6: '✨ Finishing up',
@@ -169,7 +165,6 @@ async function fetchAndStartPolling() {
     pollingRates.value = {
       0: 500,
       1: 2000,
-      2: 2000,
       3: 4000,
       4: 4000,
     };
@@ -185,7 +180,6 @@ async function fetchAndStartPolling() {
   } else if (job.value?.type === 'natural-language') {
     steps.value = {
       0: '📝 Parsing ingredients',
-      2: '🔍 Extracting names',
       3: '🍎 Matching foods to our database',
       4: '📊 Adding up Nutrition Facts',
       6: '✨ Finishing up',
@@ -193,7 +187,6 @@ async function fetchAndStartPolling() {
 
     pollingRates.value = {
       0: 2000,
-      2: 2000,
       3: 4000,
       4: 4000,
     };
@@ -201,7 +194,6 @@ async function fetchAndStartPolling() {
     steps.value = {
       0: '📸 Analyzing your picture',
       1: '📝 Parsing ingredients',
-      2: '🔍 Extracting names',
       3: '🍎 Matching foods to our database',
       4: '📊 Adding up Nutrition Facts',
       6: '✨ Finishing up',
@@ -209,7 +201,20 @@ async function fetchAndStartPolling() {
     pollingRates.value = {
       0: 8000,
       1: 2000,
-      2: 2000,
+      3: 4000,
+      4: 4000,
+    };
+  } else if (job.value?.type === 'media') {
+    steps.value = {
+      0: '📺 Analyzing your video',
+      1: '📝 Parsing ingredients',
+      3: '🍎 Matching foods to our database',
+      4: '📊 Adding up Nutrition Facts',
+      6: '✨ Finishing up',
+    };
+    pollingRates.value = {
+      0: 8000,
+      1: 2000,
       3: 4000,
       4: 4000,
     };

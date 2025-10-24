@@ -22,9 +22,9 @@ let state: GlobalState =
         accurate: { model: 'gpt-5', reasoning: 'low' },
       }
     : {
-        quick: { model: 'gpt-5-nano', reasoning: 'low' },
-        vision: { model: 'gpt-5-mini', reasoning: 'medium' },
-        default: { model: 'gpt-5-mini', reasoning: 'medium' },
+        quick: { model: 'gpt-5-nano', reasoning: 'minimal' }, //was low  for curated recipes
+        vision: { model: 'gpt-5-mini', reasoning: 'low' }, //was medium  for curated recipes
+        default: { model: 'gpt-5-mini', reasoning: 'low' }, //was medium  for curated recipes
         accurate: { model: 'gpt-5', reasoning: 'low' },
       };
 

@@ -155,5 +155,18 @@ export async function getBrandedFood(
         }
       : undefined,
   };
+  if (brandedFood.food_name?.food.aisle == 'Produce') {
+    // we can assume that these wont have a nutrition label
+    Object.assign(brandedFoodNonNull, {
+      kcal: brandedFood.food_name?.food.kcal,
+      protein: brandedFood.food_name?.food.protein,
+      fat: brandedFood.food_name?.food.fat,
+      carbohydrates: brandedFood.food_name?.food.carbohydrates,
+      fiber: brandedFood.food_name?.food.fiber,
+      sugar: brandedFood.food_name?.food.sugar,
+      saturated_fat: brandedFood.food_name?.food.saturated_fat,
+      salt: brandedFood.food_name?.food.salt,
+    });
+  }
   return brandedFoodNonNull as BrandedFood;
 }

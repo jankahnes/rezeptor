@@ -12,7 +12,7 @@
               class="button flex items-center gap-2 px-2 font-medium !bg-primary/10 text-primary text-xs mt-3"
             >
               <span class="material-symbols-outlined !text-lg"
-                >batch_prediction</span
+                >lightbulb</span
               >
               <span>Health Insights</span>
             </button>

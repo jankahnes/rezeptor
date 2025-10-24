@@ -76,7 +76,12 @@
         </div>
         <div
           class="flex items-center gap-2"
-          v-if="recipeStore.recipe?.user?.username"
+          v-if="
+            recipeStore.recipe?.user?.username &&
+            ['PREPARSED', 'TEXT', 'PICTURE'].includes(
+              recipeStore.recipe?.source_type
+            )
+          "
         >
           <Avatar :user="recipeStore.recipe?.user as any" class="w-8 h-8" />
           <span class="text-sm"
@@ -149,19 +154,38 @@
             {{ recipeStore.recipe?.description }}
           </span>
         </div>
-        <div class="flex gap-10 items-end">
-          <div
-            class="flex flex-1 flex-row-reverse flex-wrap-reverse gap-2 items-start justify-end"
-          >
+        <div class="flex gap-10 w-full mt-2 items-end">
+          <div class="flex-1 flex justify-between flex-col items-start">
+            <div class="flex gap-2 flex-wrap my-2 items-center">
+              <PagesRecipeSourceTypeTag
+                class="inline-flex bg-slate-700/70 text-slate-100 !rounded-full"
+                :sourceType="recipeStore.recipe?.source_type"
+                :collection="recipeStore.recipe?.collection ?? ''"
+                :source="recipeStore.recipe?.source ?? ''"
+              />
+              <div
+                class="flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100"
+                v-if="recipeStore.recipe?.original_creator_channel_name"
+              >
+                <span class="material-symbols-outlined !text-sm">favorite</span>
+                Original Creator:
+                {{ recipeStore.recipe?.original_creator_channel_name }}
+              </div>
+            </div>
             <div
-              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100"
-              v-if="mappedTags"
-              v-for="tag in mappedTags"
-              :key="tag.id"
+              class="flex flex-row-reverse flex-wrap-reverse gap-2 items-start justify-end"
             >
-              {{ tag.name }}
+              <div
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100 opacity-90"
+                v-if="mappedTags"
+                v-for="tag in mappedTags"
+                :key="tag.id"
+              >
+                {{ tag.name }}
+              </div>
             </div>
           </div>
+
           <div class="flex flex-shrink-0 flex-col gap-2 items-end justify-end">
             <button
               @click="scrollIntoView(commentSection, 100)"
@@ -187,7 +211,7 @@
             >
               Health Insights
               <span class="material-symbols-outlined !text-sm">
-                batch_prediction
+                lightbulb
               </span>
             </NuxtLink>
           </div>
@@ -322,9 +346,7 @@
           <div class="h-[6px] mx-auto bg-primary-100 rounded-lg w-16"></div>
         </div>
         <div class="flex flex-col gap-1 px-6">
-          <div
-            class="px-2 py-1 mt-4 border-3 border-primary rounded-lg self-start"
-          >
+          <div class="px-2 py-1 mt-4 self-start">
             <h1 class="text-3xl font-extrabold">
               {{ recipeStore.recipe?.title }}
             </h1>
@@ -401,9 +423,25 @@
               {{ recipeStore.recipe?.description }}
             </span>
           </div>
+          <div class="flex gap-2 flex-wrap my-2 items-center">
+            <PagesRecipeSourceTypeTag
+              class="inline-flex bg-primary-20 !rounded-full"
+              :sourceType="recipeStore.recipe?.source_type"
+              :collection="recipeStore.recipe?.collection ?? ''"
+              :source="recipeStore.recipe?.source ?? ''"
+            />
+            <div
+              class="flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-20"
+              v-if="recipeStore.recipe?.original_creator_channel_name"
+            >
+              <span class="material-symbols-outlined !text-sm">favorite</span>
+              Original Creator:
+              {{ recipeStore.recipe?.original_creator_channel_name }}
+            </div>
+          </div>
           <div class="flex flex-wrap gap-2 mt-4">
             <div
-              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium metallic-gradient-simple"
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-20 opacity-90"
               v-if="mappedTags"
               v-for="tag in mappedTags"
               :key="tag.id"
@@ -413,12 +451,10 @@
           </div>
           <NuxtLink
             :to="`/recipe/${id}/report`"
-            class="text-sm text-right px-2 py-1 rounded-lg button metallic-gradient-simple inline-flex self-start items-center gap-1 mt-4"
+            class="text-sm text-right px-2 py-1 rounded-lg button !bg-primary-50 inline-flex self-start items-center gap-1 mt-4"
           >
             Health Insights
-            <span class="material-symbols-outlined !text-sm">
-              batch_prediction
-            </span>
+            <span class="material-symbols-outlined !text-sm"> lightbulb </span>
           </NuxtLink>
           <div ref="scrollTarget" class="mt-8 h-0"></div>
           <div class="sticky top-0 bg-white z-99 py-4">
@@ -556,7 +592,8 @@ await loadRecipe(id, false);
 if (recipeStore.recipe) {
   mappedTags.value = recipeStore.recipe.tags
     .map((tag: number) => getTagByID(tag))
-    .filter((tag) => tag !== undefined) satisfies Tag[];
+    .filter((tag) => tag !== undefined)
+    .slice(0, 6) as Tag[];
   mappedTags.value.sort((a: any, b: any) => a.value - b.value);
 }
 

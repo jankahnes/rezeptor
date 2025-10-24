@@ -25,7 +25,14 @@
           </p>
         </div>
         <div class="flex justify-center gap-y-10 flex-col md:flex-row">
-          <NutritionLabel :nutritionData="product && product?.kcal !== null && product?.kcal !== undefined ? product : product?.food_name?.food ?? product" class="flex-1" />
+          <NutritionLabel
+            :nutritionData="
+              product && product?.kcal !== null && product?.kcal !== undefined
+                ? product
+                : product?.food_name?.food ?? product
+            "
+            class="flex-1"
+          />
           <div
             class="flex flex-col gap-4 p2 md:p-6"
             v-if="!hasAllNutritionFields || !isMatchedToGenericFood"
@@ -54,8 +61,17 @@
                 </button>
                 <button
                   class="button px-2 py-[5px] flex gap-2 items-center !text-white !bg-primary"
+                  @click="updateNutritionFromPicture()"
+                  :disabled="updateNutritionFromPictureIsLoading"
                 >
-                  <span class="material-symbols-outlined"> visibility </span>
+                  <img
+                    v-if="updateNutritionFromPictureIsLoading"
+                    src="/loading.png"
+                    class="h-6 w-6"
+                  />
+                  <span v-else class="material-symbols-outlined">
+                    visibility
+                  </span>
                   <span>Scan</span>
                 </button>
               </div>
@@ -122,7 +138,7 @@
           />
         </div>
         <p class="text-sm text-gray-500 mx-2 md:ml-8">
-          Nutri Score: {{ product?.nutri_score.toUpperCase() ?? 'N/A' }}
+          Nutri Score: {{ product?.nutri_score?.toUpperCase() ?? 'N/A' }}
         </p>
       </div>
     </div>
@@ -137,7 +153,25 @@ const product = ref<BrandedFood>();
 const supabase = useSupabaseClient<Database>();
 
 const matchingIsLoading = ref(false);
+const updateNutritionFromPictureIsLoading = ref(false);
 
+const updateNutritionFromPicture = async () => {
+  updateNutritionFromPictureIsLoading.value = true;
+  const response = (await $fetch('/api/db/update-nutrition-from-picture', {
+    method: 'POST',
+    body: { barcode },
+  })) as { status: string; statusMessage: string; data: any };
+  updateNutritionFromPictureIsLoading.value = false;
+  if (response && response.status === 'ok') {
+    product.value = await getBrandedFood(supabase, barcode);
+  } else {
+    throw createError({
+      statusCode: 500,
+      statusMessage: response.statusMessage,
+      data: response.data,
+    });
+  }
+};
 const nutritionalFields: (keyof BrandedFood)[] = [
   'kcal',
   'protein',
@@ -185,12 +219,11 @@ const hasAllNutritionFields = computed(
     )
 );
 const isMatchedToGenericFood = computed(
-  () => 
+  () =>
     product.value &&
     product.value?.matched_food_name_id !== null &&
     product.value?.matched_food_name_id !== undefined
 );
-
 
 useHead({
   title: product.value?.product_name + ' | Rezeptor',

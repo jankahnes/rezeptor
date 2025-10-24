@@ -19,7 +19,7 @@
     <p class="text-sm text-gray-600 ml-1 font-light mt-2">Servings:</p>
     <FormsSlidingSelector
       v-model="model.serves"
-      :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8]"
+      :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20]"
       :expanded="false"
       class="max-w-[150px]"
     />

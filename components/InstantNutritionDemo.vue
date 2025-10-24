@@ -50,7 +50,6 @@ const showDemo = async () => {
       ...parsed.ingredient.food,
     });
   }
-  console.log(computableRecipe);
   const response = await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {

@@ -260,6 +260,8 @@ export type BaseRecipe = {
   ingredients?: any | null;
   ingredients_string: string;
   processing_requirements?: ProcessingRequirement | null;
+  original_creator_channel_name?: string | null;
+  original_creator_channel_id?: string | null;
 };
 
 export type UploadableRecipe = Omit<BaseRecipe, 'ingredients_string'> & {

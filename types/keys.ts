@@ -20,6 +20,8 @@ export const recipeKeys = [
   'kcal',
   'mnidx',
   'notes',
+  'original_creator_channel_id',
+  'original_creator_channel_name',
   'picture',
   'price',
   'processing_level_score',

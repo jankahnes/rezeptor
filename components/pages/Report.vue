@@ -400,7 +400,6 @@ onMounted(async () => {
           },
         })) as { nutritionComputed: InsertableRecipe; nutrition: any };
         recipeComputed.value = response.nutritionComputed;
-        console.log(recipeComputed.value);
       }
 
       useHead({
@@ -408,7 +407,6 @@ onMounted(async () => {
       });
     } else if (props.id === 'new') {
       // Case 3: User is editing a new recipe - use calculate without convert
-      console.log(recipeStore.editingRecipe);
       const response = (await $fetch('/api/calculate/recipe', {
         method: 'POST',
         body: {

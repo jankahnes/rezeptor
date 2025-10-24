@@ -148,6 +148,40 @@ export async function getRecipes(
         mechanical_description: ingredient.mechanical_description,
       } as Ingredient;
     });
+
+    // Sort ingredients after their occurrence in the instructions
+    if (recipe.instructions && Array.isArray(recipe.instructions)) {
+      const instructionText = recipe.instructions.join(' ');
+      const ingredientOrder = new Map<number, number>();
+      let order = 0;
+
+      // Extract ingredient IDs in order of appearance using regex [text](id)
+      const regex = /\[.*?\]\((\d+)\)/g;
+      let match;
+      while ((match = regex.exec(instructionText)) !== null) {
+        const ingredientId = parseInt(match[1], 10);
+        if (!ingredientOrder.has(ingredientId)) {
+          ingredientOrder.set(ingredientId, order++);
+        }
+      }
+
+      // If we found ingredient IDs in instructions, sort by occurrence
+      if (ingredientOrder.size > 0) {
+        // Sort ingredients by their first occurrence in instructions
+        // Ingredients not in instructions will be placed at the end
+        recipe.ingredients.sort((a: Ingredient, b: Ingredient) => {
+          const orderA = ingredientOrder.get(a.id) ?? Infinity;
+          const orderB = ingredientOrder.get(b.id) ?? Infinity;
+          return orderA - orderB;
+        });
+      } else {
+        // Fallback: sort by amount (descending - largest amounts first)
+        recipe.ingredients.sort((a: Ingredient, b: Ingredient) => {
+          return b.amount - a.amount;
+        });
+      }
+    }
+
     recipe.ingredients.forEach(fillForUnits);
   }
   return recipes as Recipe[];
