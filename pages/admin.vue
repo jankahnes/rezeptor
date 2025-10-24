@@ -114,7 +114,7 @@ const updateReasoning = async (type: string, reasoning: string) => {
     try {
       await setModelConfig(type, config.model, reasoning);
       // Update local state
-      config.reasoning = reasoning as ReasoningEffort;
+      config.reasoning = reasoning as ReasoningEffort | "minimal";
     } catch (error) {
       console.error('Failed to update reasoning:', error);
     }

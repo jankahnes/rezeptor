@@ -11,6 +11,7 @@ Stick to simple, precise names without parentheses or specificites.
 
 Return as a JSON {{"generic_name": "...", "confidence": ...}} object and include how confident you are that the foods match sufficiently.
 If you dont understand or are not confident about what generic food name to return at all, but additional information like ingredients or nutrition might help, use confidence = 0.
+
 Examples:
 - "Müller Reis Vanilla" → {{"generic_name": "rice pudding", "confidence": 0.9}} -> Flavor is not relevant to nutrition, so leave out
 - "Coca-Cola Zero" → {{"generic_name": "sugar free softdrink", "confidence": 0.98}} -> Softdrink variety is not relevant for nutrition, so leave out 

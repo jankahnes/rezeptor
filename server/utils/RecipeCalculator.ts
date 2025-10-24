@@ -154,6 +154,10 @@ export default class RecipeCalculator {
 
   async computeRecipe(recipe: ComputableRecipe) {
     this.isFood = false;
+    if (!recipe.serves) {
+      console.error('WARNING: Recipe has no serves, setting to 1');
+      recipe.serves = 1;
+    }
     const computedRecipe: any = {
       total_weight: 0,
       saltiness: 1,

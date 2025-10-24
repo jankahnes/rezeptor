@@ -5,7 +5,8 @@ Importantly, you will get the ID for each ingredient in the ingredient list.
 When writing the instructions, and its the *first time* you mention one of the ingredients, format like this: [mention](ingredient_id).
 Example: Slice the [Banana](65) and put into the bowl.
 You don't have to meticulously "mention" all of the ingredients in the list because of this now, but if you do, format them.
-The instructions should still sound natural.
+The instructions should still sound natural. 
+Also, the [ingredient name] inside the brackets does not have to match the name from the ingredients, so you have freedom there, also to make it sound natural. 
 
 Required Format: json, {"description": String, "instructions": String[]}
 

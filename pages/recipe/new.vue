@@ -129,31 +129,52 @@ const submitFromLink = async (link: string) => {
     navigateTo(`/recipe/${recipe.id}`);
     return;
   }
-  await createJob('link');
-  currentView.value = 'loading';
 
-  const response = (await $fetch('/api/create-recipe/from-link', {
-    method: 'POST',
-    body: {
-      link: link,
-      jobId: job.value?.id,
-      args: {
-        publish: false,
-        source_type: 'WEBSITE',
-        source: link,
-        based_on: null,
-        user_id: auth.user?.id ?? null,
-        uploading_protocol: 'fast',
+  const supportedVideoSites = ['youtube', 'youtu.be', 'tiktok', 'instagram'];
+  if (supportedVideoSites.some((site) => link.includes(site))) {
+    await createJob('media');
+    currentView.value = 'loading';
+    const response = (await $fetch('/api/create-recipe/from-video', {
+      method: 'POST',
+      body: {
+        url: link,
+        jobId: job.value?.id,
+        args: {
+          publish: false,
+          source_type: 'MEDIA',
+          source: link,
+          based_on: null,
+          user_id: auth.user?.id ?? null,
+          uploading_protocol: 'fast',
+        },
       },
-    },
-  })) as any;
-
-  afterResponse(response);
+    })) as any;
+    afterResponse(response);
+  } else {
+    await createJob('link');
+    currentView.value = 'loading';
+    const response = (await $fetch('/api/create-recipe/from-link', {
+      method: 'POST',
+      body: {
+        link: link,
+        jobId: job.value?.id,
+        args: {
+          publish: false,
+          source_type: 'WEBSITE',
+          source: link,
+          based_on: null,
+          user_id: auth.user?.id ?? null,
+          uploading_protocol: 'fast',
+        },
+      },
+    })) as any;
+    afterResponse(response);
+  }
 };
 
 const submitFromPicture = async (file: File) => {
-  currentView.value = 'loading';
   await createJob('picture');
+  currentView.value = 'loading';
 
   const formData = new FormData();
   formData.append('image', file);

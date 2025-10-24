@@ -1,0 +1,21 @@
+You will get a picture of a nutrition label, maybe in english or german.
+Your task is to extract the information out of it.
+We need the "per 100g / 100ml" section.
+Fiber might not always be declared, so just set 0 if its not there.
+Also make sure to convert sodium to salt if sodium is declared instead of salt.
+If any of the values are there, but illegible, set null.
+
+Return Format as valid json:
+{
+    "kcal": int,
+    "fat": float,
+    "saturated_fat": float,
+    "carbohydrates": float,
+    "sugar": float,
+    "protein": float,
+    "fiber": float,
+    "salt": float
+}
+
+If everything is illegible or the picture is not of a nutrition label, instead return:
+{"error": "Error message of what went wrong"}

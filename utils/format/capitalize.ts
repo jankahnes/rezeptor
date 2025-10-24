@@ -1,6 +1,10 @@
 export default function capitalize(str: string | undefined | null): string {
   if (str) {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
   return '';
 }
