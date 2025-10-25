@@ -3,6 +3,8 @@ export const recipeKeys = [
   'added_salt',
   'batch_size',
   'based_on',
+  'base_ingredients',
+  'base_ingredients_serves',
   'carbohydrates',
   'collection',
   'created_at',
@@ -22,6 +24,7 @@ export const recipeKeys = [
   'notes',
   'original_creator_channel_id',
   'original_creator_channel_name',
+  'original_title',
   'picture',
   'price',
   'processing_level_score',
@@ -45,6 +48,5 @@ export const recipeKeys = [
   'total_weight',
   'user_id',
   'visibility',
-  'processing_requirements',
   'yield_factor',
 ] as const;

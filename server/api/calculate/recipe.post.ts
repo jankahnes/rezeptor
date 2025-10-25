@@ -40,7 +40,7 @@ export default defineEventHandler(async (event): Promise<Response> => {
     };
   }
 
-  if (!recipeCalculator?.recipe?.scores?.hidx) {
+  if (recipeCalculator?.recipe?.scores?.hidx === undefined || isNaN(recipeCalculator?.recipe?.scores?.hidx)) {
     return {
       recipeRow: null,
       recipeFoodRows: null,

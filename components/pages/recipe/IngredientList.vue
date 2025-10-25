@@ -1,5 +1,8 @@
 <template>
-  <div class="h-full flex flex-col min-w-92">
+  <div
+    class="h-full flex flex-col min-w-92 relative rounded-xl pb-4"
+    :class="{ '!bg-primary-20/80 overflow-hidden': formalizationLoading }"
+  >
     <div class="p-2 md:p-6 !pb-2">
       <div class="flex justify-between items-center w-full mb-4">
         <div
@@ -26,43 +29,56 @@
               <span>Reset Units</span>
             </button>
           </transition>
+          <button
+            v-if="displayFormalize"
+            class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform"
+            @click="formalize()"
+          >
+            <span class="material-symbols-outlined !text-sm">auto_awesome</span>
+            <span>Analyze</span>
+          </button>
         </div>
       </div>
-      <div class="mb-4" v-if="batchSize && !servingMode">
-        <p class="text-gray-600 ml-1 font-light">
-          For {{ batchSize }} {{ batchSize === 1 ? 'serving' : 'servings' }}
-        </p>
-        <p
-          @click="servingMode = !servingMode"
-          class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer italic"
-        >
-          Adjust servings
-        </p>
-      </div>
-      <div v-else>
-        <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
-        <FormsSlidingSelector
-          v-if="servingSize"
-          v-model="servingSize"
-          :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20]"
-          :expanded="false"
-          class="max-w-[180px]"
-        />
-        <p
-          v-if="batchSize"
-          @click="
-            servingMode = !servingMode;
-            servingSize = batchSize;
-          "
-          class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer mb-4 italic"
-        >
-          Show ingredients for one batch
-        </p>
+      <div v-if="ingredients && ingredients.length > 0">
+        <div class="mb-4" v-if="batchSize && !servingMode">
+          <p class="text-gray-600 ml-1 font-light">
+            For {{ batchSize }} {{ batchSize === 1 ? 'serving' : 'servings' }}
+          </p>
+          <p
+            @click="servingMode = !servingMode"
+            class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer italic"
+          >
+            Adjust servings
+          </p>
+        </div>
+        <div v-else>
+          <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
+          <FormsSlidingSelector
+            v-if="servingSize"
+            v-model="servingSize"
+            :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20]"
+            :expanded="false"
+            class="max-w-[180px]"
+          />
+          <p
+            v-if="batchSize"
+            @click="
+              servingMode = !servingMode;
+              servingSize = batchSize;
+            "
+            class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer mb-4 italic"
+          >
+            Show ingredients for one batch
+          </p>
+        </div>
       </div>
     </div>
 
     <div class="flex-1 px-2 md:px-6 py-2">
-      <div class="max-w-md space-y-4 select-none">
+      <div
+        class="max-w-md space-y-4 select-none"
+        v-if="ingredients && ingredients.length > 0"
+      >
         <template
           v-for="(group, category) in {
             uncategorized: groupedIngredients.uncategorized,
@@ -79,7 +95,7 @@
           </div>
 
           <ul
-            class="grid grid-cols-[max-content_max-content_1fr] gap-x-1 gap-y-6 ml-2"
+            class="grid grid-cols-[max-content_max-content_1fr] gap-x-1 gap-y-5 ml-2"
             role="list"
           >
             <li
@@ -98,12 +114,8 @@
               <Transition name="fade-slide" mode="out-in">
                 <span
                   :key="`${servingSize}-${ingredient?.currentUnit}`"
-                  class="tabular-nums whitespace-nowrap font-semibold cursor-pointer"
+                  class="tabular-nums whitespace-nowrap font-bold cursor-pointer"
                   @click="onClickIngredient(ingredient)"
-                  :class="{
-                    '!font-normal italic':
-                      ingredient?.amount === 0 || ingredient?.unit === 'FREE',
-                  }"
                 >
                   {{
                     getStringFromAmountInfo(
@@ -112,7 +124,7 @@
                     )
                   }}
                   <span
-                    class="font-light text-xs ml-[2px] text-gray-600"
+                    class="font-light text-sm text-gray-600 italic"
                     v-if="
                       isCountable(
                         ingredient?.amountInfo?.[ingredient?.currentUnit][1]
@@ -128,16 +140,15 @@
               </Transition>
 
               <NuxtLink :to="`/foods/${ingredient.id}`" class="cursor-pointer">
-                <span class="ml-2 text-nowrap whitespace-nowrap">{{
+                <span class="text-nowrap whitespace-nowrap font-medium">{{
                   getIngredientName(ingredient)
                 }}</span>
-                <span
-                  v-if="ingredient.preparation_description"
-                  class="font-light text-xs mt-1 text-gray-600 -ml-1"
-                >
-                  , {{ ingredient.preparation_description }}
-                </span>
-              </NuxtLink>
+              <span
+              v-if="ingredient.preparation_description"
+              class="font-light text-gray-600 text-sm italic -ml-1 mt-1"
+              >, {{ ingredient.preparation_description }}
+            </span>
+          </NuxtLink>
             </li>
           </ul>
         </template>
@@ -153,37 +164,70 @@
             Add to Shopping List
           </button>
         </Transition>
-        <div
-          v-if="!props.ingredients || props.ingredients.length === 0"
-          class="text-center py-12"
-        >
+        <div class="flex gap-2 items-center flex-wrap">
           <div
-            class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center"
+            class="flex gap-2 items-center bg-primary-20 rounded-xl px-2"
+            v-if="addedInfo?.addedFat && getAdded(addedInfo?.addedFat) >= 1"
           >
-            <span class="material-symbols-outlined text-2xl text-gray-400"
-              >shopping_cart</span
+            <span class="material-symbols-outlined !text-lg">water_drop</span>
+            <span class="text-xs font-medium"
+              >Plus estimated ~{{ getAdded(addedInfo?.addedFat) }}g of fat</span
             >
           </div>
-          <h3 class="text-lg font-medium text-gray-700 mb-2">
-            No Ingredients Listed
-          </h3>
-          <p class="text-sm text-gray-500">
-            Ingredients for this recipe haven't been added yet.
+          <div
+            class="flex gap-2 items-center bg-primary-20 rounded-xl px-2"
+            v-if="
+              addedInfo?.addedSalt && getAdded(addedInfo?.addedSalt) >= 0.75
+            "
+          >
+            <span class="material-symbols-outlined !text-lg">grain</span>
+            <span class="text-xs font-medium"
+              >Plus estimated ~{{ getAdded(addedInfo?.addedSalt) }}g of
+              salt</span
+            >
+          </div>
+        </div>
+      </div>
+      <!-- No formal ingredients, display base ingredients-->
+      <div v-else class="flex flex-col">
+        <div v-for="baseIngredient in baseIngredients" :key="baseIngredient">
+          <p class="ml-1 font-light leading-relaxed text-base tracking-wider">
+            {{ baseIngredient }}
           </p>
         </div>
       </div>
     </div>
+    <div
+      class="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent p-4 pointer-events-none"
+      v-if="formalizationLoading"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+type AddedInfo = {
+  addedFat: number;
+  addedSalt: number;
+  batchSize: number;
+};
 const props = defineProps({
   ingredients: Array<any>,
+  baseIngredients: Array<string>,
   hideHeader: Boolean,
   batchSize: Number,
   servingSize: Number,
   recipeId: Number,
+  formalizationLoading: Boolean,
+  displayFormalize: Boolean,
+  formalize: { type: Function as PropType<() => void>, required: true },
+  addedInfo: Object as PropType<AddedInfo>,
 });
+
+const getAdded = (added: number) => {
+  return Math.round(
+    ((servingSize.value ?? 1) * added) / (props.batchSize ?? 1)
+  );
+};
 
 const emit = defineEmits(['update:servingSize']);
 

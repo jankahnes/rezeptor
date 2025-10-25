@@ -9,12 +9,26 @@ export const useRecipeStore = defineStore('recipe', () => {
   const supabase = useSupabaseClient();
   const indexRecipes = ref<RecipeOverview[]>([]);
   const isEditingNew = ref(false);
+  const cachedSocialPictures = ref<Record<string, string | null>>({});
+
+  async function getSocialPicture(source: string, noFetch: boolean = false): Promise<string | null> {
+    if (cachedSocialPictures.value[source]) {
+      return cachedSocialPictures.value[source];
+    }
+    if (noFetch) {
+      return null;
+    }
+    const picture = await getThumbnailUrl(source);
+    cachedSocialPictures.value[source] = picture;
+    return picture;
+  }
 
   async function setIndexRecipes(recipes: RecipeOverview[]) {
     indexRecipes.value = recipes;
   }
 
   async function deleteRecipe(id: number) {
+    //@ts-ignore
     const filtered: RecipeOverview[] = indexRecipes.value.filter(
       (recipe) => recipe.id !== id
     );
@@ -148,5 +162,6 @@ export const useRecipeStore = defineStore('recipe', () => {
     setIndexRecipes,
     setEditingRecipe,
     deleteRecipe,
+    getSocialPicture,
   };
 });

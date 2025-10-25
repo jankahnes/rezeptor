@@ -5,7 +5,7 @@ export async function getCount(
   opts: GetterOpts = {}
 ): Promise<number> {
   let query = client.from('recipes').select('*', {
-    count: 'estimated',
+    count: 'exact',
     head: true,
   });
 

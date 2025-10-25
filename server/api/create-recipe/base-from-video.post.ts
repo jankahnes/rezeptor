@@ -1,13 +1,9 @@
 import type { BaseRecipe } from '~/types/types';
 
-import { serverSupabaseServiceRole } from '#supabase/server';
-import type { Database } from '~/types/supabase';
-
-//Uploads a recipe from a video
+//Returns a BaseRecipe object from a video
 export default defineEventHandler(async (event) => {
   const input = await readBody(event);
-  const { url, args, jobId } = input;
-  const supabase = serverSupabaseServiceRole<Database>(event);
+  const { url, args } = input;
 
   const responseBase = (await $fetch(
     'https://jk-api.onrender.com/extract-recipe-from-video',
@@ -24,34 +20,22 @@ export default defineEventHandler(async (event) => {
     !responseBase.ingredients_string ||
     !responseBase.serves ||
     !responseBase.title
-  )
+  ) {
+    console.error(
+      'No valid content returned from video extraction response, missing required fields:'
+    );
+    console.error(JSON.stringify(responseBase, null, 2));
     throw new Error(
       'No valid content returned from video extraction response, missing required fields'
     );
+  }
   Object.assign(responseBase, args);
   responseBase.original_creator_channel_name = responseBase.channel ?? null;
   responseBase.original_creator_channel_id = responseBase.channel_id ?? null;
+  responseBase.base_ingredients = responseBase.ingredients_string
+    .split('\n')
+    .map((ingredient: string) => ingredient.trim())
+    .filter((ingredient: string) => ingredient.length > 3);
 
-  if (jobId) {
-    await supabase
-      .from('jobs')
-      .update({
-        step_index: 1,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', jobId);
-  }
-
-  const headers = getRequestHeaders(event);
-  return await $fetch('/api/create-recipe/from-base', {
-    method: 'POST',
-    headers: {
-      cookie: headers.cookie || '',
-      authorization: headers.authorization || '',
-    },
-    body: {
-      base_recipe_information: responseBase as BaseRecipe,
-      jobId: jobId,
-    },
-  });
+  return responseBase as BaseRecipe;
 });

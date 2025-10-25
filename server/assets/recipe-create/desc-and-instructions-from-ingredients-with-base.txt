@@ -4,7 +4,10 @@ Then, look at the instructions. You will get the ID for each ingredient in the i
 Re-write the instructions just like given, but the *first time* any of the ingredients from the list is mentioned, format like this: [mention](ingredient_id).
 Example: Slice the [Banana](65) and put into the bowl.
 You can correct writing mistakes, but the wording should stay the same. Kick out steps that seem like "headlines" or arent actual instructions, or move the text inside to the next instruction where it makes sense.
-Except for when you think the instructions are not at all sufficient (doesnt describe how to make the recipe), or arent instructions at all, then formulate them yourself.
+Except for when you think the instructions are not at all sufficient, then formulate them yourself. Cases for this:
+    - Doesnt describe how to make the recipe,
+    - Not instructions at all,
+    - or missing key steps.
 In that rare case, try to make it sound natural, and dont meticulously "mention" all of the ingredients in the list because of the formatting requirement.
 Also, the [ingredient name] inside the brackets does not have to match the name from the ingredients, so keep the wording from the original.
 

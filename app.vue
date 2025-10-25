@@ -2,36 +2,76 @@
   <div class="bg-main font-main" v-if="$route.path !== '/onboarding'">
     <NavbarsTop class="hidden xm:block" />
     <div
-      class="xm:pt-22 pb-18 xm:pb-0 w-[clamp(70vw,1550px,100%)] mx-auto min-h-[100svh] xm:min-h-[calc(100svh_-_88px)]"
+      class="xm:pt-22 pb-18 xm:pb-0 w-[clamp(70vw,1550px,100%)] mx-auto min-h-[100svh] xm:min-h-[calc(100svh_-_88px)] z-0"
     >
       <NuxtPage />
       <GlobalLoadingIndicator />
     </div>
     <NavbarsBottom class="block xm:hidden" />
 
-    <!-- Shopping List Toggle Button -->
-    <button
-      v-if="auth.shoppingList.length > 0"
-      @click="auth.shoppingListOpen = !auth.shoppingListOpen"
-      class="hidden sm:flex fixed bottom-5 right-5 w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
-      :class="{
-        'bg-white !text-primary border-2 border-primary-600':
-          auth.shoppingListOpen,
-      }"
-    >
-      <span v-if="!auth.shoppingListOpen" class="material-symbols-outlined">shopping_cart</span>
-      <span v-else class="material-symbols-outlined">close</span>
-      <span
-        class="w-6 h-6 absolute top-[-4px] right-[-4px] bg-white border-primary-600 border-2 text-primary font-bold rounded-full flex items-center justify-center"
-        >{{ auth.shoppingList.length }}</span
+    <!-- Global Toast Area (Desktop) -->
+    <div class="hidden sm:flex fixed bottom-5 right-5 gap-4 items-center z-10">
+      <Transition name="fade-up">
+        <!-- Loading Toast -->
+        <div
+          v-if="loadingStore.toastLoadingMessage"
+          class="flex items-center gap-4 bg-primary-20 rounded-lg px-4 py-2 z-10"
+        >
+          <img
+            v-if="!loadingStore.isTransient"
+            src="/loading.png"
+            class="h-4 w-4 opacity-50"
+          />
+          <p class="opacity-70 text-sm text-nowrap">
+            {{ loadingStore.toastLoadingMessage }}
+          </p>
+        </div>
+      </Transition>
+      <!-- Shopping List Toggle Button -->
+      <button
+        v-if="auth.shoppingList.length > 0"
+        @click="auth.shoppingListOpen = !auth.shoppingListOpen"
+        class="w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
+        :class="{
+          'bg-white !text-primary border-2 border-primary-600':
+            auth.shoppingListOpen,
+        }"
       >
-    </button>
+        <span v-if="!auth.shoppingListOpen" class="material-symbols-outlined"
+          >shopping_cart</span
+        >
+        <span v-else class="material-symbols-outlined">close</span>
+        <span
+          class="w-6 h-6 absolute top-[-4px] right-[-4px] bg-white border-primary-600 border-2 text-primary font-bold rounded-full flex items-center justify-center"
+          >{{ auth.shoppingList.length }}</span
+        >
+      </button>
+    </div>
+    <Transition name="fade-up">
+      <div
+        v-if="loadingStore.toastLoadingMessage"
+        class="flex sm:hidden fixed bottom-20 w-full z-10 justify-center"
+      >
+        <div
+          class="flex items-center gap-4 bg-primary-20 rounded-lg pl-3 pr-2 py-1"
+        >
+          <img
+            v-if="!loadingStore.isTransient"
+            src="/loading.png"
+            class="h-4 w-4 opacity-60"
+          />
+          <p class="opacity-80 text-sm text-nowrap">
+            {{ loadingStore.toastLoadingMessage }}
+          </p>
+        </div>
+      </div>
+    </Transition>
     <button
       v-if="auth.shoppingList.length > 0 && !auth.shoppingListOpen"
       @click="auth.shoppingListOpen = true"
-      class="flex sm:hidden fixed top-1/2 left-0 translate-x-[-50%] -translate-y-1/2 w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
+      class="flex sm:hidden fixed top-1/2 left-0 -translate-x-8 -translate-y-1/2 w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
     >
-      <span class="material-symbols-outlined !text-lg -mr-6 mt-1"
+      <span class="material-symbols-outlined !text-base -mr-6 mt-1"
         >shopping_cart</span
       >
     </button>
@@ -51,7 +91,7 @@
 
 <script setup>
 const auth = useAuthStore();
-
+const loadingStore = useLoadingStore();
 useHead({
   title: 'Rezeptor',
   meta: [
@@ -68,4 +108,27 @@ onBeforeMount(() => {
 });
 </script>
 
-<style></style>
+<style>
+.fade-up-enter-active,
+.fade-up-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-up-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.fade-up-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-up-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-up-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+</style>

@@ -2,7 +2,7 @@ import {
   serverSupabaseServiceRole,
   serverSupabaseUser,
 } from '#supabase/server';
-import type { UploadableRecipe, FullIngredient } from '~/types/types';
+import type { ComputableRecipe, InsertableRecipe } from '~/types/types';
 import convertUploadableToComputable from '~/server/utils/convertUploadableToComputable';
 import type { Database } from '~/types/supabase';
 
@@ -275,68 +275,38 @@ export default defineEventHandler(async (event) => {
   }
 
   const client = serverSupabaseServiceRole<Database>(event);
-  const body = await readBody<
-    UploadableRecipe & {
-      jobId: number;
-      fullIngredients: FullIngredient[] | null | undefined;
-    }
-  >(event);
-  const isEditable =
-    body.fullIngredients &&
-    body.fullIngredients.length &&
-    !body.useNaturalLanguage;
-  if (!isEditable && body.fullIngredients) {
-    for (const ingredient of body.fullIngredients) {
-      if (ingredient.id === null) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'All ingredients must have an id',
-        });
-      }
-    }
-  }
-  let recipe;
-  if (!isEditable) {
-    recipe = await convertUploadableToComputable(body, client);
-  } else {
-    recipe = body;
-  }
-  console.log('🔍 Recipe converted to editable.');
+  const body: ComputableRecipe & { full: Boolean } = await readBody(event);
+
   const calculatorArgs = {
-    recipe: recipe,
+    recipe: body,
     useGpt: false,
     logToReport: true,
     isFood: false,
     considerProcessing: false,
   };
-  if (body.uploading_protocol === 'accurate') {
-    calculatorArgs.useGpt = true;
-  } else if (
-    (body.uploading_protocol === 'full' || body.publish) &&
-    !body.processing_requirements?.full_nutri_processing
-  ) {
+
+  if (body.full) {
     calculatorArgs.useGpt = true;
     calculatorArgs.considerProcessing = true;
-    body.processing_requirements!.full_nutri_processing = true;
   }
-
   const response = (await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {
       calculatorArgs: calculatorArgs,
     },
-  })) satisfies { recipeRow: any; recipeFoodRows: any[]; recipeTagRows: any[] };
+  })) satisfies {
+    recipeRow: InsertableRecipe;
+    recipeFoodRows: any[];
+    recipeTagRows: any[];
+  };
 
-  console.log('🔍 Recipe computed.');
-  if (body.jobId) {
-    await client
-      .from('jobs')
-      .update({
-        step_index: 6,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', body.jobId);
+  if (body.full) {
+    response.recipeRow.visibility = 'PUBLIC';
+    response.recipeRow.full_nutritional_processing = true;
+  } else {
+    response.recipeRow.visibility = 'UNLISTED';
   }
+  delete response.recipeRow.picture;
 
   // Determine if we should update existing recipe or insert new one
   const shouldUpdate =

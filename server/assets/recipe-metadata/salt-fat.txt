@@ -11,6 +11,7 @@ ADDED FAT (in grams for entire recipe, not per serving):
 - Only count fat that would be added during cooking but isn't listed in ingredients
 - If recipe already lists all used and sufficient cooking oil/butter or no fat is needed at all, set to 0!
 - Number returned should represent extra fat that ends up on the plate, and is used for nutritional calculations; so account for absorption vs what stays in the pan
+- Number should be total added fat relative to the ingredient amounts listed, not per serving.
 - Consider cooking methods. Examples:
 * Stir fry (no oil listed): ~15-25g oil for 4 servings, ~80% absorbed = 12-20g
 * Pan-fried chicken: ~10-15g oil per serving, ~70% absorbed

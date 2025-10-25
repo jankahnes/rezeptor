@@ -8,17 +8,37 @@
       v-if="recipeStore.recipe"
     >
       <div
-        v-if="recipeStore.recipe?.picture"
-        class="relative w-full rounded-xl overflow-hidden h-150"
+        v-if="recipeStore.recipe.picture || job?.step === 'pre_publish'"
+        class="relative w-full rounded-xl overflow-hidden h-150 aspect-square flex justify-center"
       >
         <NuxtImg
-          :src="recipeStore.recipe?.picture"
+          v-if="recipeStore.recipe.picture"
+          :src="recipeStore.recipe.picture"
           class="w-full h-full object-contain"
+        />
+        <Skeleton
+          v-else
+          class="h-full aspect-square object-contain rounded-full"
         />
       </div>
       <div
-        class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto relative z-10 -mt-80"
-        :class="!recipeStore.recipe?.picture ? ' mt-10' : ''"
+        v-else-if="recipeStore.recipe.social_picture"
+        class="relative h-150 flex justify-center aspect-9/16 mx-auto"
+      >
+        <NuxtImg
+          :src="recipeStore.recipe.social_picture"
+          class="h-full object-cover rounded-xl"
+        />
+      </div>
+      <div
+        class="max-w-screen-lg flex flex-col gap-2 bg-primary text-white p-8 rounded-xl mx-auto relative z-10"
+        :class="
+          hasPicture ||
+          job?.step === 'pre_publish' ||
+          recipeStore.recipe.social_picture
+            ? '-mt-70'
+            : 'mt-10'
+        "
       >
         <div class="flex justify-between items-start gap-10">
           <h1 class="text-5xl font-bold tracking-tight">
@@ -156,7 +176,7 @@
         </div>
         <div class="flex gap-10 w-full mt-2 items-end">
           <div class="flex-1 flex justify-between flex-col items-start">
-            <div class="flex gap-2 flex-wrap my-2 items-center">
+            <div class="flex gap-2 flex-wrap my-2">
               <PagesRecipeSourceTypeTag
                 class="inline-flex bg-slate-700/70 text-slate-100 !rounded-full"
                 :sourceType="recipeStore.recipe?.source_type"
@@ -164,7 +184,7 @@
                 :source="recipeStore.recipe?.source ?? ''"
               />
               <div
-                class="flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100"
+                class="flex items-center px-3 py-1 rounded-full text-sm font-medium bg-slate-700/70 text-slate-100 gap-2"
                 v-if="recipeStore.recipe?.original_creator_channel_name"
               >
                 <span class="material-symbols-outlined !text-sm">favorite</span>
@@ -219,11 +239,20 @@
       </div>
       <div class="flex gap-10 gap-y-6 mt-10 max-w-screen-lg mx-auto flex-wrap">
         <PagesRecipeIngredientList
+          :addedInfo="{
+            addedFat: recipeStore.recipe?.added_fat ?? 0,
+            addedSalt: recipeStore.recipe?.added_salt ?? 0,
+            batchSize: recipeStore.recipe?.batch_size ?? 1,
+          }"
           :ingredients="recipeStore.recipe?.ingredients"
+          :baseIngredients="recipeStore.recipe?.base_ingredients ?? []"
           :batchSize="recipeStore.recipe?.batch_size ?? undefined"
           :recipeId="recipeStore.recipe?.id"
           v-model:servingSize="servingSize"
           class="flex-1"
+          :formalizationLoading="job?.step === 'formalizing_ingredients'"
+          :displayFormalize="displayIngredientsFormalize"
+          :formalize="formalizeIngredients"
         ></PagesRecipeIngredientList>
         <PagesRecipeInstructionContainer
           v-if="recipeStore.recipe"
@@ -232,18 +261,29 @@
           :servingSize="servingSize"
           class="flex-1"
           :hideHeader="false"
+          :formalizationLoading="job?.step === 'formalizing_instructions'"
+          :displayFormalize="displayInstructionsFormalize"
+          :formalize="formalizeInstructions"
         ></PagesRecipeInstructionContainer>
         <NutritionLabel
           ref="nutritionSection"
-          v-if="recipeStore.recipe"
+          v-if="recipeStore.recipe.kcal"
           :nutritionData="recipeStore.recipe"
           class="flex-1"
         ></NutritionLabel>
+        <Skeleton
+          v-else-if="job?.step === 'formalizing_ingredients'"
+          class="h-90 rounded-2xl flex-[1_1_20rem]"
+        />
         <HealthFacts
-          v-if="recipeStore.recipe"
+          v-if="recipeStore.recipe.hidx"
           :recipe="recipeStore.recipe"
           class="flex-1"
         ></HealthFacts>
+        <Skeleton
+          v-else-if="job?.step === 'formalizing_ingredients'"
+          class="h-90 rounded-2xl flex-[1_1_20rem]"
+        />
         <PagesRecipePublishChecklist
           v-if="
             recipeStore.recipe &&
@@ -251,7 +291,7 @@
               auth.user?.id === recipeStore.recipe?.user?.id)
           "
           :recipe="recipeStore.recipe"
-          :refresh="loadRecipe"
+          :refresh="loadRecipeWithoutLoading"
           class="flex-1 flex-shrink-0 w-full"
         ></PagesRecipePublishChecklist>
         <PagesRecipeCommentSection
@@ -281,9 +321,18 @@
       <div
         class="w-full h-100 bg-no-repeat p-4 relative z-0 bg-[length:105%] bg-[position:center_30px]"
         :class="{
-          '!h-40': !recipeStore.recipe?.picture,
+          '!h-40':
+            !hasPicture &&
+            job?.step !== 'pre_publish' &&
+            !recipeStore.recipe?.social_picture,
+          'bg-cover !bg-[position:center]':
+            !recipeStore.recipe.picture && recipeStore.recipe?.social_picture,
         }"
-        :style="{ backgroundImage: `url(${recipeStore.recipe?.picture})` }"
+        :style="{
+          backgroundImage: `url(${
+            recipeStore.recipe?.picture || recipeStore.recipe?.social_picture
+          })`,
+        }"
       >
         <div
           class="absolute inset-0 bg-gradient-to-b from-main via-transparent to-transparent opacity-35 z-0 h-70"
@@ -335,13 +384,13 @@
         ref="mobileOverlay"
         class="bg-white rounded-t-4xl z-10 relative"
         :class="{
-          'border-t-1 border-primary-100': recipeStore.recipe?.picture,
+          'border-t-1 border-primary-100': hasPicture,
         }"
         :style="{ marginTop: `${overlayMarginTop}px` }"
       >
         <div
           class="w-full h-14 flex items-center justify-center cursor-pointer"
-          v-if="recipeStore.recipe?.picture"
+          v-if="hasPicture"
         >
           <div class="h-[6px] mx-auto bg-primary-100 rounded-lg w-16"></div>
         </div>
@@ -431,7 +480,7 @@
               :source="recipeStore.recipe?.source ?? ''"
             />
             <div
-              class="flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-20"
+              class="flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-20 gap-2"
               v-if="recipeStore.recipe?.original_creator_channel_name"
             >
               <span class="material-symbols-outlined !text-sm">favorite</span>
@@ -466,13 +515,22 @@
           </div>
           <div>
             <PagesRecipeIngredientList
+              :addedInfo="{
+                addedFat: recipeStore.recipe?.added_fat ?? 0,
+                addedSalt: recipeStore.recipe?.added_salt ?? 0,
+                batchSize: recipeStore.recipe?.batch_size ?? 1,
+              }"
               :ingredients="recipeStore.recipe?.ingredients"
+              :baseIngredients="recipeStore.recipe?.base_ingredients ?? []"
               class="flex-1"
               v-if="mobileChosen === 'ingredients'"
               :hideHeader="true"
               :batchSize="recipeStore.recipe?.batch_size ?? undefined"
               :recipeId="recipeStore.recipe?.id"
+              :formalizationLoading="job?.step === 'formalizing_ingredients'"
               v-model:servingSize="servingSize"
+              :displayFormalize="displayIngredientsFormalize"
+              :formalize="formalizeIngredients"
             ></PagesRecipeIngredientList>
             <PagesRecipeInstructionContainer
               v-if="
@@ -483,19 +541,30 @@
               :servingSize="servingSize"
               class="flex-1"
               :hideHeader="true"
+              :formalizationLoading="job?.step === 'formalizing_instructions'"
+              :displayFormalize="displayInstructionsFormalize"
+              :formalize="formalizeInstructions"
             ></PagesRecipeInstructionContainer>
           </div>
           <NutritionLabel
             id="nutrition"
-            v-if="recipeStore.recipe"
+            v-if="recipeStore.recipe.kcal"
             :nutritionData="recipeStore.recipe"
             class="flex-1 mt-8"
           ></NutritionLabel>
+          <Skeleton
+            v-else-if="job?.step === 'formalizing_ingredients'"
+            class="w-105 h-91 flex-1 rounded-xl"
+          />
           <HealthFacts
-            v-if="recipeStore.recipe"
+            v-if="recipeStore.recipe.hidx"
             :recipe="recipeStore.recipe"
             class="flex-1 mt-8"
           ></HealthFacts>
+          <Skeleton
+            v-else-if="job?.step === 'formalizing_ingredients'"
+            class="w-105 h-91 flex-1 rounded-xl"
+          />
           <PagesRecipePublishChecklist
             v-if="
               recipeStore.recipe &&
@@ -503,7 +572,7 @@
                 auth.user?.id === recipeStore.recipe?.user?.id)
             "
             :recipe="recipeStore.recipe"
-            :refresh="loadRecipe"
+            :refresh="loadRecipeWithoutLoading"
             class="flex-1 flex-shrink-0 w-full"
           ></PagesRecipePublishChecklist>
           <PagesRecipeCommentSection :id="10"></PagesRecipeCommentSection>
@@ -537,7 +606,15 @@ const auth = useAuthStore();
 const { useAsyncDataWithLoading } = useGlobalLoading();
 
 const id = Number(route.params.id);
-const mappedTags = ref<Tag[]>([]);
+const mappedTags = computed(() => {
+  if (!recipeStore.recipe?.tags) return [];
+  return (
+    (recipeStore.recipe?.tags
+      .map((tag: number) => getTagByID(tag))
+      .filter((tag) => tag !== undefined)
+      .slice(0, 6) as Tag[]) ?? []
+  );
+});
 const mobileChosen = ref('ingredients');
 const mobileChoices = ref<{ value: string; displayName: string }[]>([
   { value: 'ingredients', displayName: 'INGREDIENTS' },
@@ -557,10 +634,109 @@ const showFullDescriptionMobile = ref(false);
 const desktopCharLimit = 200;
 const mobileCharLimit = 200;
 
-const overlayMarginTop = ref(-150);
-
 const similarRecipes = ref<RecipeOverview[]>([]);
 const isRecomputing = ref(false);
+
+const jobId = ref(Number(route.query.poll as string) ?? null);
+
+const disableFormalizeButtons = ref(false);
+
+const displayIngredientsFormalize = computed(() => {
+  return !!(
+    !disableFormalizeButtons.value &&
+    !job?.value?.step &&
+    ((auth.user?.id === recipeStore.recipe?.user?.id &&
+      !recipeStore.recipe?.ingredients?.length) ||
+      auth.user?.username === 'administrator') &&
+    recipeStore.recipe?.base_ingredients
+  );
+});
+
+const displayInstructionsFormalize = computed(() => {
+  const publishingRequirements = getPublishingRequirements(recipeStore.recipe);
+  return !!(
+    !disableFormalizeButtons.value &&
+    !job?.value?.step &&
+    !displayIngredientsFormalize.value &&
+    auth.user?.id === recipeStore.recipe?.user?.id &&
+    publishingRequirements.hasInstructions &&
+    !publishingRequirements.instructionsMatchedToIngredients
+  );
+});
+
+const formalizeIngredients = async () => {
+  disableFormalizeButtons.value = true;
+  const job = await createJob(
+    supabase,
+    'formalize_ingredients',
+    'formalizing_ingredients'
+  );
+  jobId.value = job.id;
+  onJobStepChange('formalizing_ingredients', null);
+  $fetch('/api/create-recipe/postprocess-ingredients', {
+    method: 'POST',
+    body: {
+      recipeId: id,
+      jobId: jobId.value,
+    },
+  });
+  start();
+};
+
+const formalizeInstructions = async () => {
+  disableFormalizeButtons.value = true;
+  const job = await createJob(
+    supabase,
+    'formalize_instructions',
+    'formalizing_instructions'
+  );
+  jobId.value = job.id;
+  onJobStepChange('formalizing_instructions', null);
+  $fetch('/api/create-recipe/postprocess-instructions', {
+    method: 'POST',
+    body: {
+      recipeId: id,
+      jobId: jobId.value,
+    },
+  });
+  start();
+};
+
+const { job, isPolling, error, start, stop, restart, fetchJob } = useJobPolling(
+  jobId,
+  supabase
+);
+
+const loadingStore = useLoadingStore();
+
+const loadingMessages = {
+  formalizing_ingredients: 'Analyzing ingredients ✨',
+  formalizing_instructions: 'Analyzing instructions ✨',
+  pre_publish: 'Finishing up 🎉',
+  '': '',
+  idle: '',
+} as Record<string, string>;
+
+function onJobStepChange(newStep: string | null, oldStep: string | null) {
+  loadingStore.displayToast(loadingMessages[newStep ?? '']);
+  if (newStep === 'formalizing_ingredients' && job.value?.message) {
+    loadingStore.displayToast(job.value?.message);
+  }
+  if (newStep !== oldStep && oldStep !== null && oldStep !== undefined) {
+    loadRecipeWithoutLoading(id, true);
+    if (!newStep) {
+      loadingStore.displayTransientToast('Done! 🎉');
+      stop();
+    }
+  }
+}
+
+watch(
+  () => job.value?.step,
+  (newStep, oldStep) => {
+    onJobStepChange(newStep, oldStep);
+  }
+);
 
 watch(
   () => recipeStore.recipe?.picture,
@@ -575,6 +751,16 @@ watch(
   { immediate: true }
 );
 
+const hasPicture = computed(() => {
+  return !!(
+    recipeStore.recipe?.picture || recipeStore.recipe?.source_type === 'MEDIA'
+  );
+});
+
+const overlayMarginTop = computed(() => {
+  return hasPicture.value ? -100 : -75;
+});
+
 const loadRecipe = async (recipeId: number, force: boolean = false) => {
   if (recipeId && (force || recipeStore.recipe?.id !== recipeId)) {
     const { data } = await useAsyncDataWithLoading('recipe', () =>
@@ -583,19 +769,35 @@ const loadRecipe = async (recipeId: number, force: boolean = false) => {
       })
     );
     const recipe = data.value as Recipe;
+    if (!recipe.picture && recipe.source_type === 'MEDIA') {
+      recipe.social_picture = await recipeStore.getSocialPicture(
+        recipe.source ?? '',
+        true
+      );
+    }
     recipeStore.setRecipe(recipe);
   }
 };
 
-await loadRecipe(id, false);
+const loadRecipeWithoutLoading = async (
+  recipeId: number,
+  force: boolean = false
+) => {
+  if (recipeId && (force || recipeStore.recipe?.id !== recipeId)) {
+    const recipe = await getRecipe(supabase, {
+      eq: { id: recipeId },
+    });
+    if (!recipe.picture && recipe.source_type === 'MEDIA') {
+      recipe.social_picture = await recipeStore.getSocialPicture(
+        recipe.source ?? '',
+        false
+      );
+    }
+    recipeStore.setRecipe(recipe as Recipe);
+  }
+};
 
-if (recipeStore.recipe) {
-  mappedTags.value = recipeStore.recipe.tags
-    .map((tag: number) => getTagByID(tag))
-    .filter((tag) => tag !== undefined)
-    .slice(0, 6) as Tag[];
-  mappedTags.value.sort((a: any, b: any) => a.value - b.value);
-}
+await loadRecipe(id, false);
 
 if (recipeStore.recipe?.batch_size) {
   servingSize.value = recipeStore.recipe?.batch_size;
@@ -630,17 +832,24 @@ const scrollIntoView = async (target: any, offset: number = 0) => {
 };
 
 onMounted(async () => {
+  if (
+    !recipeStore.recipe?.picture &&
+    recipeStore.recipe?.source_type === 'MEDIA'
+  ) {
+    recipeStore.recipe.social_picture = await recipeStore.getSocialPicture(
+      recipeStore.recipe.source ?? '',
+      false
+    );
+  }
+  start();
   const { track, trackTimeSpent } = useEngagement();
   track(id, 'click');
   trackTimeSpent(id);
-  if (!recipeStore.recipe?.picture) {
-    overlayMarginTop.value = -80;
-  }
   const recipes = await getRecipeOverviews(supabase, {
-    eq: { visibility: 'PUBLIC' },
+    //eq: { visibility: 'PUBLIC' },
     neq: { id },
-    not: { picture: null },
-    orderBy: { column: 'created_at', ascending: false },
+    or: 'picture.not.eq.null,source_type.eq.MEDIA',
+    trigram_search: { query: recipeStore.recipe?.title ?? '', column: 'title' },
     limit: 3,
   });
   similarRecipes.value = recipes as RecipeOverview[];
@@ -712,7 +921,6 @@ const regeneratePicture = async () => {
   const payload = {
     title: recipeStore.recipe?.title,
     instructions: recipeStore.recipe?.instructions,
-    processing_requirements: recipeStore.recipe?.processing_requirements,
   };
   const response = await $fetch('/api/create-recipe/get-processed-image', {
     method: 'POST',
@@ -739,11 +947,6 @@ const regeneratePicture = async () => {
     .from('recipes')
     .update({
       picture: imageData.publicUrl,
-      processing_requirements: {
-        ...(recipeStore.recipe
-          ?.processing_requirements as ProcessingRequirement),
-        has_picture: true,
-      },
     })
     .eq('id', recipeStore.recipe!.id);
   regeneratePictureLoading.value = false;

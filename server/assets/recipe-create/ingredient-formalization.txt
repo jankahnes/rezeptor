@@ -1,4 +1,9 @@
 You will be getting a list of ingredients for a recipe in text format.
+Input Ingredient List is for the recipe {recipe_title}:
+---
+{ingredient_list}
+---
+
 Your task is to formalize the ingredients list as a JSON object in this format:
 
 {
@@ -13,7 +18,7 @@ Name:
     - Will be used to match the food to a database of general foods
     -> Format into title case if it isnt already.
     -> Specific varieties, kinds, cultivars go here
-    -> The form the food comes in goes here. Example: "1 can of Pineapple" -> name="Canned Pinapple"
+    -> The form the food comes in goes here. Example: "1 can of Pineapple" -> name="Canned Pinapple". Do not omit important food forms like "Canned" in the name, even though its only implied by the unit.
     -> In rare cases, processing specifiers also go here, if the recipe calls for the already processed form and again, it matters for nutrition or weight, or its a clear general food.
         - "Cooked Pasta" vs "Pasta" extra="cooked" -> You should infer the difference by the amounts called for per serving / relative to other ingredients.
         - For "Pregrated Parmesan", the pre-processing doesnt matter, so you can put "pregrated" in extra.
@@ -21,23 +26,26 @@ Name:
     -> "Fresh", "Raw", "Whole" are already implied. You can put them in extra. Meanwhile "Dried" changes the weight, so it has to go in name.
     -> Examples for correct names: "Honeycrisp Apple", "Kale", "Dried Basil", "Vietnamese Mustard Greens"
     × Not into name belong: Provided Alternatives (go in extra), words like "Optional" (also extra). "Butter or Margerine" -> "Butter", extra="or Margerine"
-Amount:
-    - No thinking about this required, just copy the number specified.
-    - If a range is specified, pick an amount in it. (Middle if possible and it makes for a whole number)
 Unit:
     - Self-explanatory. Please map the unit specified to one of these -> ["g", "ml", "tsp", "tbsp", "free", "kg", "oz", "lb", "cup", "l"]
     - Use "Free" when the amount either doesnt matter, isnt specified or it is "to taste". Amount is 0 in that case. 
     - If none of the above units is specified, it should be a "countable" unit -> A unit specific to the food itself.
-    - In that case, just put the name of the unit in lowercase. If there is none, just put "".
+    - In that case, just put the name of the unit in lowercase. *If just the food itself is being counted, just put the empty string ""*
     - Specified sizes also go here!
     -> Some examples for clarity: "1 Tomato" -> unit = "" ; "2 packets of Ketchup" -> unit = "packet" ; "3 large Bananas" -> unit = "large" ; "2 slices of bread" -> unit = "slice" ; "Juice of 2 lemons" -> unit="lemon" (and name="Lemon Juice")
     -> Pay attention to not doubling up the name and the unit: "3 egg yolks" -> name:"Egg Yolks",unit:"" (*not* "yolk") ; or in the above example *not* name="Bread Slice" or name="Large Banana". 
+    - If multiple units are specified, keep the one that is more natural and omit the other one. If the more natural unit can vary greatly for the converted gram amount, pick the more precise unit instead. (Sometimes the case with cuts of meat for example)
+Amount:
+    - No thinking about this required, just copy the number specified.
+    - If a range is specified, pick an amount in it. (Middle if possible and it makes for a whole number)
+    × *IMPORTANT, if there is no amount specified: Although amount can be 0 (unit="free") for minor ingredients (like seasonings and other foods with small nutritional impact), if major/nutritionally relevant ingredients are missing amounts, do your best to estimate a reasonable amount for them.
+        Estimate based on recipe context and similar recipes. This is especially relevant for cooking fats. Use your thinking/reasoining time for estimating*
 Extra:
     - All processing that happens *during* the recipe goes here
     - The purpose of the ingredient and how you aquire it during cooking also goes here
     - If another word for the ingredient (in another language) is specified, that also goes here
     - All other information that is not needed to identify the general food and doesnt fit in any other bucket, also goes here
-    × Not into extra belongs: Clarification or doubling of the amount -> If multiple amounts and units specified, pick the one thats more natural.
+    × Not into extra belongs: Amounts or units, never put these in extra. If it seems like amounts or units are specified after the actual unit, refer again to the rule to keep the more precise amt/unit pair and omit the other one.
 Category:
     - If the ingredients are categorized in specific sections ("For the sauce", "Marinade" etc.), for every ingredient in that section, set category to that section name.
 
@@ -45,7 +53,7 @@ Category:
 Then lastly, follow this rule for ingredient mixtures:
     If an ingredient line is describing more than one ingredient at once, decide whether they mean:
     - To put both in the recipe -> seperate it into multiple ingredient objects.
-    - Or theyre just providing an alternative -> do not seperate, and decide whether to keep the alternative in extra or not
+    - Or theyre just providing an alternative -> do not seperate, and decide whether to keep the alternative in "extra" or not. Do not provide food alternatives in the "name" field.
     When judging whether a line is "describing more than one ingredient at once", think about whether the described mixture of ingredients is common or sold as that mixture.
     The point here is to make the names "fit" to the database:
         -> "500g mixed Button and Shiitake Mushrooms": Here, having these as a mixture in the database doesnt make much sense.
@@ -60,7 +68,6 @@ For example with olive oil:
 This would not be as relevant for spices, garlic, etc., or if the "plus more" amount is minimal; because of the small nutritional impact.
 You can leave put like "plus more" into extra, remove, or use the "free" unit in that case.
 
-Input Ingredient List is for the recipe {recipe_title}:
----
-{ingredient_list}
----
+If the ingredient list is in a language other than english, translate the text fields [name, extra, category] to english. 
+
+As a last tip, please do not be confused by the order or format of the lines, and adhere exactly to the rules instead.

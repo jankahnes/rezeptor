@@ -3,9 +3,9 @@ export const TAGS = [
   { id: 2, name: 'quick', value: 8, category: 'GENERAL' }, //auto, effort = LIGHT
   { id: 3, name: 'easy', value: 8, category: 'GENERAL' }, //auto, difficulty = EASY
   { id: 4, name: 'budget', value: 14, category: 'GENERAL' }, //auto, price < 1
-  { id: 5, name: 'meal prep', value: 12, category: 'GENERAL' }, // ai
+  { id: 5, name: 'meal prep', value: 8, category: 'GENERAL' }, // ai
   { id: 6, name: 'kid friendly', value: 4, category: 'GENERAL' }, // ai
-  { id: 7, name: 'gourmet', value: 4, category: 'GENERAL' }, // ai
+  { id: 7, name: 'gourmet', value: 0, category: 'GENERAL' }, // ai
   { id: 8, name: 'date night', value: 4, category: 'GENERAL' }, // ai
   { id: 9, name: 'comfort food', value: 4, category: 'GENERAL' }, // ai
   { id: 10, name: 'one pot', value: 8, category: 'GENERAL' }, // ai
@@ -17,22 +17,23 @@ export const TAGS = [
 
   { id: 100, name: 'healthy', value: 10, category: 'DIET' }, //auto, hidx > 70
   { id: 101, name: 'nutritious', value: 10, category: 'DIET' }, //auto, mnidx > 70
-  { id: 102, name: 'vegan', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegan'))
-  { id: 103, name: 'vegetarian', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegetarian'))
+  { id: 102, name: 'vegan', value: 6, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegan'))
+  { id: 103, name: 'vegetarian', value: 6, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('vegetarian'))
   { id: 104, name: 'high protein', value: 6, category: 'DIET' }, //auto, protein_score > 70
   { id: 105, name: 'low carb', value: 6, category: 'DIET' }, //auto, per100.carbs < 5
-  { id: 106, name: 'paleo', value: 2, category: 'DIET' }, //ai
+  { id: 106, name: 'paleo', value: 6, category: 'DIET' }, //ai
   { id: 107, name: 'gluten free', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('gluten free'))
   { id: 108, name: 'low calorie', value: 14, category: 'DIET' }, //auto, kcal < 600
   { id: 109, name: 'satiating', value: -1, category: 'DIET' }, //auto, satiety > 70
   { id: 110, name: 'low fat', value: 6, category: 'DIET' }, //auto, per100.fat < 3
   { id: 111, name: 'high fiber', value: 6, category: 'DIET' }, //auto, per100.fiber > 6
-  { id: 112, name: 'lactose free', value: 2, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('lactose free'))
+  { id: 112, name: 'lactose free', value: 0, category: 'DIET' }, //auto, ingredients.all(ingredient => ingredient.tags.includes('lactose free'))
   { id: 113, name: 'keto', value: 6, category: 'DIET' }, //auto, per100.carbs < 2 && per100.fat > 15
   { id: 114, name: 'low sodium', value: 6, category: 'DIET' }, //auto, per100.sodium < 150
   { id: 115, name: 'low sugar', value: 6, category: 'DIET' }, //auto, per100.sugar < 10
-  { id: 116, name: 'mediterranean diet', value: 2, category: 'DIET' }, //ai
-  { id: 117, name: 'dash diet', value: 2, category: 'DIET' }, //ai
+  { id: 116, name: 'mediterranean diet', value: 6, category: 'DIET' }, //ai
+  { id: 117, name: 'dash diet', value: 6, category: 'DIET' }, //ai
+  { id: 118, name: 'macro-friendly', value: 6, category: 'DIET' },
 
   { id: 200, name: 'main/dinner', value: 0, category: 'TYPE' }, //ai
   { id: 201, name: 'breakfast', value: 0, category: 'TYPE' }, //ai

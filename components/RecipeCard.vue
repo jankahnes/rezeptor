@@ -1,14 +1,32 @@
 <template>
   <NuxtLink
-    v-if="recipe.id"
+    v-if="recipe?.id"
     :to="'/recipe/' + recipe?.id"
     class="flex flex-col items-center group relative"
   >
     <NuxtImg
       v-if="recipe?.picture"
-      class="w-full aspect-square object-contain shadow-gray-200 [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10 transition-all duration-300 group-hover:translate-y-[-1px]"
-      :src="recipe?.picture || ''"
+      class="w-full aspect-square object-contain relative z-10 shadow-gray-300 [filter:drop-shadow(0_0_10px_var(--tw-shadow-color))_drop-shadow(0_0_6px_var(--tw-shadow-color))] transition-all duration-300 group-hover:translate-y-[-1px]"
+      :src="recipe?.picture"
     />
+    <div v-else-if="recipe?.social_picture" class="relative w-full">
+      <div
+        class="bg-white rounded-full overflow-hidden relative z-10 aspect-square shadow-gray-300 [filter:drop-shadow(0_0_10px_var(--tw-shadow-color))_drop-shadow(0_0_6px_var(--tw-shadow-color))]"
+      >
+        <div
+          class="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full aspect-9/16"
+        >
+          <NuxtImg
+            class="w-full h-full object-cover relative z-10 transition-all duration-300 group-hover:translate-y-[-1px] white-fade-mask"
+            :src="recipe?.social_picture"
+          />
+        </div>
+        <div
+          class="pointer-events-none absolute inset-0 rounded-full white-fade-overlay z-20"
+        ></div>
+      </div>
+      <div />
+    </div>
     <div
       class="w-full relative -mt-10 z-0 h-full transition-all duration-300 group-hover:translate-y-[1px]"
     >
@@ -23,11 +41,11 @@
           </h2>
           <div class="flex items-start gap-4 justify-between h-[3.2rem]">
             <div
-              class="flex gap-1.5 flex-wrap text-[0.6em] md:text-[0.4em] max-h-[3.2rem] overflow-y-hidden items-start py-0.5"
+              class="flex gap-1.5 flex-wrap text-[0.6em] sm:text-[0.4em] max-h-[3.4rem] overflow-y-hidden items-start py-0.5"
             >
               <div
                 v-if="recipe?.hidx && recipe?.hidx >= 55"
-                class="tag !text-black shadow-sm w-[2em] text-center"
+                class="flex tag items-center !text-black shadow-sm text-center min-w-[1.6em] subpixel-antialiased tabular-nums justify-center"
                 :class="gradeColors[getGrade(recipe?.hidx, 'ovr')]"
               >
                 {{ getGrade(recipe?.hidx, 'ovr') }}
@@ -66,15 +84,37 @@ const props = defineProps<{
   recipe: RecipeOverview;
   id?: string;
 }>();
+const top3Tags = ref(getTop3Tags(props.recipe));
 
-const getTop3Tags = (recipe: RecipeOverview) => {
+
+function getTop3Tags(recipe: RecipeOverview) {
+  if (!recipe?.tags) return [];
   const tags = recipe.tags.map((tag) => getTagByID(tag));
   tags.sort((a, b) => (b?.value ?? 0) - (a?.value ?? 0));
   const cropped = tags.slice(0, 3);
   return cropped;
 };
 
-const top3Tags = ref(getTop3Tags(props.recipe));
+
+const recipeStore = useRecipeStore();
+
+onMounted(async () => {
+  if (!props.recipe.picture && props.recipe.source_type === 'MEDIA') {
+    props.recipe.social_picture = await recipeStore.getSocialPicture(
+      props.recipe.source ?? '',
+      false
+    );
+  }
+});
+
 </script>
 
-<style scoped></style>
+<style scoped>
+.white-fade-overlay {
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0) 62%,
+    rgba(255, 255, 255, 1) 75%
+  );
+}
+</style>

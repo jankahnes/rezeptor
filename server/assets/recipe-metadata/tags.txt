@@ -19,6 +19,7 @@ grilling:15
 paleo:106
 mediterranean diet:116
 dash diet:117
+macro friendly:118
 
 COURSE/FORMAT CATEGORY: Choose 1-5 (Use one course max, then specify if theres format(s) below that fit)
 main/dinner:200

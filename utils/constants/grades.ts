@@ -37,9 +37,9 @@ const ovrGrades = [
   { min_score: 67, grade: 'A-' },
   { min_score: 71, grade: 'A' },
   { min_score: 75, grade: 'A+' },
-  { min_score: 78, grade: 'S-' },
-  { min_score: 83, grade: 'S' },
-  { min_score: 88, grade: 'S+' },
+  { min_score: 80, grade: 'S-' },
+  { min_score: 85, grade: 'S' },
+  { min_score: 92, grade: 'S+' },
 ];
 
 export const gradeColors: Record<string, string> = {

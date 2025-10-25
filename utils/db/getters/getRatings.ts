@@ -1,4 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { expectSingle } from '~/utils/db/getters/expectSingle';
+import type { Rating } from '~/types/types';
+import buildQuery from '~/utils/db/getters/buildQuery';
 
 export async function getRatings(
   client: SupabaseClient,
