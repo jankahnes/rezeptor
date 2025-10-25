@@ -306,7 +306,6 @@ const isInitialLoad = ref(true);
 
 const filtering = computed(() => {
   const returnFiltering: Filtering = {
-    visibility: 'PUBLIC',
     tags: filteringTags.value,
     hidx: healthScoreIsAtDefault.value ? null : healthScoreRange.value,
     kcal: kcalIsAtDefault.value ? null : kcalRange.value,
@@ -325,7 +324,7 @@ async function loadMoreRecipes() {
       orderBy: sorts.value.find(
         (sort) => sort.displayName === selectedSorting.value
       )?.value as { column: string; ascending: boolean },
-      not: { picture: null },
+      or: 'picture.not.eq.null,source_type.eq.MEDIA',
       filtering: filtering.value,
       trigram_search: { column: 'title', query: searchQuery.value },
       range: {
@@ -356,8 +355,8 @@ async function refresh(shouldRecount = true) {
 
   if (shouldRecount) {
     getCount(supabase, {
-      not: { picture: null },
-      eq: { visibility: 'PUBLIC' },
+      or: 'picture.not.eq.null,source_type.eq.MEDIA',
+      //eq: { visibility: 'PUBLIC' },
       filtering: filtering.value,
     }).then((count) => {
       totalCount.value = count;

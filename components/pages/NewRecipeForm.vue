@@ -5,16 +5,16 @@
         v-model="baseRecipe.title"
         v-auto-resize
         rows="1"
-        placeholder="New Recipe"
-        class="md:ml-4 w-full font-bold text-3xl border-box bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1"
+        placeholder="✍️ New Recipe"
+        class="md:ml-4 w-full font-bold text-3xl border-box bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1 grayscale"
       />
 
       <textarea
         v-model="baseRecipe.description"
         v-auto-resize
         rows="1"
-        placeholder="Description"
-        class="md:ml-4 w-full bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1 text-sm"
+        placeholder="✍️ Description"
+        class="md:ml-4 w-full bg-transparent rounded-xl p-2 outline-none resize-none overflow-hidden h-auto break-words scrollbar-hide flex-1 text-sm grayscale"
       ></textarea>
       <div class="flex mt-6 w-full flex-wrap">
         <PagesRecipeIngredientListEditable
@@ -27,13 +27,13 @@
         ></PagesRecipeInstructionContainerEditable>
 
         <NutritionLabel
-          v-if="computedRecipe?.hidx"
+          v-if="computedRecipe?.hidx !== undefined"
           :nutritionData="computedRecipe"
           class=""
         />
 
         <HealthFacts
-          v-if="computedRecipe?.hidx"
+          v-if="computedRecipe?.hidx !== undefined"
           :recipe="computedRecipe"
           :on-report="onClickReport"
           class=""
@@ -72,12 +72,12 @@ const ingredientListEditableInformation = ref<{
   serves: number;
   fullIngredients: EditableIngredient[];
   useNaturalLanguage: boolean;
-  ingredients_string: string;
+  base_ingredients: string;
 }>({
   serves: 1,
   fullIngredients: [],
   useNaturalLanguage: false,
-  ingredients_string: '',
+  base_ingredients: '',
 });
 
 const instructionsEditableInformation = ref<{
@@ -91,8 +91,6 @@ const baseRecipe = ref({
   description: '',
   user_id: null,
   source: null,
-  uploading_protocol: 'fast' as const,
-  publish: false,
 });
 
 // Convert EditableIngredient to FullIngredient by filtering out incomplete ingredients
@@ -122,8 +120,9 @@ const parsingRecipe = computed<ComputableRecipe>(() => {
 
 const naturalLanguageBaseRecipe = computed<BaseRecipe>(() => ({
   ...baseRecipe.value,
-  ingredients_string:
-    ingredientListEditableInformation.value.ingredients_string,
+  base_ingredients: ingredientListEditableInformation.value.base_ingredients
+    .split('\n')
+    .map((ingredient: string) => ingredient.trim()),
   serves: ingredientListEditableInformation.value.serves,
   instructions: instructionsEditableInformation.value.instructions,
   source_type: 'TEXT',
@@ -166,7 +165,7 @@ function setEditableInformation(computableRecipe: ComputableRecipe | null) {
       computableRecipe.batch_size ?? 1
     ),
     useNaturalLanguage: false,
-    ingredients_string: getStringFromIngredients(
+    base_ingredients: getStringFromIngredients(
       computableRecipe.fullIngredients,
       computableRecipe.batch_size ?? 1
     ),

@@ -1,17 +1,15 @@
 <template>
-  <div
-    class="w-[clamp(70vw,1550px,100%)] mx-auto mt-2 space-y-8 sm:space-y-10 px-4"
-  >
+  <div class="w-[clamp(70vw,1550px,100%)] mx-auto space-y-8 sm:space-y-10 p-4">
     <div>
       <div class="flex flex-col items-start gap-4">
         <Logo class="xm:hidden mt-2" />
         <div class="flex items-center gap-2 mt-10">
           <span class="text-lg sm:text-2xl font-bold"
-            >{{ greeting.base }} What would you like to cook today?</span
+            >{{ greeting.base }}! What would you like to cook today?</span
           >
         </div>
       </div>
-      <div class="py-1 mt-4">
+      <div class="py-1 mt-4 space-y-4">
         <Carousel>
           <div
             v-for="category in categories"
@@ -25,6 +23,22 @@
             }}</span>
           </div>
         </Carousel>
+        <div class="flex gap-4">
+          <button
+            class="button flex justify-center items-center gap-2 px-2 py-1"
+            @click="handleQuickImport"
+          >
+            <span class="material-symbols-outlined">content_copy</span>
+            <span>Quick Import</span>
+          </button>
+          <NuxtLink
+            to="/foods/scan"
+            class="button flex justify-center items-center gap-2 px-2 py-1"
+          >
+            <span class="material-symbols-outlined">barcode</span>
+            <span>Quick Scan</span>
+          </NuxtLink>
+        </div>
       </div>
     </div>
 
@@ -40,18 +54,26 @@
           v-for="(recipe, index) in userRecipes"
           :key="recipe.id"
           :recipe="recipe"
-          class="text-xl my-4 pr-6"
+          class="text-[28px] my-4 pr-6"
         />
       </Carousel>
     </div>
 
     <!-- Recommendations -->
-    <div class="sm:hidden">
-      <h2
-        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
-      >
-        RECOMMENDATIONS
-      </h2>
+    <div class="2lg:hidden">
+      <div class="flex gap-4 justify-between items-center">
+        <h2
+          class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+        >
+          RECOMMENDATIONS
+        </h2>
+        <NuxtLink to="/recipes/" class="flex text-gray-500 items-center gap-2">
+          <span class="material-symbols-outlined !text-sm">
+            arrow_forward
+          </span>
+          <span>See all</span>
+        </NuxtLink>
+      </div>
       <div class="mt-2">
         <Carousel class="" :flexClass="'!items-stretch'">
           <RecipeCard
@@ -59,23 +81,37 @@
             :key="recipe.id + 'mobile'"
             :id="'mobile'"
             :recipe="recipe"
-            class="w-50 min-h-70 text-[20px] sm:w-70 sm:min-h-95 sm:text-[30px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-6 mb-2 mr-4"
+            class="w-50 min-h-60 text-[20px] sm:w-70 sm:min-h-95 sm:text-[30px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-6 mb-2 mr-4"
           />
         </Carousel>
       </div>
     </div>
 
-    <div class="hidden sm:block">
-      <h2
-        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
-      >
-        RECOMMENDATIONS
-      </h2>
+    <div class="hidden 2lg:block">
+      <div class="flex gap-4 justify-between items-center">
+        <h2
+          class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+        >
+          RECOMMENDATIONS
+        </h2>
+        <NuxtLink to="/recipes/" class="flex text-gray-500 items-center gap-2">
+          <span class="material-symbols-outlined !text-sm">
+            arrow_forward
+          </span>
+          <span>See all</span>
+        </NuxtLink>
+      </div>
       <div class="mt-10 flex gap-10">
         <div class="flex gap-10 flex-col justify-between">
           <RecipeCard
             :key="recipeStore.indexRecipes[0]?.id + 'desktop'"
             :recipe="recipeStore.indexRecipes[0]"
+            :id="'desktop'"
+            class="w-110 text-[32px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
+          />
+          <RecipeCard
+            :key="recipeStore.indexRecipes[1]?.id + 'desktop'"
+            :recipe="recipeStore.indexRecipes[1]"
             :id="'desktop'"
             class="w-110 text-[32px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
           />
@@ -103,20 +139,43 @@
               >...and get science-based nutrition and health insights!</span
             >
           </div>
-          <RecipeCard
-            :key="recipeStore.indexRecipes[1]?.id + 'desktop'"
-            :recipe="recipeStore.indexRecipes[1]"
-            :id="'desktop'"
-            class="w-110 text-[32px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300"
-          />
         </div>
-        <div class="flex gap-10 flex-wrap">
+        <div class="flex gap-10 flex-wrap py-1 recipe-container">
           <RecipeCard
             v-for="(recipe, index) in recipeStore.indexRecipes.slice(2)"
             :key="recipe.id + 'desktop'"
             :recipe="recipe"
-            :id="'desktop'"
-            class="min-w-70 basis-70 max-w-90 flex-1 min-h-50 text-[28px] hover:translate-y-[-2px] transition-all duration-300"
+            :id="'desktop-' + index + '-' + recipe.id"
+            class="min-w-60 basis-70 max-w-90 flex-1 min-h-50 text-[30px] hover:translate-y-[-2px] transition-all duration-300"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap">
+      <div class="flex flex-col gap-4">
+        <div class="flex gap-4 justify-between items-center">
+          <h2
+            class="self-start px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+          >
+            TRENDING ON SOCIAL MEDIA
+          </h2>
+          <NuxtLink
+            to="/recipes/social/"
+            class="flex text-gray-500 items-center gap-2"
+          >
+            <span class="material-symbols-outlined !text-sm">
+              arrow_forward
+            </span>
+            <span>See all</span>
+          </NuxtLink>
+        </div>
+        <div class="flex flex-wrap gap-4 mt-6">
+          <RecipeCardSocialMedia
+            v-for="recipe in socialRecipes"
+            :key="recipe.id"
+            :recipe="recipe"
+            class="max-h-60 max-w-240 basis-150"
           />
         </div>
       </div>
@@ -138,14 +197,6 @@
         />
       </Carousel>
     </div>
-    <div v-if="recentActivity && recentActivity.length > 0">
-      <h2
-        class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
-      >
-        NUTRITION ANALYSIS ENGINE
-      </h2>
-      <InstantNutritionDemo class="mt-4" />
-    </div>
   </div>
 </template>
 
@@ -153,14 +204,16 @@
 const supabase = useSupabaseClient<Database>();
 const recipeStore = useRecipeStore();
 const auth = useAuthStore();
+const loadingStore = useLoadingStore();
 
 const userRecipes = ref<RecipeOverview[] | null>(null);
 const recentActivity = ref<Activity[] | null>(null);
+const socialRecipes = ref<RecipeOverview[] | null>(null);
 
 if (!recipeStore.indexRecipes.length) {
   const { data } = await useAsyncData('index', () =>
     getRecipeOverviews(supabase, {
-      eq: { visibility: 'PUBLIC' },
+      //eq: { visibility: 'PUBLIC' },
       not: { picture: null },
       orderBy: { column: 'relevancy', ascending: false },
       limit: 11,
@@ -172,7 +225,11 @@ if (!recipeStore.indexRecipes.length) {
 }
 
 const loadUserData = async () => {
-  if (auth.user?.id) {
+  if (!auth.user?.id) {
+    userRecipes.value = [];
+    return;
+  }
+  if (auth.user?.id && !userRecipes.value?.length) {
     // Fetch user's recipes
     userRecipes.value = await getRecipeOverviews(supabase, {
       eq: { user_id: auth.user?.id },
@@ -183,20 +240,22 @@ const loadUserData = async () => {
 };
 
 // Load data when auth is ready
-watch(() => auth.user?.id, loadUserData, { immediate: true });
+watch(() => auth.user?.id, loadUserData);
 
-const { data: activity } = await useLazyAsyncData('recent-activity', () =>
-  getActivity(supabase, {
+async function loadRecentActivity() {
+  recentActivity.value = await getActivity(supabase, {
     orderBy: { column: 'created_at', ascending: false },
     limit: 10,
-  })
-);
+  });
+}
 
-watchEffect(() => {
-  if (activity.value) {
-    recentActivity.value = activity.value;
-  }
-});
+async function loadSocialRecipes() {
+  socialRecipes.value = await getRecipeOverviews(supabase, {
+    orderBy: { column: 'created_at', ascending: false },
+    limit: 10,
+    eq: { source_type: 'MEDIA' },
+  });
+}
 
 const greeting = computed(() => {
   let base;
@@ -214,8 +273,6 @@ const greeting = computed(() => {
   }
   if (auth.isUser()) {
     base = `${base}, ${(auth.user as any).username}`;
-  } else {
-    base = base + '!';
   }
   return { base, icon };
 });
@@ -269,12 +326,40 @@ const categories = ref([
 ]);
 
 onMounted(async () => {
-  loadUserData();
+  await loadUserData();
+  loadSocialRecipes();
+  loadRecentActivity();
 });
 
 const onClickCategory = (category: number) => {
   navigateTo(`/recipes?tags=${category}`);
 };
+
+const handleQuickImport = async () => {
+  try {
+    const clipboardText = await navigator.clipboard.readText();
+    const url = new URL(clipboardText);
+    if (!clipboardText.trim()) {
+      loadingStore.displayTransientToast('❌ Clipboard is empty');
+      return;
+    }
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      navigateTo(
+        `/recipe/new?view=loading&link=${encodeURIComponent(clipboardText)}`
+      );
+    } else {
+      loadingStore.displayTransientToast('❌ Clipboard is not a valid URL');
+    }
+  } catch (error) {
+    loadingStore.displayTransientToast('❌ Clipboard is not a valid URL');
+  }
+};
 </script>
 
-<style scoped></style>
+<style scoped>
+@media (max-width: 1446px) {
+  .recipe-container :nth-child(n + 7) {
+    display: none;
+  }
+}
+</style>

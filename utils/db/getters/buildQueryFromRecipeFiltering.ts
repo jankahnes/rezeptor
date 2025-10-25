@@ -33,5 +33,6 @@ export default function buildQueryFromRecipeFiltering(
       .gte('price', filtering.price[0])
       .lte('price', filtering.price[1]);
   }
+
   return query;
 }

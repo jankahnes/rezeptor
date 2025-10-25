@@ -1,7 +1,7 @@
 <template>
-  <div class="flex gap-8 h-66 flex-wrap">
+  <div class="flex gap-8 min-h-66 flex-wrap justify-center">
     <div
-      class="flex flex-col gap-2 items-start justify-between w-full max-w-120"
+      class="flex flex-col gap-2 justify-between w-full items-center"
     >
       <textarea
         v-model="text"
@@ -9,7 +9,7 @@
 100g of Flour
 2 tbsp of Oil
       "
-        class="w-full min-h-40 resize-none border border-dashed border-primary rounded-lg p-2"
+        class="w-80 min-h-40 resize-none border border-dashed border-primary rounded-lg p-2"
       ></textarea>
       <button
         class="button px-4 py-1 font-bold text-white !bg-primary rounded-lg flex items-center gap-2"
@@ -23,7 +23,7 @@
       v-if="recipe"
       :nutritionData="recipe"
       :headless="true"
-      class="max-w-120"
+      class="max-w-80"
     />
   </div>
 </template>
@@ -41,9 +41,10 @@ const showDemo = async () => {
   };
   for (const line of splitText) {
     const parsed = await parseIngredientString(supabase, line);
-    if (!parsed.ingredient) {
+    if (!parsed.ingredient || !parsed.unit || !parsed.amount) {
       continue;
     }
+    console.log(parsed);
     computableRecipe.fullIngredients.push({
       amount: parsed.amount,
       unit: parsed.unit,

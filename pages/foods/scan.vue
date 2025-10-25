@@ -86,6 +86,7 @@ let detectionInterval = null;
 let promptTimeout = null;
 let barcodeDetector = null;
 let videoTrack = null;
+let quaggaDetectedHandler = null;
 
 // Check if native BarcodeDetector is available
 const checkNativeBarcodeDetector = () => {
@@ -196,13 +197,14 @@ const startQuaggaDetection = async () => {
       }
     );
 
-    Quagga.onDetected((result) => {
+    quaggaDetectedHandler = (result) => {
       if (result && result.codeResult && !scannedCode.value) {
         scannedCode.value = result.codeResult.code;
         stopDetection();
         navigateTo(`/product/${scannedCode.value}`);
       }
-    });
+    };
+    Quagga.onDetected(quaggaDetectedHandler);
   } catch (e) {
     console.error('Could not start barcode scanner:', e);
   }
@@ -244,8 +246,28 @@ const stopDetection = () => {
     mediaStream = null;
   }
   if (!useNativeDetector.value) {
-    Quagga.stop();
+    try {
+      if (quaggaDetectedHandler) {
+        Quagga.offDetected(quaggaDetectedHandler);
+        quaggaDetectedHandler = null;
+      }
+      Quagga.stop();
+    } catch (e) {
+      console.error('Error stopping Quagga:', e);
+    }
   }
+  // Ensure video element releases the stream reference
+  if (videoElement.value) {
+    try {
+      videoElement.value.pause?.();
+    } catch {}
+    try {
+      videoElement.value.srcObject = null;
+    } catch {}
+  }
+  // Drop any cached track references and torch state
+  videoTrack = null;
+  torchEnabled.value = false;
 };
 
 // Trigger photo capture
@@ -353,6 +375,22 @@ onMounted(async () => {
 onUnmounted(() => {
   stopDetection();
 });
+
+// Also stop camera when navigating away or when component is kept alive and deactivated
+try {
+  const { onBeforeRouteLeave } = await import('vue-router');
+  onBeforeRouteLeave(() => {
+    stopDetection();
+  });
+} catch {}
+
+// Handle keep-alive deactivation
+try {
+  const { onDeactivated } = await import('vue');
+  onDeactivated(() => {
+    stopDetection();
+  });
+} catch {}
 </script>
 
 <style scoped>

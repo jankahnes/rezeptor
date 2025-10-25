@@ -1,5 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Comment } from '~/types/types';
+import { expectSingle } from '~/utils/db/getters/expectSingle';
+import buildQuery from '~/utils/db/getters/buildQuery';
+import buildQueryFromRecipeFiltering from '~/utils/db/getters/buildQueryFromRecipeFiltering';
+import { getRatings } from '~/utils/db/getters/getRatings';
+import fillForUnits from '~/utils/format/fillForUnits';
+import type { Database } from '~/types/supabase';
 
 function getTagCategory(tagId: number): string {
   if (tagId >= 300) return 'CUISINE';
@@ -53,7 +59,7 @@ async function getRecipeIdsByTags(
 
 export async function getRecipes(
   client: SupabaseClient<Database>,
-  opts: GetterOpts = {}
+  opts: GetterOpts = {},
 ): Promise<Recipe[]> {
   let query = client.from('recipes').select(`
         *,
@@ -123,8 +129,6 @@ export async function getRecipes(
       }
     });
     recipe.comments = roots;
-    recipe.processing_requirements =
-      recipe.processing_requirements as ProcessingRequirement;
 
     recipe.ingredients = recipe.ingredients.map((ingredient: any) => {
       return {
@@ -150,7 +154,7 @@ export async function getRecipes(
     });
 
     // Sort ingredients after their occurrence in the instructions
-    if (recipe.instructions && Array.isArray(recipe.instructions)) {
+    /**if (recipe.instructions && Array.isArray(recipe.instructions) && recipe.ingredients && recipe.ingredients.length > 0) {
       const instructionText = recipe.instructions.join(' ');
       const ingredientOrder = new Map<number, number>();
       let order = 0;
@@ -181,26 +185,26 @@ export async function getRecipes(
         });
       }
     }
-
+    */
     recipe.ingredients.forEach(fillForUnits);
   }
   return recipes as Recipe[];
 }
 
 export async function getRecipe(
-  client: SupabaseClient,
-  opts: GetterOpts = {}
+  client: SupabaseClient<Database>,
+  opts: GetterOpts = {},
 ): Promise<Recipe> {
   return expectSingle(await getRecipes(client, opts));
 }
 
 export async function getRecipeOverviews(
-  client: SupabaseClient,
-  opts: GetterOpts = {}
+  client: SupabaseClient<Database>,
+  opts: GetterOpts = {},
 ): Promise<RecipeOverview[]> {
   let query = client.from('recipes').select(`
         id, hidx, kcal, price, title, created_at, visibility, picture, rating, protein, carbohydrates, fat, sugar, salt, fiber, user_id, collection, 
-        tags:recipe_tags(tag_id)
+        tags:recipe_tags(tag_id), source, description, original_title, source_type, original_creator_channel_name
       `);
   if (
     opts.trigram_search &&
@@ -211,7 +215,7 @@ export async function getRecipeOverviews(
       'search_recipes',
       {
         query: opts.trigram_search.query,
-        max: opts.limit || 50,
+        max: (opts.limit ?? 40) + 10,
       }
     );
 
@@ -221,7 +225,7 @@ export async function getRecipeOverviews(
       return [];
     }
 
-    const recipeIds = trigramResults.map((result: any) => result.id);
+    const recipeIds = trigramResults.map((result: any) => result.recipe_id);
 
     query = query.in('id', recipeIds);
   }
@@ -242,17 +246,19 @@ export async function getRecipeOverviews(
 
   const { data, error } = await query;
   if (error) throw error;
+  const recipes = data;
 
-  for (const recipe of data) {
+  for (const recipe of recipes) {
     (recipe as any).tags = recipe.tags.map((t: { tag_id: number }) => t.tag_id);
   }
+  const recipeOverviews = recipes as unknown as RecipeOverview[];
 
-  return data as unknown as RecipeOverview[];
+  return recipeOverviews;
 }
 
 export async function getRecipeOverview(
   client: SupabaseClient,
-  opts: GetterOpts = {}
+  opts: GetterOpts = {},
 ): Promise<RecipeOverview> {
   return expectSingle(await getRecipeOverviews(client, opts));
 }

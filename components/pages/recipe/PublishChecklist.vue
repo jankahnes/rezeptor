@@ -4,31 +4,23 @@
       <div class="px-4 py-1 bg-primary text-white rounded-lg inline-flex w-fit">
         <h2 class="text-lg font-bold">PUBLISH</h2>
       </div>
-      <div v-if="recipe.visibility === 'PUBLIC'">
-        <div class="flex gap-2 items-center opacity-60">
+      <div v-if="recipe.visibility === 'PUBLIC'" class="space-y-2 opacity-60">
+        <div class="flex gap-2 items-center">
           <span class="material-symbols-outlined !text-2xl"> check </span>
           <span class="text-lg flex-1">Your recipe is public!</span>
         </div>
-        <button
-          class="button px-2 py-1 flex gap-2 items-center text-primary outline-1 outline-primary mt-4"
-          @click="replaceImage"
-          v-if="auth.user?.username === 'administrator'"
-          :disabled="replaceImageLoading"
-        >
-          <span class="material-symbols-outlined">
-            {{ replaceImageLoading ? 'timer' : 'replace_image' }}
-          </span>
-          <span>{{
-            replaceImageLoading ? 'Uploading...' : 'Replace image'
-          }}</span>
-        </button>
-        <input
-          type="file"
-          ref="fileInput"
-          @change="handleFileSelected"
-          accept="image/*"
-          class="hidden"
-        />
+        <div class="flex gap-2 items-center">
+          <span class="material-symbols-outlined !text-2xl"> show_chart </span>
+          <span class="text-lg">Relevancy</span>
+          <div
+            class="progress-ring ml-2"
+            :style="{ '--progress': recipe.relevancy + '%' }"
+          >
+            <div class="inner text-xs font-light">
+              {{ recipe.relevancy }}
+            </div>
+          </div>
+        </div>
       </div>
       <div class="flex flex-col gap-3" v-else>
         <div class="max-w-md">
@@ -41,14 +33,12 @@
         <div
           class="flex gap-2 items-center flex-wrap gap-y-1 mt-4"
           :class="{
-            'opacity-50': recipe.processing_requirements?.has_instructions,
+            'opacity-50': publishingRequirements.hasInstructions,
           }"
         >
           <span class="material-symbols-outlined !text-2xl">
             {{
-              recipe.processing_requirements?.has_instructions
-                ? 'check'
-                : 'arrow_forward'
+              publishingRequirements.hasInstructions ? 'check' : 'arrow_forward'
             }}
           </span>
           <span class="text-[18px] flex-1 text-nowrap"
@@ -57,9 +47,9 @@
           <div class="flex gap-2 items-center flex-wrap">
             <button
               class="button px-2 py-1 flex gap-2 items-center text-primary outline-1 outline-primary"
-              v-if="!recipe.processing_requirements?.has_instructions"
+              v-if="!publishingRequirements.hasInstructions"
               @click="generateInstructions"
-              :disabled="generateInstructionsLoading"
+              :disabled="generateInstructionsLoading || generatePictureLoading"
             >
               <span class="material-symbols-outlined">
                 {{ generateInstructionsLoading ? 'timer' : 'auto_awesome' }}
@@ -70,9 +60,9 @@
             </button>
             <button
               class="button px-2 py-[5px] flex gap-2 items-center !text-white !bg-primary"
-              v-if="!recipe.processing_requirements?.has_instructions"
+              v-if="!publishingRequirements.hasInstructions"
               @click="scrollToEditableInstructions"
-              :disabled="generateInstructionsLoading"
+              :disabled="generateInstructionsLoading || generatePictureLoading"
             >
               <span class="material-symbols-outlined"> edit </span>
               <span>Add</span>
@@ -81,35 +71,27 @@
         </div>
         <div
           class="flex gap-2 items-center flex-wrap gap-y-1"
-          :class="{ 'opacity-50': recipe.processing_requirements?.has_picture }"
+          :class="{ 'opacity-50': publishingRequirements.hasPicture }"
         >
           <span class="material-symbols-outlined !text-2xl">
-            {{
-              recipe.processing_requirements?.has_picture
-                ? 'check'
-                : 'arrow_forward'
-            }}
+            {{ publishingRequirements.hasPicture ? 'check' : 'arrow_forward' }}
           </span>
           <span class="text-[18px] flex-1 text-nowrap mr-4">Add picture</span>
           <div class="flex gap-2 items-center flex-wrap">
             <button
               class="button px-2 py-1 flex gap-2 items-center text-primary outline-1 outline-primary"
-              v-if="!recipe.processing_requirements?.has_picture"
+              v-if="!publishingRequirements.hasPicture"
               @click="generatePicture"
-              :disabled="generatePictureLoading"
+              :disabled="generatePictureLoading || generateInstructionsLoading"
             >
-              <span class="material-symbols-outlined">
-                {{ generatePictureLoading ? 'timer' : 'auto_awesome' }}
-              </span>
-              <span>{{
-                generatePictureLoading ? 'Generating...' : 'Generate'
-              }}</span>
+              <span class="material-symbols-outlined"> auto_awesome </span>
+              <span>Generate</span>
             </button>
             <button
               class="button px-2 py-1 flex gap-2 items-center text-primary outline-1 outline-primary"
-              v-if="!recipe.processing_requirements?.has_picture"
+              v-if="!publishingRequirements.hasPicture"
               @click="triggerFileUpload"
-              :disabled="generatePictureLoading"
+              :disabled="generatePictureLoading || generateInstructionsLoading"
             >
               <span class="material-symbols-outlined"> file_upload </span>
               <span>Upload</span>
@@ -117,9 +99,9 @@
 
             <button
               class="button px-2 py-[5px] flex gap-2 items-center !text-white !bg-primary"
-              v-if="!recipe.processing_requirements?.has_picture"
+              v-if="!publishingRequirements.hasPicture"
               @click="triggerPhotoEnv"
-              :disabled="generatePictureLoading"
+              :disabled="generatePictureLoading || generateInstructionsLoading"
             >
               <span class="material-symbols-outlined"> image </span>
               <span>Take picture</span>
@@ -128,27 +110,39 @@
         </div>
         <div class="md:hidden border-t border-gray-200 mt-2"></div>
         <div class="flex gap-2 items-center flex-wrap-reverse mt-2 md:mt-4">
+          <!--
           <button
             @click="publishRecipeWithGenerate"
             class="button px-2 py-1 flex gap-2 items-center text-primary outline-1 outline-primary"
             v-if="
-              !recipe.processing_requirements?.has_instructions ||
-              !recipe.processing_requirements?.has_picture
+              !publishingRequirements.hasInstructions ||
+              !publishingRequirements.hasPicture
             "
-            :disabled="publishLoading"
+            :disabled="
+              publishLoading ||
+              generateInstructionsLoading ||
+              generatePictureLoading
+            "
           >
-            <span class="material-symbols-outlined">
-              {{ publishLoading ? 'timer' : 'keyboard_arrow_up' }}
-            </span>
+            <span class="material-symbols-outlined"> keyboard_arrow_up </span>
             <span>{{
               publishLoading ? 'Generating...' : 'Generate & Publish'
             }}</span>
           </button>
+          -->
           <button
-            v-else
+            v-if="
+              publishingRequirements.hasInstructions &&
+              publishingRequirements.hasPicture &&
+              publishingRequirements.instructionsMatchedToIngredients
+            "
             class="button px-2 py-[5px] flex gap-2 items-center !text-white !bg-primary"
             @click="publishRecipe"
-            :disabled="publishLoading"
+            :disabled="
+              publishLoading ||
+              generateInstructionsLoading ||
+              generatePictureLoading
+            "
           >
             <span class="material-symbols-outlined">
               {{ publishLoading ? 'timer' : 'keyboard_double_arrow_up' }}
@@ -157,6 +151,14 @@
           </button>
         </div>
       </div>
+      <button
+        v-if="auth.user?.username === 'administrator'"
+        class="button px-2 py-[3px] inline-flex gap-2 items-center outline-2 outline-primary self-start"
+        @click="deboost"
+      >
+        <span class="material-symbols-outlined"> stat_minus_2 </span>
+        <span>Deboost</span>
+      </button>
     </div>
   </div>
 </template>
@@ -174,13 +176,24 @@ const publishLoading = ref(false);
 const replaceImageLoading = ref(false);
 const auth = useAuthStore();
 const fileInput = ref<HTMLInputElement | null>(null);
+const loadingStore = useLoadingStore();
+const publishingRequirements = computed(() =>
+  getPublishingRequirements(props.recipe)
+);
 
 const generatePicture = async () => {
+  if (publishingRequirements.value.hasPicture) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Picture already there',
+    });
+  }
   generatePictureLoading.value = true;
+  loadingStore.displayToast('Generating picture ✨');
+
   const payload = {
     title: props.recipe.title,
     instructions: props.recipe.instructions,
-    processing_requirements: props.recipe.processing_requirements,
   };
   const response = await $fetch('/api/create-recipe/get-processed-image', {
     method: 'POST',
@@ -188,6 +201,7 @@ const generatePicture = async () => {
   });
   if (!response.image_base64) {
     generatePictureLoading.value = false;
+    loadingStore.displayTransientToast('Failed to generate picture ❌');
     throw new Error('Failed to generate picture');
   }
   const imageData = await $fetch('/api/db/upload-image', {
@@ -201,103 +215,64 @@ const generatePicture = async () => {
       id: props.recipe.id,
     },
   });
-  props.recipe.processing_requirements!.has_picture = true;
   props.recipe.picture = imageData.publicUrl;
   await supabase
     .from('recipes')
     .update({
       picture: imageData.publicUrl,
-      processing_requirements: {
-        ...(props.recipe.processing_requirements as ProcessingRequirement),
-        has_picture: true,
-      },
     })
     .eq('id', props.recipe.id);
   generatePictureLoading.value = false;
+  loadingStore.displayTransientToast('Picture generated successfully! ✨');
 };
 
 const generateInstructions = async () => {
   generateInstructionsLoading.value = true;
+  loadingStore.displayToast('Generating instructions ✨');
   const payload = {
     title: props.recipe.title,
     instructions: props.recipe.instructions,
-    processing_requirements: props.recipe.processing_requirements,
     ingredients: props.recipe.ingredients,
   };
-  const response = await $fetch('/api/create-recipe/get-instructions', {
+  const response = (await $fetch('/api/create-recipe/get-instructions', {
     method: 'POST',
     body: payload,
-  });
+  })) as { description?: string; instructions: string[] };
   Object.assign(props.recipe, response);
-  props.recipe.processing_requirements!.has_instructions = true;
-  props.recipe.processing_requirements!.instructions_matched_to_ingredients =
-    true;
-  await supabase
-    .from('recipes')
-    .update({
-      ...response,
-      processing_requirements: {
-        ...(props.recipe.processing_requirements as ProcessingRequirement),
-        has_instructions: true,
-        instructions_matched_to_ingredients: true,
-      },
-    })
-    .eq('id', props.recipe.id);
+  await supabase.from('recipes').update(response).eq('id', props.recipe.id);
   generateInstructionsLoading.value = false;
+  loadingStore.displayTransientToast('Instructions generated successfully! ✨');
 };
 
 const publishRecipe = async () => {
   publishLoading.value = true;
-  const payload = {
-    ...props.recipe,
-    serves: 1,
-    publish: true,
-  };
+  loadingStore.displayToast('Publishing recipe ✨');
   //if all processing_requirements are true, just publish the recipe
   if (
-    props.recipe.processing_requirements &&
-    Object.values(props.recipe.processing_requirements).every(
-      (requirement: boolean) => requirement === true
+    !Object.values(publishingRequirements.value).every(
+      (requirement) => requirement === true
     )
   ) {
-    await supabase
-      .from('recipes')
-      .update({
-        visibility: 'PUBLIC',
-      })
-      .eq('id', props.recipe.id);
-  } else {
-    const response = await $fetch('/api/create-recipe/from-uploadable', {
-      method: 'POST',
-      body: payload,
-    });
-    if (response.status !== 'ok') {
-      publishLoading.value = false;
-      throw new Error('Failed to publish recipe');
-    }
+    publishLoading.value = false;
+    loadingStore.displayTransientToast(
+      'Recipe is not ready to be published ❌'
+    );
+    throw new Error(
+      'Publishing requirements not met: ' +
+        Object.values(publishingRequirements.value)
+          .filter((requirement) => requirement === false)
+          .join(', ')
+    );
   }
+  await supabase
+    .from('recipes')
+    .update({
+      visibility: 'PUBLIC',
+    })
+    .eq('id', props.recipe.id);
   publishLoading.value = false;
+  loadingStore.displayTransientToast('Recipe published successfully! ✨');
   props.refresh(props.recipe.id, true);
-};
-
-const publishRecipeWithGenerate = async () => {
-  publishLoading.value = true;
-  const payload = {
-    base_recipe_information: {
-      ...props.recipe,
-      serves: 1,
-      publish: true,
-    },
-  };
-  const response = await $fetch('/api/create-recipe/from-base', {
-    method: 'POST',
-    body: payload,
-  });
-  publishLoading.value = false;
-  if (response.status !== 'ok') {
-    throw new Error('Failed to publish recipe');
-  }
-  props.refresh(response.id, true);
 };
 
 const scrollToEditableInstructions = () => {
@@ -353,6 +328,40 @@ const handleFileSelected = async (event: Event) => {
     replaceImageLoading.value = false;
   }
 };
+
+const deboost = async () => {
+  await supabase
+    .from('recipes')
+    .update({
+      relevancy: Math.round(props.recipe.relevancy * 0.6),
+      daily_engagement_score: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    })
+    .eq('id', props.recipe.id);
+};
 </script>
 
-<style scoped></style>
+<style scoped>
+.progress-ring {
+  --progress: 0%;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color-primary) var(--progress),
+    #ffffff var(--progress)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

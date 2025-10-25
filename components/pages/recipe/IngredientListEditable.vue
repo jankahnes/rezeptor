@@ -2,7 +2,7 @@
   <div class="p-2 md:p-6 h-full flex flex-col flex-[1_1_22rem] items-start">
     <div class="flex justify-between items-center w-full gap-2 mb-2">
       <div class="px-4 py-1 bg-primary text-white rounded-lg flex mb-2">
-        <h2 class="text-lg font-bold ">INGREDIENTS</h2>
+        <h2 class="text-lg font-bold">INGREDIENTS</h2>
       </div>
       <button
         class="button flex items-center gap-1 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform leading-none"
@@ -26,7 +26,7 @@
 
     <textarea
       v-if="model.useNaturalLanguage"
-      v-model="model.ingredients_string"
+      v-model="model.base_ingredients"
       v-auto-resize
       rows="4"
       placeholder="For the dough:
@@ -181,7 +181,7 @@ const model = defineModel<{
   serves: number;
   fullIngredients: EditableIngredient[];
   useNaturalLanguage: boolean;
-  ingredients_string: string;
+  base_ingredients: string;
 }>({ required: true });
 
 const supabase = useSupabaseClient();

@@ -20,6 +20,7 @@
     "@vueuse/core": "^13.2.0",
     "@zxing/browser": "^0.1.5",
     "formidable": "^3.5.4",
+    "instagram-url-direct": "^2.0.7",
     "nuxt": "^3.17.2",
     "openai": "^4.100.0",
     "pinia": "^3.0.2",

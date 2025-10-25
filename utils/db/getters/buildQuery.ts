@@ -30,6 +30,10 @@ export default function buildQuery(
     });
   }
 
+  if (opts.or) {
+    query = query.or(opts.or);
+  }
+
   if (opts.in) {
     for (const [key, value] of Object.entries(opts.in)) {
       query = query.in(key, value);
@@ -50,6 +54,8 @@ export default function buildQuery(
       })
       .gt('similarity', 0.3);
   }
+
+  query = query.order('id', { ascending: false });
 
   return query;
 }

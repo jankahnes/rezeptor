@@ -130,7 +130,7 @@ export default function fillForUnits(ingredient: Ingredient): void {
     addWeightFromVolume(ml);
     addCountableUnitsFromWeight();
   } else if (isCountable(originalUnit)) {
-    if (!countable_units || !countable_units[originalUnit]) {
+    if (!countable_units || countable_units[originalUnit] === undefined || countable_units[originalUnit] === null) {
       console.error(
         'Countable unit ' +
           originalUnit +

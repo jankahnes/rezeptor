@@ -70,6 +70,5 @@ export default defineEventHandler(async (event) => {
       console.error('Failed to generate image:', error);
     }
   }
-  base_recipe_information.processing_requirements!.has_picture = true;
   return base_recipe_information;
 });

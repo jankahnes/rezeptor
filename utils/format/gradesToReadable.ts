@@ -29,8 +29,8 @@ const processingLevelDescriptors = {
   D: { description: 'Mostly processed ingredients', ...generics.SUBOPTIMAL },
   C: { description: 'Moderately processed ingredients', ...generics.OKAY },
   B: { description: 'Mostly unprocessed ingredients', ...generics.GOOD },
-  A: { description: 'Minimally processed ingredients', ...generics.GREAT },
-  S: { description: 'Unprocessed ingredients', ...generics.EXCELLENT },
+  A: { description: 'Mostly whole ingredients', ...generics.GREAT },
+  S: { description: 'Whole ingredients', ...generics.EXCELLENT },
 };
 
 const processingLevelDescriptorsFood = {

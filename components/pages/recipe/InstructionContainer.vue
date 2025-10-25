@@ -1,5 +1,8 @@
 <template>
-  <div class="h-full flex flex-col min-w-92">
+  <div
+    class="h-full flex flex-col min-w-92 relative overflow-hidden rounded-xl"
+    :class="{ '!bg-primary-20/80': formalizationLoading }"
+  >
     <div class="p-2 md:p-6 !pb-3" v-if="!hideHeader">
       <div class="flex justify-between items-center w-full mb-2">
         <div
@@ -8,6 +11,14 @@
         >
           <h2 class="text-lg font-bold">METHOD</h2>
         </div>
+        <button
+          v-if="displayFormalize"
+          class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform"
+          @click="formalize()"
+        >
+          <span class="material-symbols-outlined !text-sm">auto_awesome</span>
+          <span>Analyze</span>
+        </button>
       </div>
     </div>
     <div class="flex-1 px-2" v-if="instructions && instructions.length > 0">
@@ -18,7 +29,7 @@
           class="flex gap-5 px-2 md:px-5 py-5 items-start"
         >
           <div
-            class="min-w-9 h-9 p-1 rounded-full flex items-center text-xl font-bold border-2 justify-center bg-primary text-white flex-shrink-0 mt-1"
+            class="min-w-9 h-9 p-1 rounded-lg flex items-center text-xl font-bold border-2 justify-center bg-primary text-white flex-shrink-0 mt-1"
           >
             {{ index + 1 }}
           </div>
@@ -73,6 +84,10 @@
         </div>
       </Teleport>
     </transition>
+    <div
+      class="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent p-4 pointer-events-none"
+      v-if="formalizationLoading"
+    />
   </div>
 </template>
 
@@ -82,6 +97,9 @@ interface Props {
   hideHeader: Boolean;
   ingredients?: any[];
   servingSize?: number;
+  formalizationLoading: Boolean;
+  displayFormalize: Boolean;
+  formalize: Function;
 }
 
 const props = defineProps<Props>();

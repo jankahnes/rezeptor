@@ -22,7 +22,7 @@
       <button
         @click="submit(link)"
         :disabled="!link"
-        class="px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-white bg-primary rounded-lg font-bold"
+        class="px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center text-white bg-primary rounded-lg font-bold"
       >
         Import
       </button>
@@ -60,7 +60,7 @@
       <span
         class="bg-primary-20 text-sm px-3 py-1 rounded-xl flex gap-2 items-center"
       >
-        <img src="/reels.webp" class="w-6 h-6" /> Instagram: Supported
+        <img src="/instagram.webp" class="w-6 h-6" /> Instagram: Supported
         <span class="material-symbols-outlined text-xs">check</span></span
       >
       <!--<div class="basis-full w-full"></div> -->
