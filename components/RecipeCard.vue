@@ -23,7 +23,7 @@
           </h2>
           <div class="flex items-start gap-4 justify-between h-[3.2rem]">
             <div
-              class="flex gap-1.5 flex-wrap text-[0.6em] md:text-[0.4em] max-h-[3.2rem] overflow-y-hidden items-start py-0.5"
+              class="flex gap-1.5 flex-wrap text-[0.6em] md:text-[0.4em] max-h-[3.4rem] overflow-y-hidden items-start py-0.5"
             >
               <div
                 v-if="recipe?.hidx && recipe?.hidx >= 55"

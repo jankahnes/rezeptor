@@ -241,6 +241,7 @@ export default class RecipeCalculator {
     if (this.logToReport) {
       this.generateReport();
     }
+    console.log('🔍 Scoring done');
   }
 
   async computeFood(food: Food) {
@@ -646,11 +647,10 @@ export default class RecipeCalculator {
     // proposed: recursive approach to increase serving size until its reasonable
     if (
       !this.nutritionLabelOnly &&
-      (this.recipe.total_weight > 1500 ||
-        this.recipe.kcal.total > this.UNUSUAL_KCAL_THRESHOLD)
+      this.recipe.kcal.total > this.UNUSUAL_KCAL_THRESHOLD
     ) {
       this.UNUSUAL_KCAL_THRESHOLD = 800;
-      const probableYieldSizes = [2, 3, 4, 5, 6, 8, 10, 12, 15, 18, 24];
+      const probableYieldSizes = [2, 3, 4, 5, 6, 8, 10, 12, 15, 18, 24, 32, 64];
       const nextBiggest = probableYieldSizes.find(
         (size) => size > this.recipe.serves
       );

@@ -1,8 +1,6 @@
 import type { BaseRecipe } from '~/types/types';
-import { serverSupabaseServiceRole } from '#supabase/server';
 import formidable from 'formidable';
 import fs from 'fs/promises';
-import type { Database } from '~/types/supabase';
 
 export const config = {
   api: {
@@ -11,8 +9,6 @@ export const config = {
 };
 
 export default defineEventHandler(async (event) => {
-  const supabase = serverSupabaseServiceRole<Database>(event);
-
   try {
     // Parse multipart form data using formidable
     const form = formidable({ multiples: false });
@@ -20,7 +16,6 @@ export default defineEventHandler(async (event) => {
 
     // Extract data from parsed form
     const imageFile = files.image?.[0];
-    const jobId = parseInt(fields.jobId?.[0] ?? '0');
     const argsString = fields.args?.[0];
 
     if (!imageFile) {
@@ -51,7 +46,7 @@ export default defineEventHandler(async (event) => {
       body: payload,
     })) as {
       title: string;
-      ingredients_string: string;
+      base_ingredients: string;
       instructions: string[] | null;
       description: string | null;
       serves: number;
@@ -62,10 +57,9 @@ export default defineEventHandler(async (event) => {
       throw new Error('No valid content returned from picture analysis');
     }
 
-    // Create BaseRecipeInformation object similar to from-link.post.ts
     const responseBase: BaseRecipe = {
       title: pictureAnalysisResponse.title,
-      ingredients_string: pictureAnalysisResponse.ingredients_string,
+      base_ingredients: pictureAnalysisResponse.base_ingredients.split('\n').map((ingredient: string) => ingredient.trim()),
       instructions: pictureAnalysisResponse.instructions,
       description: pictureAnalysisResponse.description,
       serves: pictureAnalysisResponse.serves,
@@ -73,37 +67,14 @@ export default defineEventHandler(async (event) => {
         pictureAnalysisResponse.serves > 1
           ? pictureAnalysisResponse.serves
           : null,
-      ...args, // Merge the args (publish, source_type, user_id, etc.)
+      ...args,
     };
 
     if (pictureAnalysisResponse.use_as_image) {
       responseBase.original_image_base64 = payload.imageBase64;
     }
 
-    // Update job progress
-    if (jobId) {
-      await supabase
-        .from('jobs')
-        .update({
-          step_index: 1,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', jobId);
-    }
-
-    // Forward to from-base endpoint with auth headers
-    const headers = getRequestHeaders(event);
-    return await $fetch('/api/create-recipe/from-base', {
-      method: 'POST',
-      headers: {
-        cookie: headers.cookie || '',
-        authorization: headers.authorization || '',
-      },
-      body: {
-        base_recipe_information: responseBase,
-        jobId: jobId,
-      },
-    });
+    return responseBase as BaseRecipe;
   } catch (err) {
     console.error('Picture recipe creation error:', err);
     throw err;

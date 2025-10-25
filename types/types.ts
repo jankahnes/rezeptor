@@ -17,7 +17,7 @@ export type FoodRow = NonNullableProps<FoodRowNullable> & {
   satiety: number | null;
   report: any | null;
 };
-type RecipeRow = Database['public']['Tables']['recipes']['Row'];
+export type RecipeRow = Database['public']['Tables']['recipes']['Row'];
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 type ActivityRow = Database['public']['Tables']['activity']['Row'];
 type BrandedFoodRow = Database['public']['Tables']['branded_foods']['Row'];
@@ -94,8 +94,8 @@ export type RecipeOverview = RecipeRow & {
 };
 
 export type Recipe = RecipeRow & {
-  processing_requirements?: ProcessingRequirement | null;
-  ingredients: Ingredient[];
+  ingredients?: Ingredient[];
+  base_ingredients?: string[];
   comments: Comment[];
   user: User | null;
   tags: number[];
@@ -245,7 +245,6 @@ export type EditableIngredient = {
 export type BaseRecipe = {
   title: string;
   user_id: string | null;
-  publish: boolean;
   serves: number;
   batch_size?: number | null;
   source?: string | null;
@@ -253,20 +252,15 @@ export type BaseRecipe = {
   collection?: string | null;
   description?: string | null;
   instructions?: string[] | null;
-  useNaturalLanguage?: boolean;
-  uploading_protocol?: 'fast' | 'accurate' | 'full' | null;
   original_image_base64?: string | null;
   based_on?: number | null;
   ingredients?: any | null;
-  ingredients_string: string;
-  processing_requirements?: ProcessingRequirement | null;
+  base_ingredients: string[];
   original_creator_channel_name?: string | null;
   original_creator_channel_id?: string | null;
 };
 
-export type UploadableRecipe = Omit<BaseRecipe, 'ingredients_string'> & {
-  instructions: string[];
-  description: string | null;
+export type UploadableRecipe = Omit<BaseRecipe, 'base_ingredients'> & {
   image_base64?: string | null;
   notes?: string[] | null;
   ingredients: {

@@ -1,5 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Comment } from '~/types/types';
+import { expectSingle } from '~/utils/db/getters/expectSingle';
+import buildQuery from '~/utils/db/getters/buildQuery';
+import buildQueryFromRecipeFiltering from '~/utils/db/getters/buildQueryFromRecipeFiltering';
+import { getRatings } from '~/utils/db/getters/getRatings';
+import fillForUnits from '~/utils/format/fillForUnits';
 
 function getTagCategory(tagId: number): string {
   if (tagId >= 300) return 'CUISINE';
@@ -123,8 +128,6 @@ export async function getRecipes(
       }
     });
     recipe.comments = roots;
-    recipe.processing_requirements =
-      recipe.processing_requirements as ProcessingRequirement;
 
     recipe.ingredients = recipe.ingredients.map((ingredient: any) => {
       return {
@@ -150,7 +153,7 @@ export async function getRecipes(
     });
 
     // Sort ingredients after their occurrence in the instructions
-    if (recipe.instructions && Array.isArray(recipe.instructions)) {
+    if (recipe.instructions && Array.isArray(recipe.instructions) && recipe.ingredients && recipe.ingredients.length > 0) {
       const instructionText = recipe.instructions.join(' ');
       const ingredientOrder = new Map<number, number>();
       let order = 0;

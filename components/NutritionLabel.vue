@@ -32,7 +32,7 @@
           nutritionData?.kcal !== null && nutritionData?.kcal !== undefined
             ? (mode === 'serving'
                 ? nutritionData?.kcal
-                : (nutritionData?.kcal * 100) / totalWeight
+                : (nutritionData?.kcal * 100) / (totalWeight ?? 100)
               )?.toFixed(0)
             : '?'
         }}
@@ -77,7 +77,7 @@
                   nutritionData?.[item.key] !== null && nutritionData?.[item.key] !== undefined
                     ? Number((
                         (nutritionData?.[item.key]! * 100) /
-                        totalWeight
+                        (totalWeight ?? 100)
                       )?.toFixed(1))
                     : '?'
                 }}g

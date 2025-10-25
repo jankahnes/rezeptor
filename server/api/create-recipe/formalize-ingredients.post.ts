@@ -1,10 +1,8 @@
 import extractJson from '~/utils/format/extractJson';
-import { serverSupabaseServiceRole } from '#supabase/server';
-import type { Database } from '~/types/supabase';
 import capitalize from '~/utils/format/capitalize';
 /**
  * Input: {
- * ingredients_string: string
+ * base_ingredients: string
  * recipe_context_string: string
  * }
  *
@@ -13,21 +11,20 @@ import capitalize from '~/utils/format/capitalize';
  * }
  */
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<{ ingredients: any[]; notes: string[] }> => {
   const assets = useStorage('assets:server');
   const formalizePrompt = (await assets.getItem(
     'recipe-create/ingredient-formalization.txt'
   )) as string;
 
   const input = await readBody(event);
-  const { ingredients_string, recipe_context_string, jobId } = input;
-  const supabase = serverSupabaseServiceRole<Database>(event);
+  const { base_ingredients, recipe_context_string } = input;
 
   const formalizeResponse = await $fetch('/api/gpt/response', {
     method: 'POST',
     body: {
       message: formalizePrompt
-        .replace('{ingredient_list}', ingredients_string)
+        .replace('{ingredient_list}', base_ingredients)
         .replace('{recipe_title}', recipe_context_string),
       type: 'default',
     },
@@ -37,16 +34,6 @@ export default defineEventHandler(async (event) => {
   const extractedJson = extractJson(formalizeResponse);
   if (!extractedJson) throw new Error('No JSON found in formalize response');
   const formalizeResult = JSON.parse(extractedJson);
-
-  if (jobId) {
-    await supabase
-      .from('jobs')
-      .update({
-        step_index: 3,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', jobId);
-  }
 
   let processedIngredients = formalizeResult.ingredients.map(
     (ingredient: any) => {
@@ -64,14 +51,6 @@ export default defineEventHandler(async (event) => {
   console.log('🔍 Processing ingredients to get food IDs');
   for (const ingredient of processedIngredients) {
     console.log(`Processing: ${ingredient.name_original}`);
-    if (jobId) {
-      await supabase
-        .from('jobs')
-        .update({
-          message: `Looking into ${ingredient.name_original}`,
-        })
-        .eq('id', jobId);
-    }
     try {
       const response = await $fetch('/api/db/request-food', {
         method: 'POST',

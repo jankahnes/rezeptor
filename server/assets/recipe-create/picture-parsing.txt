@@ -12,11 +12,11 @@ Look carefully at the image and extract the following information:
 ```json
 {
   "title": "string",
-  "ingredients_string": string,
+  "base_ingredients": string,
   "instructions": ["step 1", "step 2", "..."] or null,
   "description": "string" or null,
   "serves": number
-  "use_as_image: bool
+  "use_as_image": bool
 }
 ```
 

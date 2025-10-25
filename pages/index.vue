@@ -1,13 +1,13 @@
 <template>
   <div
-    class="w-[clamp(70vw,1550px,100%)] mx-auto mt-2 space-y-8 sm:space-y-10 px-4"
+    class="w-[clamp(70vw,1550px,100%)] mx-auto space-y-8 sm:space-y-10 p-4"
   >
     <div>
       <div class="flex flex-col items-start gap-4">
         <Logo class="xm:hidden mt-2" />
         <div class="flex items-center gap-2 mt-10">
           <span class="text-lg sm:text-2xl font-bold"
-            >{{ greeting.base }} What would you like to cook today?</span
+            >{{ greeting.base }}! What would you like to cook today?</span
           >
         </div>
       </div>

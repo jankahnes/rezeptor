@@ -9,32 +9,42 @@
     </div>
     <NavbarsBottom class="block xm:hidden" />
 
-    <!-- Shopping List Toggle Button -->
-    <button
-      v-if="auth.shoppingList.length > 0"
-      @click="auth.shoppingListOpen = !auth.shoppingListOpen"
-      class="hidden sm:flex fixed bottom-5 right-5 w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
-      :class="{
-        'bg-white !text-primary border-2 border-primary-600':
-          auth.shoppingListOpen,
-      }"
-    >
-      <span v-if="!auth.shoppingListOpen" class="material-symbols-outlined">shopping_cart</span>
-      <span v-else class="material-symbols-outlined">close</span>
-      <span
-        class="w-6 h-6 absolute top-[-4px] right-[-4px] bg-white border-primary-600 border-2 text-primary font-bold rounded-full flex items-center justify-center"
-        >{{ auth.shoppingList.length }}</span
+    <!-- Global Toast Area -->
+    <div class="fixed bottom-5 right-5 flex gap-4 items-center">
+      <!-- Loading Toast -->
+      <div v-if="loadingStore.toastLoadingMessage" class="flex items-center gap-4 bg-primary-20 rounded-lg px-4 py-2">
+        <img v-if="!loadingStore.isTransient" src="/loading.png" class="h-4 w-4 opacity-50" />
+        <p class="opacity-70 text-sm">{{ loadingStore.toastLoadingMessage }}</p>
+      </div>
+      <!-- Shopping List Toggle Button -->
+      <button
+        v-if="auth.shoppingList.length > 0"
+        @click="auth.shoppingListOpen = !auth.shoppingListOpen"
+        class="hidden sm:flex w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
+        :class="{
+          'bg-white !text-primary border-2 border-primary-600':
+            auth.shoppingListOpen,
+        }"
       >
-    </button>
-    <button
-      v-if="auth.shoppingList.length > 0 && !auth.shoppingListOpen"
-      @click="auth.shoppingListOpen = true"
-      class="flex sm:hidden fixed top-1/2 left-0 translate-x-[-50%] -translate-y-1/2 w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
-    >
-      <span class="material-symbols-outlined !text-lg -mr-6 mt-1"
-        >shopping_cart</span
+        <span v-if="!auth.shoppingListOpen" class="material-symbols-outlined"
+          >shopping_cart</span
+        >
+        <span v-else class="material-symbols-outlined">close</span>
+        <span
+          class="w-6 h-6 absolute top-[-4px] right-[-4px] bg-white border-primary-600 border-2 text-primary font-bold rounded-full flex items-center justify-center"
+          >{{ auth.shoppingList.length }}</span
+        >
+      </button>
+      <button
+        v-if="auth.shoppingList.length > 0 && !auth.shoppingListOpen"
+        @click="auth.shoppingListOpen = true"
+        class="flex sm:hidden fixed top-1/2 left-0 translate-x-[-50%] -translate-y-1/2 w-14 h-14 bg-primary-600 text-white rounded-full items-center justify-center z-50 transition-all duration-200 hover:scale-105"
       >
-    </button>
+        <span class="material-symbols-outlined !text-lg -mr-6 mt-1"
+          >shopping_cart</span
+        >
+      </button>
+    </div>
 
     <!-- Shopping List Panel -->
     <div
@@ -51,7 +61,7 @@
 
 <script setup>
 const auth = useAuthStore();
-
+const loadingStore = useLoadingStore();
 useHead({
   title: 'Rezeptor',
   meta: [

@@ -1,5 +1,8 @@
 <template>
-  <div class="h-full flex flex-col min-w-92">
+  <div
+    class="h-full flex flex-col min-w-92 relative rounded-xl pb-4"
+    :class="{ '!bg-primary-20/80 overflow-hidden': formalizationLoading }"
+  >
     <div class="p-2 md:p-6 !pb-2">
       <div class="flex justify-between items-center w-full mb-4">
         <div
@@ -26,43 +29,56 @@
               <span>Reset Units</span>
             </button>
           </transition>
+          <button
+            v-if="displayFormalize"
+            class="button flex items-center gap-2 px-2 py-1 font-medium !bg-primary/10 text-primary text-xs will-change-transform"
+            @click="formalize()"
+          >
+            <span class="material-symbols-outlined !text-sm">auto_awesome</span>
+            <span>Analyze</span>
+          </button>
         </div>
       </div>
-      <div class="mb-4" v-if="batchSize && !servingMode">
-        <p class="text-gray-600 ml-1 font-light">
-          For {{ batchSize }} {{ batchSize === 1 ? 'serving' : 'servings' }}
-        </p>
-        <p
-          @click="servingMode = !servingMode"
-          class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer italic"
-        >
-          Adjust servings
-        </p>
-      </div>
-      <div v-else>
-        <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
-        <FormsSlidingSelector
-          v-if="servingSize"
-          v-model="servingSize"
-          :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20]"
-          :expanded="false"
-          class="max-w-[180px]"
-        />
-        <p
-          v-if="batchSize"
-          @click="
-            servingMode = !servingMode;
-            servingSize = batchSize;
-          "
-          class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer mb-4 italic"
-        >
-          Show ingredients for one batch
-        </p>
+      <div v-if="ingredients && ingredients.length > 0">
+        <div class="mb-4" v-if="batchSize && !servingMode">
+          <p class="text-gray-600 ml-1 font-light">
+            For {{ batchSize }} {{ batchSize === 1 ? 'serving' : 'servings' }}
+          </p>
+          <p
+            @click="servingMode = !servingMode"
+            class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer italic"
+          >
+            Adjust servings
+          </p>
+        </div>
+        <div v-else>
+          <p class="text-sm text-gray-600 ml-1 font-light">Servings:</p>
+          <FormsSlidingSelector
+            v-if="servingSize"
+            v-model="servingSize"
+            :choices="[0.5, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 18, 20]"
+            :expanded="false"
+            class="max-w-[180px]"
+          />
+          <p
+            v-if="batchSize"
+            @click="
+              servingMode = !servingMode;
+              servingSize = batchSize;
+            "
+            class="text-xs text-gray-400 ml-1 font-extralight cursor-pointer mb-4 italic"
+          >
+            Show ingredients for one batch
+          </p>
+        </div>
       </div>
     </div>
 
     <div class="flex-1 px-2 md:px-6 py-2">
-      <div class="max-w-md space-y-4 select-none">
+      <div
+        class="max-w-md space-y-4 select-none"
+        v-if="ingredients && ingredients.length > 0"
+      >
         <template
           v-for="(group, category) in {
             uncategorized: groupedIngredients.uncategorized,
@@ -153,36 +169,34 @@
             Add to Shopping List
           </button>
         </Transition>
-        <div
-          v-if="!props.ingredients || props.ingredients.length === 0"
-          class="text-center py-12"
-        >
-          <div
-            class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center"
-          >
-            <span class="material-symbols-outlined text-2xl text-gray-400"
-              >shopping_cart</span
-            >
-          </div>
-          <h3 class="text-lg font-medium text-gray-700 mb-2">
-            No Ingredients Listed
-          </h3>
-          <p class="text-sm text-gray-500">
-            Ingredients for this recipe haven't been added yet.
+      </div>
+      <!-- No formal ingredients, display base ingredients-->
+      <div v-else class="flex flex-col">
+        <div v-for="baseIngredient in baseIngredients" :key="baseIngredient">
+          <p class="ml-1 font-light leading-relaxed text-base tracking-wider">
+            {{ baseIngredient }}
           </p>
         </div>
       </div>
     </div>
+    <div
+      class="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent p-4 pointer-events-none"
+      v-if="formalizationLoading"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps({
   ingredients: Array<any>,
+  baseIngredients: Array<string>,
   hideHeader: Boolean,
   batchSize: Number,
   servingSize: Number,
   recipeId: Number,
+  formalizationLoading: Boolean,
+  displayFormalize: Boolean,
+  formalize: Function,
 });
 
 const emit = defineEmits(['update:servingSize']);

@@ -1,7 +1,7 @@
 For this food, we have a problem matching its unit:
 {food_name}
 
-Recipe unit: {unit}
+Recipe unit: "{unit}"
 
 Available countable units for this food:
 {available_units}
@@ -10,7 +10,7 @@ Your task: Match the recipe unit to an available unit, or create a new one.
 
 If the recipe unit matches (refers to the same thing) or is very similar to any available unit (accounting for plurals, abbreviations, synonyms), pick that existing unit.
 
-If no available unit matches, create a new unit with an estimated weight in grams.
+If no available unit matches, *estimate the weight of the given recipe unit in grams*.
 
 Note: "whole" represents the food item itself (like "1 banana", "1 apple") - the default unit when counting the food directly. Basically means "no unit"/"".
 
@@ -20,7 +20,7 @@ Examples:
 - Recipe unit "piece" or "whole" matches available "whole"
 - Recipe unit "bulb" is new if only "clove" is available
 
-Response format:
+Response format as valid json:
 {
     "action": "match" | "create",
     "unit_name": string,
@@ -28,4 +28,4 @@ Response format:
 }
 
 For "match": use existing unit_name, weight_grams should be null
-For "create": provide new unit_name and estimated weight_grams
+For "create": provide the recipe unit and estimated weight_grams
