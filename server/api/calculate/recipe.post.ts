@@ -1,4 +1,4 @@
-import RecipeCalculator from '~/server/utils/RecipeCalculator';
+import NutritionEngine from '~/server/utils/NutritionEngine';
 import type {
   ComputableRecipe,
   InsertableRecipe,
@@ -6,12 +6,13 @@ import type {
   InsertableRecipeTag,
 } from '~/types/types';
 
-type CalculatorArgs = {
+type NutritionEngineArgs = {
   recipe: ComputableRecipe;
   useGpt: boolean;
   logToReport: boolean;
   considerProcessing: boolean;
   nutritionLabelOnly: boolean;
+  temp_sidx: number;
 };
 
 type Response = {
@@ -22,25 +23,28 @@ type Response = {
 
 export default defineEventHandler(async (event): Promise<Response> => {
   const body = await readBody(event);
-  const { calculatorArgs } = body as { calculatorArgs: CalculatorArgs };
+  const { nutritionEngineArgs } = body as { nutritionEngineArgs: NutritionEngineArgs };
 
-  const recipeCalculator = new RecipeCalculator(
-    calculatorArgs.useGpt,
-    calculatorArgs.logToReport,
-    calculatorArgs.considerProcessing,
-    calculatorArgs.nutritionLabelOnly
+  const nutritionEngine = new NutritionEngine(
+    nutritionEngineArgs.useGpt,
+    nutritionEngineArgs.logToReport,
+    nutritionEngineArgs.considerProcessing,
+    nutritionEngineArgs.nutritionLabelOnly
   );
-  await recipeCalculator.computeRecipe(calculatorArgs.recipe);
+  await nutritionEngine.computeRecipe(nutritionEngineArgs.recipe, nutritionEngineArgs.temp_sidx);
 
-  if (calculatorArgs.nutritionLabelOnly) {
+  if (nutritionEngineArgs.nutritionLabelOnly) {
     return {
-      recipeRow: recipeCalculator.getRecipeRow(),
+      recipeRow: nutritionEngine.getRecipeRow(),
       recipeFoodRows: null,
       recipeTagRows: null,
     };
   }
 
-  if (recipeCalculator?.recipe?.scores?.hidx === undefined || isNaN(recipeCalculator?.recipe?.scores?.hidx)) {
+  if (
+    nutritionEngine?.recipe?.scores?.hidx === undefined ||
+    isNaN(nutritionEngine?.recipe?.scores?.hidx)
+  ) {
     return {
       recipeRow: null,
       recipeFoodRows: null,
@@ -48,9 +52,9 @@ export default defineEventHandler(async (event): Promise<Response> => {
     };
   }
   const response: Response = {
-    recipeRow: recipeCalculator.getRecipeRow(),
-    recipeFoodRows: recipeCalculator.getRecipeFoodRows(),
-    recipeTagRows: recipeCalculator.getRecipeTagRows(),
+    recipeRow: nutritionEngine.getRecipeRow(),
+    recipeFoodRows: nutritionEngine.getRecipeFoodRows(),
+    recipeTagRows: nutritionEngine.getRecipeTagRows(),
   };
   return response as Response;
 });

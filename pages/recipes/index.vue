@@ -323,7 +323,7 @@ async function loadMoreRecipes() {
     const newRecipes = await getRecipeOverviews(supabase, {
       orderBy: sorts.value.find(
         (sort) => sort.displayName === selectedSorting.value
-      )?.value as { column: string; ascending: boolean },
+      )?.value ?? { column: selectedSorting.value, ascending: false } as { column: string; ascending: boolean },
       or: 'picture.not.eq.null,source_type.eq.MEDIA',
       filtering: filtering.value,
       trigram_search: { column: 'title', query: searchQuery.value },
@@ -455,6 +455,9 @@ function loadFromUrlParams() {
   if (query.sort && typeof query.sort === 'string') {
     const sortOption = sorts.value.find((s) => s.displayName === query.sort);
     if (sortOption) {
+      selectedSorting.value = query.sort;
+    }
+    else {
       selectedSorting.value = query.sort;
     }
   }

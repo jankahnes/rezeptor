@@ -54,7 +54,7 @@ const showDemo = async () => {
   const response = await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {
-      calculatorArgs: {
+      nutritionEngineArgs: {
         recipe: computableRecipe,
         useGpt: false,
         logToReport: false,

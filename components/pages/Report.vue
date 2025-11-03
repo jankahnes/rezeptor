@@ -391,7 +391,7 @@ onMounted(async () => {
         const response = (await $fetch('/api/calculate/nutrition', {
           method: 'POST',
           body: {
-            calculatorArgs: {
+            nutritionEngineArgs: {
               food: food,
               useGpt: false,
               logToReport: true,
@@ -410,11 +410,10 @@ onMounted(async () => {
       const response = (await $fetch('/api/calculate/recipe', {
         method: 'POST',
         body: {
-          calculatorArgs: {
+          nutritionEngineArgs: {
             recipe: recipeStore.editingRecipe,
             useGpt: false,
             logToReport: true,
-            isFood: false,
             considerProcessing: false,
           },
         },
@@ -438,6 +437,7 @@ onMounted(async () => {
       }
 
       // Check if report is preloaded in DB
+      // @ts-ignore
       if (recipeStore.recipe?.report) {
         recipeComputed.value = recipeStore.recipe;
       } else {
@@ -450,11 +450,10 @@ onMounted(async () => {
         const response = (await $fetch('/api/calculate/recipe', {
           method: 'POST',
           body: {
-            calculatorArgs: {
+            nutritionEngineArgs: {
               recipe: convertedRecipe,
               useGpt: false,
               logToReport: true,
-              isFood: false,
               considerProcessing: false,
             },
           },

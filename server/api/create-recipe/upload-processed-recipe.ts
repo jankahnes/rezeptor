@@ -85,8 +85,6 @@ async function insertNewRecipe(
     .from('recipes')
     .insert({
       ...recipeRow,
-      picture: null,
-      visibility: body.publish ? 'PUBLIC' : 'UNLISTED',
       user_id: userId, // Set the owner
     } as any)
     .select('id')
@@ -191,7 +189,6 @@ async function updateExistingRecipe(
     .from('recipes')
     .update({
       ...recipeRow,
-      visibility: body.publish ? 'PUBLIC' : 'UNLISTED',
     } as any)
     .eq('id', recipeId);
 
@@ -277,22 +274,21 @@ export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole<Database>(event);
   const body: ComputableRecipe & { full: Boolean } = await readBody(event);
 
-  const calculatorArgs = {
+  const nutritionEngineArgs = {
     recipe: body,
     useGpt: false,
     logToReport: true,
-    isFood: false,
     considerProcessing: false,
   };
 
   if (body.full) {
-    calculatorArgs.useGpt = true;
-    calculatorArgs.considerProcessing = true;
+    nutritionEngineArgs.useGpt = true;
+    nutritionEngineArgs.considerProcessing = true;
   }
   const response = (await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {
-      calculatorArgs: calculatorArgs,
+      nutritionEngineArgs: nutritionEngineArgs,
     },
   })) satisfies {
     recipeRow: InsertableRecipe;

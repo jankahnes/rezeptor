@@ -26,3 +26,5 @@ TODO.txt
 notes.txt
 .vscode/extensions.json
 .vercel
+ignored/
+server/utils/foods.csv

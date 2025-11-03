@@ -6,12 +6,12 @@
   >
     <NuxtImg
       v-if="recipe?.picture"
-      class="w-full aspect-square object-contain relative z-10 shadow-gray-300 [filter:drop-shadow(0_0_10px_var(--tw-shadow-color))_drop-shadow(0_0_6px_var(--tw-shadow-color))] transition-all duration-300 group-hover:translate-y-[-1px]"
+      class="w-full aspect-square object-contain relative z-10 shadow-gray-200 [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] transition-all duration-300 group-hover:translate-y-[-1px]"
       :src="recipe?.picture"
     />
     <div v-else-if="recipe?.social_picture" class="relative w-full">
       <div
-        class="bg-white rounded-full overflow-hidden relative z-10 aspect-square shadow-gray-300 [filter:drop-shadow(0_0_10px_var(--tw-shadow-color))_drop-shadow(0_0_6px_var(--tw-shadow-color))]"
+        class="bg-white rounded-full overflow-hidden relative z-10 aspect-square shadow-gray-200 [filter:drop-shadow(0_0_6px_var(--tw-shadow-color))_drop-shadow(0_0_2px_var(--tw-shadow-color))]"
       >
         <div
           class="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full aspect-9/16"

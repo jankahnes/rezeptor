@@ -365,7 +365,7 @@ export default defineEventHandler(async (event) => {
       ...units,
     };
 
-    const calculatorArgs = {
+    const nutritionEngineArgs = {
       food: { food: foodObject, name: primaryName },
       useGpt: false,
       logToReport: true,
@@ -374,7 +374,7 @@ export default defineEventHandler(async (event) => {
     const nutritionResponse = (await $fetch('/api/calculate/nutrition', {
       method: 'POST',
       body: {
-        calculatorArgs: calculatorArgs,
+        nutritionEngineArgs: nutritionEngineArgs,
       },
     })) as {
       nutrition: any;

@@ -35,7 +35,7 @@
           {{ recipe.description }}
         </p>
         <div
-          class="gap-1.5 flex-wrap text-xs items-start py-0.5 hidden xs:flex"
+          class="gap-1.5 flex-wrap text-xs items-start py-0.5 flex [&>*:nth-child(n+3)]:hidden"
         >
           <div
             v-if="recipe.hidx && recipe.hidx >= 55"
@@ -67,7 +67,7 @@
           </div>
         </div>
       </div>
-      <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap mb-2">
+      <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap my-2">
         <PagesRecipeSourceTypeTag
           class="inline-flex !rounded-full text-xs flex-shrink-0"
           :sourceType="recipe.source_type"

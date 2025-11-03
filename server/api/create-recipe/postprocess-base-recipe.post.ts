@@ -149,21 +149,24 @@ export default defineEventHandler(async (event) => {
 
   const promises = [];
   console.log('🔍 Calculating full nutrition');
-  const fullNutritionPromise = $fetch('/api/create-recipe/upload-processed-recipe', {
-    method: 'POST',
-    headers: {
-      cookie: headers.cookie || '',
-      authorization: headers.authorization || '',
-    },
-    body: {
-      ...computableRecipe,
-      full: true,
-    },
-  });
+  const fullNutritionPromise = $fetch(
+    '/api/create-recipe/upload-processed-recipe',
+    {
+      method: 'POST',
+      headers: {
+        cookie: headers.cookie || '',
+        authorization: headers.authorization || '',
+      },
+      body: {
+        ...computableRecipe,
+        full: true,
+      },
+    }
+  );
   promises.push(fullNutritionPromise);
 
   if (!baseRecipe.picture) {
-  console.log('🔍 No existing picture, generating AI placeholder picture');
+    console.log('🔍 No existing picture, generating AI placeholder picture');
     const picturePromise = $fetch('/api/create-recipe/get-processed-image', {
       method: 'POST',
       headers: {
@@ -180,7 +183,7 @@ export default defineEventHandler(async (event) => {
           });
         }
 
-  console.log('🔍 Uploading AI placeholder picture');
+        console.log('🔍 Uploading AI placeholder picture');
         return $fetch('/api/db/upload-image', {
           method: 'POST',
           headers: {
@@ -201,7 +204,7 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Failed to upload picture',
           });
         }
-        
+
         console.log('🔍 Picture uploaded, updating recipe');
         return supabase
           .from('recipes')

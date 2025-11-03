@@ -1,0 +1,340 @@
+NUTRITION REPORT - HUMAN-READABLE PHRASINGS & THRESHOLDS
+===========================================================
+
+This document defines the human-readable output for each nutrition category based on the new scoring system.
+
+General Principles:
+- Official standards (FDA, EU regulations) take precedence where they exist
+- Thresholds should be based on actual metric values, not scores (to avoid circular logic)
+- Use per-100g or per-serving metrics where meaningful
+- Include contextual information (contributors, ratios) where valuable
+
+
+1. MICRONUTRIENTS ✓ (Already well-defined)
+==========================================
+
+Available metrics: {name, displayName, value, nutrientPer2000kcal, percentRDA, rdaPer100, rdaPerServing, nutrientScore, weightedScore}
+
+OFFICIAL FDA/EU STANDARDS (per 100g):
+- <5% RDA: Not displayed / "Trace"
+- 5-15% RDA: "Low source of"
+- 15-35% RDA: "Source of"
+- 35-50% RDA: "High in"
+- 50-75% RDA: "Excellent source of"
+- 75%+ RDA: "Exceptionally high in"
+
+Display threshold: 10% RDA per 100g (current system is good)
+Sort by: RDA per 100g (descending)
+Include: Contributor breakdown for recipes (not foods)
+
+STATUS: Already implemented correctly in micronutrientsToReadable.ts
+
+
+2. FIBER
+========
+
+Available metrics: {fiberPer100g, fiberPer2000kcal, fiberRDAPer2000kcal}
+
+THRESHOLDS (per 100g):
+Most recipes/foods fall in 0-3g range, needs granular steps
+- <0.5g: "Very low fiber" (POOR)
+- 0.5-1g: "Low fiber" (BAD)
+- 1-1.5g: "Below average fiber" (SUBOPTIMAL)
+- 1.5-2g: "Decent fiber" (NEUTRAL)
+- 2-2.5g: "Moderate fiber" (OKAY)
+- 2.5-3.5g: "High fiber" (GOOD/GREAT)
+- 3.5-5g: "Very high fiber" (GREAT)
+- 5g+: "Excellent fiber" (EXCELLENT)
+
+Note: FDA "high fiber" claim requires 5g/serving (or 6g/100g for foods), but this is
+too high a bar for typical foods/recipes
+
+ADDITIONAL CONTEXT (fiberRDAPer2000kcal):
+Secondary display showing "on track" status:
+- <0.5 (15g/2000kcal): "Below recommended" (SUBOPTIMAL)
+- 0.5-0.67 (15-20g): "Approaching target" (OKAY)
+- 0.67-1.0 (20-30g): "Meeting target" (GOOD/GREAT)
+- 1.0+ (30g+): "Exceeding target" (EXCELLENT)
+
+Primary display: fiberPer100g with granular thresholds
+Secondary display: fiberRDAPer2000kcal percentage context
+
+
+3. SUGAR
+========
+
+Available metrics: {totalSugarPer100, sugarPer2000kcal, percentContributedFromNaturalSources, percentOfKcal}
+
+SUGAR CONCENTRATION (per 100g):
+Use phrasing about concentration/amount to avoid conflict with energy contribution
+- <2.5g: "Very low sugar concentration"
+- 2.5-5g: "Low sugar concentration"
+- 5-10g: "Moderate sugar concentration"
+- 10-15g: "Elevated sugar concentration"
+- 15-22.5g: "High sugar concentration" (EU threshold: 22.5g)
+- 22.5g+: "Very high sugar concentration"
+
+SUGAR AS % OF ENERGY (percentOfKcal):
+Use phrasing about energy contribution - more relevant for health
+- <5%: "Minimal energy from sugar" (EXCELLENT)
+- 5-10%: "Low energy from sugar" (GOOD) (WHO <10%E target)
+- 10-15%: "Moderate energy from sugar" (OKAY)
+- 15-20%: "Elevated energy from sugar" (SUBOPTIMAL)
+- 20-30%: "High energy from sugar" (BAD)
+- 30%+: "Very high energy from sugar" (POOR)
+
+NATURAL SOURCE MODIFIER (subtitle):
+If percentContributedFromNaturalSources > 80%:
+  Add: "Primarily from natural sources"
+If percentContributedFromNaturalSources < 30%:
+  Add: "Predominantly added sugars"
+
+Primary display: percentOfKcal (energy contribution - more health-relevant)
+Secondary display: totalSugarPer100 (concentration)
+Include: natural source breakdown when meaningful
+
+
+4. SODIUM/SALT
+==============
+
+Available metrics: {saltPer100g, naKRatio, totalElectrolytesPer1000kcal, totalElectrolytesPer100g, saltRDAPerServing}
+
+OFFICIAL STANDARDS (salt per 100g):
+- <0.3g: "Low salt" (EU low sodium claim)
+- 0.3-0.6g: "Moderate salt"
+- 0.6-1.5g: "Elevated salt"
+- 1.5-3g: "High salt"
+- 3g+: "Very high salt"
+
+SALT PER SERVING CONTEXT:
+- <0.3g per serving: "Minimal contribution to daily intake"
+- 0.3-1g: "Low contribution" (~6-20% of 5g daily limit)
+- 1-2g: "Moderate contribution" (~20-40%)
+- 2-3g: "Significant contribution" (~40-60%)
+- 3g+: "Major contribution to daily intake"
+
+Na/K RATIO QUALITY (when totalElectrolytesPer1000kcal > 500):
+- <0.6: "Excellent sodium-potassium balance" (EXCELLENT)
+- 0.6-1.0: "Good balance" (GREAT)
+- 1.0-1.5: "Fair balance" (GOOD)
+- 1.5-2.5: "Poor balance" (SUBOPTIMAL/BAD)
+- 2.5+: "Very poor balance" (POOR)
+
+If totalElectrolytesPer1000kcal < 500:
+  Don't display ratio quality (negligible electrolytes)
+
+Primary display: saltPer100g with official standards
+Secondary display (if applicable): Na/K ratio quality + saltRDAPerServing context
+
+
+5. FAT PROFILE
+==============
+
+Available metrics: {fatPer2000kcal, totalFatPer100g, satFatPercent, o3Percent, o6Percent, mufaPercent, transFatPercent}
+
+OVERALL FAT AMOUNT (totalFatPer100g):
+- <3g: "Low fat" (EU claim)
+- 3-10g: "Moderate fat"
+- 10-20g: "Moderate-high fat"
+- 20g+: "High fat"
+
+COMPONENT DISPLAY (only if fatPer2000kcal > 20g, i.e., relevance weight > 0.5):
+
+a) TRANS FAT (transFatPercent as % of total fat):
+   PRIORITY DISPLAY if > 1%
+   - 0-1%: Don't display / "Negligible trans fat"
+   - 1-2%: "Trace trans fat" (WARNING)
+   - 2-5%: "Contains trans fat" (POOR)
+   - 5-8%: "High in trans fat" (POOR)
+   - 8%+: "Very high in trans fat" (POOR)
+
+b) SATURATED FAT (satFatPercent as % of total fat):
+   - <15%: "Very low saturated fat composition" (EXCELLENT)
+   - 15-25%: "Low saturated fat composition" (GREAT)
+   - 25-33%: "Moderate saturated fat" (GOOD/OKAY) [~33% is "on track"]
+   - 33-50%: "Elevated saturated fat" (SUBOPTIMAL)
+   - 50-67%: "High saturated fat" (BAD)
+   - 67%+: "Very high saturated fat" (POOR)
+
+c) OMEGA-3 (o3Percent as % of total fat):
+   - 0-0.5%: "Minimal omega-3"
+   - 0.5-1.5%: "Low omega-3"
+   - 1.5-2.5%: "Moderate omega-3" (OKAY) [~2.5% is "on track"]
+   - 2.5-5%: "Good omega-3 content" (GOOD/GREAT)
+   - 5-10%: "High omega-3 content" (EXCELLENT)
+   - 10%+: "Exceptional omega-3 content" (OUTSTANDING)
+
+d) OMEGA-6 (o6Percent as % of total fat):
+   - <10%: "Low omega-6"
+   - 10-30%: "Moderate omega-6" (NEUTRAL)
+   - 30-50%: "High omega-6"
+   - 50%+: "Very high omega-6"
+   (Note: Nearly flat scale, don't over-emphasize)
+
+e) MUFA (mufaPercent as % of total fat):
+   - <10%: "Low MUFA"
+   - 10-30%: "Moderate MUFA"
+   - 30-50%: "Good MUFA content" (GOOD)
+   - 50-60%: "High MUFA content" (GREAT) [60% is optimal]
+   - 60%+: "Very high MUFA content" (EXCELLENT)
+
+DISPLAY ORDER (for foods with meaningful fat content):
+1. Trans fat (if > 1%, PRIORITY WARNING)
+2. Saturated fat (major health factor)
+3. Omega-3 content
+4. MUFA content
+5. Omega-6 (only if notable, downplay)
+
+If fatPer2000kcal < 20g:
+  Display: "Low fat food - fat composition less relevant"
+  (Don't display component breakdown)
+
+
+6. PROTECTIVE COMPOUNDS
+========================
+
+Available metrics: {glucosinolatesPer2000kcal, carotenoidsPer2000kcal, polyphenolsPer2000kcal, polyphenols, carotenoids, glucosinolates}
+
+Note: Uses 0-10 scale from database. Same phrasing for all three compounds.
+
+UNIFIED THRESHOLDS (0-10 scale):
+- 0: "No [compound]" (NEUTRAL)
+- 0-1: "Trace [compound]" (NEUTRAL)
+- 1-2: "Some [compound]" (OKAY)
+- 2-3: "Moderate [compound]" (OKAY)
+- 3-4: "Decent [compound]" (GOOD)
+- 4-5: "High in [compound]" (GOOD)
+- 5-6: "Very high in [compound]" (GREAT)
+- 6-7: "Excellent source of [compound]" (GREAT)
+- 7-8: "Exceptional source of [compound]" (EXCELLENT)
+- 8-9: "Superior source of [compound]" (OUTSTANDING)
+- 9-10: "Elite source of [compound]" (OUTSTANDING)
+
+Apply to: Polyphenols, Carotenoids, Glucosinolates
+
+Display threshold: Show compound if value > 1 (above "trace")
+Sort by: Value (descending) - most abundant compounds first
+
+For recipes: Include contributor breakdown if available
+
+
+7. PROTEIN
+==========
+
+Available metrics: {limitingAA, limitingAA_ratio, proteinPer2000kcal, proteinPer100g, proteinPerServing, proteinKcalRatio}
+
+OFFICIAL STANDARDS (per 100g):
+- <5g: Not a protein source
+- 5-10g: "Source of protein" (EU: 12% kcal from protein)
+- 10-20g: "Good protein source"
+- 20g+: "High protein" (EU claim: 20% kcal from protein)
+
+PROTEIN QUALITY (limitingAA_ratio):
+Display only if proteinPer100g > 5g
+- <0.3: "Very poor protein quality" (BAD)
+- 0.3-0.5: "Poor protein quality" (SUBOPTIMAL)
+- 0.5-0.7: "Moderate protein quality" (OKAY)
+- 0.7-0.85: "Good protein quality" (GOOD)
+- 0.85-0.95: "Very good protein quality" (GREAT)
+- 0.95+: "Excellent protein quality" (EXCELLENT)
+
+Include: Limiting amino acid name as subtitle
+E.g., "Good protein quality (limited by lysine)"
+
+PROTEIN DENSITY (proteinKcalRatio - g protein per 100 kcal):
+- <2g/100kcal: "Low protein density"
+- 2-5g/100kcal: "Moderate protein density"
+- 5-10g/100kcal: "Good protein density"
+- 10g+/100kcal: "High protein density"
+
+Primary display: proteinPer100g with official standards
+Secondary display: Protein quality with limiting AA
+Tertiary context: Protein density or per-serving amount
+
+
+8. PROCESSING LEVEL
+===================
+
+Available metrics: {avgNOVA, maxNOVA, pctUPF, upfCount, pctWhole, wholeCount}
+
+NOVA SCALE (avgNOVA):
+- 1.0-1.5: "Minimally processed" (EXCELLENT)
+- 1.5-2.0: "Mostly unprocessed" (GREAT)
+- 2.0-2.5: "Lightly processed" (GOOD)
+- 2.5-3.0: "Moderately processed" (OKAY)
+- 3.0-3.5: "Highly processed" (SUBOPTIMAL)
+- 3.5-4.0: "Ultra-processed" (BAD/POOR)
+
+UPF PERCENTAGE (pctUPF):
+- 0%: "No ultra-processed ingredients"
+- 1-10%: "Minimal UPF content"
+- 10-25%: "Low UPF content"
+- 25-50%: "Moderate UPF content"
+- 50-75%: "High UPF content"
+- 75-100%: "Primarily ultra-processed"
+
+WHOLE FOOD PERCENTAGE (pctWhole):
+- 90-100%: "Entirely whole foods" (EXCELLENT)
+- 75-90%: "Mostly whole foods" (GREAT)
+- 50-75%: "Partially whole foods" (GOOD)
+- 25-50%: "Some whole foods" (OKAY)
+- 10-25%: "Few whole foods" (SUBOPTIMAL)
+- 0-10%: "Minimal whole foods" (BAD)
+
+Primary display: avgNOVA + verbal description
+Secondary display: pctWhole as positive framing if > 25%, otherwise pctUPF as warning
+Include: upfCount if > 0 (e.g., "Contains 3 ultra-processed ingredients")
+
+
+9. SATIETY
+==========
+
+Available metrics: {ff, giProxy, water, kcal}
+
+Note: Satiety is scored via ML model. Report should show interpretable factors.
+
+FULLNESS FACTOR (ff, 0.5-5 scale):
+- 0.5-1.0: "Low satiety"
+- 1.0-1.5: "Below average satiety"
+- 1.5-2.5: "Moderate satiety"
+- 2.5-3.5: "Good satiety"
+- 3.5-4.5: "High satiety"
+- 4.5-5.0: "Exceptional satiety"
+
+GLYCEMIC PROXY (giProxy, normalized 0-100):
+Lower is better for blood sugar stability
+- 0-20: "Very low glycemic response"
+- 20-40: "Low glycemic response"
+- 40-60: "Moderate glycemic response"
+- 60-80: "High glycemic response"
+- 80-100: "Very high glycemic response"
+
+ENERGY DENSITY (kcal per 100g):
+- <40: "Very low energy density" (filling)
+- 40-100: "Low energy density"
+- 100-200: "Moderate energy density"
+- 200-400: "High energy density"
+- 400+: "Very high energy density" (less filling)
+
+WATER CONTENT (water %):
+- <40%: "Low water content"
+- 40-60%: "Moderate water content"
+- 60-80%: "High water content"
+- 80%+: "Very high water content"
+
+Display strategy:
+- Primary: Fullness factor + verbal description
+- Context 1: Energy density (kcal)
+- Context 2: Glycemic proxy (for carb-rich foods)
+- Don't display water explicitly (redundant with energy density)
+
+
+SUMMARY OF CHANGES:
+===================
+
+- Omega-6/Omega-3 ratio removed (not scientifically justified, not used in scoring)
+- Sugar phrasing differentiated: "concentration" vs "energy contribution"
+- Fiber thresholds made more granular for 0-3g range (where most foods fall)
+- Protective compounds use unified phrasing across all three types
+- All metrics available in current system
+

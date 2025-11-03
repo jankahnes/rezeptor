@@ -200,6 +200,10 @@
                   Fats & Other Nutrients
                 </h3>
                 <div class="flex justify-between">
+                  <span>Saturated Fat</span>
+                  <span>{{ (food.saturated_fat * 1000)?.toFixed(1) ?? '0' }} mg</span>
+                </div>
+                <div class="flex justify-between">
                   <span>Trans Fats</span>
                   <span>{{ food.trans_fats_mg?.toFixed(1) ?? '0' }} mg</span>
                 </div>
