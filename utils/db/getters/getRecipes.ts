@@ -59,7 +59,7 @@ async function getRecipeIdsByTags(
 
 export async function getRecipes(
   client: SupabaseClient<Database>,
-  opts: GetterOpts = {},
+  opts: GetterOpts = {}
 ): Promise<Recipe[]> {
   let query = client.from('recipes').select(`
         *,
@@ -193,19 +193,20 @@ export async function getRecipes(
 
 export async function getRecipe(
   client: SupabaseClient<Database>,
-  opts: GetterOpts = {},
+  opts: GetterOpts = {}
 ): Promise<Recipe> {
   return expectSingle(await getRecipes(client, opts));
 }
 
 export async function getRecipeOverviews(
   client: SupabaseClient<Database>,
-  opts: GetterOpts = {},
+  opts: GetterOpts = {}
 ): Promise<RecipeOverview[]> {
   let query = client.from('recipes').select(`
         id, hidx, kcal, price, title, created_at, visibility, picture, rating, protein, carbohydrates, fat, sugar, salt, fiber, user_id, collection, 
         tags:recipe_tags(tag_id), source, description, original_title, source_type, original_creator_channel_name
       `);
+  let similarityMap: Map<number, number> | null = null;
   if (
     opts.trigram_search &&
     opts.trigram_search.query &&
@@ -225,7 +226,10 @@ export async function getRecipeOverviews(
       return [];
     }
 
-    const recipeIds = trigramResults.map((result: any) => result.recipe_id);
+    const recipeIds = trigramResults.map((result: any) => result.id);
+    similarityMap = new Map(
+      trigramResults.map((result: any) => [result.id, result.similarity])
+    );
 
     query = query.in('id', recipeIds);
   }
@@ -253,12 +257,20 @@ export async function getRecipeOverviews(
   }
   const recipeOverviews = recipes as unknown as RecipeOverview[];
 
+  if (similarityMap) {
+    recipeOverviews.sort((a, b) => {
+      const similarityA = similarityMap!.get(a.id) ?? 0;
+      const similarityB = similarityMap!.get(b.id) ?? 0;
+      return similarityB - similarityA; // Sort descending (highest similarity first)
+    });
+  }
+
   return recipeOverviews;
 }
 
 export async function getRecipeOverview(
   client: SupabaseClient,
-  opts: GetterOpts = {},
+  opts: GetterOpts = {}
 ): Promise<RecipeOverview> {
   return expectSingle(await getRecipeOverviews(client, opts));
 }

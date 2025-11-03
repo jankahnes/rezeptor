@@ -883,17 +883,17 @@ const recomputeRecipe = async () => {
       false
     );
 
-    const calculatorArgs = {
+    const nutritionEngineArgs = {
       recipe: JSON.parse(JSON.stringify(editableRecipe)),
       useGpt: false,
       logToReport: false,
-      isFood: false,
       considerProcessing: false,
+      temp_sidx: recipeStore.recipe?.sidx ?? 0,
     };
     const response = await $fetch('/api/calculate/recipe', {
       method: 'POST',
       body: {
-        calculatorArgs: calculatorArgs,
+        nutritionEngineArgs: nutritionEngineArgs,
       },
     });
 

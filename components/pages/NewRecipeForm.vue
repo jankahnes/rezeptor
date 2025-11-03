@@ -200,10 +200,10 @@ async function compute() {
   const response = (await $fetch('/api/calculate/recipe', {
     method: 'POST',
     body: {
-      calculatorArgs: {
+      nutritionEngineArgs: {
         recipe: parsingRecipe.value,
         useGpt: false,
-        false: true,
+        logToReport: false,
         considerProcessing: false,
       },
     },

@@ -62,11 +62,9 @@
     <!-- Recommendations -->
     <div class="2lg:hidden">
       <div class="flex gap-4 justify-between items-center">
-        <h2
-          class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
-        >
+        <NuxtLink to="/recipes/" class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold">
           RECOMMENDATIONS
-        </h2>
+        </NuxtLink>
         <NuxtLink to="/recipes/" class="flex text-gray-500 items-center gap-2">
           <span class="material-symbols-outlined !text-sm">
             arrow_forward
@@ -89,12 +87,10 @@
 
     <div class="hidden 2lg:block">
       <div class="flex gap-4 justify-between items-center">
-        <h2
-          class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
-        >
+        <NuxtLink to="/recipes/" class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"> 
           RECOMMENDATIONS
-        </h2>
-        <NuxtLink to="/recipes/" class="flex text-gray-500 items-center gap-2">
+        </NuxtLink>
+        <NuxtLink to="/recipes/" class="hidden sm:flex text-gray-500 items-center gap-2">
           <span class="material-symbols-outlined !text-sm">
             arrow_forward
           </span>
@@ -155,14 +151,12 @@
     <div class="flex flex-wrap">
       <div class="flex flex-col gap-4">
         <div class="flex gap-4 justify-between items-center">
-          <h2
-            class="self-start px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
-          >
+          <NuxtLink to="/recipes/social/" class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold">
             TRENDING ON SOCIAL MEDIA
-          </h2>
+          </NuxtLink>
           <NuxtLink
             to="/recipes/social/"
-            class="flex text-gray-500 items-center gap-2"
+            class="hidden sm:flex text-gray-500 items-center gap-2 flex-shrink-0"
           >
             <span class="material-symbols-outlined !text-sm">
               arrow_forward

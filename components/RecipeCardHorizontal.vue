@@ -8,7 +8,7 @@
     <!-- circular -->
     <NuxtImg
       v-if="recipe?.picture"
-      class="h-28 xs:h-34 object-cover bg-transparent shadow-gray-200 [filter:drop-shadow(0_0_8px_var(--tw-shadow-color))_drop-shadow(0_0_4px_var(--tw-shadow-color))] relative z-10"
+      class="h-28 xs:h-34 object-cover bg-transparent shadow-gray-200 [filter:drop-shadow(0_0_6px_var(--tw-shadow-color))_drop-shadow(0_0_2px_var(--tw-shadow-color))] relative z-10"
       :src="recipe?.picture || ''"
     />
 
@@ -17,7 +17,7 @@
       class="relative w-28 xs:w-34 flex-shrink-0"
     >
       <div
-        class="bg-white rounded-full overflow-hidden relative z-10 aspect-square shadow-gray-300 [filter:drop-shadow(0_0_10px_var(--tw-shadow-color))_drop-shadow(0_0_6px_var(--tw-shadow-color))]"
+        class="bg-white rounded-full overflow-hidden relative z-10 aspect-square shadow-gray-200 [filter:drop-shadow(0_0_6px_var(--tw-shadow-color))_drop-shadow(0_0_2px_var(--tw-shadow-color))]"
       >
         <div
           class="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full aspect-9/16"
@@ -109,4 +109,13 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.white-fade-overlay {
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0) 62%,
+    rgba(255, 255, 255, 1) 75%
+  );
+}
+
+</style>

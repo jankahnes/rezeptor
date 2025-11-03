@@ -1,0 +1,14 @@
+new report:
+{
+	micronutrients: {details: {name, displayName, value, nutrientPer2000kcal, percentRDA, rdaPer100, rdaPerServing, nutrientScore, weightedScore}[]}
+	satiety: {ff, giProxy, water, kcal}
+	fiber: {fiberPer100g, fiberPer2000kcal, fiberRDAPer2000kcal}
+	salt: {saltPer100g, naKRatio, totalElectrolytesPer1000kcal, totalElectrolytesPer100g, saltRDAPerServing}
+	sugar: {totalSugarPer100, sugarPer2000kcal, percentContributedFromNaturalScources, percentOfKcal}
+	fatProfile: { fatPer2000kcal, totalFatPer100g, satFatPercent, o3Percent, o6Percent, mufaPercent, transFatPercent }
+	protectiveCompounds: {glucosinolatesPer2000kcal, carotenoidsPer2000kcal, polyphenolsPer2000kcal, polyphenols, carotenoids, glucosinolates}
+	protein: { limitingAA, limitingAA_ratio, proteinPer2000kcal, proteinPer100g, proteinPerServing, proteinKcalRatio}
+	processingLevel: {avgNOVA, maxNOVA, pctUPF, upfCount, pctWhole, wholeIngredients, upfIngredients }
+}
+
+- 

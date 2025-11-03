@@ -33,7 +33,10 @@ export default defineEventHandler(async (event) => {
       .split('\n')
       .map((ingredient: string) => ingredient.trim()),
     serves: ingredientsResponseJson.serves,
-    batch_size: ingredientsResponseJson.batch_size,
+    batch_size:
+      ingredientsResponseJson.serves > 1
+        ? ingredientsResponseJson.serves
+        : null,
     ...args,
   };
 

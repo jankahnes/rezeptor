@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap gap-4 justify-center mt-10">
+  <div class="flex flex-wrap gap-4 justify-center mt-10 mx-2 sm:mx-6 z-2">
     <RecipeCardSocialMedia v-for="recipe in results" :key="recipe.id" :recipe="recipe" class="max-h-60
     max-w-240 basis-150"/>
     <div ref="sentinelElement" v-if="isLoading || hasMoreRecipes" class="h-120">

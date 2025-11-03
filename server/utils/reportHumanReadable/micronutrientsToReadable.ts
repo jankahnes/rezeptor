@@ -50,6 +50,12 @@ export default function micronutrientsToReadable(report: any, isFood: boolean) {
         })
 
     }
+    if(items.length === 0) {
+        items.push({
+            description: "Not a notable source of any micronutrients",
+            ...generics.NEUTRAL
+        })
+    }
     items.sort((a, b) => b.value - a.value)
     return items
 }

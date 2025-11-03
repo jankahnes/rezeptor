@@ -1,11 +1,12 @@
-import RecipeCalculator from '~/server/utils/RecipeCalculator';
+import NutritionEngine from '~/server/utils/NutritionEngine';
 import type { Food } from '~/types/types';
 
-type CalculatorArgs = {
+type NutritionEngineArgs = {
   food: Food;
   useGpt: boolean;
   logToReport: boolean;
   considerProcessing: boolean;
+  temp_sidx: number;
 };
 
 type Response = {
@@ -15,18 +16,18 @@ type Response = {
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const { calculatorArgs } = body as { calculatorArgs: CalculatorArgs };
-  const recipeCalculator = new RecipeCalculator(
-    calculatorArgs.useGpt,
-    calculatorArgs.logToReport,
-    calculatorArgs.considerProcessing
+  const { nutritionEngineArgs } = body as { nutritionEngineArgs: NutritionEngineArgs };
+  const nutritionEngine = new NutritionEngine(
+    nutritionEngineArgs.useGpt,
+    nutritionEngineArgs.logToReport,
+    nutritionEngineArgs.considerProcessing
   );
-  const scores = await recipeCalculator.computeFood(calculatorArgs.food);
-  if (calculatorArgs.logToReport) {
-    recipeCalculator.generateReport();
+  const scores = await nutritionEngine.computeFood(nutritionEngineArgs.food, nutritionEngineArgs.temp_sidx);
+  if (nutritionEngineArgs.logToReport) {
+    nutritionEngine.generateReport();
   }
   const response: Response = {
-    nutritionComputed: recipeCalculator.getRecipeRow(),
+    nutritionComputed: nutritionEngine.getRecipeRow(),
     nutrition: scores,
   };
   return response;

@@ -1,59 +1,54 @@
-import * as generics from "~/utils/format/genericDescriptors";
-
+import * as generics from '~/utils/format/genericDescriptors';
 
 const fiberPer100gThresholds = {
-    0: { description: "Very low", ...generics.POOR},
-    0.5: { description: "Low", ...generics.BAD},
-    1: { description: "Below average", ...generics.SUBOPTIMAL},
-    1.5: { description: "Decent", ...generics.NEUTRAL},
-    2: { description: "Moderate", ...generics.OKAY},
-    2.5: { description: "High", ...generics.GREAT},
-    3.5: { description: "Very high", ...generics.GREAT},
-    5: { description: "Excellent", ...generics.EXCELLENT},
-}
+  0: { description: 'Very low', ...generics.POOR },
+  0.5: { description: 'Low', ...generics.BAD },
+  1: { description: 'Below average', ...generics.SUBOPTIMAL },
+  1.5: { description: 'Decent', ...generics.NEUTRAL },
+  2: { description: 'Moderate', ...generics.OKAY },
+  2.5: { description: 'High', ...generics.GREAT },
+  3.5: { description: 'Very high', ...generics.GREAT },
+  5: { description: 'Excellent', ...generics.EXCELLENT },
+};
 
-const fiberRDAPerServingThresholds = {
-    0: { description: "Very low", ...generics.POOR},
-    0.1: { description: "Low", ...generics.BAD},
-    0.15: { description: "Below average", ...generics.SUBOPTIMAL},
-    0.2: { description: "Decent", ...generics.NEUTRAL},
-    0.25: { description: "Moderate", ...generics.OKAY},
-    0.3: { description: "High", ...generics.GREAT},
-    0.4: { description: "Very high", ...generics.GREAT},
-    0.5: { description: "Excellent", ...generics.EXCELLENT},
-    0.6: { description: "Outstanding", ...generics.OUTSTANDING},
-}
+const fiberTargetThresholds = {
+  0: { description: 'Below recommended intake', ...generics.SUBOPTIMAL },
+  0.65: { description: 'Approaching recommended intake', ...generics.OKAY },
+  0.85: { description: 'Meeting recommended intake', ...generics.GREAT },
+  1.1: { description: 'Exceeding recommended intake', ...generics.EXCELLENT },
+};
 
 export default function fiberToReadable(report: any, isFood: boolean) {
-    if(!report.fiber) return []
-    const items = []
-    const fiberPer100gItem = generics.getHighestThreshold(report.fiber.fiberPer100g, fiberPer100gThresholds)
-    const fiberRDAPerServingItem = generics.getHighestThreshold(report.fiber.fiberRDAPerServing, fiberRDAPerServingThresholds)
-    items.push({
-        description: fiberPer100gItem.description + (isFood ? " fiber per 100g" : " fiber per serving"),
-        color: fiberPer100gItem.color,
-        icon: fiberPer100gItem.icon,
-        value: fiberPer100gItem.value
-    })
-    if(!isFood) {
-    items.push({
-        description: (report.fiber.fiberRDAPerServing * 100).toFixed(0) + "% of fiber RDA per 100g",
-        color: fiberRDAPerServingItem.color,
-            icon: fiberRDAPerServingItem.icon,
-            value: fiberRDAPerServingItem.value
-            })
-        }
-    if(!isFood) {
-    const contributors = report.contributors["fiber"]?.contributors || []
-    for(const contributor of contributors) {
-        if(contributor.totalContribution > 75) {
-            items.push({
-                description: "Fiber from " + contributor.name,
-                ...generics.GOOD
-            })
-            }
-        }
+  if (!report.fiber) return [];
+  const items = [];
+  const fiberPer100gItem = generics.getHighestThreshold(
+    report.fiber.fiberPer100g,
+    fiberPer100gThresholds
+  );
+  const fiberTargetItem = generics.getHighestThreshold(
+    report.fiber.fiberRDAPer2000kcal,
+    fiberTargetThresholds
+  );
+  items.push({
+    ...fiberPer100gItem,
+    description: fiberPer100gItem.description + ' in Fiber',
+    subtitle: report.fiber.fiberTotal.toFixed(1) + (isFood ? 'g fiber per 100g' : 'g fiber per serving'),
+  });
+  items.push({
+    ...fiberTargetItem,
+    subtitle: "Aiming for " + (report.fiber.fiberRDAPer2000kcal * 100).toFixed(0) + '% of RDA',
+  });
+  if (!isFood) {
+    const contributors = report.contributors['fiber']?.contributors || [];
+    for (const contributor of contributors) {
+      if (contributor.totalContribution > 5) {
+        items.push({
+          description: 'Fiber from ' + contributor.name,
+          ...generics.GOOD,
+        });
+      }
     }
-    items.sort((a, b) => b.value - a.value)
-    return items
+  }
+  items.sort((a, b) => b.value - a.value);
+  return items;
 }

@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="fixed bottom-5 left-1/2 -translate-x-1/2 w-[80%] z-10 p-3 shadow-md h-14 flex justify-center rounded-4xl bg-primary-20"
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 w-[80%] z-10 p-3 h-14 flex justify-center rounded-4xl bg-primary-20"
   >
     <div class="flex justify-between items-center w-full mx-5 xs:mx-12 text-gray-700">
       <NuxtLink to="/" class="flex" active-class="!text-primary">
