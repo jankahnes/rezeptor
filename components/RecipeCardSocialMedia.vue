@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-row items-stretch transition-all duration-300 shadow-md rounded-xl overflow-hidden flex-1"
+    class="flex flex-row items-stretch transition-all duration-300 border border-gray-100 rounded-xl overflow-hidden flex-1"
   >
     <a
       :href="recipe.source ?? undefined"
@@ -53,7 +53,7 @@
               :star-width="13"
               :star-height="13"
               :select="false"
-              :id="'card-new-horizontal-' + recipe.id"
+              :uniqueId="'card-new-horizontal-' + recipe.id"
             />
             <span>{{ recipe.rating.toFixed(1) }}</span>
           </div>

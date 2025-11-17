@@ -12,7 +12,7 @@ type NutritionEngineArgs = {
   logToReport: boolean;
   considerProcessing: boolean;
   nutritionLabelOnly: boolean;
-  temp_sidx: number;
+  disableSatiety: boolean;
 };
 
 type Response = {
@@ -29,9 +29,10 @@ export default defineEventHandler(async (event): Promise<Response> => {
     nutritionEngineArgs.useGpt,
     nutritionEngineArgs.logToReport,
     nutritionEngineArgs.considerProcessing,
-    nutritionEngineArgs.nutritionLabelOnly
+    nutritionEngineArgs.nutritionLabelOnly,
+    nutritionEngineArgs.disableSatiety
   );
-  await nutritionEngine.computeRecipe(nutritionEngineArgs.recipe, nutritionEngineArgs.temp_sidx);
+  await nutritionEngine.computeRecipe(nutritionEngineArgs.recipe);
 
   if (nutritionEngineArgs.nutritionLabelOnly) {
     return {

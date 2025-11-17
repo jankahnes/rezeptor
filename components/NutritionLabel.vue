@@ -29,7 +29,7 @@
         :class="headless ? 'mt-0' : 'mt-4'"
       >
         {{
-          nutritionData?.kcal !== null && nutritionData?.kcal !== undefined
+          nutritionData?.kcal != null
             ? (mode === 'serving'
                 ? nutritionData?.kcal
                 : (nutritionData?.kcal * 100) / (totalWeight ?? 100)
@@ -67,14 +67,14 @@
               <p class="text-xs">{{ item.label.toUpperCase() }}</p>
               <p class="font-semibold" v-if="mode === 'serving'">
                 {{
-                  nutritionData?.[item.key] !== null && nutritionData?.[item.key] !== undefined
+                  nutritionData?.[item.key] != null
                     ? Number(nutritionData?.[item.key]?.toFixed(1))
                     : '?'
                 }}g
               </p>
               <p class="font-semibold" v-else>
                 {{
-                  nutritionData?.[item.key] !== null && nutritionData?.[item.key] !== undefined
+                  nutritionData?.[item.key] != null
                     ? Number((
                         (nutritionData?.[item.key]! * 100) /
                         (totalWeight ?? 100)

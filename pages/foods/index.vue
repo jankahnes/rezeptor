@@ -4,7 +4,7 @@
     <div class="flex gap-2 w-full">
       <input
         type="text"
-        class="flex-grow px-2 py-1 rounded-lg items-center shadow-main hover:shadow-main-hover min-w-0"
+        class="flex-grow px-2 py-1 rounded-lg items-center outline outline-gray-100 hover:outline-gray-200 min-w-0"
         v-model="foodResultsStore.searchQuery"
         @keyup.enter="search"
         placeholder="Search for a food"
@@ -27,7 +27,7 @@
     </div>
     <div class="flex flex-col gap-4 w-full mb-10">
       <NuxtLink
-        class="flex gap-2 w-full shadow-main hover:shadow-main-hover pl-4 py-0 rounded-lg select-none cursor-pointer items-center"
+        class="flex gap-2 w-full outline outline-gray-100 hover:outline-gray-200 pl-4 py-0 rounded-lg select-none cursor-pointer items-center"
         v-for="food in foodResultsStore.foodResults"
         :to="`/foods/${food.id}`"
       >

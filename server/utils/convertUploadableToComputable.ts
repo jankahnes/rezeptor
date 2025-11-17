@@ -53,7 +53,7 @@ function addParsed(ingredient: FullIngredient, serves: number) {
 
   ingredient.parsed = parsed satisfies ParsedPart[];
   ingredient.rawText =
-    ingredient.amount + ' ' + unitName + ' ' + ingredient.name;
+    parsed[0].text + ' ' + unitName + ' ' + ingredient.name;
 
   if (ingredient.preparation_description) {
     parsed.push({
@@ -67,7 +67,8 @@ function addParsed(ingredient: FullIngredient, serves: number) {
 export default async function convertUploadableToComputable(
   recipe: UploadableRecipe | Recipe,
   supabase: SupabaseClient,
-  parse: boolean = false
+  parse: boolean = false,
+  parseServes: number|null = null
 ): Promise<ComputableRecipe> {
   if (!recipe || !supabase) {
     throw new Error('Recipe and supabase are required');
@@ -97,13 +98,12 @@ export default async function convertUploadableToComputable(
       unit: convertUnitToDB(ingredient.unit),
     };
     if (parse) {
-      addParsed(mergedIngredient, recipe.batch_size ?? 1);
+      addParsed(mergedIngredient, parseServes ?? recipe.batch_size ?? 1);
     }
     fullIngredients.push(mergedIngredient);
   }
   return {
     serves: 1,
-    publish: false,
     ...recipe,
     fullIngredients: fullIngredients,
   };

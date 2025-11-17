@@ -247,6 +247,29 @@ export type EditableIngredient = {
   utility?: boolean;
 };
 
+export type EditableTrackingItem = {
+  rawText: string;
+  parsed: ParsedPart[];
+  amount?: number | null;
+  unit?: string | null;
+  food?: {
+    best_similarity?: number;
+    id?: number;
+    food: FullFoodRow;
+    food_id: number;
+    is_primary: boolean;
+    name: string;
+  };
+  brandedFoodState?:
+    | 'loading'
+    | 'needs_basic_info'
+    | 'needs_nutrition'
+    | 'matching'
+    | 'complete'
+    | 'error';
+  brandedFood?: BrandedFood; // Store the full branded food data
+};
+
 export type BaseRecipe = {
   title: string;
   user_id: string | null;
@@ -398,6 +421,9 @@ export type ProcessingRequirement = {
 export type ParsedPart = {
   text: string;
   styling: string;
+  type?: 'amount' | 'unit' | 'food' | 'product' | 'prep' | 'ignored' | 'request';
+  barcode?: string;
+  productId?: string; // barcode or product ID from DB
 };
 
 export type ThermalIntensity = Database['public']['Enums']['thermal_intensity'];

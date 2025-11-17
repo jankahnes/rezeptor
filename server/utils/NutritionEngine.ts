@@ -66,6 +66,7 @@ export default class NutritionEngine {
   useGpt = false;
   logToReport = false;
   nutritionLabelOnly = false;
+  disableSatiety = false;
 
   gptInformation: GptInformation = {
     tags: [],
@@ -76,7 +77,6 @@ export default class NutritionEngine {
   targetSalt = 0;
   isFood = false;
   report: any = {};
-  tempSidx: number | null = null;
   cumulativeFields = Object.keys(alphaFunctions) as cumulativeKeys[];
 
   UNUSUAL_KCAL_THRESHOLD = 2000;
@@ -129,12 +129,14 @@ export default class NutritionEngine {
     useGpt = false,
     logToReport = false,
     considerProcessing = false,
-    nutritionLabelOnly = false
+    nutritionLabelOnly = false,
+    disableSatiety = false
   ) {
     this.useGpt = useGpt;
     this.logToReport = logToReport;
     this.considerProcessing = considerProcessing;
     this.nutritionLabelOnly = nutritionLabelOnly;
+    this.disableSatiety = disableSatiety;
     if (this.logToReport) {
       this.initializeReport();
     }
@@ -152,11 +154,7 @@ export default class NutritionEngine {
     }
   }
 
-  async computeRecipe(
-    recipe: ComputableRecipe,
-    tempSidx: number | null = null
-  ) {
-    this.tempSidx = tempSidx;
+  async computeRecipe(recipe: ComputableRecipe) {
     this.isFood = false;
     if (!recipe.serves) {
       console.error('WARNING: Recipe has no serves, setting to 1');
@@ -248,8 +246,7 @@ export default class NutritionEngine {
     console.log('🔍 Scoring done');
   }
 
-  async computeFood(food: Food, tempSidx: number | null = null) {
-    this.tempSidx = tempSidx;
+  async computeFood(food: Food) {
     this.isFood = true;
     const foodAsRecipe: any = {
       title: food.name,
@@ -302,10 +299,7 @@ export default class NutritionEngine {
       return;
     }
     const ingredients = this.recipe.fullIngredients.filter(
-      (ingredient) =>
-        ingredient.amount !== null &&
-        ingredient.amount !== undefined &&
-        !isNaN(ingredient.amount)
+      (ingredient) => ingredient.amount != null && !isNaN(ingredient.amount)
     );
     for (const ingredient of ingredients) {
       if (this.useGpt) {
@@ -696,9 +690,10 @@ export default class NutritionEngine {
     );
 
     const ed = this.getED();
-    //const sidx = await this.getSIDX(water);
-    const sidx = this.tempSidx ?? (await this.getSIDX(water));
-    const satiety = 0.5 * ed + 0.5 * sidx;
+    const sidx = this.disableSatiety ? null : await this.getSIDX(water);
+    const satiety = this.disableSatiety
+      ? Math.min(ed, 80)
+      : 0.5 * ed + 0.5 * sidx!;
     const mnidx = this.getMNIDX();
     const fiber_score = this.getFiberScore();
     const protein_score = this.getProteinScoreOvr();
@@ -739,7 +734,7 @@ export default class NutritionEngine {
 
     const scores: ComputedRecipeScores = {
       hidx: Math.round(hidx),
-      sidx: Math.round(sidx),
+      sidx: Math.round(sidx ?? 50),
       fiber_score: Math.max(0, Math.min(150, Math.round(fiber_score))),
       protein_score: Math.min(110, Math.round(protein_score)),
       salt_score: Math.max(0, Math.min(100, Math.round(salt_score))),

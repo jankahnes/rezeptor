@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="py-1 mt-4 space-y-4">
-        <Carousel>
+        <BlocksCarousel>
           <div
             v-for="category in categories"
             :key="category.tag"
@@ -22,8 +22,8 @@
               category.name
             }}</span>
           </div>
-        </Carousel>
-        <div class="flex gap-4">
+        </BlocksCarousel>
+        <div class="flex gap-4 ml-1">
           <button
             class="button flex justify-center items-center gap-2 px-2 py-1"
             @click="handleQuickImport"
@@ -38,6 +38,13 @@
             <span class="material-symbols-outlined">barcode</span>
             <span>Quick Scan</span>
           </NuxtLink>
+          <NuxtLink
+            to="/tracking"
+            class="button flex justify-center items-center gap-2 px-2 py-1"
+          >
+            <span class="material-symbols-outlined">show_chart</span>
+            <span>Track Your Diet</span>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -49,20 +56,23 @@
       >
         FROM YOUR COOKBOOK
       </h2>
-      <Carousel :flex-class="'items-center'">
+      <BlocksCarousel :flex-class="'items-center'">
         <RecipeCardHorizontal
           v-for="(recipe, index) in userRecipes"
           :key="recipe.id"
           :recipe="recipe"
           class="text-[28px] my-4 pr-6"
         />
-      </Carousel>
+      </BlocksCarousel>
     </div>
 
     <!-- Recommendations -->
     <div class="2lg:hidden">
       <div class="flex gap-4 justify-between items-center">
-        <NuxtLink to="/recipes/" class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold">
+        <NuxtLink
+          to="/recipes/"
+          class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+        >
           RECOMMENDATIONS
         </NuxtLink>
         <NuxtLink to="/recipes/" class="flex text-gray-500 items-center gap-2">
@@ -73,7 +83,7 @@
         </NuxtLink>
       </div>
       <div class="mt-2">
-        <Carousel class="" :flexClass="'!items-stretch'">
+        <BlocksCarousel class="" :flexClass="'!items-stretch'">
           <RecipeCard
             v-for="(recipe, index) in recipeStore.indexRecipes"
             :key="recipe.id + 'mobile'"
@@ -81,16 +91,22 @@
             :recipe="recipe"
             class="w-50 min-h-60 text-[20px] sm:w-70 sm:min-h-95 sm:text-[30px] flex-shrink-0 hover:translate-y-[-2px] transition-all duration-300 mt-6 mb-2 mr-4"
           />
-        </Carousel>
+        </BlocksCarousel>
       </div>
     </div>
 
     <div class="hidden 2lg:block">
       <div class="flex gap-4 justify-between items-center">
-        <NuxtLink to="/recipes/" class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"> 
+        <NuxtLink
+          to="/recipes/"
+          class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+        >
           RECOMMENDATIONS
         </NuxtLink>
-        <NuxtLink to="/recipes/" class="hidden sm:flex text-gray-500 items-center gap-2">
+        <NuxtLink
+          to="/recipes/"
+          class="hidden sm:flex text-gray-500 items-center gap-2"
+        >
           <span class="material-symbols-outlined !text-sm">
             arrow_forward
           </span>
@@ -151,7 +167,10 @@
     <div class="flex flex-wrap">
       <div class="flex flex-col gap-4">
         <div class="flex gap-4 justify-between items-center">
-          <NuxtLink to="/recipes/social/" class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold">
+          <NuxtLink
+            to="/recipes/social/"
+            class="inline-block px-4 py-1 bg-primary text-white rounded-lg text-lg font-bold"
+          >
             TRENDING ON SOCIAL MEDIA
           </NuxtLink>
           <NuxtLink
@@ -182,14 +201,14 @@
       >
         RECENT ACTIVITY
       </h2>
-      <Carousel class="mt-4" :flexClass="'!items-stretch'">
+      <BlocksCarousel class="mt-4" :flexClass="'!items-stretch'">
         <FeedItem
           v-for="item in recentActivity.slice(0, 8)"
           :key="item.id"
           :feed-item="item"
           class="min-w-90 ml-2 mb-4"
         />
-      </Carousel>
+      </BlocksCarousel>
     </div>
   </div>
 </template>

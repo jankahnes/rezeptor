@@ -41,12 +41,12 @@ export default function protectiveCompoundsToReadable(report: any) {
   for (const compound of Object.keys(compounds)) {
     const value = report.protectiveCompounds[compound];
     const contributors =
-      report.contributors[
+      report?.contributors?.[
         compounds[compound as keyof typeof compounds]
-      ]?.contributors.filter(
+      ]?.contributors?.filter(
         (contributor: any) =>
           contributor.totalContribution > 3 && contributor.value > 0.33
-      ) || [];
+      ) || []
 
     const subtitle =
       contributors.length > 0

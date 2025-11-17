@@ -27,7 +27,7 @@
         <div class="flex justify-center gap-y-10 flex-col md:flex-row">
           <NutritionLabel
             :nutritionData="
-              product && product?.kcal !== null && product?.kcal !== undefined
+              product && product?.kcal != null
                 ? product
                 : product?.food_name?.food ?? product
             "
@@ -207,7 +207,7 @@ const hasSomeNutritionFields = computed(
     product.value &&
     nutritionalFields.some(
       (field) =>
-        product.value![field] !== null && product.value![field] !== undefined
+        product.value![field] != null
     )
 );
 const hasAllNutritionFields = computed(
@@ -215,14 +215,13 @@ const hasAllNutritionFields = computed(
     product.value &&
     nutritionalFields.every(
       (field) =>
-        product.value![field] !== null && product.value![field] !== undefined
+        product.value![field] != null
     )
 );
 const isMatchedToGenericFood = computed(
   () =>
     product.value &&
-    product.value?.matched_food_name_id !== null &&
-    product.value?.matched_food_name_id !== undefined
+    product.value?.matched_food_name_id != null
 );
 
 useHead({

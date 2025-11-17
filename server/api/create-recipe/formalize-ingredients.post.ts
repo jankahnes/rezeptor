@@ -125,7 +125,7 @@ export default defineEventHandler(
       }
     }
     processedIngredients = processedIngredients.filter(
-      (ingredient: any) => ingredient.id !== null
+      (ingredient: any) => ingredient.id != null
     );
     return { ingredients: processedIngredients, notes: notes };
   }

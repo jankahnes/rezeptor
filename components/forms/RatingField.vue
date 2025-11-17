@@ -71,13 +71,13 @@ const props = defineProps({
     type: Number,
     default: -2,
   },
-  id: {
-    type: [Number, String],
+  uniqueId: {
+    type: String,
     required: true,
   },
 });
 
-const maskId = computed(() => `star-mask-${props.id}`);
+const maskId = computed(() => `star-mask-${props.uniqueId}`);
 const emit = defineEmits(['update:modelValue']);
 
 const hoverRating = ref<number | null>(null);
@@ -88,7 +88,7 @@ const starPath =
 const totalWidth = computed(() => 5 * props.starWidth + 4 * props.spacing);
 
 const displayRating = computed(() =>
-  hoverRating.value !== null ? hoverRating.value : props.modelValue
+  hoverRating.value != null ? hoverRating.value : props.modelValue
 );
 
 const fillWidth = computed(() => (displayRating.value / 5) * totalWidth.value);

@@ -50,7 +50,7 @@
                 <h3 class="font-semibold text-lg border-b border-gray-300 pb-1">
                   Dietary Information
                 </h3>
-                <div v-if="food?.vegan !== null" class="flex justify-between">
+                <div v-if="food?.vegan != null" class="flex justify-between">
                   <span>Vegan</span>
                   <span
                     class="font-semibold"
@@ -60,7 +60,7 @@
                   </span>
                 </div>
                 <div
-                  v-if="food?.vegetarian !== null"
+                  v-if="food?.vegetarian != null"
                   class="flex justify-between"
                 >
                   <span>Vegetarian</span>
@@ -74,7 +74,7 @@
                   </span>
                 </div>
                 <div
-                  v-if="food?.gluten_free !== null"
+                  v-if="food?.gluten_free != null"
                   class="flex justify-between"
                 >
                   <span>Gluten Free</span>

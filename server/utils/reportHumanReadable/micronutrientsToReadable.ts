@@ -37,7 +37,7 @@ export default function micronutrientsToReadable(report: any, isFood: boolean) {
         const highestThreshold = generics.getHighestThreshold(rda, rdaThresholds)
         let subtitle = null
         if(!isFood) {
-        const contributors = report.contributors[nutrient.name]?.contributors || []
+        const contributors = report?.contributors?.[nutrient.name]?.contributors || []
         subtitle = contributorsToReadable(contributors)
         }
         const description = highestThreshold.description + " " + nutrient.displayName
