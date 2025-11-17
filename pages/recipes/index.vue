@@ -3,7 +3,7 @@
     <div class="h-[10%] sm:px-12 px-2 py-5 space-y-4 z-10">
       <div class="flex justify-between items-end gap-6">
         <div
-          class="mt-8 sm:mt-0 inline-flex min-w-0 w-100 items-center outline outline-gray-300 rounded-lg px-2 gap-2 justify-between"
+          class="mt-8 sm:mt-0 inline-flex min-w-0 w-100 items-center outline outline-gray-100 rounded-lg px-2 gap-2 justify-between"
         >
           <span class="material-symbols-outlined">search</span>
           <input
@@ -27,7 +27,7 @@
             :class="{
               '!bg-primary !text-white': selectedFilter === 'tags',
             }"
-            class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
+            class="flex button bg-main p-2 font-bold gap-1 items-center"
           >
             <span class="material-symbols-outlined"> sell </span>
             <span class="hidden lg:block">Tags</span>
@@ -37,7 +37,7 @@
             :class="{
               '!bg-primary !text-white': selectedFilter === 'health',
             }"
-            class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
+            class="flex button bg-main p-2 font-bold gap-1 items-center"
           >
             <span class="material-symbols-outlined"> health_and_safety </span>
             <span class="hidden lg:block">Health Score</span>
@@ -47,7 +47,7 @@
             :class="{
               '!bg-primary !text-white': selectedFilter === 'kcal',
             }"
-            class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
+            class="flex button bg-main p-2 font-bold gap-1 items-center"
           >
             <span class="material-symbols-outlined"> bolt </span>
             <span class="hidden lg:block">Kcal</span>
@@ -57,7 +57,7 @@
             :class="{
               '!bg-primary !text-white': selectedFilter === 'cost',
             }"
-            class="flex button bg-main p-2 font-bold gap-1 items-center shadow-md"
+            class="flex button bg-main p-2 font-bold gap-1 items-center"
           >
             <span class="material-symbols-outlined"> euro </span>
             <span class="hidden lg:block">Cost</span>
@@ -76,7 +76,7 @@
         <div class="" v-if="selectedFilter == 'tags'">
           <!-- Categories -->
           <div class="py-1">
-            <Carousel>
+            <BlocksCarousel>
               <div
                 v-for="category in categories"
                 :key="category.tag"
@@ -94,12 +94,12 @@
                   >{{ category.name }}</span
                 >
               </div>
-            </Carousel>
+            </BlocksCarousel>
           </div>
 
           <!-- Cuisines -->
           <div class="py-1">
-            <Carousel>
+            <BlocksCarousel>
               <div
                 v-for="cuisine in cuisines"
                 :key="cuisine.tag"
@@ -117,7 +117,7 @@
                   >{{ cuisine.name }}</span
                 >
               </div>
-            </Carousel>
+            </BlocksCarousel>
           </div>
         </div>
         <div

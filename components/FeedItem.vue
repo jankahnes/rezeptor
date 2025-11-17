@@ -1,7 +1,7 @@
 <template>
   <NuxtLink
     :to="getLinkTarget()"
-    class="flex items-center p-4 rounded-2xl shadow-sm space-x-4 max-w-100"
+    class="flex items-center p-4 rounded-2xl border border-gray-100 space-x-4 max-w-100"
   >
     <!-- Avatar -->
     <div class="flex-shrink-0 flex items-center justify-center min-w-10">
@@ -70,7 +70,7 @@
             <FormsRatingField
               v-model="feedItem.rating!.rating"
               :select="false"
-              :id="800"
+              :uniqueId="'800'"
             />
           </div>
         </template>

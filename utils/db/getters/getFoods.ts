@@ -116,27 +116,21 @@ export async function getFoodName(
   return expectSingle(await getFoodNames(client, opts));
 }
 
-export async function getBrandedFood(
-  client: SupabaseClient,
-  barcode: string
-): Promise<BrandedFood> {
-  const response = await client
-    .from('branded_foods')
-    .select(
-      `
-    *,
-    food_name:food_names(
-      id,
-      name,
-      food:foods(
-        *
-      )
-    )
-  `
-    )
-    .eq('barcode', barcode);
-  if (response.error || !response.data) throw response.error;
-  const brandedFood = response.data[0] as BrandedFood;
+export function postprocessBrandedFood(brandedFood: BrandedFood): BrandedFood {
+  if (!brandedFood.food_name) {
+    return brandedFood;
+  }
+  const overwritingFields = [
+    'kcal',
+    'protein',
+    'fat',
+    'carbohydrates',
+    'fiber',
+    'sugar',
+    'saturated_fat',
+    'salt',
+    'nova',
+  ];
   const brandedFoodNonNull: BrandedFood = {
     ...brandedFood,
     food_name: brandedFood.food_name
@@ -154,19 +148,50 @@ export async function getBrandedFood(
           },
         }
       : undefined,
-  };
+  } as BrandedFood;
   if (brandedFood.food_name?.food.aisle == 'Produce') {
     // we can assume that these wont have a nutrition label
-    Object.assign(brandedFoodNonNull, {
-      kcal: brandedFood.food_name?.food.kcal,
-      protein: brandedFood.food_name?.food.protein,
-      fat: brandedFood.food_name?.food.fat,
-      carbohydrates: brandedFood.food_name?.food.carbohydrates,
-      fiber: brandedFood.food_name?.food.fiber,
-      sugar: brandedFood.food_name?.food.sugar,
-      saturated_fat: brandedFood.food_name?.food.saturated_fat,
-      salt: brandedFood.food_name?.food.salt,
-    });
+    const food = brandedFoodNonNull.food_name!.food;
+    for (const field of overwritingFields) {
+      const value = food[field as keyof FullFoodRow];
+      (brandedFoodNonNull as Record<string, any>)[field] = value;
+    }
+  } else if (brandedFoodNonNull?.food_name) {
+    const food = brandedFoodNonNull.food_name.food;
+    for (const field of overwritingFields) {
+      const value = brandedFood[field as keyof BrandedFood];
+      if (value !== null && value !== undefined) {
+        (food as Record<string, any>)[field] = value;
+      }
+    }
   }
-  return brandedFoodNonNull as BrandedFood;
+  return brandedFoodNonNull;
+}
+
+export async function getBrandedFood(
+  client: SupabaseClient,
+  barcode: string
+): Promise<BrandedFood | null> {
+  const response = await client
+    .from('branded_foods')
+    .select(
+      `
+    *,
+    food_name:food_names(
+      id,
+      name,
+      food:foods(
+        *
+      )
+    )
+  `
+    )
+    .eq('barcode', barcode);
+  if (response.error || !response.data) throw response.error;
+  const brandedFood = response.data[0] as BrandedFood;
+  if (!brandedFood) {
+    return null;
+  }
+
+  return postprocessBrandedFood(brandedFood) as BrandedFood;
 }

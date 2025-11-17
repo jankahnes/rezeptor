@@ -6,7 +6,6 @@ type NutritionEngineArgs = {
   useGpt: boolean;
   logToReport: boolean;
   considerProcessing: boolean;
-  temp_sidx: number;
 };
 
 type Response = {
@@ -16,13 +15,17 @@ type Response = {
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const { nutritionEngineArgs } = body as { nutritionEngineArgs: NutritionEngineArgs };
+  const { nutritionEngineArgs } = body as {
+    nutritionEngineArgs: NutritionEngineArgs;
+  };
   const nutritionEngine = new NutritionEngine(
     nutritionEngineArgs.useGpt,
     nutritionEngineArgs.logToReport,
-    nutritionEngineArgs.considerProcessing
+    nutritionEngineArgs.considerProcessing,
+    false,
+    false
   );
-  const scores = await nutritionEngine.computeFood(nutritionEngineArgs.food, nutritionEngineArgs.temp_sidx);
+  const scores = await nutritionEngine.computeFood(nutritionEngineArgs.food);
   if (nutritionEngineArgs.logToReport) {
     nutritionEngine.generateReport();
   }

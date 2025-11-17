@@ -82,11 +82,8 @@
   transition: all 0.2s ease;
   overflow: hidden;
   background-color: var(--color-main);
-  @apply shadow-sm;
-}
-
-.button:hover {
-  @apply shadow-md;
+  @apply outline outline-gray-100 hover:outline-gray-200;
+  user-select: none;
 }
 
 .button:active {

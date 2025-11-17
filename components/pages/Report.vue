@@ -384,7 +384,8 @@ onMounted(async () => {
       });
 
       // Check if report is preloaded in DB
-      if (food.food.report) {
+      if (food.food.report && false) {
+        //TODO: Remove false
         recipeComputed.value = food.food;
       } else {
         // Calculate nutrition using endpoint

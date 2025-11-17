@@ -164,10 +164,24 @@ function parseNumberUnit(word: string): {
 }
 
 export async function parseIngredientString(
-  client: SupabaseClient,
+  client: SupabaseClient<Database>,
   ingredientString: string,
   hasIngredient: boolean = true
-) {
+): Promise<{
+  amount: number | null;
+  unit: string;
+  ingredient: any;
+  preparationDescription: string | null;
+  parsed: ParsedPart[];
+  brandedFoodState?:
+    | 'loading'
+    | 'needs_basic_info'
+    | 'needs_nutrition'
+    | 'matching'
+    | 'complete'
+    | 'error';
+  brandedFood?: any;
+}> {
   let amount = null;
   let unit = '';
   let ingredient = null;
@@ -199,7 +213,7 @@ export async function parseIngredientString(
 
     // Try to parse as standalone number
     const numericValue = parseNumeric(word);
-    if (numericValue !== null) {
+    if (numericValue != null) {
       amount = numericValue;
       parsed.push({ text: word, styling: amountStyling });
       continue;
@@ -211,6 +225,69 @@ export async function parseIngredientString(
       unit = unitToDBMap[lowerWord as keyof typeof unitToDBMap];
       parsed.push({ text: word, styling: unitStyling });
       continue;
+    }
+
+    // Try to look for product code
+    const productCodeMatch = word.match(/\[(\d+)\]/);
+    if (productCodeMatch) {
+      const barcode = productCodeMatch[1];
+      const brandedFood = await getBrandedFood(client, barcode);
+
+      // Determine the state based on what's missing
+      let brandedFoodState:
+        | 'loading'
+        | 'needs_basic_info'
+        | 'needs_nutrition'
+        | 'matching'
+        | 'complete' = 'loading';
+
+      if (!brandedFood) {
+        // Case 1: No branded food found at all
+        brandedFoodState = 'needs_basic_info';
+      } else {
+        const requirements = getBrandedFoodRequirements(brandedFood);
+
+        if (!requirements.hasName) {
+          brandedFoodState = 'needs_basic_info';
+        } else if (!requirements.hasFullNutritionLabel) {
+          brandedFoodState = 'needs_nutrition';
+        } else if (!requirements.hasMatchedFood) {
+          brandedFoodState = 'matching';
+        } else {
+          brandedFoodState = 'complete';
+        }
+
+        ingredient = {
+          food: brandedFood.food_name?.food,
+          ...brandedFood,
+        };
+      }
+
+      parsed.push({
+        text: brandedFood?.product_name
+          ? (brandedFood?.brand ?? '') + ' ' + brandedFood?.product_name
+          : `Product ${barcode}`,
+        styling: ingredientStyling,
+        barcode: barcode,
+        type: 'product',
+      });
+
+      const rest = await parseIngredientString(
+        client,
+        tokens.slice(i + 1).join(' '),
+        false
+      );
+      parsed.push(...rest.parsed);
+
+      return {
+        amount,
+        unit,
+        ingredient,
+        preparationDescription,
+        parsed,
+        brandedFoodState,
+        brandedFood: brandedFood || undefined,
+      };
     }
 
     const remainingWords = tokens.slice(i).join(' ');

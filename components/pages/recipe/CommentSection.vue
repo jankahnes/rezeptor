@@ -21,7 +21,7 @@
         :star-width="26"
         :star-height="26"
         :spacing="-2"
-        :id="950 + id"
+        :uniqueId="'950' + id"
       ></FormsRatingField>
     </div>
     <div class="flex flex-wrap gap-4 w-full gap-y-8">

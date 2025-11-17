@@ -248,6 +248,10 @@ export async function getRecipeOverviews(
   }
   query = buildQuery(query, opts);
 
+  if (opts.limit) {
+    query = query.limit(opts.limit + 10);
+  }
+
   const { data, error } = await query;
   if (error) throw error;
   const recipes = data;
@@ -255,7 +259,7 @@ export async function getRecipeOverviews(
   for (const recipe of recipes) {
     (recipe as any).tags = recipe.tags.map((t: { tag_id: number }) => t.tag_id);
   }
-  const recipeOverviews = recipes as unknown as RecipeOverview[];
+  let recipeOverviews = recipes as unknown as RecipeOverview[];
 
   if (similarityMap) {
     recipeOverviews.sort((a, b) => {
@@ -263,6 +267,10 @@ export async function getRecipeOverviews(
       const similarityB = similarityMap!.get(b.id) ?? 0;
       return similarityB - similarityA; // Sort descending (highest similarity first)
     });
+  }
+
+  if (opts.limit && recipes.length > opts.limit) {
+    recipeOverviews = recipeOverviews.slice(0, opts.limit);
   }
 
   return recipeOverviews;

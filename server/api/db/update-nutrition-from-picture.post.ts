@@ -75,12 +75,14 @@ export default defineEventHandler(async (event) => {
 
     return {
       status: 'ok',
+      data: pictureAnalysisResponse,
     };
   } catch (err) {
     console.error('Nutrition update error:', err);
     throw createError({
       statusCode: 500,
-      statusMessage: 'Something went wrong while updating nutrition from picture',
+      statusMessage:
+        'Something went wrong while updating nutrition from picture',
       data: (err as Error).message,
     });
   }

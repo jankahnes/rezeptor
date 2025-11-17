@@ -32,7 +32,7 @@
       placeholder="For the dough:
 100g of flour
 2 tablespoons of olive oil"
-      class="md:ml-1 w-full bg-transparent rounded-xl p-2 border border-gray-300 focus:outline-none resize-none flex-1 text-sm mt-4"
+      class="md:ml-1 w-full bg-transparent rounded-xl p-2 outline outline-gray-100 hover:outline-gray-200 focus:outline-gray-300 resize-none flex-1 text-sm mt-4"
     ></textarea>
     <!-- Ingredients List -->
     <div class="flex flex-col rounded-lg px-2 z-15" v-else>
@@ -73,7 +73,7 @@
                     @input="handleInput(category, index)"
                     @blur="handleBlur(category, index)"
                     @keydown.enter="handleEnter(category, index)"
-                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="flex-1 px-3 py-2 outline outline-gray-100 hover:outline-gray-200 rounded-md focus:outline-gray-300"
                     placeholder="e.g. 100g flour or 2 tbsp olive oil"
                   />
 
@@ -133,7 +133,7 @@
         </div>
         <div
           v-if="addingCategory"
-          class="flex items-center justify-between gap-2 w-full px-4 border-1 border-gray-300 border-dashed rounded-lg"
+          class="flex items-center justify-between gap-2 w-full px-4 outline outline-gray-100 hover:outline-gray-200  rounded-lg"
         >
           <input
             v-model="newCategoryName"

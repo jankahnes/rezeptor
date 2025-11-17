@@ -50,23 +50,23 @@
                 path: '/recipe/new',
                 query: { editCurrent: 'true', view: 'form' },
               }"
-              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent outline-none"
             >
               <span class="material-symbols-outlined !text-xl">edit</span>
             </NuxtLink>
             <button
-              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent outline-none"
             >
               <span class="material-symbols-outlined !text-xl">share</span>
             </button>
             <button
-              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent outline-none"
             >
               <span class="material-symbols-outlined !text-xl">print</span>
             </button>
             <button
               v-if="(auth?.user as any)?.username === 'administrator'"
-              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent outline-none"
               @click="recomputeRecipe"
               :disabled="isRecomputing"
             >
@@ -76,7 +76,7 @@
             </button>
             <button
               v-if="(auth?.user as any)?.username === 'administrator'"
-              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent outline-none"
               @click="regeneratePicture"
               :disabled="regeneratePictureLoading"
             >
@@ -87,7 +87,7 @@
               </span>
             </button>
             <button
-              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent"
+              class="button px-1 py-1 rounded-lg flex items-center !bg-transparent outline-none"
               @click="deleteRecipe"
             >
               <span class="material-symbols-outlined !text-xl">delete</span>
@@ -117,7 +117,7 @@
             :star-width="18"
             :star-height="18"
             :spacing="-2"
-            :id="250"
+            :uniqueId="'250'"
           ></FormsRatingField>
           <span class="text-sm font-semibold"
             >{{ recipeStore.recipe?.rating?.toFixed(1) }}
@@ -409,7 +409,7 @@
                 :star-width="20"
                 :star-height="20"
                 :spacing="-2"
-                :id="'250-mobile'"
+                :uniqueId="'250-mobile'"
               ></FormsRatingField>
               <span class="text-sm font-semibold"
                 >{{ recipeStore.recipe?.rating?.toFixed(1) }}
@@ -722,7 +722,7 @@ function onJobStepChange(newStep: string | null, oldStep: string | null) {
   if (newStep === 'formalizing_ingredients' && job.value?.message) {
     loadingStore.displayToast(job.value?.message);
   }
-  if (newStep !== oldStep && oldStep !== null && oldStep !== undefined) {
+  if (newStep !== oldStep && oldStep != null) {
     loadRecipeWithoutLoading(id, true);
     if (!newStep) {
       loadingStore.displayTransientToast('Done! 🎉');

@@ -240,7 +240,7 @@ export default defineEventHandler(async (event) => {
           name: alias,
           is_primary: false,
         }))
-        .filter((alias) => alias.food_id !== null) as {
+        .filter((alias) => alias.food_id != null) as {
         food_id: number;
         name: string;
         is_primary: boolean;

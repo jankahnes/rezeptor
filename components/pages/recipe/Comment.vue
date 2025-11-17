@@ -21,7 +21,7 @@
           :select="false"
           :starWidth="14"
           :starHeight="14"
-          :id="comment.id + id"
+          :uniqueId="comment.id + id"
         />
         <div
           class="mt-2 overflow-hidden break-words"

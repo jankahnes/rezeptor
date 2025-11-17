@@ -8,13 +8,13 @@
     <!-- circular -->
     <NuxtImg
       v-if="recipe?.picture"
-      class="h-28 xs:h-34 object-cover bg-transparent shadow-gray-200 [filter:drop-shadow(0_0_6px_var(--tw-shadow-color))_drop-shadow(0_0_2px_var(--tw-shadow-color))] relative z-10"
+      class="h-28 xs:h-34 object-cover bg-transparent shadow-gray-200 [filter:drop-shadow(0_0_6px_var(--tw-shadow-color))_drop-shadow(0_0_2px_var(--tw-shadow-color))] relative z-10 transition-all duration-300 group-hover:scale-[1.008]"
       :src="recipe?.picture || ''"
     />
 
     <div
       v-else-if="recipe?.social_picture"
-      class="relative w-28 xs:w-34 flex-shrink-0"
+      class="relative w-28 xs:w-34 flex-shrink-0 transition-all duration-300 group-hover:scale-[1.008]"
     >
       <div
         class="bg-white rounded-full overflow-hidden relative z-10 aspect-square shadow-gray-200 [filter:drop-shadow(0_0_6px_var(--tw-shadow-color))_drop-shadow(0_0_2px_var(--tw-shadow-color))]"
@@ -23,7 +23,7 @@
           class="absolute inset-x-0 top-1/2 -translate-y-1/2 w-full aspect-9/16"
         >
           <NuxtImg
-            class="w-full h-full object-cover relative z-10 transition-all duration-300 group-hover:translate-y-[-1px] white-fade-mask"
+            class="w-full h-full object-cover relative z-10 transition-all duration-300 white-fade-mask"
             :src="recipe?.social_picture"
           />
         </div>
@@ -36,7 +36,7 @@
 
     <div class="z-0 flex-1">
       <div
-        class="bg-white px-6 py-2 shadow-md rounded-xl min-h-28 xs:min-h-34 flex flex-col gap-3 justify-center flex-1 min-w-50 max-w-100"
+        class="bg-white px-6 py-2 border border-gray-100 rounded-xl min-h-28 xs:min-h-34 flex flex-col gap-3 justify-center flex-1 min-w-50 max-w-100"
         :class="
           recipe?.picture || recipe?.social_picture ? '-ml-16 !pl-20 !pr-6' : ''
         "
@@ -67,7 +67,7 @@
               :star-width="13"
               :star-height="13"
               :select="false"
-              :id="'card-new-horizontal-' + recipe?.id"
+              :uniqueId="`card-new-horizontal-${recipe?.id}-${uniqueId}`"
             />
             <span>{{ recipe?.rating.toFixed(1) }}</span>
           </div>
@@ -88,6 +88,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   recipe: RecipeOverview;
+  uniqueId?: string;
 }>();
 const top3Tags = ref(getTop3Tags(props.recipe));
 
