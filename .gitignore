@@ -17,6 +17,7 @@ logs
 .DS_Store
 .fleet
 .idea
+summary.txt
 
 # Local env files
 .env
@@ -27,4 +28,5 @@ notes.txt
 .vscode/extensions.json
 .vercel
 ignored/
+server/assets/
 server/utils/foods.csv

@@ -1,0 +1,351 @@
+@import 'tailwindcss';
+
+.material-symbols-outlined {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+@theme {
+  --breakpoint-4xl: 2200px;
+  --breakpoint-3xl: 1921px;
+  --breakpoint-2lg: 1130px;
+  --breakpoint-xm: 860px;
+  --breakpoint-xs: 500px;
+  --breakpoint-2xs: 400px;
+  --font-main: 'Libertinus Sans', sans-serif;
+  --color-main: #f5eeee;
+  --color-primary: #ffbc2b;
+  --color-primary-gradient: #ff9900;
+  --color-primary-5: color-mix(in srgb, var(--color-primary) 2%, white);
+  --color-primary-10: color-mix(in srgb, var(--color-primary) 4%, white);
+  --color-primary-15: color-mix(in srgb, var(--color-primary) 4.5%, white);
+  --color-primary-20: color-mix(in srgb, var(--color-primary) 5%, white);
+  --color-primary-30: color-mix(in srgb, var(--color-primary) 6.5%, white);
+  --color-primary-40: color-mix(in srgb, var(--color-primary) 8%, white);
+  --color-primary-50: color-mix(in srgb, var(--color-primary) 10%, white);
+  --color-primary-100: color-mix(in srgb, var(--color-primary) 20%, white);
+  --color-primary-200: color-mix(in srgb, var(--color-primary) 35%, white);
+  --color-primary-300: color-mix(in srgb, var(--color-primary) 50%, white);
+  --color-primary-400: color-mix(in srgb, var(--color-primary) 70%, white);
+  --color-primary-500: color-mix(in srgb, var(--color-primary) 90%, white);
+  --color-primary-600: var(--color-primary);
+  --color-primary-700: color-mix(in srgb, var(--color-primary) 70%, black);
+  --color-primary-800: color-mix(in srgb, var(--color-primary) 50%, black);
+  --color-primary-900: color-mix(in srgb, var(--color-primary) 20%, black);
+
+  --color-secondary: #c75b7a;
+  --color-secondary-500: #f4d9d0;
+  --color-tertiary: #f4d9d0;
+  --rounded-main: 10px;
+
+  --text-scale: 1.08;
+
+  --text-xs: calc(0.75rem * var(--text-scale));
+  --text-sm: calc(0.875rem * var(--text-scale));
+  --text-base: calc(1rem * var(--text-scale));
+  --text-lg: calc(1.125rem * var(--text-scale));
+  --text-xl: calc(1.25rem * var(--text-scale));
+  --text-2xl: calc(1.5rem * var(--text-scale));
+  --text-3xl: calc(1.875rem * var(--text-scale));
+  --text-4xl: calc(2.25rem * var(--text-scale));
+  --text-5xl: calc(3rem * var(--text-scale));
+  --text-6xl: calc(3.75rem * var(--text-scale));
+
+  --color-halo-green: rgb(182, 255, 209);
+  --color-halo-emerald: rgb(208, 255, 196);
+  --color-halo-blue: rgb(213, 212, 253);
+
+  --shadow-halo: drop-shadow(0 0 5px var(--tw-shadow-color))
+    drop-shadow(0 0 2px var(--tw-shadow-color));
+}
+@layer base {
+  html {
+    letter-spacing: 0.05em;
+  }
+}
+
+.icon-fill {
+  font-variation-settings: 'FILL' 1;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.button {
+  position: relative;
+  z-index: 0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  background-color: var(--color-primary-10);
+  user-select: none;
+  will-change: transform;
+}
+
+.button:active {
+  background-color: var(--color-primary-20);
+  border-radius: 10px;
+  transform: scale(0.985);
+}
+
+.button:disabled {
+  opacity: 0.7;
+}
+
+.action-card {
+  @apply bg-primary-10 rounded-4xl shadow-lg;
+}
+
+.action-card-padding {
+  @apply p-2 md:p-6;
+}
+
+.tag {
+  border-radius: 8px;
+  padding: 0.1rem 0.35rem;
+}
+
+.primary-gradient {
+  background: linear-gradient(
+    to left,
+    var(--color-primary-400),
+    var(--color-primary)
+  );
+}
+
+.onboarding-gradient {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-10) 0%,
+    var(--color-primary-10) 2%,
+    var(--color-primary-50) 10%,
+    var(--color-primary-400) 100%
+  );
+}
+
+.ai-gradient {
+  background-image: linear-gradient(to right, #a855f7, #ec4899);
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.ai-gradient:hover {
+  background-image: linear-gradient(to right, #9333ea, #db2777);
+}
+
+.mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+}
+
+.mask-fade-top {
+  mask-image: linear-gradient(to top, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 92%, transparent 100%);
+}
+
+.fade-slow-enter-active {
+  transition: opacity 1s ease;
+}
+.fade-slow-enter-from {
+  opacity: 0;
+}
+.fade-slow-enter-to {
+  opacity: 1;
+}
+
+.fade-enter-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+}
+.fade-enter-to {
+  opacity: 1;
+}
+
+.swish-fade-enter-from {
+  opacity: 0;
+  transform: translateY(35px) rotateX(5deg) scale(0.95);
+}
+.swish-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.swish-fade-enter-to {
+  opacity: 1;
+  transform: translateY(0) rotateX(0) scale(1);
+}
+
+.swish-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0) rotateX(0) scale(1);
+}
+.swish-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.swish-fade-leave-to {
+  opacity: 0;
+  transform: translateY(35px) rotateX(5deg) scale(0.95);
+}
+
+.loaded-content-enter-active,
+.loaded-content-leave-active {
+  transition: all 0.2s ease;
+}
+.loaded-content-enter-from,
+.loaded-content-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+.loaded-content-enter-to,
+.loaded-content-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.cell {
+  @apply rounded-full! select-none active:scale-98 transition-all duration-200 cursor-pointer will-change-transform;
+  @apply px-4 py-2 bg-white/10 hover:bg-primary-100 font-medium border border-gray-800/30 text-center;
+}
+
+.cell.selected {
+  @apply bg-primary-50 hover:bg-primary-20;
+  animation: pulse-glow 0.4s ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.02);
+  }
+}
+
+.card {
+  @apply shadow-sm rounded-2xl bg-main;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+}
+
+.animated-button {
+  @apply rounded-xl! active:rounded-2xl! active:scale-98 transition-all duration-200 cursor-pointer will-change-transform;
+}
+
+.page-slide-right-enter-active,
+.page-slide-right-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.page-slide-right-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+.page-slide-right-leave-to {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.page-slide-right-enter-from {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.page-slide-right-enter-to {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar-enter-active,
+.sidebar-leave-active {
+  transition: opacity 0.15s ease-in-out,
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-enter-from,
+.sidebar-leave-to {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+.sidebar-enter-to,
+.sidebar-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Sticker grade badges with shine effect */
+.sticker-blue {
+  background: linear-gradient(
+    135deg,
+    rgba(219, 234, 254, 0.96) 0%,
+    rgba(191, 219, 254, 0.94) 25%,
+    rgba(147, 197, 253, 0.9) 55%,
+    rgba(191, 219, 254, 0.92) 65%,
+    rgba(96, 165, 250, 0.88) 85%,
+    rgba(59, 130, 246, 0.86) 100%
+  );
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3),
+    0 2px 8px rgba(255, 255, 255, 0.4) inset;
+}
+
+.sticker-emerald {
+  background: linear-gradient(
+    135deg,
+    rgba(209, 250, 229, 0.96) 0%,
+    rgba(167, 243, 208, 0.94) 25%,
+    rgba(110, 231, 183, 0.9) 55%,
+    rgba(167, 243, 208, 0.92) 65%,
+    rgba(52, 211, 153, 0.88) 85%,
+    rgba(16, 185, 129, 0.86) 100%
+  );
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3),
+    0 2px 8px rgba(255, 255, 255, 0.4) inset;
+}
+
+.sticker-green {
+  background: linear-gradient(
+    135deg,
+    rgba(220, 252, 231, 0.96) 0%,
+    rgba(187, 247, 208, 0.94) 25%,
+    rgba(134, 239, 172, 0.9) 55%,
+    rgba(187, 247, 208, 0.92) 65%,
+    rgba(74, 222, 128, 0.88) 85%,
+    rgba(34, 197, 94, 0.86) 100%
+  );
+  box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.3),
+    0 2px 8px rgba(255, 255, 255, 0.4) inset;
+}
+
+.sticker-yellow {
+  background: linear-gradient(
+    135deg,
+    rgba(254, 252, 232, 0.96) 0%,
+    rgba(254, 249, 195, 0.94) 25%,
+    rgba(254, 240, 138, 0.9) 55%,
+    rgba(254, 249, 195, 0.92) 65%,
+    rgba(253, 224, 71, 0.88) 85%,
+    rgba(250, 204, 21, 0.86) 100%
+  );
+  box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.3),
+    0 2px 8px rgba(255, 255, 255, 0.4) inset;
+}

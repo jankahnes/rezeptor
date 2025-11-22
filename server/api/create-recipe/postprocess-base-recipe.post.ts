@@ -6,7 +6,7 @@ import {
   RecipeRow,
   UploadableRecipe,
 } from '~/types/types';
-import convertUploadableToComputable from '~/server/utils/convertUploadableToComputable';
+import convertUploadableToComputable from '~~/server/utils/convertUploadableToComputable';
 
 export default defineEventHandler(async (event) => {
   const input = await readBody(event);

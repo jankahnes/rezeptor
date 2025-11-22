@@ -1,4 +1,4 @@
-import { getModelConfig } from '~/server/utils/state';
+import { getModelConfig } from '~~/server/utils/state';
 
 
 export default defineEventHandler(async (event) => {

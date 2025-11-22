@@ -1,4 +1,4 @@
-import { getModelConfig, setState } from '~/server/utils/state';
+import { getModelConfig, setState } from '~~/server/utils/state';
 
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);

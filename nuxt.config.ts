@@ -1,8 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
-import svgLoader from 'vite-svg-loader';
 
 export default defineNuxtConfig({
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2025-11-23',
   css: ['~/assets/css/main.css'],
   app: {
     head: {
@@ -25,11 +24,17 @@ export default defineNuxtConfig({
           href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap',
         },
       ],
+      htmlAttrs: {
+        lang: 'en',
+      },
     },
-    pageTransition: false,
+    pageTransition: {
+      name: 'page-slide-right',
+      mode: 'out-in',
+    },
   },
   vite: {
-    plugins: [tailwindcss(), svgLoader()],
+    plugins: [tailwindcss()],
   },
   devtools: {
     enabled: false,

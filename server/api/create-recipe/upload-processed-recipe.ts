@@ -3,7 +3,6 @@ import {
   serverSupabaseUser,
 } from '#supabase/server';
 import type { ComputableRecipe, InsertableRecipe } from '~/types/types';
-import convertUploadableToComputable from '~/server/utils/convertUploadableToComputable';
 import type { Database } from '~/types/supabase';
 
 // Helper function to check if recipe exists in database

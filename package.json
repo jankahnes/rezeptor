@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/fetchAssets.js",
+    "prebuild": "node scripts/fetchAssets.js",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
@@ -10,6 +12,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.937.0",
     "@ericblade/quagga2": "^1.8.4",
     "@nuxt/image": "^1.10.0",
     "@nuxtjs/supabase": "^1.5.3",
@@ -18,12 +21,15 @@
     "@tailwindcss/vite": "^4.1.5",
     "@vue/language-core": "^3.1.1",
     "@vueuse/core": "^13.2.0",
+    "@vueuse/gesture": "^2.0.0",
     "@zxing/browser": "^0.1.5",
     "csv-parse": "^6.1.0",
     "csv-stringify": "^6.6.0",
+    "dotenv": "^17.2.3",
     "formidable": "^3.5.4",
     "instagram-url-direct": "^2.0.7",
-    "nuxt": "^3.17.2",
+    "ndarray-pixels": "^5.0.1",
+    "nuxt": "^4.2.1",
     "openai": "^4.100.0",
     "pinia": "^3.0.2",
     "pluralize": "^8.0.0",
