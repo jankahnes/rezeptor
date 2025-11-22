@@ -1,4 +1,4 @@
-import NutritionEngine from '~/server/utils/NutritionEngine';
+import NutritionEngine from '~~/server/utils/NutritionEngine';
 import type {
   ComputableRecipe,
   InsertableRecipe,

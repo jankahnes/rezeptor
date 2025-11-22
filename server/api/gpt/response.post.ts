@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { getModelConfig } from '~/server/utils/state';
+import { getModelConfig } from '~~/server/utils/state';
 
 export default defineEventHandler(async (event): Promise<string> => {
   const config = useRuntimeConfig();
